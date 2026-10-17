@@ -2,8 +2,354 @@
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
+@source '../../vendor/livewire/livewire/src/**/*.php';
+@source '../../vendor/livewire/livewire/src/Features/SupportTesting/views/**/*.php';
 
+/* ============================================================
+   HAIRLINE BEAUTY LOUNGE — Brand Design Tokens (CSS Variables)
+   ============================================================ */
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    /* Google Fonts: Readex Pro (Arabic) + Montserrat (English Brand) */
+    --font-sans: 'Readex Pro', 'Tajawal', ui-sans-serif, system-ui, sans-serif;
+    --font-en-brand: 'Montserrat', ui-sans-serif, system-ui, sans-serif;
+
+    /* Brand Color Palette — Inspired by Hairline Gold Logo & Luxury Pastel Mint */
+    --color-brand-gold:         #C5A373;
+    --color-brand-gold-dark:    #A88453;
+    --color-brand-gold-light:   #F5EFE6;
+    --color-brand-mint:         #E2EFEA;
+    --color-brand-velvet:       #F7F4EF;
+    --color-brand-olive:        #4A5D54;
+    --color-brand-olive-deep:   #36453E;
+    --color-brand-white:        #FFFFFF;
+    --color-brand-border:       #EAEAEA;
+    --color-text-primary:       #232B28;
+    --color-text-secondary:     #5C6B64;
+    --color-text-muted:         #8C7048;
 }
+
+/* ============================================================
+   GLOBAL RESETS & MOBILE FEEL
+   ============================================================ */
+*, *::before, *::after {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    overscroll-behavior: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+body {
+    font-family: 'Readex Pro', 'Tajawal', sans-serif;
+    background: linear-gradient(135deg, #ECE7DF 0%, #DCE8E3 50%, #EFECE6 100%);
+    color: #232B28;
+    margin: 0;
+    padding: 0;
+    min-height: 100dvh;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   APP SHELL — Phone Frame on Desktop
+   ============================================================ */
+.app-shell {
+    width: 100%;
+    max-width: 560px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    background-color: var(--color-brand-velvet);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 25px 70px rgba(54, 69, 62, 0.14), 0 0 0 1px rgba(197, 163, 115, 0.22);
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    body {
+        padding: 24px 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+
+    .app-shell {
+        min-height: 880px;
+        max-height: 92vh;
+        border-radius: 36px;
+        overflow-y: auto;
+        overflow-x: hidden;
+    }
+
+    .app-shell::-webkit-scrollbar       { width: 5px; }
+    .app-shell::-webkit-scrollbar-track { background: transparent; }
+    .app-shell::-webkit-scrollbar-thumb { background: rgba(197, 163, 115, 0.35); border-radius: 10px; }
+}
+
+/* ============================================================
+   ENGLISH BRAND TYPOGRAPHY
+   ============================================================ */
+.font-en-brand {
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.14em;
+}
+
+.font-en-sub {
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 0.38em;
+}
+
+/* ============================================================
+   MAIN NAV ROWS (Home Screen)
+   ============================================================ */
+.main-nav-row {
+    min-height: 82px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-brand-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 26px;
+    cursor: pointer;
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.main-nav-row::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: var(--color-brand-gold);
+    transform: scaleY(0);
+    transition: transform 0.28s ease;
+}
+
+.main-nav-row:hover::after,
+.main-nav-row.active-row::after {
+    transform: scaleY(1);
+}
+
+.main-nav-title {
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+}
+
+/* ============================================================
+   CATEGORY ACCORDION (Services Tree)
+   ============================================================ */
+.category-accordion-btn {
+    min-height: 78px;
+    background-color: #FFFFFF;
+    border-bottom: 1px solid var(--color-brand-border);
+    transition: all 0.25s ease;
+    width: 100%;
+    text-align: right;
+    cursor: pointer;
+}
+
+.category-accordion-btn.is-open {
+    background-color: var(--color-brand-mint);
+    border-bottom-color: rgba(74, 93, 84, 0.15);
+}
+
+.sub-services-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    opacity: 0;
+    background-color: #FAF8F5;
+}
+
+.sub-services-container.is-open {
+    max-height: 2000px;
+    opacity: 1;
+}
+
+/* ============================================================
+   CHOICE PILLS (Date / Time Selectors)
+   ============================================================ */
+.choice-pill {
+    transition: all 0.22s ease;
+    border: 1.5px solid #E2DDD5;
+    background: #FFFFFF;
+    cursor: pointer;
+}
+
+.choice-pill:hover { border-color: var(--color-brand-gold); }
+
+.choice-pill.is-selected {
+    background-color: var(--color-brand-olive);
+    color: #FFFFFF;
+    border-color: var(--color-brand-olive);
+    box-shadow: 0 6px 16px rgba(74, 93, 84, 0.22);
+}
+
+.choice-pill.is-booked {
+    background-color: #F3F4F6;
+    color: #9CA3AF;
+    border-color: #E5E7EB;
+    cursor: not-allowed;
+    text-decoration: line-through;
+}
+
+/* ============================================================
+   BOTTOM SHEET (Vaul-style Drawer via Alpine.js)
+   ============================================================ */
+.bottom-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(35, 43, 40, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 80;
+    transition: opacity 0.3s ease;
+}
+
+.bottom-sheet-panel {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 560px;
+    background: #FFFFFF;
+    border-radius: 28px 28px 0 0;
+    z-index: 90;
+    max-height: 90dvh;
+    overflow-y: auto;
+    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 -8px 40px rgba(54, 69, 62, 0.18);
+    touch-action: none; /* for swipe-to-close */
+}
+
+.bottom-sheet-panel.is-closing {
+    transform: translateX(-50%) translateY(100%);
+}
+
+.bottom-sheet-handle {
+    width: 40px;
+    height: 4px;
+    background: #D1D5DB;
+    border-radius: 9999px;
+    margin: 12px auto 0;
+    cursor: grab;
+}
+
+/* ============================================================
+   HERO PORTRAIT TRANSITIONS
+   ============================================================ */
+.hero-slide {
+    transition: opacity 0.8s ease-in-out, transform 1.2s ease-out;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseGold {
+    0%, 100% { transform: scale(1); }
+    50%       { transform: scale(1.16); }
+}
+
+.animate-view {
+    animation: fadeSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.badge-pulse {
+    animation: pulseGold 0.4s ease-in-out;
+}
+
+/* ============================================================
+   SAR FIXED BADGE
+   ============================================================ */
+.sar-fixed-badge {
+    position: fixed;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: var(--color-brand-olive);
+    color: #FFFFFF;
+    padding: 12px 10px;
+    border-radius: 14px 0 0 14px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    z-index: 60;
+    box-shadow: -4px 6px 20px rgba(74, 93, 84, 0.25);
+    border: 1px solid rgba(197, 163, 115, 0.45);
+    border-right: none;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    user-select: none;
+}
+
+.sar-fixed-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-brand-gold);
+    display: inline-block;
+}
+
+/* ============================================================
+   BOTTOM NAVIGATION BAR
+   ============================================================ */
+.bottom-nav-bar {
+    position: sticky;
+    bottom: 0;
+    z-index: 50;
+    background: #FFFFFF;
+    border-top: 1px solid var(--color-brand-border);
+    display: flex;
+    align-items: stretch;
+    height: 64px;
+    safe-area-inset-bottom: env(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.22s ease;
+    color: #9CA3AF;
+    font-size: 0.6rem;
+    font-weight: 500;
+    border-top: 2px solid transparent;
+    position: relative;
+}
+
+.bottom-nav-item.is-active {
+    color: var(--color-brand-olive);
+    border-top-color: var(--color-brand-gold);
+}
+
+.bottom-nav-item.is-active svg { color: var(--color-brand-olive); }
+
+/* ============================================================
+   SCROLL UTILITIES
+   ============================================================ */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.swiper-service-chip::-webkit-scrollbar { display: none; }
