@@ -22,6 +22,9 @@ class Services extends Component
     #[Url(as: 'q')]
     public string $searchQuery = '';
 
+    #[Url(as: 'cat')]
+    public ?string $cat = null;
+
     public ?string $openCategoryId = null;
 
     /** @var string[] */
@@ -30,9 +33,22 @@ class Services extends Component
     /** @var array<int, array<string, mixed>> */
     public array $categories = [];
 
+    public bool $showLengthsGuide = false;
+
     public function mount(CatalogDataService $catalog): void
     {
         $this->categories = $catalog->getAllCategories();
+
+        if ($this->cat !== null) {
+            $this->openCategoryId = $this->cat;
+        } elseif (! empty($this->categories)) {
+            $this->openCategoryId = $this->categories[0]['id'];
+        }
+    }
+
+    public function toggleLengthsGuide(): void
+    {
+        $this->showLengthsGuide = ! $this->showLengthsGuide;
     }
 
     public function toggleCategory(string $categoryId): void
@@ -112,6 +128,7 @@ class Services extends Component
         return view('livewire.pages.services', [
             'filteredCategories' => $this->getFilteredCategoriesProperty($catalog),
             'totals' => $catalog->calculateTotals($this->selectedServiceIds),
+            'lengthsGuide' => $catalog->getHairLengthsGuide(),
         ]);
     }
 }

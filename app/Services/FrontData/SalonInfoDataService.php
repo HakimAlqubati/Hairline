@@ -115,14 +115,14 @@ class SalonInfoDataService
     public function getContactLinks(): array
     {
         return [
-            'whatsapp' => 'https://wa.me/966500000000',
-            'whatsapp_display' => '050 000 0000',
-            'instagram' => 'https://www.instagram.com/hairlinelounge',
-            'instagram_handle' => '@hairlinelounge',
-            'snapchat' => 'https://www.snapchat.com/add/hairlinelounge',
-            'snapchat_handle' => '@hairlinelounge',
-            'tiktok' => 'https://www.tiktok.com/@hairlinelounge',
-            'tiktok_handle' => '@hairlinelounge',
+            'whatsapp' => 'https://wa.me/966548857705',
+            'whatsapp_display' => '054 885 7705',
+            'instagram' => 'https://www.instagram.com/hairline.5',
+            'instagram_handle' => '@hairline.5',
+            'snapchat' => 'https://www.snapchat.com/add/hairline.5',
+            'snapchat_handle' => '@hairline.5',
+            'tiktok' => 'https://www.tiktok.com/@hairline',
+            'tiktok_handle' => '@hairline',
         ];
     }
 

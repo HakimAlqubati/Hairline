@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Livewire\Pages;
 
+use App\Services\FrontData\CatalogDataService;
 use App\Services\FrontData\SalonInfoDataService;
 use Illuminate\View\View;
 use Livewire\Attributes\Layout;
@@ -12,7 +13,7 @@ use Livewire\Component;
 
 /**
  * Home page component — displays the two-word hero, main navigation rows,
- * and the hero portrait slider.
+ * interactive services showcase, and the hero portrait slider.
  */
 #[Layout('layouts.app')]
 #[Title('HAIRLINE BEAUTY LOUNGE | صالون هيرلاين النسائي')]
@@ -23,9 +24,21 @@ class Home extends Component
     /** @var array<string, mixed> */
     public array $salonIdentity = [];
 
-    public function mount(SalonInfoDataService $salonInfo): void
+    /** @var array<int, array<string, mixed>> */
+    public array $categories = [];
+
+    /** @var array<int, array<string, mixed>> */
+    public array $featuredServices = [];
+
+    /** @var array<int, array<string, mixed>> */
+    public array $lengthsGuide = [];
+
+    public function mount(SalonInfoDataService $salonInfo, CatalogDataService $catalog): void
     {
         $this->salonIdentity = $salonInfo->getSalonIdentity();
+        $this->categories = $catalog->getAllCategories();
+        $this->featuredServices = $catalog->getFeaturedServices();
+        $this->lengthsGuide = $catalog->getHairLengthsGuide();
     }
 
     public function switchSlide(int $index): void

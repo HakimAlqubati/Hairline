@@ -122,11 +122,18 @@
                                         @if($isSelected) ✓ @endif
                                     </div>
                                     <div>
-                                        <p class="text-base font-bold text-[#232B28]">{{ $srv['name'] }}</p>
+                                        <div class="flex items-center gap-1.5 flex-wrap">
+                                            <p class="text-sm sm:text-base font-bold text-[#232B28]">{{ $srv['name'] }}</p>
+                                            @if(!empty($srv['length_label']))
+                                                <span class="text-[10px] font-bold bg-[#E2EFEA] text-[#4A5D54] px-1.5 py-0.5 rounded border border-[#4A5D54]/20">{{ $srv['length_label'] }}</span>
+                                            @endif
+                                        </div>
                                         <p class="text-xs text-[#5C6B64]">{{ $srv['duration'] }}</p>
                                     </div>
                                 </div>
-                                <span class="font-bold text-base text-[#4A5D54] shrink-0">{{ $srv['price'] }} SAR</span>
+                                <span class="font-bold text-sm sm:text-base text-[#4A5D54] shrink-0">
+                                    {{ $srv['price_display'] ?? ($srv['price'] . ' SAR') }}
+                                </span>
                             </div>
                         @endforeach
                     </div>

@@ -27,7 +27,7 @@ use Livewire\Component;
 class Booking extends Component
 {
     // ── Form fields ──────────────────────────────────────────
-    public string $activeCategoryId = 'hair';
+    public string $activeCategoryId = 'hair_services';
 
     /** @var string[] */
     public array $selectedServiceIds = [];
@@ -108,7 +108,7 @@ class Booking extends Component
 
         // Load from session if user came from Services page
         $sessionServices = session('booking.selected_services', []);
-        $sessionCategory = session('booking.active_category', 'hair');
+        $sessionCategory = session('booking.active_category', 'hair_services');
 
         if (! empty($sessionServices)) {
             $this->selectedServiceIds = $sessionServices;

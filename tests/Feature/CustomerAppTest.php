@@ -37,9 +37,12 @@ describe('Customer-Facing Pages', function () {
 
         $response->assertStatus(200);
         $response->assertSee('خدمات الشعر');
-        $response->assertSee('قسم الأظافر');
-        $response->assertSee('العناية بالبشرة والمكياج');
-        $response->assertSee('الحمام المغربي والسبا');
+        $response->assertSee('معالجات الشعر');
+        $response->assertSee('جلسات العناية بالشعر');
+        $response->assertSee('الاستشوار والتصفيف');
+        $response->assertSee('المناكير والبادكير');
+        $response->assertSee('البشرة، المكياج والرموش');
+        $response->assertSee('المساج، الحلاوة والواكس');
     });
 
     test('booking page returns 200 and shows all steps', function () {
@@ -81,21 +84,21 @@ describe('Static Data Services', function () {
         expect($location['district'])->toBe('حي الملقا');
     });
 
-    test('CatalogDataService provides 4 categories and search works', function () {
+    test('CatalogDataService provides 7 categories and search works', function () {
         $service = app(CatalogDataService::class);
 
         $categories = $service->getAllCategories();
-        expect($categories)->toHaveCount(4);
+        expect($categories)->toHaveCount(7);
 
-        $serviceDetails = $service->findServiceById('h1');
+        $serviceDetails = $service->findServiceById('hs_full_cut');
         expect($serviceDetails)->not->toBeNull();
-        expect($serviceDetails['price'])->toBe(180);
+        expect($serviceDetails['price'])->toBe(80);
 
         $searchResults = $service->searchServices('بروتين');
         expect($searchResults)->not->toBeEmpty();
 
-        $totals = $service->calculateTotals(['h1', 'n1']);
-        expect($totals['total_price'])->toBe(330);
+        $totals = $service->calculateTotals(['hs_full_cut', 'nl_manicure']);
+        expect($totals['total_price'])->toBe(150);
         expect($totals['count'])->toBe(2);
     });
 
