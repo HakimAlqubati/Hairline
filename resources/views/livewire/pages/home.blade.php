@@ -1,4 +1,17 @@
-<div class="flex flex-col flex-1 animate-view">
+<div class="flex flex-col flex-1 animate-view"
+     x-data="{
+        activePhoto: null,
+        photoTitle: '',
+        photoSubtitle: '',
+        openLightbox(url, title, subtitle) {
+            this.activePhoto = url;
+            this.photoTitle = title;
+            this.photoSubtitle = subtitle;
+        },
+        closeLightbox() {
+            this.activePhoto = null;
+        }
+     }">
 
     {{-- ===== TOP APP HEADER ===== --}}
     <header class="sticky top-0 z-40 px-5 py-4 flex items-center justify-between border-b border-[#D5E3DD]"
@@ -101,12 +114,12 @@
         </a>
     </nav>
 
-    {{-- ===== HERO PORTRAIT SECTION ===== --}}
-    <section class="relative min-h-[380px] sm:min-h-[420px] flex flex-col justify-end overflow-hidden" style="background-color: #E2EFEA;">
+    {{-- ===== HERO PORTRAIT SECTION (تصوير صالون هيرلاين الحقيقي) ===== --}}
+    <section class="relative min-h-[400px] sm:min-h-[460px] flex flex-col justify-end overflow-hidden" style="background-color: #E2EFEA;">
 
-        {{-- Portrait Image Slides --}}
+        {{-- Real Salon Image Slides --}}
         <div wire:ignore x-data="{
-                currentSlide: {{ $currentHeroSlide }},
+                currentSlide: 0,
                 slogans: ['فخامة الجمال', 'أناقتكِ تتجدد'],
                 autoPlay: null,
                 init() {
@@ -122,22 +135,20 @@
                 }
              }" class="absolute inset-0">
 
-            {{-- Slide 1 --}}
-            <img src="{{ $salonIdentity['hero_images'][0]['url'] }}"
-                 onerror="this.src='{{ $salonIdentity['hero_images'][0]['fallback'] }}'"
-                 alt="{{ $salonIdentity['hero_images'][0]['alt'] }}"
+            {{-- Slide 1: Reception Desk --}}
+            <img src="{{ asset('images/salon/reception-desk.jpg') }}"
+                 alt="منطقة الاستقبال الفاخرة بصالون هيرلاين"
                  :class="currentSlide === 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
-                 class="hero-slide absolute inset-0 w-full h-full object-cover object-center">
+                 class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-all duration-700">
 
-            {{-- Slide 2 --}}
-            <img src="{{ $salonIdentity['hero_images'][1]['url'] }}"
-                 onerror="this.src='{{ $salonIdentity['hero_images'][1]['fallback'] }}'"
-                 alt="{{ $salonIdentity['hero_images'][1]['alt'] }}"
+            {{-- Slide 2: Hair Styling Chairs & Floral Wall --}}
+            <img src="{{ asset('images/salon/hair-styling-chairs.jpg') }}"
+                 alt="محطات تصفيف الشعر وجدار الورود في صالون هيرلاين"
                  :class="currentSlide === 1 ? 'opacity-100 scale-100' : 'opacity-0 scale-105'"
-                 class="hero-slide absolute inset-0 w-full h-full object-cover object-center">
+                 class="hero-slide absolute inset-0 w-full h-full object-cover object-center transition-all duration-700">
 
             {{-- Gradient Overlay --}}
-            <div class="absolute inset-0 bg-gradient-to-t from-[#232B28]/90 via-[#232B28]/35 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#232B28]/95 via-[#232B28]/40 to-transparent"></div>
 
             {{-- Hero Content --}}
             <div class="relative z-10 p-6 sm:p-7 flex items-end justify-between">
@@ -148,21 +159,154 @@
                     <h1 class="text-3xl sm:text-4xl font-bold text-white tracking-tight" x-text="slogans[currentSlide]">
                         {{ $salonIdentity['hero_slogans'][0] }}
                     </h1>
-                    <p class="text-xs text-white/80 mt-1 font-medium">الأسعار شاملة ضريبة القيمة المضافة 15%</p>
+                    <p class="text-xs text-white/85 mt-1 font-medium">صالون نسائي متكامل فاخر • حي الملقا، الرياض</p>
                 </div>
 
                 {{-- Slide Dots --}}
-                <div class="flex items-center gap-2 bg-black/25 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/15">
+                <div class="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/20">
                     <button @click="switchTo(0)"
                             :class="currentSlide === 0 ? 'w-6 bg-[#C5A373]' : 'w-2 bg-white/60'"
                             class="h-2 rounded-full transition-all duration-300"
-                            aria-label="صورة 1"></button>
+                            aria-label="صورة الاستقبال"></button>
                     <button @click="switchTo(1)"
                             :class="currentSlide === 1 ? 'w-6 bg-[#C5A373]' : 'w-2 bg-white/60'"
                             class="h-2 rounded-full transition-all duration-300"
-                            aria-label="صورة 2"></button>
+                            aria-label="صورة التصفيف"></button>
                 </div>
             </div>
+        </div>
+    </section>
+
+    {{-- ===== SALON AMBIENCE & PHOTO GALLERY (معرض صور الصالون بتنسيق متناسق) ===== --}}
+    <section class="bg-[#FAF8F5] py-7 px-5 border-t border-[#EAEAEA] space-y-5">
+
+        {{-- Section Header --}}
+        <div class="flex items-center justify-between">
+            <div>
+                <span class="text-[11px] font-bold text-[#8C7048] uppercase tracking-wider block font-en-brand">SALON TOUR</span>
+                <h2 class="text-xl font-bold text-[#232B28]">أجواء وفخامة صالون هيرلاين</h2>
+            </div>
+            <span class="text-xs font-semibold bg-[#E2EFEA] text-[#4A5D54] px-3 py-1 rounded-full border border-[#4A5D54]/15">
+                تصوير حي من الصالون
+            </span>
+        </div>
+
+        {{-- ══ BENTO GALLERY: Balanced Sizes & Proportions ══ --}}
+        <div class="space-y-3.5">
+
+            {{-- 1. Main Wide Hero Photo: Reception Desk --}}
+            <div @click="openLightbox('{{ asset('images/salon/reception-desk.jpg') }}', 'الاستقبال الملكي', 'شعار هيرلاين المذهب ومنطقة الضيافة وخدمة العملاء')"
+                 class="group relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                <img src="{{ asset('images/salon/reception-desk.jpg') }}"
+                     alt="منطقة الاستقبال والترحيب الفاخرة في صالون هيرلاين"
+                     class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent"></div>
+                <div class="absolute bottom-4 right-4 left-4 flex items-end justify-between text-white">
+                    <div>
+                        <span class="inline-block text-[10px] font-bold uppercase bg-[#C5A373] text-white px-2.5 py-0.5 rounded-full mb-1">
+                            منطقة الاستقبال
+                        </span>
+                        <h3 class="text-base sm:text-lg font-bold">الاستقبال الملكي والترحيب</h3>
+                        <p class="text-xs text-white/80 line-clamp-1">كاونتر مجهز بأحدث أنظمة الدفع وشعار هيرلاين الذهبي الفاخر</p>
+                    </div>
+                    <div class="w-9 h-9 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 text-white group-hover:bg-[#C5A373] transition-colors">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. Balanced 2-Column Row (Vertical Portrait + Two Stacked Landscapes) --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+
+                {{-- Left/First Column: Tall Portrait of Hair Styling Chairs & Floral Wall --}}
+                <div @click="openLightbox('{{ asset('images/salon/hair-styling-chairs.jpg') }}', 'محطات التصفيف الفاخرة', 'مرايا بإضاءة نهارية سينمائية وجدار الورود الطبيعية')"
+                     class="group relative w-full aspect-[4/5] rounded-3xl overflow-hidden cursor-pointer shadow-sm border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                    <img src="{{ asset('images/salon/hair-styling-chairs.jpg') }}"
+                         alt="كراسي ومحطات التصفيف وجدار الورود"
+                         class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-4 right-4 left-4 text-white">
+                        <span class="inline-block text-[10px] font-bold uppercase bg-[#4A5D54] text-white px-2.5 py-0.5 rounded-full mb-1">
+                            تصفيف الشعر
+                        </span>
+                        <h3 class="text-base font-bold">محطات التصفيف وجدار الورود</h3>
+                        <p class="text-xs text-white/80 line-clamp-1">كراسي إيطالية مريحة وإضاءة سينمائية احترافية</p>
+                    </div>
+                </div>
+
+                {{-- Right/Second Column: Two Harmonized Landscape Cards --}}
+                <div class="grid grid-cols-1 gap-3.5">
+
+                    {{-- Stack 1: Styling stations & screen --}}
+                    <div @click="openLightbox('{{ asset('images/salon/salon-stations-tv.jpg') }}', 'أجواء اللوج الفندقية', 'شاشات عرض الموديلات وأحدث صيحات التجميل والعناية')"
+                         class="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer shadow-sm border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                        <img src="{{ asset('images/salon/salon-stations-tv.jpg') }}"
+                             alt="محطات الصالون وشاشات العرض المودرن"
+                             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 right-3 left-3 text-white">
+                            <span class="inline-block text-[10px] font-bold uppercase bg-white/25 backdrop-blur-md text-white px-2 py-0.5 rounded-full mb-1">
+                                الصالون الداخلي
+                            </span>
+                            <h4 class="text-sm font-bold">أجواء اللوج الفندقية</h4>
+                        </div>
+                    </div>
+
+                    {{-- Stack 2: Screen display & private seating --}}
+                    <div @click="openLightbox('{{ asset('images/salon/salon-screen-display.jpg') }}', 'ركن الجمال والخصوصية', 'فواصل خصوصية تامة وخدمة متفردة لكل عميلة')"
+                         class="group relative w-full aspect-[16/10] rounded-2xl overflow-hidden cursor-pointer shadow-sm border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                        <img src="{{ asset('images/salon/salon-screen-display.jpg') }}"
+                             alt="شاشات العرض وركن الخصوصية"
+                             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 right-3 left-3 text-white">
+                            <span class="inline-block text-[10px] font-bold uppercase bg-white/25 backdrop-blur-md text-white px-2 py-0.5 rounded-full mb-1">
+                                خصوصية تامة
+                            </span>
+                            <h4 class="text-sm font-bold">ركن الجمال والخصوصية</h4>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            {{-- 3. Bottom Feature: Salon Business Cards & Contact Privilege Card --}}
+            <div class="bg-white rounded-3xl p-4 sm:p-5 border border-[#C5A373]/30 shadow-xs flex flex-col sm:flex-row items-center gap-4">
+                {{-- Square/Proportional Image of Business Cards --}}
+                <div @click="openLightbox('{{ asset('images/salon/business-cards.jpg') }}', 'بطاقات وهوية هيرلاين', 'خدمة الحجز الفوري والاستفسار المباشر 0548857705')"
+                     class="w-full sm:w-44 aspect-[4/3] sm:aspect-square rounded-2xl overflow-hidden cursor-pointer relative group shrink-0 border border-[#EAEAEA]">
+                    <img src="{{ asset('images/salon/business-cards.jpg') }}"
+                         alt="بطاقات صالون هيرلاين الفاخرة"
+                         class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500">
+                    <div class="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+                    <span class="absolute bottom-2 right-2 text-[9px] font-bold bg-white/90 text-[#4A5D54] px-2 py-0.5 rounded-md shadow-2xs">
+                        تكبير الصورة 🔍
+                    </span>
+                </div>
+                {{-- Detail Content --}}
+                <div class="flex-1 space-y-2 text-right w-full">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-[#C5A373]"></span>
+                        <h4 class="font-bold text-base text-[#232B28]">صالون هيرلاين النسائي • Hairline Beauty Lounge</h4>
+                    </div>
+                    <p class="text-xs text-[#5C6B64] leading-relaxed">
+                        نستقبلكِ يومياً في أجواء راقية ومصممة خصيصاً لراحتكِ وجمالكِ. جميع خدمات الشعر، الأظافر، البشرة، والمساج تقدم بأرقى المعايير.
+                    </p>
+                    <div class="flex flex-wrap items-center gap-3 pt-1">
+                        <a href="tel:0548857705"
+                           class="inline-flex items-center gap-1.5 text-xs font-bold bg-[#E2EFEA] text-[#4A5D54] px-3.5 py-2 rounded-xl border border-[#4A5D54]/20 hover:bg-[#4A5D54] hover:text-white transition-colors">
+                            <span>📞</span> 0548857705
+                        </a>
+                        <a href="{{ route('booking') }}" wire:navigate
+                           class="inline-flex items-center gap-1.5 text-xs font-bold bg-[#4A5D54] text-white px-4 py-2 rounded-xl hover:bg-[#36453E] transition-colors shadow-2xs">
+                            احجزي موعدكِ الآن
+                        </a>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -327,6 +471,48 @@
         </div>
 
     </section>
+
+    {{-- ===== LIGHTBOX MODAL (تكبير الصور بدقة عالية) ===== --}}
+    <div x-show="activePhoto"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click.away="closeLightbox()"
+         @keydown.escape.window="closeLightbox()"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+         style="display: none;">
+
+        <div class="relative max-w-2xl w-full bg-[#232B28] rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+             @click.stop>
+            {{-- Close Button --}}
+            <button @click="closeLightbox()"
+                    class="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors">
+                ✕
+            </button>
+
+            {{-- Full Image Container --}}
+            <div class="max-h-[70vh] overflow-hidden flex items-center justify-center bg-black/40">
+                <img :src="activePhoto"
+                     :alt="photoTitle"
+                     class="max-h-[70vh] w-auto max-w-full object-contain">
+            </div>
+
+            {{-- Caption --}}
+            <div class="p-5 text-right bg-[#232B28] border-t border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white" x-text="photoTitle"></h3>
+                    <p class="text-xs text-[#E2EFEA]/80 mt-0.5" x-text="photoSubtitle"></p>
+                </div>
+                <a href="{{ route('booking') }}" wire:navigate
+                   class="bg-[#C5A373] hover:bg-[#A88453] text-[#232B28] font-bold text-xs px-4 py-2 rounded-xl transition-colors shrink-0">
+                    احجزي موعدكِ
+                </a>
+            </div>
+        </div>
+    </div>
 
     {{-- ===== BOTTOM NAVIGATION BAR ===== --}}
     @include('livewire.partials.bottom-nav', ['active' => 'home'])

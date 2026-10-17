@@ -33,12 +33,16 @@ class Home extends Component
     /** @var array<int, array<string, mixed>> */
     public array $lengthsGuide = [];
 
+    /** @var array<int, array<string, mixed>> */
+    public array $gallery = [];
+
     public function mount(SalonInfoDataService $salonInfo, CatalogDataService $catalog): void
     {
         $this->salonIdentity = $salonInfo->getSalonIdentity();
         $this->categories = $catalog->getAllCategories();
         $this->featuredServices = $catalog->getFeaturedServices();
         $this->lengthsGuide = $catalog->getHairLengthsGuide();
+        $this->gallery = $salonInfo->getSalonGallery();
     }
 
     public function switchSlide(int $index): void

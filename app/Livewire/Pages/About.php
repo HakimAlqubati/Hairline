@@ -35,6 +35,9 @@ class About extends Component
     /** @var array<int, array<string, string>> */
     public array $advantages = [];
 
+    /** @var array<int, array<string, mixed>> */
+    public array $gallery = [];
+
     public function mount(SalonInfoDataService $salonInfo): void
     {
         $this->identity = $salonInfo->getSalonIdentity();
@@ -42,6 +45,7 @@ class About extends Component
         $this->location = $salonInfo->getLocation();
         $this->contactLinks = $salonInfo->getContactLinks();
         $this->advantages = $salonInfo->getCompetitiveAdvantages();
+        $this->gallery = $salonInfo->getSalonGallery();
     }
 
     public function openLocationSheet(): void

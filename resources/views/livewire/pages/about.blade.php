@@ -1,4 +1,17 @@
-<div class="flex flex-col flex-1 animate-view">
+<div class="flex flex-col flex-1 animate-view"
+     x-data="{
+         activePhoto: null,
+         photoTitle: '',
+         photoSubtitle: '',
+         openLightbox(src, title, sub) {
+             this.activePhoto = src;
+             this.photoTitle = title;
+             this.photoSubtitle = sub;
+         },
+         closeLightbox() {
+             this.activePhoto = null;
+         }
+     }">
 
     {{-- ===== HEADER ===== --}}
     @include('livewire.partials.page-header', ['title' => 'عن هيرلاين', 'backRoute' => 'home'])
@@ -89,6 +102,98 @@
                 </div>
             </div>
 
+            {{-- ===== SALON GALLERY (معرض صور الصالون الفاخر بتنسيق متناسق) ===== --}}
+            <div class="space-y-3">
+                <div class="flex items-center justify-between px-1">
+                    <div>
+                        <span class="text-[10px] font-bold text-[#8C7048] uppercase tracking-wider block font-en-brand">SALON TOUR</span>
+                        <h3 class="text-lg font-bold text-[#232B28]">معرض صور صالون هيرلاين</h3>
+                    </div>
+                    <span class="text-xs font-semibold bg-[#E2EFEA] text-[#4A5D54] px-2.5 py-1 rounded-full border border-[#4A5D54]/15">
+                        5 لقطات حية
+                    </span>
+                </div>
+
+                {{-- Harmonized Bento Layout --}}
+                <div class="space-y-3">
+                    {{-- 1. Wide Hero: Reception Desk --}}
+                    <div @click="openLightbox('{{ asset('images/salon/reception-desk.jpg') }}', 'منطقة الاستقبال والترحيب', 'كاونتر فندقي مجهز بشعار هيرلاين الذهبي والضيافة الملكية')"
+                         class="group relative w-full aspect-[16/9] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                        <img src="{{ asset('images/salon/reception-desk.jpg') }}"
+                             alt="منطقة الاستقبال الملكي"
+                             class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out">
+                        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                        <div class="absolute bottom-3 right-3 left-3 flex items-end justify-between text-white">
+                            <div>
+                                <span class="text-[9px] font-bold bg-[#C5A373] text-white px-2 py-0.5 rounded-full inline-block mb-1">الاستقبال</span>
+                                <h4 class="text-sm font-bold">الاستقبال الفندقي الراقي</h4>
+                            </div>
+                            <span class="text-[11px] bg-white/20 backdrop-blur-md px-2.5 py-1 rounded-lg">🔍 تكبير</span>
+                        </div>
+                    </div>
+
+                    {{-- 2. Two-Column Row: Tall Styling Chairs + Two Stacked Mini Cards --}}
+                    <div class="grid grid-cols-2 gap-3">
+                        {{-- Tall Portrait: Chairs & Floral Wall --}}
+                        <div @click="openLightbox('{{ asset('images/salon/hair-styling-chairs.jpg') }}', 'محطات التصفيف وجدار الورد', 'إضاءة سينمائية احترافية وكراسي هيدروليكية مريحة')"
+                             class="group relative aspect-[3/4] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                            <img src="{{ asset('images/salon/hair-styling-chairs.jpg') }}"
+                                 alt="محطات التصفيف الفاخرة"
+                                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-2.5 right-2.5 left-2.5 text-white">
+                                <span class="text-[9px] font-bold bg-[#4A5D54] text-white px-2 py-0.5 rounded-full inline-block mb-1">تصفيف الشعر</span>
+                                <h4 class="text-xs font-bold line-clamp-1">محطات التصفيف الفاخرة</h4>
+                            </div>
+                        </div>
+
+                        {{-- Right Column: TV Lounge + Screen Display --}}
+                        <div class="flex flex-col gap-3">
+                            <div @click="openLightbox('{{ asset('images/salon/salon-stations-tv.jpg') }}', 'أجواء اللوج والشاشات', 'شاشات عرض الموديلات وأحدث صيحات الموضة')"
+                                 class="group relative flex-1 aspect-[16/11] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                                <img src="{{ asset('images/salon/salon-stations-tv.jpg') }}"
+                                     alt="محطات الصالون وشاشات العرض"
+                                     class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-2 right-2 text-white">
+                                    <h5 class="text-[11px] font-bold">أجواء اللوج الفندقية</h5>
+                                </div>
+                            </div>
+
+                            <div @click="openLightbox('{{ asset('images/salon/salon-screen-display.jpg') }}', 'ركن الخصوصية التامة', 'فواصل عازلة وأجواء هادئة تضمن خصوصية تامة')"
+                                 class="group relative flex-1 aspect-[16/11] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                                <img src="{{ asset('images/salon/salon-screen-display.jpg') }}"
+                                     alt="ركن الخصوصية"
+                                     class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-transparent"></div>
+                                <div class="absolute bottom-2 right-2 text-white">
+                                    <h5 class="text-[11px] font-bold">ركن الخصوصية</h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 3. Detail Card: Business Cards & Contact --}}
+                    <div @click="openLightbox('{{ asset('images/salon/business-cards.jpg') }}', 'هوية صالون هيرلاين', 'حجز المواعيد والاستفسارات المباشرة 0548857705')"
+                         class="group relative w-full aspect-[21/9] sm:aspect-[16/6] rounded-2xl overflow-hidden cursor-pointer shadow-xs border border-[#EAEAEA] bg-white transition-all hover:shadow-md">
+                        <img src="{{ asset('images/salon/business-cards.jpg') }}"
+                             alt="بطاقات هيرلاين الفاخرة"
+                             class="w-full h-full object-cover object-[center_40%] group-hover:scale-105 transition-transform duration-500 ease-out">
+                        <div class="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent"></div>
+                        <div class="absolute inset-0 p-4 flex items-center justify-between text-white">
+                            <div>
+                                <span class="text-[9px] font-bold bg-[#C5A373] text-white px-2 py-0.5 rounded-full inline-block mb-1">الهوية الملكية</span>
+                                <h4 class="text-sm font-bold">HAIRLINE BEAUTY LOUNGE</h4>
+                                <p class="text-xs text-white/80">054 885 7705 • @hairline.5</p>
+                            </div>
+                            <span class="text-xs font-bold bg-white text-[#4A5D54] px-3 py-1.5 rounded-xl shadow-xs">
+                                تكبير 🔍
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- Contact Links --}}
             <div class="bg-white rounded-2xl p-5 shadow-sm border border-[#EAEAEA]">
                 <h3 class="text-lg font-bold text-[#232B28] mb-3">تواصلي معنا</h3>
@@ -118,6 +223,48 @@
                 </a>
             </div>
 
+        </div>
+    </div>
+
+    {{-- ===== LIGHTBOX MODAL (تكبير الصور بدقة عالية) ===== --}}
+    <div x-show="activePhoto"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0"
+         @click.away="closeLightbox()"
+         @keydown.escape.window="closeLightbox()"
+         class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+         style="display: none;">
+
+        <div class="relative max-w-2xl w-full bg-[#232B28] rounded-3xl overflow-hidden shadow-2xl border border-white/10"
+             @click.stop>
+            {{-- Close Button --}}
+            <button @click="closeLightbox()"
+                    class="absolute top-4 left-4 z-10 w-10 h-10 rounded-full bg-black/60 hover:bg-black text-white flex items-center justify-center transition-colors">
+                ✕
+            </button>
+
+            {{-- Full Image Container --}}
+            <div class="max-h-[70vh] overflow-hidden flex items-center justify-center bg-black/40">
+                <img :src="activePhoto"
+                     :alt="photoTitle"
+                     class="max-h-[70vh] w-auto max-w-full object-contain">
+            </div>
+
+            {{-- Caption --}}
+            <div class="p-5 text-right bg-[#232B28] border-t border-white/10 flex items-center justify-between">
+                <div>
+                    <h3 class="text-lg font-bold text-white" x-text="photoTitle"></h3>
+                    <p class="text-xs text-[#E2EFEA]/80 mt-0.5" x-text="photoSubtitle"></p>
+                </div>
+                <a href="{{ route('booking') }}" wire:navigate
+                   class="bg-[#C5A373] hover:bg-[#A88453] text-[#232B28] font-bold text-xs px-4 py-2 rounded-xl transition-colors shrink-0">
+                    احجزي موعدكِ
+                </a>
+            </div>
         </div>
     </div>
 

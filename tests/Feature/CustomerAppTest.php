@@ -20,6 +20,9 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('عن هيرلاين');
         $response->assertSee('الخدمات');
         $response->assertSee('الحجز');
+        $response->assertSee('أجواء وفخامة صالون هيرلاين');
+        $response->assertSee('reception-desk.jpg');
+        $response->assertSee('hair-styling-chairs.jpg');
     });
 
     test('about page returns 200 and renders bio, hours, and location', function () {
@@ -30,6 +33,8 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('موقع الصالون');
         $response->assertSee('لماذا هيرلاين؟');
         $response->assertSee('حي الملقا');
+        $response->assertSee('معرض صور صالون هيرلاين');
+        $response->assertSee('reception-desk.jpg');
     });
 
     test('services catalog page returns 200 and lists categories', function () {

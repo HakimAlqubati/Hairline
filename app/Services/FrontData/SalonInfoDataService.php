@@ -40,15 +40,71 @@ class SalonInfoDataService
             ],
             'hero_images' => [
                 [
-                    'url' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=85',
-                    'alt' => 'Hairline Beauty Lounge Luxury Portrait',
+                    'url' => '/images/salon/reception-desk.jpg',
+                    'alt' => 'منطقة الاستقبال والترحيب الفاخرة في صالون هيرلاين',
                     'fallback' => 'https://placehold.co/800x1000/E2EFEA/4A5D54?text=HAIRLINE+LOUNGE',
                 ],
                 [
-                    'url' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=85',
-                    'alt' => 'Hairline Hair & Spa',
+                    'url' => '/images/salon/hair-styling-chairs.jpg',
+                    'alt' => 'محطات تصفيف الشعر الفاخرة وجدار الورود في هيرلاين',
                     'fallback' => 'https://placehold.co/800x1000/F5EFE6/C5A373?text=HAIRLINE+BEAUTY',
                 ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<int, array{
+     *     id: string,
+     *     title: string,
+     *     subtitle: string,
+     *     image_url: string,
+     *     aspect_ratio: string,
+     *     tag: string
+     * }>
+     */
+    public function getSalonGallery(): array
+    {
+        return [
+            [
+                'id' => 'reception',
+                'title' => 'الاستقبال الملكي',
+                'subtitle' => 'شعار هيرلاين المذهب ومنطقة الضيافة وخدمة العملاء',
+                'image_url' => '/images/salon/reception-desk.jpg',
+                'aspect_ratio' => '16/10',
+                'tag' => 'منطقة الاستقبال',
+            ],
+            [
+                'id' => 'styling_chairs',
+                'title' => 'محطات التصفيف الفاخرة',
+                'subtitle' => 'مرايا بإضاءة نهارية سينمائية وجدار الورود الطبيعية',
+                'image_url' => '/images/salon/hair-styling-chairs.jpg',
+                'aspect_ratio' => '3/4',
+                'tag' => 'تصفيف الشعر',
+            ],
+            [
+                'id' => 'stations_tv',
+                'title' => 'أجواء اللوج الفندقية',
+                'subtitle' => 'شاشات عرض الموديلات وأحدث صيحات التجميل والعناية',
+                'image_url' => '/images/salon/salon-stations-tv.jpg',
+                'aspect_ratio' => '16/10',
+                'tag' => 'الصالون الداخلي',
+            ],
+            [
+                'id' => 'screen_display',
+                'title' => 'ركن الجمال والخصوصية',
+                'subtitle' => 'فواصل خصوصية تامة وخدمة متفردة لكل عميلة',
+                'image_url' => '/images/salon/salon-screen-display.jpg',
+                'aspect_ratio' => '16/10',
+                'tag' => 'خصوصية تامة',
+            ],
+            [
+                'id' => 'business_cards',
+                'title' => 'هوية وتفاصيل الفخامة',
+                'subtitle' => 'بطاقات العضوية وخدمة الحجز المباشر 0548857705',
+                'image_url' => '/images/salon/business-cards.jpg',
+                'aspect_ratio' => '3/4',
+                'tag' => 'هوية هيرلاين',
             ],
         ];
     }
