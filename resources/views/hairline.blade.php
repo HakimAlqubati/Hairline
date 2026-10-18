@@ -10,6 +10,14 @@
     <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
     <link rel="apple-touch-icon" href="{{ asset('apple-touch-icon.png') }}">
 
+    <!-- iOS Safari Fullscreen / Web App Capable Meta Tags & Manifest -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#1F3A2E">
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -102,13 +110,20 @@
         .animate-step {
             animation: fadeSlideUp 0.3s ease-out forwards;
         }
+        body.simulated-fullscreen {
+            background-color: #F7F8F7 !important;
+        }
+        body.simulated-fullscreen #appContainer {
+            max-width: 100% !important;
+            box-shadow: none !important;
+        }
     </style>
 </head>
 
 <body class="min-h-screen flex justify-center bg-[#E4ECE7] selection:bg-sage-dark selection:text-white">
 
     <!-- Mobile App Container (Responsive: full screen on mobile, sleek phone frame on desktop) -->
-    <div class="w-full max-w-[480px] min-h-screen bg-surface relative flex flex-col shadow-2xl overflow-hidden pb-28">
+    <div id="appContainer" class="w-full max-w-[480px] min-h-screen bg-surface relative flex flex-col shadow-2xl overflow-hidden pb-28">
 
         <!-- 1. TOP HEADER COMPONENT -->
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
@@ -140,6 +155,9 @@
 
         <!-- 7. TOAST NOTIFICATION BANNER -->
         <x-toast />
+
+        <!-- 8. IOS SAFARI FULLSCREEN / PWA MODAL -->
+        <x-ios-fullscreen-modal />
 
     </div>
 
@@ -983,10 +1001,14 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /* FULLSCREEN TOGGLE & STATE SYNCHRONIZATION                                  */
+        /* FULLSCREEN TOGGLE & STATE SYNCHRONIZATION (Cross-Browser + iOS Safari)    */
         /* -------------------------------------------------------------------------- */
+        function isStandaloneApp() {
+            return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+        }
+
         function isFullscreenActive() {
-            return !!(
+            return isStandaloneApp() || !!(
                 document.fullscreenElement ||
                 document.webkitFullscreenElement ||
                 document.mozFullScreenElement ||
@@ -1017,55 +1039,85 @@
 
         function toggleFullscreen() {
             try {
-                if (!isFullscreenActive()) {
-                    const docEl = document.documentElement;
-                    const requestMethod = docEl.requestFullscreen ||
-                                          docEl.webkitRequestFullscreen ||
-                                          docEl.mozRequestFullScreen ||
-                                          docEl.msRequestFullscreen;
+                // If running in standalone PWA mode on iOS (Added to Home Screen)
+                if (isStandaloneApp()) {
+                    openToast('أنتِ تتصفحين الصالون في وضع ملء الشاشة الكامل 📲✨');
+                    return;
+                }
 
-                    if (requestMethod) {
+                // Native Fullscreen API (Android, Windows, Mac, iPadOS, Linux)
+                const docEl = document.documentElement;
+                const requestMethod = docEl.requestFullscreen ||
+                                      docEl.webkitRequestFullscreen ||
+                                      docEl.mozRequestFullScreen ||
+                                      docEl.msRequestFullscreen;
+
+                const exitMethod = document.exitFullscreen ||
+                                   document.webkitExitFullscreen ||
+                                   document.mozCancelFullScreen ||
+                                   document.msExitFullscreen;
+
+                // If native Fullscreen API is supported by the device browser
+                if (requestMethod) {
+                    if (!isFullscreenActive()) {
                         const promise = requestMethod.call(docEl);
                         if (promise && typeof promise.then === 'function') {
                             promise.then(() => {
                                 syncFullscreenUI();
                                 openToast('تم تفعيل وضع ملء الشاشة');
-                            }).catch((err) => {
-                                console.warn('Fullscreen request error:', err);
-                                openToast('تعذر الدخول في وضع ملء الشاشة');
+                            }).catch(() => {
+                                handleIosOrFallbackFullscreen();
                             });
                         } else {
                             syncFullscreenUI();
                             openToast('تم تفعيل وضع ملء الشاشة');
                         }
                     } else {
-                        openToast('المتصفح الحالي لا يدعم وضع ملء الشاشة');
-                    }
-                } else {
-                    const exitMethod = document.exitFullscreen ||
-                                       document.webkitExitFullscreen ||
-                                       document.mozCancelFullScreen ||
-                                       document.msExitFullscreen;
-
-                    if (exitMethod) {
-                        const promise = exitMethod.call(document);
-                        if (promise && typeof promise.then === 'function') {
-                            promise.then(() => {
+                        if (exitMethod) {
+                            const promise = exitMethod.call(document);
+                            if (promise && typeof promise.then === 'function') {
+                                promise.then(() => {
+                                    syncFullscreenUI();
+                                    openToast('تم الخروج من وضع ملء الشاشة');
+                                }).catch(() => {
+                                    handleIosOrFallbackFullscreen();
+                                });
+                            } else {
                                 syncFullscreenUI();
                                 openToast('تم الخروج من وضع ملء الشاشة');
-                            }).catch((err) => {
-                                console.warn('Fullscreen exit error:', err);
-                            });
-                        } else {
-                            syncFullscreenUI();
-                            openToast('تم الخروج من وضع ملء الشاشة');
+                            }
                         }
                     }
+                    return;
                 }
+
+                // If device is iOS Safari (iPhone) where Apple blocks requestFullscreen API
+                handleIosOrFallbackFullscreen();
             } catch (err) {
-                console.error('Fullscreen toggle error:', err);
-                openToast('حدث خطأ أثناء تبديل ملء الشاشة');
+                console.warn('Fullscreen not supported or blocked, opening iOS guide:', err);
+                handleIosOrFallbackFullscreen();
             }
+        }
+
+        function handleIosOrFallbackFullscreen() {
+            openIosFullscreenModal();
+        }
+
+        function openIosFullscreenModal() {
+            const modal = document.getElementById('iosFullscreenModal');
+            if (!modal) return;
+            modal.classList.remove('hidden');
+            void modal.offsetWidth; // Force layout recalculation for smooth iOS transition
+            modal.classList.remove('opacity-0');
+        }
+
+        function closeIosFullscreenModal() {
+            const modal = document.getElementById('iosFullscreenModal');
+            if (!modal) return;
+            modal.classList.add('opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
         }
 
         // Initialize on Window Load
