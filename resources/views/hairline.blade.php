@@ -167,7 +167,7 @@
         let confirmedBookings = [
             {
                 id: "HL-8492",
-                categoryTitle: "المعالجات الحارة (الصفحة 2)",
+                categoryTitle: "المعالجات الحارة",
                 serviceName: "البروتين بالتمليس الحراري (كامل الشعر)",
                 specialistName: "الأخصائية نورة العتيبي",
                 date: "الأحد القادم",
