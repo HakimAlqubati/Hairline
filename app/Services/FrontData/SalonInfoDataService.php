@@ -55,7 +55,7 @@ class SalonInfoDataService
                     'img' => '/images/salon/hair-styling-chairs.jpg',
                     'fallback' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
                     'title' => 'لمسة حريرية فاخرة',
-                    'subtitle' => 'استعيدي حيوية ولمعان شعركِ مع جلسات الكافيار الملكي والبروتين البرازيلي المعالج',
+                    'subtitle' => 'استعيدي حيوية ولمعان شعركِ مع جلسات فيلر المورفوسيس والبروتين بالتمليس الحراري',
                 ],
                 [
                     'img' => '/images/salon/salon-stations-tv.jpg',

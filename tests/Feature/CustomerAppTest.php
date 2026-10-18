@@ -42,9 +42,10 @@ describe('Customer-Facing Pages', function () {
 
         $response->assertStatus(200);
         $response->assertSee('جميع الخدمات (زيارة فورية)');
-        $response->assertSee('الاستشوار والتصفيف الفوري');
-        $response->assertSee('المناكير والبادكير والسبا');
-        $response->assertSee('قص الشعر والعناية بالملامح');
+        $response->assertSee('خدمات الشعر');
+        $response->assertSee('معالجات الشعر');
+        $response->assertSee('الاستشوار والتصفيف');
+        $response->assertSee('المناكير والبادكير');
     });
 
     test('booking page returns 200 and shows all steps', function () {
@@ -52,10 +53,11 @@ describe('Customer-Facing Pages', function () {
 
         $response->assertStatus(200);
         $response->assertSee('الخدمات المتاحة للحجز');
-        $response->assertSee('المعالجات الحارة');
-        $response->assertSee('المعالجات الباردة والترميم');
-        $response->assertSee('الصبغات والتساريح');
-        $response->assertSee('العناية بالفروة والمساج');
+        $response->assertSee('خدمات الشعر');
+        $response->assertSee('معالجات الشعر');
+        $response->assertSee('جلسات العناية بالشعر');
+        $response->assertSee('الاستشوار والتصفيف');
+        $response->assertSee('المناكير والبادكير');
     });
 
     test('profile page returns 200 and shows member profile and bookings', function () {

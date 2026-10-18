@@ -39,7 +39,7 @@ class SpecialistsDataService
             'sp_reem' => [
                 'id' => 'sp_reem',
                 'name' => 'الأخصائية ريم الحربي',
-                'role' => 'أخصائية معالجات الكافيار والكولاجين الذهبي',
+                'role' => 'أخصائية معالجات البروتين وترميم الشعر',
                 'experience' => 'خبرة 7 سنوات',
                 'rating' => '4.8',
                 'reviews' => 98,
