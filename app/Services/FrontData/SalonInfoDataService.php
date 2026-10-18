@@ -38,6 +38,32 @@ class SalonInfoDataService
                 'فخامة الجمال',
                 'أناقتكِ تتجدد',
             ],
+            'logo_url' => '/images/logo.png',
+            'stats' => [
+                ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
+                ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
+                ['value' => '4.9 ★', 'label' => 'تقييم العميلات', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
+            ],
+            'hero_slides' => [
+                [
+                    'img' => '/images/salon/reception-desk.jpg',
+                    'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
+                    'title' => 'أناقتكِ تتجدد',
+                    'subtitle' => 'أحدث تقنيات المعالجات الحارة والعناية الفائقة بالشعر على أيدي نخبة من الأخصائيات',
+                ],
+                [
+                    'img' => '/images/salon/hair-styling-chairs.jpg',
+                    'fallback' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
+                    'title' => 'لمسة حريرية فاخرة',
+                    'subtitle' => 'استعيدي حيوية ولمعان شعركِ مع جلسات الكافيار الملكي والبروتين البرازيلي المعالج',
+                ],
+                [
+                    'img' => '/images/salon/salon-stations-tv.jpg',
+                    'fallback' => 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=80',
+                    'title' => 'جمالكِ يستحق التميز',
+                    'subtitle' => 'أجواء هادئة وراقية مصممة لراحتكِ وخصوصيتكِ في هيرلاين بيوتي لاونج',
+                ],
+            ],
             'hero_images' => [
                 [
                     'url' => '/images/salon/reception-desk.jpg',

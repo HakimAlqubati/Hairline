@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HairlineController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -8,22 +9,8 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('hairline', ['initialView' => 'home']);
-})->name('home');
-
-Route::get('/about', function () {
-    return view('hairline', ['initialView' => 'about']);
-})->name('about');
-
-Route::get('/services', function () {
-    return view('hairline', ['initialView' => 'services']);
-})->name('services');
-
-Route::get('/booking', function () {
-    return view('hairline', ['initialView' => 'booking']);
-})->name('booking');
-
-Route::get('/profile', function () {
-    return view('hairline', ['initialView' => 'account']);
-})->name('profile');
+Route::get('/', [HairlineController::class, 'show'])->defaults('initialView', 'home')->name('home');
+Route::get('/about', [HairlineController::class, 'show'])->defaults('initialView', 'about')->name('about');
+Route::get('/services', [HairlineController::class, 'show'])->defaults('initialView', 'services')->name('services');
+Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
+Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');

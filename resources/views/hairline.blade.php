@@ -3,13 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>هيرلاين | HAIRLINE BEAUTY LOUNGE</title>
+    <title>{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }}</title>
+
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Tajawal & Cormorant Garamond for English luxury accents -->
+
+    <!-- Google Fonts: Tajawal & Cormorant Garamond -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
@@ -19,17 +22,17 @@
                 extend: {
                     colors: {
                         sage: {
-                            light: '#DCE7E0',      /* Light Sage Green for Header */
-                            soft: '#EDF3EF',       /* Ultra soft sage tint */
-                            medium: '#8FA998',     /* Muted sage accent */
-                            dark: '#1F3A2E',       /* Dark Forest/Sage Green for primary buttons */
-                            deeper: '#162920'      /* Hover dark forest */
+                            light: '#DCE7E0',
+                            soft: '#EDF3EF',
+                            medium: '#8FA998',
+                            dark: '#1F3A2E',
+                            deeper: '#162920'
                         },
                         gold: {
-                            light: '#F6EFE2',      /* Light Beige/Gold background badge */
-                            soft: '#E6D5B8',       /* Soft Beige border */
-                            DEFAULT: '#C5A059',    /* Classic Luxury Gold */
-                            dark: '#A3803B'        /* Deep Gold for text/icons */
+                            light: '#F6EFE2',
+                            soft: '#E6D5B8',
+                            DEFAULT: '#C5A059',
+                            dark: '#A3803B'
                         },
                         surface: '#F7F8F7'
                     },
@@ -58,7 +61,6 @@
             color: #1F3A2E;
             overflow-x: hidden;
         }
-        /* Hide scrollbars for smooth horizontal pills */
         .no-scrollbar::-webkit-scrollbar {
             display: none;
         }
@@ -66,7 +68,6 @@
             -ms-overflow-style: none;
             scrollbar-width: none;
         }
-        /* Smooth Drawer & Bottom Sheet Transitions */
         .drawer-backdrop {
             transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
@@ -76,7 +77,6 @@
         .bottom-sheet {
             transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        /* Subtle pulse on gold badge */
         @keyframes subtlePulse {
             0%, 100% { transform: scale(1); }
             50% { transform: scale(1.04); }
@@ -84,7 +84,6 @@
         .badge-pulse {
             animation: subtlePulse 3s infinite ease-in-out;
         }
-        /* Fade in animation for dynamic steps */
         @keyframes fadeSlideUp {
             from {
                 opacity: 0;
@@ -106,748 +105,51 @@
     <!-- Mobile App Container (Responsive: full screen on mobile, sleek phone frame on desktop) -->
     <div class="w-full max-w-[480px] min-h-screen bg-surface relative flex flex-col shadow-2xl overflow-hidden pb-28">
 
-        <!-- ==================== 1. TOP HEADER ==================== -->
-        <header class="bg-sage-light pt-5 pb-6 px-5 rounded-b-[28px] shadow-sm relative z-20 border-b border-white/50">
-            <!-- Subtle decorative pattern overlay -->
-            <div class="
-                absolute inset-0 opacity-20 pointer-events-none rounded-b-[28px]
-                bg-[radial-gradient(#1F3A2E_1px,transparent_1px)] [background-size:16px_16px]
-            "></div>
+        <!-- 1. TOP HEADER COMPONENT -->
+        <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
 
-            <div class="relative flex items-center justify-between">
-                <!-- Right Side: Circular Logo + Salon Name & Subtitle -->
-                <div class="flex items-center gap-3.5 cursor-pointer" onclick="switchTab('home')">
-                    <!-- Circular Luxury Logo with Gold Border & Initial/Monogram -->
-                    <div class="w-14 h-14 rounded-full bg-sage-dark border-2 border-gold shadow-md flex flex-col items-center justify-center relative overflow-hidden shrink-0">
-                        <div class="absolute inset-0.5 rounded-full border border-gold/30 pointer-events-none"></div>
-                        <!-- Minimalist Hair & Crown SVG Emblem -->
-                        <svg class="w-7 h-7 text-gold" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3c-1.5 2-4 3.5-6 3.5 0 5.5 2.5 9.5 6 11.5 3.5-2 6-6 6-11.5-2 0-4.5-1.5-6-3.5z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9.5 10.5c1.5 1 3.5 1 5 0" />
-                            <circle cx="12" cy="7" r="0.8" fill="currentColor" />
-                        </svg>
-                        <span class="text-[8px] tracking-[0.2em] text-gold-light font-serif uppercase mt-0.5">HL</span>
-                    </div>
-
-                    <!-- Salon Title & Subtitle -->
-                    <div class="flex flex-col">
-                        <div class="flex items-center gap-1.5">
-                            <h1 class="text-lg font-extrabold text-sage-dark tracking-tight">هيرلاين</h1>
-                            <span class="text-gold font-light text-base">|</span>
-                            <span class="text-sm font-bold tracking-wider text-sage-dark font-serif">HAIRLINE</span>
-                        </div>
-                        <span class="text-[11px] font-semibold tracking-[0.22em] text-gold-dark uppercase mt-0.5">
-                            BEAUTY LOUNGE
-                        </span>
-                    </div>
-                </div>
-
-                <!-- Left Side: Elegant White Circular Icons + Far-Left Sidebar Menu Button -->
-                <div class="flex items-center gap-2">
-                    <!-- Quick Working Hours / Status Icon -->
-                    <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن من 10:00 ص حتى 10:00 م')" 
-                            title="أوقات العمل"
-                            class="w-10 h-10 rounded-full bg-white text-sage-dark shadow-sm flex items-center justify-center hover:bg-gold-light hover:text-gold-dark transition active:scale-95 relative">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-2 ring-2 ring-white"></span>
-                        <i class="fa-regular fa-bell text-sm"></i>
-                    </button>
-
-                    <!-- Quick Location / Contact Icon -->
-                    <button onclick="openSidebarSection('contact')" 
-                            title="موقع الصالون والتواصل"
-                            class="w-10 h-10 rounded-full bg-white text-sage-dark shadow-sm flex items-center justify-center hover:bg-gold-light hover:text-gold-dark transition active:scale-95">
-                        <i class="fa-solid fa-location-dot text-sm text-gold-dark"></i>
-                    </button>
-
-                    <!-- Far-Left Sidebar Menu Button (Three Dots / Menu Icon) -->
-                    <button id="menuBtn" 
-                            onclick="toggleSidebar(true)" 
-                            aria-label="القائمة الجانبية"
-                            class="w-10 h-10 rounded-full bg-white text-sage-dark shadow-sm flex items-center justify-center hover:bg-sage-dark hover:text-white transition active:scale-95 border border-gold/20">
-                        <i class="fa-solid fa-ellipsis-vertical text-base"></i>
-                    </button>
-                </div>
-            </div>
-        </header>
-
-        <!-- ==================== MAIN CONTENT AREA ==================== -->
+        <!-- 2. MAIN HOME VIEW -->
         <main id="mainHomeView" class="flex-1 px-4 pt-5 space-y-5">
+            <!-- Main Service Rows (Strictly 2 Wide Rows) -->
+            <x-service-rows />
 
-            <!-- 2. MAIN SECTIONS (Strictly Two Wide White Rows) -->
-            <section aria-label="أقسام الخدمات الرئيسية" class="space-y-3.5">
-                
-                <!-- Row 1: جميع الخدمات (زيارة فورية) -->
-                <button onclick="openAllServicesModal()" 
-                        class="w-full bg-white rounded-2xl p-4 shadow-card border border-gold-soft/40 flex items-center justify-between group hover:border-gold transition-all duration-200 active:scale-[0.99] text-right">
-                    <div class="flex items-center gap-3.5">
-                        <!-- Colored Small Dot on the Right -->
-                        <span class="w-3 h-3 rounded-full bg-gold shadow-sm ring-4 ring-gold-light shrink-0"></span>
-                        
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-base sm:text-lg font-extrabold text-sage-dark group-hover:text-sage-deeper">
-                                جميع الخدمات
-                            </span>
-                            <!-- Explanatory Badge: (زيارة فورية) -->
-                            <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-gold-light text-gold-dark border border-gold/30 badge-pulse">
-                                <i class="fa-solid fa-sparkles text-[10px]"></i>
-                                (زيارة فورية)
-                            </span>
-                        </div>
-                    </div>
+            <!-- Hero Promotional Slider -->
+            <x-hero-slider :heroSlides="$heroSlides" />
 
-                    <!-- Circular Arrow Button (‹) on the Left -->
-                    <div class="w-9 h-9 rounded-full bg-sage-soft text-sage-dark group-hover:bg-sage-dark group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-                        <span class="text-xl font-bold leading-none -mt-0.5">‹</span>
-                    </div>
-                </button>
-
-                <!-- Row 2: الخدمات المتاحة للحجز -->
-                <button onclick="openBookingFlow()" 
-                        class="w-full bg-white rounded-2xl p-4 shadow-card border border-gold-soft/40 flex items-center justify-between group hover:border-sage-dark/40 transition-all duration-200 active:scale-[0.99] text-right">
-                    <div class="flex items-center gap-3.5">
-                        <!-- Colored Small Dot on the Right -->
-                        <span class="w-3 h-3 rounded-full bg-sage-dark shadow-sm ring-4 ring-sage-light shrink-0"></span>
-                        
-                        <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2.5">
-                            <span class="text-base sm:text-lg font-extrabold text-sage-dark">
-                                الخدمات المتاحة للحجز
-                            </span>
-                            <span class="text-xs font-medium text-gray-500">
-                                اختاري الخدمة والأخصائية المفضلة لديكِ
-                            </span>
-                        </div>
-                    </div>
-
-                    <!-- Circular Arrow Button (‹) on the Left -->
-                    <div class="w-9 h-9 rounded-full bg-gold-light text-gold-dark group-hover:bg-sage-dark group-hover:text-white flex items-center justify-center transition-colors shrink-0">
-                        <span class="text-xl font-bold leading-none -mt-0.5">‹</span>
-                    </div>
-                </button>
-
-            </section>
-
-            <!-- 3. HERO SLIDER (Promotional Banner) -->
-            <section aria-label="البانر الإعلاني" class="relative">
-                <div id="heroSliderContainer" class="relative w-full h-64 sm:h-72 rounded-3xl overflow-hidden shadow-lg border border-white">
-                    
-                    <!-- Dynamic Slide Image -->
-                    <img id="heroSlideImg" 
-                         src="{{ asset('images/salon/reception-desk.jpg') }}" 
-                         alt="هيرلاين بيوتي لاونج - أناقتك تتجدد"
-                         onerror="this.src='https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80'"
-                         class="w-full h-full object-cover object-center transition-all duration-700 transform scale-100">
-
-                    <!-- Dark Gradient Overlay from Bottom for Text Legibility -->
-                    <div class="absolute inset-0 bg-gradient-to-t from-[#11221A] via-[#1F3A2E]/45 to-transparent"></div>
-
-                    <!-- Banner Content -->
-                    <div class="absolute inset-0 p-6 flex flex-col justify-end">
-                        <div class="flex items-end justify-between gap-4">
-                            <!-- Right Side Text Content -->
-                            <div class="space-y-2">
-                                <!-- Translucent Badge: HAIRLINE BEAUTY LOUNGE -->
-                                <div class="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-gold-light text-[11px] font-semibold tracking-[0.18em] uppercase">
-                                    HAIRLINE BEAUTY LOUNGE
-                                </div>
-                                <!-- Large Prominent White Title: أناقتكِ تتجدد -->
-                                <h2 id="heroSlideTitle" class="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-sm">
-                                    أناقتكِ تتجدد
-                                </h2>
-                                <p id="heroSlideSubtitle" class="text-xs sm:text-sm text-gray-200 font-medium max-w-[260px]">
-                                    أحدث تقنيات المعالجات الحارة والعناية الفائقة بالشعر على أيدي نخبة من الأخصائيات
-                                </p>
-                            </div>
-
-                            <!-- Left Side Slider Navigation Indicators (Gold & White Line/Dots) -->
-                            <div class="flex items-center gap-1.5 pb-1 shrink-0" id="sliderIndicators">
-                                <button onclick="setHeroSlide(0)" aria-label="الشريحة 1" class="h-2 w-7 rounded-full bg-gold transition-all duration-300"></button>
-                                <button onclick="setHeroSlide(1)" aria-label="الشريحة 2" class="h-2 w-2 rounded-full bg-white/70 hover:bg-white transition-all duration-300"></button>
-                                <button onclick="setHeroSlide(2)" aria-label="الشريحة 3" class="h-2 w-2 rounded-full bg-white/70 hover:bg-white transition-all duration-300"></button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Quick Highlight Card under Banner for Seamless Mobile Experience -->
-            <section class="bg-white rounded-2xl p-4 shadow-card border border-gold-soft/40">
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex items-center gap-2">
-                        <span class="w-2 h-5 rounded-full bg-gold"></span>
-                        <h3 class="font-extrabold text-sm text-sage-dark">الأكثر طلباً للحجز هذا الأسبوع</h3>
-                    </div>
-                    <button onclick="openBookingFlowWithCategory('hot_treatments')" class="text-xs font-bold text-gold-dark hover:underline flex items-center gap-1">
-                        <span>احجزي الآن</span>
-                        <span>‹</span>
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-2 gap-2.5">
-                    <div onclick="openBookingFlowWithCategory('hot_treatments')" 
-                         class="p-3 rounded-xl bg-sage-soft/70 border border-sage-light hover:border-gold cursor-pointer transition flex items-center gap-2.5">
-                        <div class="w-10 h-10 rounded-xl bg-sage-dark text-gold flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-fire-flame-curved text-base"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-extrabold text-sage-dark">المعالجات الحارة</h4>
-                            <p class="text-[11px] text-gray-500">بروتين • كافيار • كولاجين</p>
-                        </div>
-                    </div>
-
-                    <div onclick="openBookingFlowWithCategory('cold_restore')" 
-                         class="p-3 rounded-xl bg-gold-light/60 border border-gold-soft/60 hover:border-gold cursor-pointer transition flex items-center gap-2.5">
-                        <div class="w-10 h-10 rounded-xl bg-gold text-white flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-wand-magic-sparkles text-base"></i>
-                        </div>
-                        <div>
-                            <h4 class="text-xs font-extrabold text-sage-dark">الترميم البارد</h4>
-                            <p class="text-[11px] text-gray-500">أولابليكس • ترطيب عميق</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
+            <!-- Highlights (Most Popular) -->
+            <x-highlights />
         </main>
 
-        <!-- ==================== DYNAMIC TAB VIEWS (About & Account) ==================== -->
-        <!-- "عن هيرلاين" View -->
-        <section id="aboutTabView" class="hidden flex-1 px-4 pt-5 space-y-4 animate-step">
-            <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/40 space-y-4">
-                <div class="flex items-center justify-between">
-                    <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">من نحن</span>
-                    <span class="text-xs font-serif tracking-widest text-gray-400">EST. BEAUTY LOUNGE</span>
-                </div>
-                <h2 class="text-2xl font-black text-sage-dark">هيرلاين | HAIRLINE BEAUTY LOUNGE</h2>
-                <p class="text-sm text-gray-600 leading-relaxed">
-                    وجهة الجمال الأولى المصممة خصيصاً للمرأة العصرية الباحثة عن الفخامة والعناية المتكاملة. نتميز في <strong class="text-sage-dark">هيرلاين</strong> بتقديم أحدث المعالجات الحارة والباردة للشعر باستخدام أجود المستحضرات العالمية الآمنة، تحت إشراف نخبة من الأخصائيات المعتمدات.
-                </p>
-                <div class="grid grid-cols-3 gap-2 pt-2 text-center">
-                    <div class="p-3 rounded-2xl bg-sage-soft">
-                        <span class="block text-lg font-black text-sage-dark">+12</span>
-                        <span class="text-[11px] text-gray-600 font-medium">أخصائية محترفة</span>
-                    </div>
-                    <div class="p-3 rounded-2xl bg-gold-light">
-                        <span class="block text-lg font-black text-gold-dark">100%</span>
-                        <span class="text-[11px] text-gray-600 font-medium">منتجات أصلية</span>
-                    </div>
-                    <div class="p-3 rounded-2xl bg-sage-soft">
-                        <span class="block text-lg font-black text-sage-dark">4.9 ★</span>
-                        <span class="text-[11px] text-gray-600 font-medium">تقييم العميلات</span>
-                    </div>
-                </div>
-                <div class="pt-3 border-t border-gray-100 flex gap-2">
-                    <button onclick="openSidebarSection('specialists')" class="flex-1 py-3 rounded-xl bg-sage-dark text-white text-xs font-bold hover:bg-sage-deeper transition">
-                        تعرفي على الأخصائيات
-                    </button>
-                    <button onclick="openSidebarSection('contact')" class="flex-1 py-3 rounded-xl bg-gold-light text-gold-dark text-xs font-bold hover:bg-gold hover:text-white transition">
-                        معلومات التواصل
-                    </button>
-                </div>
-            </div>
-        </section>
+        <!-- 3. DYNAMIC TAB VIEWS -->
+        <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" />
+        <x-tabs.account />
 
-        <!-- "حسابي" View -->
-        <section id="accountTabView" class="hidden flex-1 px-4 pt-5 space-y-4 animate-step">
-            <!-- Member Profile Card -->
-            <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 flex items-center justify-between">
-                <div class="flex items-center gap-3.5">
-                    <div class="w-14 h-14 rounded-full bg-gold-light border-2 border-gold flex items-center justify-center text-gold-dark text-xl font-bold">
-                        <i class="fa-regular fa-user"></i>
-                    </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h3 class="font-extrabold text-base text-sage-dark">أهلاً بكِ، عميلتنا المميزة</h3>
-                            <span class="px-2 py-0.5 rounded-full bg-gold text-white text-[10px] font-bold">VIP</span>
-                        </div>
-                        <p class="text-xs text-gray-500 mt-0.5">عضوية هيرلاين الذهبية • 240 نقطة ولاء</p>
-                    </div>
-                </div>
-            </div>
+        <!-- 4. BOTTOM NAVIGATION BAR -->
+        <x-bottom-nav />
 
-            <!-- My Bookings List -->
-            <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 space-y-3">
-                <div class="flex items-center justify-between">
-                    <h4 class="font-extrabold text-sm text-sage-dark flex items-center gap-2">
-                        <i class="fa-regular fa-calendar-check text-gold-dark"></i>
-                        <span>حجوزاتي المؤكدة</span>
-                    </h4>
-                    <button onclick="openBookingFlow()" class="text-xs font-bold text-sage-dark bg-sage-soft px-3 py-1 rounded-full hover:bg-sage-dark hover:text-white transition">
-                        + حجز جديد
-                    </button>
-                </div>
-                <div id="myBookingsContainer" class="space-y-2.5">
-                    <!-- Populated via JS -->
-                </div>
-            </div>
-        </section>
+        <!-- 5. SIDEBAR DRAWER (3 Items) -->
+        <x-sidebar-drawer :salonIdentity="$salonIdentity" />
 
-        <!-- ==================== 6. FIXED BOTTOM NAVIGATION BAR ==================== -->
-        <nav aria-label="شريط التنقل السفلي" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-100 shadow-floating px-3 py-2 z-30 rounded-t-[26px]">
-            <div class="grid grid-cols-5 items-center text-center">
-                
-                <!-- 1. الرئيسية (Far Right) -->
-                <button onclick="switchTab('home')" id="nav-home" class="nav-item flex flex-col items-center justify-center py-1 text-sage-dark font-bold transition">
-                    <i class="fa-solid fa-house text-lg mb-1"></i>
-                    <span class="text-[11px]">الرئيسية</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-gold mt-0.5 nav-dot"></span>
-                </button>
+        <!-- 6. UNIVERSAL BOTTOM SHEET MODAL -->
+        <x-bottom-sheet />
 
-                <!-- 2. الخدمات -->
-                <button onclick="openAllServicesModal()" id="nav-services" class="nav-item flex flex-col items-center justify-center py-1 text-gray-400 hover:text-sage-dark font-medium transition">
-                    <i class="fa-solid fa-spa text-lg mb-1"></i>
-                    <span class="text-[11px]">الخدمات</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5 nav-dot"></span>
-                </button>
-
-                <!-- 3. احجزي (Central Large Prominent Circular Button in Dark Forest Green) -->
-                <div class="flex flex-col items-center justify-center relative">
-                    <button onclick="openBookingFlow()" 
-                            aria-label="احجزي موعدك"
-                            class="-mt-8 w-16 h-16 rounded-full bg-sage-dark text-white shadow-fab border-4 border-white flex flex-col items-center justify-center hover:bg-sage-deeper active:scale-95 transition-all group">
-                        <i class="fa-regular fa-calendar-check text-xl text-gold group-hover:scale-110 transition-transform"></i>
-                    </button>
-                    <span class="text-[11px] font-extrabold text-sage-dark mt-1">احجزي</span>
-                </div>
-
-                <!-- 4. عن هيرلاين -->
-                <button onclick="switchTab('about')" id="nav-about" class="nav-item flex flex-col items-center justify-center py-1 text-gray-400 hover:text-sage-dark font-medium transition">
-                    <i class="fa-solid fa-gem text-lg mb-1"></i>
-                    <span class="text-[11px]">عن هيرلاين</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5 nav-dot"></span>
-                </button>
-
-                <!-- 5. حسابي (Far Left) -->
-                <button onclick="switchTab('account')" id="nav-account" class="nav-item flex flex-col items-center justify-center py-1 text-gray-400 hover:text-sage-dark font-medium transition relative">
-                    <i class="fa-regular fa-user text-lg mb-1"></i>
-                    <span class="text-[11px]">حسابي</span>
-                    <span id="bookingCountBadge" class="hidden absolute top-0.5 left-6 w-4 h-4 rounded-full bg-gold text-white text-[10px] font-bold flex items-center justify-center">1</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5 nav-dot"></span>
-                </button>
-
-            </div>
-        </nav>
-
-        <!-- ==================== SIDEBAR / DRAWER (3 ITEMS ONLY) ==================== -->
-        <div id="sidebarOverlay" 
-             onclick="toggleSidebar(false)" 
-             class="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 hidden opacity-0 drawer-backdrop">
-        </div>
-
-        <aside id="sidebarDrawer" 
-               aria-label="القائمة الجانبية"
-               class="fixed top-0 left-0 h-full w-72 max-w-[82vw] bg-white z-50 shadow-2xl -translate-x-full sidebar-drawer flex flex-col justify-between rounded-r-3xl overflow-hidden">
-            
-            <!-- Drawer Top Header -->
-            <div>
-                <div class="bg-sage-light p-6 border-b border-gold-soft/50 relative">
-                    <button onclick="toggleSidebar(false)" 
-                            aria-label="إغلاق القائمة"
-                            class="w-9 h-9 rounded-full bg-white text-sage-dark shadow-sm flex items-center justify-center hover:bg-sage-dark hover:text-white transition mb-4">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 rounded-full bg-sage-dark border-2 border-gold flex items-center justify-center text-gold font-serif font-bold text-sm">
-                            HL
-                        </div>
-                        <div>
-                            <h3 class="font-extrabold text-sage-dark text-base">هيرلاين | HAIRLINE</h3>
-                            <p class="text-[10px] tracking-[0.2em] text-gold-dark font-semibold uppercase">BEAUTY LOUNGE</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Strictly the 3 Required Navigation Items -->
-                <div class="p-4 space-y-2.5 mt-2">
-                    <p class="px-3 text-[11px] font-bold text-gray-400 uppercase">القائمة التعريفية</p>
-
-                    <!-- Item 1: التعريف بالصالون (من نحن) -->
-                    <button onclick="openSidebarSection('about')" 
-                            class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                                <i class="fa-solid fa-crown text-sm"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-extrabold text-sage-dark">التعريف بالصالون</span>
-                                <span class="text-[11px] text-gray-500">(من نحن)</span>
-                            </div>
-                        </div>
-                        <span class="text-lg text-gold-dark font-bold">‹</span>
-                    </button>
-
-                    <!-- Item 2: الأخصائيات -->
-                    <button onclick="openSidebarSection('specialists')" 
-                            class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                                <i class="fa-solid fa-user-check text-sm"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-extrabold text-sage-dark">الأخصائيات</span>
-                                <span class="text-[11px] text-gray-500">نخبة خبيرات الشعر والجمال</span>
-                            </div>
-                        </div>
-                        <span class="text-lg text-gold-dark font-bold">‹</span>
-                    </button>
-
-                    <!-- Item 3: التواصل (اتصل بنا) -->
-                    <button onclick="openSidebarSection('contact')" 
-                            class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                                <i class="fa-solid fa-phone-volume text-sm"></i>
-                            </div>
-                            <div>
-                                <span class="block text-sm font-extrabold text-sage-dark">التواصل</span>
-                                <span class="text-[11px] text-gray-500">(اتصل بنا)</span>
-                            </div>
-                        </div>
-                        <span class="text-lg text-gold-dark font-bold">‹</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Drawer Footer -->
-            <div class="p-5 bg-gold-light/50 border-t border-gold-soft/40 text-center">
-                <p class="text-xs font-bold text-sage-dark">أناقتكِ تتجدد في كل زيارة</p>
-                <p class="text-[11px] text-gold-dark mt-0.5">HAIRLINE BEAUTY LOUNGE ©</p>
-            </div>
-        </aside>
-
-        <!-- ==================== UNIVERSAL INTERACTIVE BOTTOM SHEET MODAL ==================== -->
-        <div id="sheetOverlay" 
-             onclick="closeBottomSheet()" 
-             class="fixed inset-0 bg-black/55 backdrop-blur-xs z-40 hidden opacity-0 drawer-backdrop">
-        </div>
-
-        <div id="bottomSheet" 
-             class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] max-h-[88vh] bg-white z-50 rounded-t-[32px] shadow-2xl translate-y-full bottom-sheet flex flex-col overflow-hidden">
-            
-            <!-- Drag Handle & Top Sheet Bar -->
-            <div class="pt-3 pb-3 px-5 bg-sage-light/60 border-b border-gold-soft/40 shrink-0">
-                <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <button id="sheetBackBtn" 
-                                onclick="handleSheetBack()" 
-                                class="hidden w-9 h-9 rounded-full bg-white text-sage-dark shadow-xs flex items-center justify-center hover:bg-sage-dark hover:text-white transition">
-                            <i class="fa-solid fa-arrow-right text-sm"></i>
-                        </button>
-                        <div>
-                            <h3 id="sheetTitle" class="text-base sm:text-lg font-extrabold text-sage-dark">الخدمات المتاحة للحجز</h3>
-                            <p id="sheetSubtitle" class="text-xs text-gray-500">خطوات بسيطة لتأكيد موعدكِ</p>
-                        </div>
-                    </div>
-
-                    <button onclick="closeBottomSheet()" 
-                            aria-label="إغلاق النافذة"
-                            class="w-9 h-9 rounded-full bg-white text-gray-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center shadow-xs transition">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-
-                <!-- 3-Step Progress Bar (Shown only during Booking Flow) -->
-                <div id="bookingStepper" class="mt-4 pt-3 border-t border-white/60 hidden">
-                    <div class="grid grid-cols-3 gap-2 text-center">
-                        <div id="stepIndicator1" class="flex flex-col items-center">
-                            <div class="w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors"></div>
-                            <span class="text-[11px] font-bold text-sage-dark">1. القسم الرئيسي</span>
-                        </div>
-                        <div id="stepIndicator2" class="flex flex-col items-center">
-                            <div class="w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors"></div>
-                            <span class="text-[11px] font-medium text-gray-400">2. الصنف الدقيق</span>
-                        </div>
-                        <div id="stepIndicator3" class="flex flex-col items-center">
-                            <div class="w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors"></div>
-                            <span class="text-[11px] font-medium text-gray-400">3. الأخصائية</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dynamic Scrollable Body Inside Bottom Sheet -->
-            <div id="sheetBody" class="p-5 overflow-y-auto flex-1 space-y-4">
-                <!-- Content injected dynamically by JS -->
-            </div>
-
-            <!-- Optional Sticky Footer inside Bottom Sheet -->
-            <div id="sheetFooter" class="p-4 bg-white border-t border-gray-100 hidden shrink-0">
-                <!-- Action Button injected dynamically by JS -->
-            </div>
-        </div>
-
-        <!-- Custom Toast Notification Banner (No alert() used) -->
-        <div id="toastBanner" class="fixed top-4 left-1/2 -translate-x-1/2 w-[90%] max-w-[420px] bg-sage-dark text-white px-4 py-3 rounded-2xl shadow-xl border border-gold/40 z-50 hidden items-center justify-between gap-3 transition-all">
-            <div class="flex items-center gap-2.5">
-                <i class="fa-solid fa-circle-check text-gold text-base"></i>
-                <span id="toastText" class="text-xs font-bold">تمت العملية بنجاح</span>
-            </div>
-            <button onclick="hideToast()" class="text-xs text-gold-light hover:text-white">إغلاق</button>
-        </div>
+        <!-- 7. TOAST NOTIFICATION BANNER -->
+        <x-toast />
 
     </div>
 
-    <!-- ==================== JAVASCRIPT DATA & INTERACTIVE LOGIC ==================== -->
+    <!-- ==================== JAVASCRIPT DATA & LOGIC ==================== -->
     <script>
         /* -------------------------------------------------------------------------- */
-        /* 1. REALISTIC SALON DATA (Arabic Mock Data for Hairline Beauty Lounge)      */
+        /* STATIC DATA FROM PHP SERVICE CLASSES (PDF Catalog, Salon Info, Specialists)*/
         /* -------------------------------------------------------------------------- */
-
-        // Hero Banner Slides
-        const heroSlides = [
-            {
-                img: "{{ asset('images/salon/reception-desk.jpg') }}",
-                fallback: "https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80",
-                title: "أناقتكِ تتجدد",
-                subtitle: "أحدث تقنيات المعالجات الحارة والعناية الفائقة بالشعر على أيدي نخبة من الأخصائيات"
-            },
-            {
-                img: "{{ asset('images/salon/hair-styling-chairs.jpg') }}",
-                fallback: "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80",
-                title: "لمسة حريرية فاخرة",
-                subtitle: "استعيدي حيوية ولمعان شعركِ مع جلسات الكافيار الملكي والبروتين البرازيلي المعالج"
-            },
-            {
-                img: "{{ asset('images/salon/salon-stations-tv.jpg') }}",
-                fallback: "https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=80",
-                title: "جمالكِ يستحق التميز",
-                subtitle: "أجواء هادئة وراقية مصممة لراحتكِ وخصوصيتكِ في هيرلاين بيوتي لاونج"
-            }
-        ];
-
-        // Walk-In Services (جميع الخدمات - زيارة فورية - للاطلاع فقط دون ربطها بالأخصائيات)
-        const walkInServicesData = [
-            {
-                category: "الاستشوار والتصفيف الفوري",
-                items: [
-                    { name: "استشوار ناعم كلاسيكي", duration: "45 دقيقة", price: "80 ر.س", tag: "زيارة فورية" },
-                    { name: "ويفي عريض / ريترو", duration: "60 دقيقة", price: "120 ر.س", tag: "زيارة فورية" },
-                    { name: "غسيل شعر مع مساج فروة الرأس بالزيوت العطرية", duration: "25 دقيقة", price: "50 ر.س", tag: "زيارة فورية" }
-                ]
-            },
-            {
-                category: "العناية بالأظافر واليدين (سبا فوري)",
-                items: [
-                    { name: "مانيكير وباديكير سبا هيرلاين الملكي", duration: "60 دقيقة", price: "160 ر.س", tag: "زيارة فورية" },
-                    { name: "لون جل شيلك مع تقوية الأظافر", duration: "40 دقيقة", price: "110 ر.س", tag: "زيارة فورية" },
-                    { name: "بارافين علاجي لترطيب اليدين والقدمين", duration: "30 دقيقة", price: "90 ر.س", tag: "زيارة فورية" }
-                ]
-            },
-            {
-                category: "القص السريع والعناية بالملامح",
-                items: [
-                    { name: "قص أطراف الشعر المتقصفة (ترتيب صحي)", duration: "30 دقيقة", price: "75 ر.س", tag: "زيارة فورية" },
-                    { name: "قص غرة أمامية وتدرج حول الوجه", duration: "20 دقيقة", price: "55 ر.س", tag: "زيارة فورية" },
-                    { name: "تشقير وتحديد الحواجب بالخيط", duration: "25 دقيقة", price: "70 ر.س", tag: "زيارة فورية" }
-                ]
-            },
-            {
-                category: "ماسكات النضارة السريعة للشعر",
-                items: [
-                    { name: "ماسك الأرغان المغربي الفوري للمعان", duration: "35 دقيقة", price: "130 ر.س", tag: "زيارة فورية" },
-                    { name: "جلسة بخار الأوزون المنعش للشعر", duration: "30 دقيقة", price: "95 ر.س", tag: "زيارة فورية" }
-                ]
-            }
-        ];
-
-        // Specialists Directory (الأخصائيات)
-        const specialistsData = {
-            "sp_noura": {
-                id: "sp_noura",
-                name: "الأخصائية نورة العتيبي",
-                role: "خبيرة أولى في المعالجات الحارة وفرد الشعر",
-                experience: "خبرة 9 سنوات",
-                rating: "4.9",
-                reviews: 142,
-                avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
-                bio: "معتمدة دولياً في تطبيق البروتين البرازيلي العلاجي وبوتكس الشعر الحراري للشعر المصبوغ والحساس.",
-                availableSlots: ["11:30 ص", "02:00 م", "05:30 م", "08:00 م"]
-            },
-            "sp_reem": {
-                id: "sp_reem",
-                name: "الأخصائية ريم الحربي",
-                role: "أخصائية معالجات الكافيار والكولاجين الذهبي",
-                experience: "خبرة 7 سنوات",
-                rating: "4.8",
-                reviews: 98,
-                avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=300&q=80",
-                bio: "متخصصة في إعادة بناء ألياف الشعر التالف بالمعالجات الحارة والباردة وتقنيات النانو سيراميك.",
-                availableSlots: ["12:00 م", "03:30 م", "06:30 م", "08:30 م"]
-            },
-            "sp_layla": {
-                id: "sp_layla",
-                name: "الأخصائية ليلى المنصور",
-                role: "خبيرة الكيراتين الحيوي والترميم العميق",
-                experience: "خبرة 8 سنوات",
-                rating: "5.0",
-                reviews: 165,
-                avatar: "https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=300&q=80",
-                bio: "حاصلة على شهادة التميز في معالجات الشعر الكيرلي والأفرو وتنعيمه مع الحفاظ على كثافته الطبيعية.",
-                availableSlots: ["01:00 م", "04:00 م", "07:00 م"]
-            },
-            "sp_dana": {
-                id: "sp_dana",
-                name: "الأخصائية دانة السبيعي",
-                role: "ماستر كلرست وأخصائية صبغات بالياج",
-                experience: "خبرة 10 سنوات",
-                rating: "4.9",
-                reviews: 210,
-                avatar: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80",
-                bio: "خبيرة دمج الألوان والصبغات الخالية من الأمونيا مع حماية روابط الشعر بتقنية أولابليكس.",
-                availableSlots: ["11:00 ص", "02:30 م", "06:00 م"]
-            },
-            "sp_sara": {
-                id: "sp_sara",
-                name: "الأخصائية سارة الفيصل",
-                role: "أخصائية ديتوكس الفروة والقص الاحترافي",
-                experience: "خبرة 6 سنوات",
-                rating: "4.8",
-                reviews: 87,
-                avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80",
-                bio: "متخصصة في تشخيص فروة الرأس بالميكروسكوب وجلسات الترميم البارد والقص الفرنسي الحديث.",
-                availableSlots: ["12:30 م", "04:30 م", "07:30 م", "09:00 م"]
-            }
-        };
-
-        // Bookable Categories & Sub-services (الخدمات المتاحة للحجز - 3 خطوات)
-        const bookableCategories = [
-            {
-                id: "hot_treatments",
-                title: "المعالجات الحارة",
-                badge: "الأكثر طلباً",
-                icon: "fa-fire-flame-curved",
-                description: "جلسات فرد وتنعيم علاجي بالحرارة الآمنة تمنح شعركِ انسيابية ولمعاناً يدوم طويلاً",
-                subServices: [
-                    {
-                        id: "hot_brazilian_protein",
-                        name: "معالج البروتين البرازيلي الملكي (خالي من الفورمالين)",
-                        desc: "ينعم الشعر بنسبة 95% ويغذي الألياف بالكيراتين الطبيعي وزيت الأرغان",
-                        duration: "150 دقيقة",
-                        price: "650 ر.س",
-                        specialists: ["sp_noura", "sp_layla"]
-                    },
-                    {
-                        id: "hot_thermal_botox",
-                        name: "بوتكس الشعر الحراري المكثف",
-                        desc: "مثالي للشعر المجهد والمصبوغ، يعالج النفشة والتقصف ويمنح كثافة حريرية",
-                        duration: "120 دقيقة",
-                        price: "550 ر.س",
-                        specialists: ["sp_noura", "sp_reem"]
-                    },
-                    {
-                        id: "hot_royal_caviar",
-                        name: "معالج الكافيار الأسود الحراري الفاخر",
-                        desc: "غني بأحماض أوميغا ومضادات الأكسدة لإعادة إحياء الشعر الجاف جداً",
-                        duration: "135 دقيقة",
-                        price: "720 ر.س",
-                        specialists: ["sp_reem", "sp_layla"]
-                    },
-                    {
-                        id: "hot_gold_collagen",
-                        name: "معالج الكولاجين الذهبي الحراري (24K Gold)",
-                        desc: "يرمم الروابط المتكسرة ويغلف الشعرة بطبقة حماية لامعة ضد الرطوبة",
-                        duration: "140 دقيقة",
-                        price: "680 ر.س",
-                        specialists: ["sp_noura", "sp_reem", "sp_layla"]
-                    },
-                    {
-                        id: "hot_bio_keratin",
-                        name: "الكيراتين الحيوي الأمريكي للشعر الكيرلي والأفرو",
-                        desc: "معالجة حرارية عميقة تفك التشابك وتمنح مرونة فائقة للشعر الكثيف",
-                        duration: "180 دقيقة",
-                        price: "790 ر.س",
-                        specialists: ["sp_layla", "sp_noura"]
-                    }
-                ]
-            },
-            {
-                id: "cold_restore",
-                title: "المعالجات الباردة والترميم",
-                badge: "علاج مكثف",
-                icon: "fa-snowflake",
-                description: "جلسات ترميم عميقة بدون حرارة لإصلاح الشعر المتضرر من السحب والصبغات",
-                subServices: [
-                    {
-                        id: "cold_olaplex",
-                        name: "جلسة أولابليكس (Olaplex) الكاملة لبناء الروابط",
-                        desc: "ترميم جزيئي من 4 مراحل يعيد قوة ومرونة الشعر المتهالك",
-                        duration: "75 دقيقة",
-                        price: "380 ر.س",
-                        specialists: ["sp_dana", "sp_sara"]
-                    },
-                    {
-                        id: "cold_amino_filler",
-                        name: "فيلر الأحماض الأمينية البارد لتكثيف الشعر",
-                        desc: "يملأ الفراغات المسامية داخل الشعرة ويزيد من سماكتها وحيويتها",
-                        duration: "60 دقيقة",
-                        price: "340 ر.س",
-                        specialists: ["sp_reem", "sp_sara"]
-                    },
-                    {
-                        id: "cold_ice_cryo",
-                        name: "المعالج الثلجي (Cryotherapy) بجهاز النانو البارد",
-                        desc: "يغلق مسام الشعرة ويحبس الرطوبة والفيتامينات داخلها بدرجة حرارة تحت الصفر",
-                        duration: "90 دقيقة",
-                        price: "490 ر.س",
-                        specialists: ["sp_reem", "sp_layla"]
-                    }
-                ]
-            },
-            {
-                id: "hair_coloring",
-                title: "الصبغات وتفتيح الشعر",
-                badge: "ألوان عصرية",
-                icon: "fa-palette",
-                description: "تقنيات بالياج، أومبريه، وصبغات عضوية آمنة مع حماية فائقة للشعر",
-                subServices: [
-                    {
-                        id: "color_balayage",
-                        name: "تخصيل بالياج فرنسي مع تونر لمعان",
-                        desc: "تموجات لونية طبيعية متدرجة تمنح إشراقة جذابة دون الإضرار بالجذور",
-                        duration: "180 دقيقة",
-                        price: "750 ر.س",
-                        specialists: ["sp_dana"]
-                    },
-                    {
-                        id: "color_full_ammonia_free",
-                        name: "صبغة شعر كامل (خالية من الأمونيا) مع أمبولة حماية",
-                        desc: "تغطية مثالية للشيب ولون غني يدوم طويلاً مع نعومة فائقة",
-                        duration: "110 دقيقة",
-                        price: "450 ر.س",
-                        specialists: ["sp_dana", "sp_noura"]
-                    }
-                ]
-            },
-            {
-                id: "scalp_detox",
-                title: "العناية الفائقة بفروة الرأس والقص",
-                badge: "سبا علاجي",
-                icon: "fa-leaf",
-                description: "جلسات ديتوكس لتنقية الفروة وتحفيز النمو مع قصات احترافية",
-                subServices: [
-                    {
-                        id: "scalp_japanese_spa",
-                        name: "هيدرا سبا وديتوكس الفروة الياباني مع الفحص المجهري",
-                        desc: "تنظيف عميق للمسام، إزالة القشرة والترسبات، وتنشيط الدورة الدموية",
-                        duration: "70 دقيقة",
-                        price: "390 ر.س",
-                        specialists: ["sp_sara"]
-                    },
-                    {
-                        id: "cut_signature_restyle",
-                        name: "قص نيو لوك احترافي + سشوار وتصفيف هيرلاين",
-                        desc: "استشارة مظهر كاملة وقصة تناسب ملامح وجهكِ وكثافة شعركِ",
-                        duration: "60 دقيقة",
-                        price: "220 ر.س",
-                        specialists: ["sp_sara", "sp_dana"]
-                    }
-                ]
-            }
-        ];
+        const heroSlides = {!! json_encode($heroSlides, JSON_UNESCAPED_UNICODE) !!};
+        const walkInServicesData = {!! json_encode($walkInServices, JSON_UNESCAPED_UNICODE) !!};
+        const specialistsData = {!! json_encode($specialistsData, JSON_UNESCAPED_UNICODE) !!};
+        const bookableCategories = {!! json_encode($bookableCategories, JSON_UNESCAPED_UNICODE) !!};
 
         /* -------------------------------------------------------------------------- */
-        /* 2. STATE MANAGEMENT                                                        */
+        /* STATE MANAGEMENT                                                           */
         /* -------------------------------------------------------------------------- */
         let currentSlideIndex = 0;
         let slideInterval = null;
@@ -861,21 +163,21 @@
             selectedTime: null
         };
 
-        // Initial sample confirmed booking in "حسابي"
+        // Confirmed bookings in "حسابي"
         let confirmedBookings = [
             {
                 id: "HL-8492",
-                categoryTitle: "المعالجات الحارة",
-                serviceName: "معالج الكولاجين الذهبي الحراري (24K Gold)",
+                categoryTitle: "المعالجات الحارة (الصفحة 2)",
+                serviceName: "البروتين بالتمليس الحراري (كامل الشعر)",
                 specialistName: "الأخصائية نورة العتيبي",
                 date: "الأحد القادم",
                 time: "05:30 م",
-                price: "680 ر.س"
+                price: "750 ر.س"
             }
         ];
 
         /* -------------------------------------------------------------------------- */
-        /* 3. HERO SLIDER LOGIC                                                       */
+        /* HERO SLIDER LOGIC                                                          */
         /* -------------------------------------------------------------------------- */
         function setHeroSlide(index) {
             currentSlideIndex = index;
@@ -883,9 +185,9 @@
             const imgEl = document.getElementById('heroSlideImg');
             const titleEl = document.getElementById('heroSlideTitle');
             const subtitleEl = document.getElementById('heroSlideSubtitle');
-            const indicators = document.getElementById('sliderIndicators').children;
+            const indicators = document.getElementById('sliderIndicators')?.children;
 
-            if (imgEl && titleEl && subtitleEl) {
+            if (imgEl && titleEl && subtitleEl && slide) {
                 imgEl.style.opacity = '0.7';
                 setTimeout(() => {
                     imgEl.src = slide.img;
@@ -896,26 +198,36 @@
                 }, 150);
             }
 
-            // Update indicators (Gold bar for active, white dot for inactive)
-            for (let i = 0; i < indicators.length; i++) {
-                if (i === index) {
-                    indicators[i].className = "h-2 w-7 rounded-full bg-gold transition-all duration-300";
-                } else {
-                    indicators[i].className = "h-2 w-2 rounded-full bg-white/70 hover:bg-white transition-all duration-300";
+            if (indicators) {
+                for (let i = 0; i < indicators.length; i++) {
+                    if (i === index) {
+                        indicators[i].className = "h-2 w-7 rounded-full bg-gold transition-all duration-300";
+                    } else {
+                        indicators[i].className = "h-2 w-2 rounded-full bg-white/70 hover:bg-white transition-all duration-300";
+                    }
                 }
             }
         }
 
         function startHeroSlider() {
+            if (slideInterval) clearInterval(slideInterval);
             slideInterval = setInterval(() => {
-                const next = (currentSlideIndex + 1) % heroSlides.length;
-                setHeroSlide(next);
+                if (heroSlides && heroSlides.length > 0) {
+                    const next = (currentSlideIndex + 1) % heroSlides.length;
+                    setHeroSlide(next);
+                }
             }, 5000);
         }
 
         /* -------------------------------------------------------------------------- */
-        /* 4. SIDEBAR & BOTTOM NAVIGATION LOGIC                                       */
+        /* URL & NAVIGATION LOGIC                                                     */
         /* -------------------------------------------------------------------------- */
+        function updateUrl(path) {
+            if (window.history && window.history.pushState) {
+                window.history.pushState(null, '', path);
+            }
+        }
+
         function toggleSidebar(show) {
             const overlay = document.getElementById('sidebarOverlay');
             const drawer = document.getElementById('sidebarDrawer');
@@ -931,12 +243,6 @@
                 setTimeout(() => {
                     overlay.classList.add('hidden');
                 }, 300);
-            }
-        }
-
-        function updateUrl(path) {
-            if (window.history && window.history.pushState) {
-                window.history.pushState(null, '', path);
             }
         }
 
@@ -983,6 +289,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        /* -------------------------------------------------------------------------- */
+        /* SIDEBAR SECTIONS                                                           */
+        /* -------------------------------------------------------------------------- */
         function openSidebarSection(sectionType) {
             toggleSidebar(false);
             const sheetTitle = document.getElementById('sheetTitle');
@@ -998,20 +307,20 @@
 
             if (sectionType === 'about') {
                 sheetTitle.textContent = "التعريف بالصالون (من نحن)";
-                sheetSubtitle.textContent = "هيرلاين | HAIRLINE BEAUTY LOUNGE";
+                sheetSubtitle.textContent = "{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }}";
                 sheetBody.innerHTML = `
                     <div class="space-y-4 animate-step">
-                        <div class="relative h-44 rounded-2xl overflow-hidden">
+                        <div class="relative h-44 rounded-2xl overflow-hidden shadow-xs border border-gray-100">
                             <img src="{{ asset('images/salon/salon-screen-display.jpg') }}" 
                                  alt="صالون هيرلاين" 
                                  onerror="this.src='https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?auto=format&fit=crop&w=900&q=80'"
                                  class="w-full h-full object-cover">
                             <div class="absolute inset-0 bg-gradient-to-t from-sage-dark/90 to-transparent flex items-end p-4">
-                                <span class="text-white font-bold text-sm">الفخامة والعناية المتخصصة تحت سقف واحد</span>
+                                <span class="text-white font-bold text-sm">الفخامة والعناية المتخصصة بأرقى المعايير</span>
                             </div>
                         </div>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            تأسس صالون <strong class="text-sage-dark">هيرلاين بيوتي لاونج</strong> ليكون الملاذ الأول لكل سيدة تبحث عن التميز في العناية بشعرها وجمالها. نعتمد في كافة جلساتنا على تشخيص دقيق لطبيعة الشعر قبل البدء بأي معالج حراري أو بارد.
+                            تأسس صالون <strong class="text-sage-dark">هيرلاين بيوتي لاونج</strong> ليكون الملاذ الأول لكل سيدة تبحث عن التميز في العناية بشعرها وجمالها في حي الملقا بالرياض. نعتمد في كافة جلساتنا على تشخيص دقيق لطبيعة الشعر وأحدث المعالجات المعتمدة في قائمة خدماتنا الرسمية.
                         </p>
                         <div class="bg-sage-soft p-4 rounded-2xl border border-sage-light space-y-2">
                             <h4 class="font-extrabold text-xs text-sage-dark flex items-center gap-2">
@@ -1019,9 +328,10 @@
                                 <span>لماذا تختارين هيرلاين؟</span>
                             </h4>
                             <ul class="text-xs text-gray-600 space-y-1.5 pr-4 list-disc">
-                                <li>منتجات برازيلية وأوروبية أصلية 100% آمنة وخالية من الفورمالين.</li>
+                                <li>منتجات أصلية 100% آمنة معتمدة من هيئة الغذاء والدواء.</li>
                                 <li>فريق أخصائيات معتمدات بخبرات تتجاوز 10 سنوات.</li>
                                 <li>أقسام مجهزة بأعلى معايير التعقيم والخصوصية التامة.</li>
+                                <li>أسعار واضحة ومعتمدة شاملة ضريبة القيمة المضافة 15%.</li>
                             </ul>
                         </div>
                     </div>
@@ -1068,7 +378,7 @@
                             </div>
                             <div>
                                 <h4 class="font-extrabold text-sm text-sage-dark">أوقات العمل الرسمية</h4>
-                                <p class="text-xs text-gray-600 mt-0.5">يومياً من الساعة 10:00 صباحاً حتى 10:00 مساءً</p>
+                                <p class="text-xs text-gray-600 mt-0.5">{{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 10:00 صباحاً حتى 10:00 مساءً' }}</p>
                             </div>
                         </div>
 
@@ -1082,7 +392,7 @@
                                     <p class="text-xs text-gray-500 dir-ltr text-right">054 885 7705</p>
                                 </div>
                             </div>
-                            <a href="tel:0548857705" class="px-3 py-1.5 rounded-xl bg-sage-dark text-white text-xs font-bold">
+                            <a href="tel:0548857705" class="px-3.5 py-2 rounded-xl bg-sage-dark text-white text-xs font-bold">
                                 اتصال
                             </a>
                         </div>
@@ -1097,7 +407,7 @@
                                     <p class="text-xs text-gray-500">استشارة مجانية للشعر قبل الحجز</p>
                                 </div>
                             </div>
-                            <a href="https://wa.me/966548857705" target="_blank" class="px-3 py-1.5 rounded-xl bg-emerald-600 text-white text-xs font-bold">
+                            <a href="https://wa.me/966548857705" target="_blank" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">
                                 مراسلة
                             </a>
                         </div>
@@ -1108,7 +418,7 @@
                             </div>
                             <div>
                                 <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
-                                <p class="text-xs text-gray-600">الرياض - حي الملقا، طريق أنس بن مالك (هيرلاين بيوتي لاونج)</p>
+                                <p class="text-xs text-gray-600">{{ $location['full_address_ar'] ?? 'الرياض - حي الملقا، طريق أنس بن مالك' }}</p>
                             </div>
                         </div>
                     </div>
@@ -1119,7 +429,7 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /* 5. ALL SERVICES (WALK-IN CATALOG - زيارة فورية للاطلاع فقط)                 */
+        /* WALK-IN SERVICES CATALOG (من ملف الـ PDF)                                   */
         /* -------------------------------------------------------------------------- */
         function openAllServicesModal() {
             updateUrl('/services');
@@ -1131,7 +441,7 @@
             const sheetFooter = document.getElementById('sheetFooter');
 
             sheetTitle.textContent = "جميع الخدمات (زيارة فورية)";
-            sheetSubtitle.textContent = "قائمة الخدمات العامة المتاحة بالحضور المباشر دون اشتراط حجز أخصائية";
+            sheetSubtitle.textContent = "قائمة الخدمات المعتمدة من ملف الصالون للحضور المباشر";
             sheetBackBtn.classList.add('hidden');
             bookingStepper.classList.add('hidden');
 
@@ -1143,7 +453,7 @@
                             <i class="fa-solid fa-circle-info text-sm"></i>
                         </div>
                         <p class="text-xs text-sage-dark font-medium leading-relaxed">
-                            هذه القائمة مخصصة <strong class="font-extrabold">للاطلاع والزيارة الفورية المباشرة</strong>. أما إذا كنتِ ترغبين بحجز موعد محدد مع اختيار الأخصائية (مثل المعالجات الحارة)، يمكنكِ الانتقال إلى قسم الحجز.
+                            جميع الأسعار معتمدة ومطابقة لكتالوج الصالون الرسمي وشاملة ضريبة القيمة المضافة 15%. يمكنكِ الحضور مباشرة للخدمات السريعة أو الحجز مع أخصائيتكِ المفضلة.
                         </p>
                     </div>
 
@@ -1190,7 +500,7 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /* 6. INTERACTIVE 3-STEP BOOKING FLOW (الخدمات المتاحة للحجز)                  */
+        /* 3-STEP BOOKING FLOW (من ملف الـ PDF)                                        */
         /* -------------------------------------------------------------------------- */
         function openBookingFlow() {
             updateUrl('/booking');
@@ -1282,7 +592,7 @@
 
             updateStepperUI(bookingState.step);
 
-            // ---------------- STEP 1: اختيار القسم الرئيسي ----------------
+            // STEP 1: اختيار القسم
             if (bookingState.step === 1) {
                 sheetTitle.textContent = "الخطوة 1: اختيار القسم الرئيسي";
                 sheetSubtitle.textContent = "اختاري القسم لعرض الأصناف الدقيقة والأخصائيات";
@@ -1306,7 +616,7 @@
                                         </div>
                                         <p class="text-xs text-gray-500 mt-1 leading-relaxed">${cat.description}</p>
                                         <span class="inline-block mt-2 text-[11px] font-bold text-sage-dark">
-                                            ${cat.subServices.length} أصناف متاحة للحجز
+                                            ${cat.subServices.length} أصناف معتمدة للحجز
                                         </span>
                                     </div>
                                 </div>
@@ -1319,7 +629,7 @@
                 `;
             }
 
-            // ---------------- STEP 2: تحديد الصنف الدقيق ----------------
+            // STEP 2: تحديد الخدمة الدقيقة
             else if (bookingState.step === 2) {
                 const cat = bookingState.selectedCategory;
                 sheetTitle.textContent = `الخطوة 2: ${cat.title}`;
@@ -1360,7 +670,7 @@
                 `;
             }
 
-            // ---------------- STEP 3: اختيار الأخصائية وتأكيد الحجز ----------------
+            // STEP 3: اختيار الأخصائية وتحديد الوقت
             else if (bookingState.step === 3) {
                 const sub = bookingState.selectedSubService;
                 sheetTitle.textContent = "الخطوة 3: اختيار الأخصائية";
@@ -1376,7 +686,7 @@
 
                 sheetBody.innerHTML = `
                     <div class="space-y-4 animate-step">
-                        <!-- Summary of Chosen Service -->
+                        <!-- Summary Card -->
                         <div class="p-3.5 rounded-2xl bg-gold-light/70 border border-gold/40 flex items-center justify-between">
                             <div>
                                 <span class="text-[11px] font-bold text-gold-dark block">${bookingState.selectedCategory.title}</span>
@@ -1388,10 +698,10 @@
                             </div>
                         </div>
 
-                        <!-- Qualified Specialists List -->
+                        <!-- Specialists List -->
                         <div class="space-y-2.5">
                             <label class="block text-xs font-extrabold text-sage-dark">
-                                اختاري الأخصائية المفضلة لديكِ (${linkedSpecialists.length} أخصائيات معتمدات لهذه الخدمة):
+                                اختاري الأخصائية (${linkedSpecialists.length} أخصائيات معتمدات):
                             </label>
                             ${linkedSpecialists.map(sp => {
                                 const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
@@ -1436,11 +746,10 @@
                             }).join('')}
                         </div>
 
-                        <!-- Date & Time Picker for Selected Specialist -->
+                        <!-- Date & Time Picker -->
                         <div class="space-y-3 pt-2 border-t border-gray-100">
-                            <label class="block text-xs font-extrabold text-sage-dark">حددي اليوم والوقت المتاح مع ${bookingState.selectedSpecialist.name}:</label>
+                            <label class="block text-xs font-extrabold text-sage-dark">الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:</label>
                             
-                            <!-- Days Pills -->
                             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${datesList.map(d => `
                                     <button onclick="selectBookingDate('${d}')" 
@@ -1454,7 +763,6 @@
                                 `).join('')}
                             </div>
 
-                            <!-- Time Slots Grid -->
                             <div class="grid grid-cols-4 gap-2">
                                 ${bookingState.selectedSpecialist.availableSlots.map(slot => `
                                     <button onclick="selectBookingTime('${slot}')" 
@@ -1481,7 +789,7 @@
                 `;
             }
 
-            // ---------------- STEP 4: شاشة تأكيد الحجز الاحتفالية ----------------
+            // STEP 4: شاشة التأكيد
             else if (bookingState.step === 4) {
                 sheetTitle.textContent = "تم تأكيد حجزكِ بنجاح";
                 sheetSubtitle.textContent = "نتطلع لاستقبالكِ في هيرلاين بيوتي لاونج";
@@ -1522,7 +830,7 @@
                                 <span class="font-bold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
                             </div>
                             <div class="flex justify-between pt-1">
-                                <span class="text-gray-500 font-bold">التكلفة التقديرية:</span>
+                                <span class="text-gray-500 font-bold">التكلفة التقديرية (شاملة VAT):</span>
                                 <span class="font-black text-sm text-sage-dark">${lastBooking.price}</span>
                             </div>
                         </div>

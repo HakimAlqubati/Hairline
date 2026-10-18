@@ -2087,4 +2087,214 @@ class CatalogDataService
             'count' => count($serviceIds),
         ];
     }
+
+    /**
+     * Walk-in quick catalog grouped by domain directly from the 8-page PDF menu.
+     *
+     * @return array<int, array{
+     *     category: string,
+     *     items: array<int, array{name: string, duration: string, price: string, tag: string}>
+     * }>
+     */
+    public function getWalkInServicesGrouped(): array
+    {
+        return [
+            [
+                'category' => 'الاستشوار والتصفيف الفوري (الصفحة 4)',
+                'items' => [
+                    ['name' => 'استشوار ناعم كلاسيكي (قصير)', 'duration' => '45 دقيقة', 'price' => '110 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'استشوار ناعم كلاسيكي (وسط)', 'duration' => '50 دقيقة', 'price' => '140 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'استشوار ويفي عريض (قصير)', 'duration' => '60 دقيقة', 'price' => '140 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'استشوار ويفي عريض (طويل)', 'duration' => '75 دقيقة', 'price' => '230 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'غسيل شعر مع مساج فروة الرأس', 'duration' => '25 دقيقة', 'price' => '25 ر.س', 'tag' => 'زيارة فورية'],
+                ],
+            ],
+            [
+                'category' => 'المناكير والبادكير والسبا (الصفحة 5)',
+                'items' => [
+                    ['name' => 'جلسة لاكجري سبا (مناكير + بادكير + بارافين + مساج)', 'duration' => '80 دقيقة', 'price' => '280 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'جلسة ريلاكس سبا (مناكير + بادكير + مساج أقدام)', 'duration' => '60 دقيقة', 'price' => '230 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'مناكير تنظيف يدين', 'duration' => '35 دقيقة', 'price' => '70 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'بادكير تنظيف أقدام ومساج', 'duration' => '45 دقيقة', 'price' => '120 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'لون فرنش / آرت / تركيب أظافر', 'duration' => '30 دقيقة', 'price' => '50 ر.س', 'tag' => 'زيارة فورية'],
+                ],
+            ],
+            [
+                'category' => 'قص الشعر والعناية بالملامح (الصفحة 1 و 6)',
+                'items' => [
+                    ['name' => 'قص الشعر كامل', 'duration' => '45 دقيقة', 'price' => '80 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'قص الأطراف وترتيب صحي', 'duration' => '30 دقيقة', 'price' => '60 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'قص أو ترتيب البوي', 'duration' => '40 دقيقة', 'price' => '95 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'قص الغرة الأمامية', 'duration' => '15 دقيقة', 'price' => '25 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'تشقير وصبغة الحواجب بالخيط', 'duration' => '30 دقيقة', 'price' => '80 ر.س', 'tag' => 'زيارة فورية'],
+                ],
+            ],
+            [
+                'category' => 'جلسات العناية وماسكات الشعر (الصفحة 3)',
+                'items' => [
+                    ['name' => 'جلسة الصبار الطبيعي لترطيب الشعر', 'duration' => '45 دقيقة', 'price' => '130 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'جلسة الحنة مع السدر لكامل الشعر', 'duration' => '60 دقيقة', 'price' => '150 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'تنظيف فروة الرأس العادية', 'duration' => '45 دقيقة', 'price' => '215 ر.س', 'tag' => 'زيارة فورية'],
+                    ['name' => 'غسيل بشامبو الرنساج / الحنة', 'duration' => '30 دقيقة', 'price' => '50 ر.س', 'tag' => 'زيارة فورية'],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * Bookable categories with sub-services and qualified specialists from the 8-page PDF menu.
+     *
+     * @return array<int, array{
+     *     id: string,
+     *     title: string,
+     *     badge: string,
+     *     icon: string,
+     *     description: string,
+     *     subServices: array<int, array{
+     *         id: string,
+     *         name: string,
+     *         desc: string,
+     *         duration: string,
+     *         price: string,
+     *         specialists: array<int, string>
+     *     }>
+     * }>
+     */
+    public function getBookableCategoriesWithSpecialists(): array
+    {
+        return [
+            [
+                'id' => 'hot_treatments',
+                'title' => 'المعالجات الحارة (الصفحة 2)',
+                'badge' => 'الأكثر طلباً',
+                'icon' => 'fa-fire-flame-curved',
+                'description' => 'البروتين بالتمليس الحراري وعلاج الجذور بأحدث الأجهزة والتقنيات العالمية',
+                'subServices' => [
+                    [
+                        'id' => 'hot_protein_straightener',
+                        'name' => 'البروتين بالتمليس الحراري (كامل الشعر)',
+                        'desc' => 'فرد وتنعيم علاجي يدوم طويلاً (حسب طول الشعر 750 - 1800 ر.س)',
+                        'duration' => '150 دقيقة',
+                        'price' => '750 ر.س',
+                        'specialists' => ['sp_noura', 'sp_layla'],
+                    ],
+                    [
+                        'id' => 'hot_protein_without_straightener',
+                        'name' => 'البروتين بدون التمليس الحراري',
+                        'desc' => 'تغذية عميقة للألياف بدون حرارة مكثفة (560 - 1300 ر.س)',
+                        'duration' => '120 دقيقة',
+                        'price' => '560 ر.س',
+                        'specialists' => ['sp_noura', 'sp_reem'],
+                    ],
+                    [
+                        'id' => 'hot_roots_protein',
+                        'name' => 'بروتين الجذور المعتمد',
+                        'desc' => 'إعادة تجديد الجذور النامية وتوحيد ملمس وانسيابية الشعر',
+                        'duration' => '90 دقيقة',
+                        'price' => '520 ر.س',
+                        'specialists' => ['sp_reem', 'sp_layla'],
+                    ],
+                ],
+            ],
+            [
+                'id' => 'cold_restore',
+                'title' => 'المعالجات الباردة والترميم (الصفحة 2)',
+                'badge' => 'علاج مكثف',
+                'icon' => 'fa-snowflake',
+                'description' => 'جلسات فيلر المورفوسيس، الترندي، والعناية بالشعر الكيرلي لإعادة البناء والترميم',
+                'subServices' => [
+                    [
+                        'id' => 'cold_morphsis_filler',
+                        'name' => 'جلسة فيلر المورفوسيس لترميم الشعر (Morphsis)',
+                        'desc' => 'ترميم جزيئي للشعر التالف والمصبوغ (195 - 335 ر.س حسب الطول)',
+                        'duration' => '60 دقيقة',
+                        'price' => '230 ر.س',
+                        'specialists' => ['sp_dana', 'sp_sara'],
+                    ],
+                    [
+                        'id' => 'cold_trendy_recovery',
+                        'name' => 'جلسة الترندي لترميم الشعر (Trendy Recovery)',
+                        'desc' => 'علاج فوري للشعر المتكسر والفاقد للحيوية (310 - 780 ر.س)',
+                        'duration' => '75 دقيقة',
+                        'price' => '340 ر.س',
+                        'specialists' => ['sp_reem', 'sp_sara'],
+                    ],
+                    [
+                        'id' => 'cold_curly_treatment',
+                        'name' => 'جلسة العناية بالشعر الكيرلي (Curly Hair)',
+                        'desc' => 'تحديد خصلات الكيرلي وترطيبها بعمق ومنع الهيشان (380 - 879 ر.س)',
+                        'duration' => '80 دقيقة',
+                        'price' => '400 ر.س',
+                        'specialists' => ['sp_reem', 'sp_layla'],
+                    ],
+                ],
+            ],
+            [
+                'id' => 'hair_coloring',
+                'title' => 'الصبغات والتساريح (الصفحة 1)',
+                'badge' => 'ألوان وتساريح',
+                'icon' => 'fa-palette',
+                'description' => 'صبغات الجذور، لون كامل، خصل أومبري وبلياج، وتساريح العرائس الملكية',
+                'subServices' => [
+                    [
+                        'id' => 'color_roots',
+                        'name' => 'صبغة الجذور (Roots Coloring)',
+                        'desc' => 'تغطية مثالية للشيب وتوحيد لون الجذور بمواد إيطالية آمنة',
+                        'duration' => '60 دقيقة',
+                        'price' => '100 ر.س',
+                        'specialists' => ['sp_dana', 'sp_noura'],
+                    ],
+                    [
+                        'id' => 'color_balayage_highlights',
+                        'name' => 'خصل (أومبري - سومبري - بلياج)',
+                        'desc' => 'تفتيح احترافي متدرج مع حماية الروابط (750 - 1800 ر.س)',
+                        'duration' => '180 دقيقة',
+                        'price' => '750 ر.س',
+                        'specialists' => ['sp_dana'],
+                    ],
+                    [
+                        'id' => 'hairdo_bridal_veil',
+                        'name' => 'تسريحة مع تركيب طرحة عروس',
+                        'desc' => 'تصفيف ملكي متكامل للعروس مع تثبيت الطرحة والإكسسوارات',
+                        'duration' => '120 دقيقة',
+                        'price' => '400 ر.س',
+                        'specialists' => ['sp_layla', 'sp_sara'],
+                    ],
+                ],
+            ],
+            [
+                'id' => 'scalp_care_massage',
+                'title' => 'العناية بالفروة والمساج (الصفحة 3 و 7)',
+                'badge' => 'استرخاء ونضارة',
+                'icon' => 'fa-spa',
+                'description' => 'تنظيف فروة الرأس العميقة وجلسات المساج الفاخرة بطريقة الشد للأعلى',
+                'subServices' => [
+                    [
+                        'id' => 'deep_scalp_cleaning',
+                        'name' => 'جلسة تنظيف فروة الرأس العميقة (Deep Scalp)',
+                        'desc' => 'ديتوكس وتنقية عميقة للمسام مع تقشير وإزالة التراكمات',
+                        'duration' => '75 دقيقة',
+                        'price' => '600 ر.س',
+                        'specialists' => ['sp_sara'],
+                    ],
+                    [
+                        'id' => 'upward_facial_massage',
+                        'name' => 'مساج الوجه بطريقة الشد للأعلى',
+                        'desc' => 'مساج ياباني لنضارة البشرة وتحفيز الكولاجين الطبيعي',
+                        'duration' => '50 دقيقة',
+                        'price' => '180 ر.س',
+                        'specialists' => ['sp_sara', 'sp_reem'],
+                    ],
+                    [
+                        'id' => 'back_neck_massage',
+                        'name' => 'مساج الظهر والرقبة الاسترخائي',
+                        'desc' => 'تخفيف التوتر والإجهاد بالزيوت العطرية الدافئة',
+                        'duration' => '45 دقيقة',
+                        'price' => '120 ر.س',
+                        'specialists' => ['sp_sara'],
+                    ],
+                ],
+            ],
+        ];
+    }
 }
