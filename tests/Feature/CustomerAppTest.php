@@ -17,6 +17,8 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('HAIRLINE');
         $response->assertSee('هيرلاين');
         $response->assertSee('BEAUTY LOUNGE');
+        $response->assertSee('id="fullscreenBtn"', false);
+        $response->assertSee('toggleFullscreen()', false);
         $response->assertSee('جميع الخدمات');
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('أناقتكِ تتجدد');

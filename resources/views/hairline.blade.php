@@ -982,11 +982,103 @@
             toast.classList.remove('flex');
         }
 
+        /* -------------------------------------------------------------------------- */
+        /* FULLSCREEN TOGGLE & STATE SYNCHRONIZATION                                  */
+        /* -------------------------------------------------------------------------- */
+        function isFullscreenActive() {
+            return !!(
+                document.fullscreenElement ||
+                document.webkitFullscreenElement ||
+                document.mozFullScreenElement ||
+                document.msFullscreenElement
+            );
+        }
+
+        function syncFullscreenUI() {
+            const btn = document.getElementById('fullscreenBtn');
+            const icon = document.getElementById('fullscreenIcon');
+            if (!btn || !icon) return;
+
+            const active = isFullscreenActive();
+            if (active) {
+                icon.className = 'fa-solid fa-compress text-xs sm:text-sm text-gold-dark';
+                btn.setAttribute('title', 'إنهاء ملء الشاشة');
+                btn.setAttribute('aria-label', 'إنهاء ملء الشاشة');
+                btn.classList.add('bg-gold-light', 'text-gold-dark', 'ring-2', 'ring-gold/40');
+                btn.classList.remove('bg-white', 'text-sage-dark');
+            } else {
+                icon.className = 'fa-solid fa-expand text-xs sm:text-sm text-sage-dark';
+                btn.setAttribute('title', 'ملء الشاشة');
+                btn.setAttribute('aria-label', 'ملء الشاشة');
+                btn.classList.remove('bg-gold-light', 'text-gold-dark', 'ring-2', 'ring-gold/40');
+                btn.classList.add('bg-white', 'text-sage-dark');
+            }
+        }
+
+        function toggleFullscreen() {
+            try {
+                if (!isFullscreenActive()) {
+                    const docEl = document.documentElement;
+                    const requestMethod = docEl.requestFullscreen ||
+                                          docEl.webkitRequestFullscreen ||
+                                          docEl.mozRequestFullScreen ||
+                                          docEl.msRequestFullscreen;
+
+                    if (requestMethod) {
+                        const promise = requestMethod.call(docEl);
+                        if (promise && typeof promise.then === 'function') {
+                            promise.then(() => {
+                                syncFullscreenUI();
+                                openToast('تم تفعيل وضع ملء الشاشة');
+                            }).catch((err) => {
+                                console.warn('Fullscreen request error:', err);
+                                openToast('تعذر الدخول في وضع ملء الشاشة');
+                            });
+                        } else {
+                            syncFullscreenUI();
+                            openToast('تم تفعيل وضع ملء الشاشة');
+                        }
+                    } else {
+                        openToast('المتصفح الحالي لا يدعم وضع ملء الشاشة');
+                    }
+                } else {
+                    const exitMethod = document.exitFullscreen ||
+                                       document.webkitExitFullscreen ||
+                                       document.mozCancelFullScreen ||
+                                       document.msExitFullscreen;
+
+                    if (exitMethod) {
+                        const promise = exitMethod.call(document);
+                        if (promise && typeof promise.then === 'function') {
+                            promise.then(() => {
+                                syncFullscreenUI();
+                                openToast('تم الخروج من وضع ملء الشاشة');
+                            }).catch((err) => {
+                                console.warn('Fullscreen exit error:', err);
+                            });
+                        } else {
+                            syncFullscreenUI();
+                            openToast('تم الخروج من وضع ملء الشاشة');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Fullscreen toggle error:', err);
+                openToast('حدث خطأ أثناء تبديل ملء الشاشة');
+            }
+        }
+
         // Initialize on Window Load
         window.onload = function () {
             startHeroSlider();
             updateBookingBadge();
             renderMyBookings();
+
+            // Listen to native fullscreen change events (e.g. user presses ESC or browser controls)
+            ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
+                document.addEventListener(evt, syncFullscreenUI);
+            });
+            syncFullscreenUI();
 
             const initial = "{{ $initialView ?? 'home' }}";
             if (initial === 'about') {
