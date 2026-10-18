@@ -1,10 +1,5 @@
 <?php
 
-use App\Livewire\Pages\About;
-use App\Livewire\Pages\Booking;
-use App\Livewire\Pages\Home;
-use App\Livewire\Pages\Profile;
-use App\Livewire\Pages\Services;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,8 +8,22 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', Home::class)->name('home');
-Route::get('/about', About::class)->name('about');
-Route::get('/services', Services::class)->name('services');
-Route::get('/booking', Booking::class)->name('booking');
-Route::get('/profile', Profile::class)->name('profile');
+Route::get('/', function () {
+    return view('hairline', ['initialView' => 'home']);
+})->name('home');
+
+Route::get('/about', function () {
+    return view('hairline', ['initialView' => 'about']);
+})->name('about');
+
+Route::get('/services', function () {
+    return view('hairline', ['initialView' => 'services']);
+})->name('services');
+
+Route::get('/booking', function () {
+    return view('hairline', ['initialView' => 'booking']);
+})->name('booking');
+
+Route::get('/profile', function () {
+    return view('hairline', ['initialView' => 'account']);
+})->name('profile');

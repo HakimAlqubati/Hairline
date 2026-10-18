@@ -16,59 +16,54 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200);
         $response->assertSee('HAIRLINE');
         $response->assertSee('هيرلاين');
-        $response->assertSee('فخامة الجمال');
+        $response->assertSee('BEAUTY LOUNGE');
+        $response->assertSee('جميع الخدمات');
+        $response->assertSee('الخدمات المتاحة للحجز');
+        $response->assertSee('أناقتكِ تتجدد');
         $response->assertSee('عن هيرلاين');
-        $response->assertSee('الخدمات');
-        $response->assertSee('الحجز');
-        $response->assertSee('أجواء وفخامة صالون هيرلاين');
-        $response->assertSee('reception-desk.jpg');
-        $response->assertSee('hair-styling-chairs.jpg');
+        $response->assertSee('حسابي');
     });
 
     test('about page returns 200 and renders bio, hours, and location', function () {
         $response = $this->get('/about');
 
         $response->assertStatus(200);
+        $response->assertSee('هيرلاين');
+        $response->assertSee('HAIRLINE BEAUTY LOUNGE');
+        $response->assertSee('من نحن');
         $response->assertSee('أوقات العمل الرسمية');
-        $response->assertSee('موقع الصالون');
-        $response->assertSee('لماذا هيرلاين؟');
-        $response->assertSee('حي الملقا');
-        $response->assertSee('معرض صور صالون هيرلاين');
-        $response->assertSee('reception-desk.jpg');
+        $response->assertSee('التعريف بالصالون');
     });
 
     test('services catalog page returns 200 and lists categories', function () {
         $response = $this->get('/services');
 
         $response->assertStatus(200);
-        $response->assertSee('خدمات الشعر');
-        $response->assertSee('معالجات الشعر');
-        $response->assertSee('جلسات العناية بالشعر');
-        $response->assertSee('الاستشوار والتصفيف');
-        $response->assertSee('المناكير والبادكير');
-        $response->assertSee('البشرة، المكياج والرموش');
-        $response->assertSee('المساج، الحلاوة والواكس');
+        $response->assertSee('جميع الخدمات (زيارة فورية)');
+        $response->assertSee('الاستشوار والتصفيف الفوري');
+        $response->assertSee('العناية بالأظافر واليدين');
+        $response->assertSee('القص السريع والعناية بالملامح');
     });
 
     test('booking page returns 200 and shows all steps', function () {
         $response = $this->get('/booking');
 
         $response->assertStatus(200);
-        $response->assertSee('الخدمة المطلوبة');
-        $response->assertSee('نوع الخدمة');
-        $response->assertSee('اختاري الخبيرة');
-        $response->assertSee('اختاري اليوم والتاريخ');
-        $response->assertSee('اختاري الوقت المتاح');
-        $response->assertSee('تأكيد الحجز');
+        $response->assertSee('الخدمات المتاحة للحجز');
+        $response->assertSee('المعالجات الحارة');
+        $response->assertSee('المعالجات الباردة والترميم');
+        $response->assertSee('الصبغات وتفتيح الشعر');
+        $response->assertSee('العناية الفائقة بفروة الرأس والقص');
     });
 
-    test('profile page returns 200 and shows login form', function () {
+    test('profile page returns 200 and shows member profile and bookings', function () {
         $response = $this->get('/profile');
 
         $response->assertStatus(200);
-        $response->assertSee('تسجيل الدخول');
-        $response->assertSee('كود العميلة أو رقم الجوال');
-        $response->assertSee('HL-1001');
+        $response->assertSee('أهلاً بكِ، عميلتنا المميزة');
+        $response->assertSee('VIP');
+        $response->assertSee('عضوية هيرلاين الذهبية');
+        $response->assertSee('حجوزاتي المؤكدة');
     });
 });
 
