@@ -50,14 +50,9 @@
             <!-- Item 2: الأخصائيات -->
             <button onclick="openSidebarSection('specialists')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                        <i class="fa-solid fa-user-check text-sm"></i>
-                    </div>
-                    <div>
-                        <span class="block text-sm font-extrabold text-sage-dark">الأخصائيات</span>
-                        <span class="text-[11px] text-gray-500">نخبة خبيرات الشعر والجمال</span>
-                    </div>
+                <div>
+                    <span class="block text-sm font-extrabold text-sage-dark">الأخصائيات</span>
+                    <span class="text-[11px] text-gray-500">نخبة خبيرات الشعر والجمال</span>
                 </div>
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>
@@ -75,14 +70,9 @@
             <!-- Item 4: سياسة الخصوصية -->
             <button onclick="openSidebarSection('privacy')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                        <i class="fa-solid fa-shield-halved text-sm"></i>
-                    </div>
-                    <div>
-                        <span class="block text-sm font-extrabold text-sage-dark">سياسة الخصوصية</span>
-                        <span class="text-[11px] text-gray-500">(حماية وسرية بياناتكِ)</span>
-                    </div>
+                <div>
+                    <span class="block text-sm font-extrabold text-sage-dark">سياسة الخصوصية</span>
+                    <span class="text-[11px] text-gray-500">(حماية وسرية بياناتكِ)</span>
                 </div>
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>

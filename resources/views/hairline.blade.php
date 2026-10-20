@@ -417,7 +417,7 @@
                         <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center justify-between">
                             <div>
                                 <h4 class="font-extrabold text-sm text-sage-dark">الرقم الموحد للحجوزات</h4>
-                                <p class="text-xs text-gray-500 dir-ltr text-right mt-0.5">054 885 7705</p>
+                                <p class="text-xs text-gray-500 dir-ltr text-right mt-0.5">0548857705</p>
                             </div>
                             <a href="tel:0548857705" class="px-4 py-2 rounded-xl bg-sage-dark text-white text-xs font-bold hover:bg-sage-deeper transition">
                                 اتصال
@@ -631,24 +631,19 @@
                         ${bookableCategories.map(cat => `
                             <button onclick="selectCategory('${cat.id}')" 
                                     class="w-full p-4 rounded-2xl bg-surface hover:bg-sage-soft/70 border border-gold-soft/50 hover:border-sage-dark transition-all flex items-center justify-between text-right group">
-                                <div class="flex items-start gap-3.5">
-                                    <div class="w-12 h-12 rounded-2xl bg-sage-dark text-gold group-hover:scale-105 transition-transform flex items-center justify-center shrink-0 mt-0.5">
-                                        <i class="fa-solid ${cat.icon} text-lg"></i>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <h4 class="font-extrabold text-base text-sage-dark">${cat.title}</h4>
-                                            <span class="px-2 py-0.5 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30">
-                                                ${cat.badge}
-                                            </span>
-                                        </div>
-                                        <p class="text-xs text-gray-500 mt-1 leading-relaxed">${cat.description}</p>
-                                        <span class="inline-block mt-2 text-[11px] font-bold text-sage-dark">
-                                            ${cat.subServices.length} أصناف معتمدة للحجز
+                                <div class="space-y-1">
+                                    <div class="flex items-center gap-2">
+                                        <h4 class="font-extrabold text-base text-sage-dark">${cat.title}</h4>
+                                        <span class="px-2 py-0.5 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30">
+                                            ${cat.badge}
                                         </span>
                                     </div>
+                                    <p class="text-xs text-gray-500 leading-relaxed">${cat.description}</p>
+                                    <span class="inline-block pt-1 text-[11px] font-bold text-sage-dark">
+                                        ${cat.subServices.length} أصناف معتمدة للحجز
+                                    </span>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-white text-sage-dark group-hover:bg-sage-dark group-hover:text-white flex items-center justify-center shrink-0 shadow-xs transition">
+                                <div class="w-8 h-8 rounded-full bg-white text-sage-dark group-hover:bg-sage-dark group-hover:text-white flex items-center justify-center shrink-0 shadow-xs transition mr-2">
                                     <span class="text-lg font-bold leading-none -mt-0.5">‹</span>
                                 </div>
                             </button>
