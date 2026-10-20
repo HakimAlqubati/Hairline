@@ -30,7 +30,7 @@ class SalonInfoDataService
         return [
             'name_en' => 'HAIRLINE',
             'name_ar' => 'هيرلاين',
-            'tagline_en' => 'BEAUTY LOUNGE',
+            'tagline_en' => 'BEAUTY SALON',
             'tagline_ar' => 'صالون هيرلاين النسائي',
             'description_line1' => 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
             'description_line2' => 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',

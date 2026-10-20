@@ -3,11 +3,16 @@
 @source '../../resources/views/**/*.blade.php';
 
 /* ============================================================
-   HAIRLINE BEAUTY LOUNGE — New Brand Design Tokens
+   HAIRLINE BEAUTY SALON — New Brand Design Tokens
    ============================================================ */
 @theme {
     --font-sans: 'Tajawal', sans-serif;
     --font-serif: 'Cormorant Garamond', serif;
+
+    --color-primary: var(--color-primary, #C29E6D);
+    --color-primary-light: #F6EFE2;
+    --color-primary-soft: #E6D5B8;
+    --color-primary-dark: #A3803B;
 
     --color-sage-light: #DCE7E0;
     --color-sage-soft: #EDF3EF;
@@ -17,7 +22,7 @@
 
     --color-gold-light: #F6EFE2;
     --color-gold-soft: #E6D5B8;
-    --color-gold: #C5A059;
+    --color-gold: var(--color-primary, #C29E6D);
     --color-gold-dark: #A3803B;
 
     --color-surface: #F7F8F7;

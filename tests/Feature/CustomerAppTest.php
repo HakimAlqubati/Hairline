@@ -16,7 +16,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200);
         $response->assertSee('HAIRLINE');
         $response->assertSee('هيرلاين');
-        $response->assertSee('BEAUTY LOUNGE');
+        $response->assertSee('BEAUTY SALON');
         $response->assertSee('id="fullscreenBtn"', false);
         $response->assertSee('toggleFullscreen()', false);
         $response->assertSee('جميع الخدمات');
@@ -31,7 +31,7 @@ describe('Customer-Facing Pages', function () {
 
         $response->assertStatus(200);
         $response->assertSee('هيرلاين');
-        $response->assertSee('HAIRLINE BEAUTY LOUNGE');
+        $response->assertSee('HAIRLINE BEAUTY SALON');
         $response->assertSee('من نحن');
         $response->assertSee('أوقات العمل الرسمية');
         $response->assertSee('التعريف بالصالون');

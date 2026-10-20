@@ -20,9 +20,9 @@
             <div class="flex items-end justify-between gap-4">
                 <!-- Right Side Text Content -->
                 <div class="space-y-2">
-                    <!-- Translucent Badge: HAIRLINE BEAUTY LOUNGE -->
+                    <!-- Translucent Badge: HAIRLINE BEAUTY SALON -->
                     <div class="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-gold-light text-[11px] font-semibold tracking-[0.18em] uppercase">
-                        HAIRLINE BEAUTY LOUNGE
+                        HAIRLINE BEAUTY SALON
                     </div>
                     <!-- Large Prominent White Title: أناقتكِ تتجدد -->
                     <h2 id="heroSlideTitle" class="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-sm">

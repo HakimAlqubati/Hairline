@@ -28,7 +28,7 @@
                 </div>
                 <div>
                     <h3 class="font-extrabold text-sage-dark text-base">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}</h3>
-                    <p class="text-[10px] tracking-[0.2em] text-gold-dark font-semibold uppercase">{{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }}</p>
+                    <p class="text-[10px] tracking-[0.2em] text-gold-dark font-semibold uppercase">{{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</p>
                 </div>
             </div>
         </div>
@@ -87,6 +87,6 @@
     <!-- Drawer Footer -->
     <div class="p-5 bg-gold-light/50 border-t border-gold-soft/40 text-center">
         <p class="text-xs font-bold text-sage-dark">أناقتكِ تتجدد في كل زيارة</p>
-        <p class="text-[11px] text-gold-dark mt-0.5">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }} ©</p>
+        <p class="text-[11px] text-gold-dark mt-0.5">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }} ©</p>
     </div>
 </aside>

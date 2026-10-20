@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }}</title>
+    <title>{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</title>
 
     <!-- Favicon & Touch Icons -->
     <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
@@ -34,6 +34,12 @@
             theme: {
                 extend: {
                     colors: {
+                        primary: {
+                            light: '#F6EFE2',
+                            soft: '#E6D5B8',
+                            DEFAULT: '{{ $brandPrimaryColor }}',
+                            dark: '#A3803B'
+                        },
                         sage: {
                             light: '#DCE7E0',
                             soft: '#EDF3EF',
@@ -44,7 +50,7 @@
                         gold: {
                             light: '#F6EFE2',
                             soft: '#E6D5B8',
-                            DEFAULT: '#C5A059',
+                            DEFAULT: '{{ $brandPrimaryColor }}',
                             dark: '#A3803B'
                         },
                         surface: '#F7F8F7'
@@ -64,6 +70,10 @@
     </script>
 
     <style>
+        :root {
+            --color-primary: {{ $brandPrimaryColor }};
+            --color-gold: {{ $brandPrimaryColor }};
+        }
         * {
             -webkit-tap-highlight-color: transparent;
             box-sizing: border-box;
@@ -330,7 +340,7 @@
 
             if (sectionType === 'about') {
                 sheetTitle.textContent = "التعريف بالصالون (من نحن)";
-                sheetSubtitle.textContent = "{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY LOUNGE' }}";
+                sheetSubtitle.textContent = "{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}";
                 sheetBody.innerHTML = `
                     <div class="space-y-4 animate-step">
                         <div class="relative h-44 rounded-2xl overflow-hidden shadow-xs border border-gray-100">
