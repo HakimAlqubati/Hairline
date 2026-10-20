@@ -735,37 +735,35 @@
                                 const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
                                 return `
                                     <div onclick="chooseSpecialist('${sp.id}')" 
-                                         class="p-3.5 rounded-2xl border-2 cursor-pointer transition-all flex items-center justify-between ${
+                                         class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
                                              isSelected 
-                                             ? 'bg-sage-soft/90 border-sage-dark shadow-xs' 
-                                             : 'bg-surface border-transparent hover:border-gold-soft'
+                                             ? 'bg-sage-soft/90 border-sage-dark shadow-xs ring-1 ring-sage-dark/20' 
+                                             : 'bg-white border-gray-200/80 hover:border-gold-soft hover:bg-surface'
                                          }">
-                                        <div class="flex items-center gap-3">
-                                            <div class="relative">
+                                        <div class="flex items-center gap-3 min-w-0">
+                                            <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
                                                 <img src="${sp.avatar}" 
                                                      alt="${sp.name}"
-                                                     onerror="this.src='https://placehold.co/100x100/1F3A2E/F6EFE2?text=HL'"
-                                                     class="w-13 h-13 rounded-full object-cover border-2 ${isSelected ? 'border-sage-dark' : 'border-gold'}">
-                                                ${isSelected ? `
-                                                    <span class="w-5 h-5 rounded-full bg-sage-dark text-gold text-[10px] flex items-center justify-center absolute -bottom-1 -right-1 ring-2 ring-white">
-                                                        <i class="fa-solid fa-check"></i>
-                                                    </span>
-                                                ` : ''}
+                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=1F3A2E&color=C29E6D&bold=true&size=96';"
+                                                     class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-sage-dark ring-2 ring-sage-dark/15' : 'border-gold/30'} shrink-0 shadow-2xs"
+                                                     style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
                                             </div>
-                                            <div>
-                                                <h5 class="font-extrabold text-sm text-sage-dark">${sp.name}</h5>
-                                                <p class="text-[11px] text-gray-600">${sp.role}</p>
-                                                <div class="flex items-center gap-2 mt-1">
-                                                    <span class="text-[10px] font-bold text-gold-dark bg-white px-2 py-0.5 rounded-md border border-gold/20">
-                                                        ★ ${sp.rating} (${sp.reviews} تقييم)
+                                            <div class="min-w-0">
+                                                <h5 class="font-extrabold text-sm text-sage-dark truncate leading-tight">${sp.name}</h5>
+                                                <p class="text-[11px] text-gray-500 truncate mt-0.5 font-medium">${sp.role}</p>
+                                                <div class="flex items-center gap-1.5 mt-1">
+                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-gold-dark bg-gold-light/60 px-2 py-0.5 rounded-md border border-gold/25">
+                                                        <i class="fa-regular fa-clock text-[9px]"></i>
+                                                        ${sp.experience}
                                                     </span>
-                                                    <span class="text-[10px] text-gray-500">${sp.experience}</span>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                                            isSelected ? 'border-sage-dark bg-sage-dark text-white' : 'border-gray-300'
+                                        <div class="w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
+                                            isSelected 
+                                            ? 'border-sage-dark bg-sage-dark text-white shadow-xs' 
+                                            : 'border-gray-300 bg-white'
                                         }">
                                             ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
                                         </div>
