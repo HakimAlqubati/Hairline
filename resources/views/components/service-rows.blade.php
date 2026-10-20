@@ -1,4 +1,4 @@
-<section aria-label="أقسام الخدمات الرئيسية" class="space-y-3.5">
+<section aria-label="أقسام الخدمات الرئيسية" class="space-y-3.5 md:space-y-0 md:grid md:grid-cols-2 md:gap-5">
     
     <!-- Row 1: جميع الخدمات (زيارة فورية) -->
     <button onclick="switchTab('services')" 

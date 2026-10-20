@@ -4,11 +4,14 @@
 </div>
 
 <div id="bottomSheet" 
-     class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] max-h-[88vh] bg-white z-50 rounded-t-[32px] shadow-2xl translate-y-full bottom-sheet flex flex-col overflow-hidden">
+     class="fixed z-50 flex flex-col overflow-hidden bg-white shadow-2xl bottom-sheet border border-gray-100/90
+            bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] max-h-[88vh] rounded-t-[32px] translate-y-full
+            md:bottom-28 md:left-8 md:translate-x-0 md:translate-y-0 md:w-[450px] md:max-h-[80vh] md:rounded-3xl 
+            md:origin-bottom-left md:scale-75 md:opacity-0 md:pointer-events-none md:shadow-fab transition-all duration-300">
     
-    <!-- Drag Handle & Top Sheet Bar -->
+    <!-- Drag Handle (Mobile Only) & Top Sheet Bar -->
     <div class="pt-3 pb-3 px-5 bg-sage-light/60 border-b border-gold-soft/40 shrink-0">
-        <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+        <div class="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-3 md:hidden"></div>
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
                 <button id="sheetBackBtn" 

@@ -1,4 +1,4 @@
-<section id="accountTabView" class="hidden flex-1 px-4 pt-5 space-y-4 animate-step">
+<section id="accountTabView" class="hidden flex-1 px-4 pt-5 space-y-4 animate-step max-w-4xl mx-auto w-full">
     <!-- Member Profile Card -->
     <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 flex items-center justify-between">
         <div class="flex items-center gap-3.5">

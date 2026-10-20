@@ -101,7 +101,7 @@
             transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .bottom-sheet {
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), scale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
         @keyframes subtlePulse {
             0%, 100% { transform: scale(1); }
@@ -133,16 +133,16 @@
     </style>
 </head>
 
-<body class="min-h-screen flex justify-center bg-[#E4ECE7] selection:bg-sage-dark selection:text-white">
+<body class="min-h-screen flex justify-center bg-[#E4ECE7] md:bg-[#F3F6F4] selection:bg-sage-dark selection:text-white">
 
-    <!-- Mobile App Container (Responsive: full screen on mobile, sleek phone frame on desktop) -->
-    <div id="appContainer" class="w-full max-w-[480px] min-h-screen bg-surface relative flex flex-col shadow-2xl overflow-hidden pb-28">
+    <!-- Responsive App Container (Mobile phone frame on mobile, spacious luxury portal on desktop) -->
+    <div id="appContainer" class="w-full max-w-[480px] md:max-w-6xl lg:max-w-7xl min-h-screen bg-surface relative flex flex-col shadow-2xl md:shadow-lg md:border-x md:border-gray-200/50 overflow-hidden pb-28 md:pb-16 transition-all duration-300">
 
         <!-- 1. TOP HEADER COMPONENT -->
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
 
         <!-- 2. MAIN HOME VIEW -->
-        <main id="mainHomeView" class="flex-1 px-4 pt-5 space-y-5">
+        <main id="mainHomeView" class="flex-1 px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
             <!-- Main Service Rows (Strictly 2 Wide Rows) -->
             <x-service-rows />
 
@@ -169,6 +169,28 @@
 
         <!-- 8. IOS SAFARI FULLSCREEN / PWA MODAL -->
         <x-ios-fullscreen-modal />
+
+        <!-- 9. DESKTOP FLOATING BOOKING CONCIERGE BUTTON -->
+        <div id="desktopFloatingBookingContainer" class="hidden md:flex fixed bottom-8 left-8 z-40 items-center">
+            <button id="desktopFloatingBookingBtn"
+                    onclick="toggleDesktopBooking()"
+                    aria-label="احجزي موعدكِ الآن"
+                    title="احجزي موعدكِ الآن"
+                    class="group flex items-center gap-3.5 px-6 py-3.5 rounded-full bg-sage-dark text-white shadow-fab border-2 border-gold/50 hover:border-gold hover:bg-sage-deeper hover:shadow-2xl active:scale-95 transition-all duration-300 cursor-pointer">
+                
+                <!-- Glowing Pulse Indicator -->
+                <span class="relative flex h-3.5 w-3.5">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-gold shadow-xs"></span>
+                </span>
+
+                <i class="fa-regular fa-calendar-check text-xl text-gold group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
+                <div class="flex flex-col text-right">
+                    <span class="text-sm font-black tracking-wide leading-tight">احجزي موعدكِ الآن</span>
+                    <span class="text-[11px] text-gold-soft font-medium leading-tight">اختيار الخدمة والأخصائية</span>
+                </div>
+            </button>
+        </div>
 
     </div>
 
@@ -309,7 +331,7 @@
                 updateUrl('/profile');
             }
 
-            // Update bottom nav active state
+            // Update bottom nav active state (Mobile)
             const navIds = ['home', 'services', 'about', 'account'];
             navIds.forEach(id => {
                 const btn = document.getElementById(`nav-${id}`);
@@ -323,6 +345,28 @@
                     btn.classList.add('text-gray-400', 'font-medium');
                     btn.classList.remove('text-sage-dark', 'font-bold');
                     if (dot) dot.classList.replace('bg-gold', 'bg-transparent');
+                }
+            });
+
+            // Update desktop top navbar active state
+            navIds.forEach(id => {
+                const dBtn = document.getElementById(`desktop-nav-${id}`);
+                if (!dBtn) return;
+                const dIndicator = dBtn.querySelector('.desktop-nav-indicator');
+                if (id === tabName) {
+                    dBtn.classList.add('text-white', 'font-black');
+                    dBtn.classList.remove('text-white/75', 'font-medium');
+                    if (dIndicator) {
+                        dIndicator.classList.remove('opacity-0', 'scale-x-0');
+                        dIndicator.classList.add('opacity-100', 'scale-x-100');
+                    }
+                } else {
+                    dBtn.classList.remove('text-white', 'font-black');
+                    dBtn.classList.add('text-white/75', 'font-medium');
+                    if (dIndicator) {
+                        dIndicator.classList.remove('opacity-100', 'scale-x-100');
+                        dIndicator.classList.add('opacity-0', 'scale-x-0');
+                    }
                 }
             });
 
@@ -919,9 +963,24 @@
 
         function updateBookingBadge() {
             const badge = document.getElementById('bookingCountBadge');
-            if (!badge) return;
-            badge.textContent = confirmedBookings.length;
-            badge.classList.remove('hidden');
+            if (badge) {
+                badge.textContent = confirmedBookings.length;
+                badge.classList.remove('hidden');
+            }
+            const desktopBadge = document.getElementById('desktopBookingCountBadge');
+            if (desktopBadge) {
+                desktopBadge.textContent = confirmedBookings.length;
+                desktopBadge.classList.remove('hidden');
+            }
+        }
+
+        function toggleDesktopBooking() {
+            const sheet = document.getElementById('bottomSheet');
+            if (sheet && sheet.classList.contains('md:scale-100')) {
+                closeBottomSheet();
+            } else {
+                openBookingFlow();
+            }
         }
 
         function renderMyBookings() {
@@ -953,18 +1012,30 @@
         function showBottomSheet() {
             const overlay = document.getElementById('sheetOverlay');
             const sheet = document.getElementById('bottomSheet');
+            const fabBtn = document.getElementById('desktopFloatingBookingBtn');
             overlay.classList.remove('hidden');
             requestAnimationFrame(() => {
                 overlay.classList.remove('opacity-0');
                 sheet.classList.remove('translate-y-full');
+                sheet.classList.remove('md:scale-75', 'md:opacity-0', 'md:pointer-events-none');
+                sheet.classList.add('md:scale-100', 'md:opacity-100', 'md:pointer-events-auto');
+                if (fabBtn) {
+                    fabBtn.classList.add('ring-4', 'ring-gold/60', 'scale-95');
+                }
             });
         }
 
         function closeBottomSheet() {
             const overlay = document.getElementById('sheetOverlay');
             const sheet = document.getElementById('bottomSheet');
+            const fabBtn = document.getElementById('desktopFloatingBookingBtn');
             overlay.classList.add('opacity-0');
             sheet.classList.add('translate-y-full');
+            sheet.classList.remove('md:scale-100', 'md:opacity-100', 'md:pointer-events-auto');
+            sheet.classList.add('md:scale-75', 'md:opacity-0', 'md:pointer-events-none');
+            if (fabBtn) {
+                fabBtn.classList.remove('ring-4', 'ring-gold/60', 'scale-95');
+            }
             setTimeout(() => {
                 overlay.classList.add('hidden');
             }, 350);

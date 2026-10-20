@@ -3,7 +3,7 @@
 ])
 
 <section aria-label="البانر الإعلاني" class="relative">
-    <div id="heroSliderContainer" class="relative w-full h-64 sm:h-72 rounded-3xl overflow-hidden shadow-lg border border-white">
+    <div id="heroSliderContainer" class="relative w-full h-64 sm:h-72 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden shadow-lg border border-white">
         
         <!-- Dynamic Slide Image -->
         <img id="heroSlideImg" 
@@ -16,19 +16,19 @@
         <div class="absolute inset-0 bg-gradient-to-t from-[#11221A] via-[#1F3A2E]/45 to-transparent"></div>
 
         <!-- Banner Content -->
-        <div class="absolute inset-0 p-6 flex flex-col justify-end">
+        <div class="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
             <div class="flex items-end justify-between gap-4">
                 <!-- Right Side Text Content -->
-                <div class="space-y-2">
+                <div class="space-y-2 md:space-y-3">
                     <!-- Translucent Badge: HAIRLINE BEAUTY SALON -->
-                    <div class="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-gold-light text-[11px] font-semibold tracking-[0.18em] uppercase">
+                    <div class="inline-block px-3.5 py-1 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-gold-light text-[11px] md:text-xs font-semibold tracking-[0.18em] uppercase">
                         HAIRLINE BEAUTY SALON
                     </div>
                     <!-- Large Prominent White Title: أناقتكِ تتجدد -->
-                    <h2 id="heroSlideTitle" class="text-3xl sm:text-4xl font-black text-white tracking-tight drop-shadow-sm">
+                    <h2 id="heroSlideTitle" class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight drop-shadow-sm">
                         {{ $heroSlides[0]['title'] ?? 'أناقتكِ تتجدد' }}
                     </h2>
-                    <p id="heroSlideSubtitle" class="text-xs sm:text-sm text-gray-200 font-medium max-w-[260px]">
+                    <p id="heroSlideSubtitle" class="text-xs sm:text-sm md:text-base text-gray-200 font-medium max-w-[260px] sm:max-w-md md:max-w-xl leading-relaxed">
                         {{ $heroSlides[0]['subtitle'] ?? 'أحدث تقنيات المعالجات الحارة والعناية الفائقة بالشعر على أيدي نخبة من الأخصائيات' }}
                     </p>
                 </div>

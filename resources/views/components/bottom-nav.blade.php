@@ -1,4 +1,4 @@
-<nav aria-label="شريط التنقل السفلي" class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-100 shadow-floating px-3 py-2 z-30 rounded-t-[26px]">
+<nav aria-label="شريط التنقل السفلي" class="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] bg-white border-t border-gray-100 shadow-floating px-3 py-2 z-30 rounded-t-[26px]">
     <div class="grid grid-cols-5 items-center text-center">
         
         <!-- 1. الرئيسية (Far Right) -->
