@@ -145,9 +145,6 @@
 
             <!-- Hero Promotional Slider -->
             <x-hero-slider :heroSlides="$heroSlides" />
-
-            <!-- Highlights (Most Popular) -->
-            <x-highlights />
         </main>
 
         <!-- 3. DYNAMIC TAB VIEWS -->
