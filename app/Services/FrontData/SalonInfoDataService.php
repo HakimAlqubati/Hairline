@@ -148,9 +148,9 @@ class SalonInfoDataService
     {
         return [
             'days' => 'يومياً',
-            'hours_ar' => '02:00 ظهراً – 10:30 مساءً',
+            'hours_ar' => 'من 2:00 ظهراً حتى 10:00 مساءً',
             'hours_from' => '14:00',
-            'hours_to' => '22:30',
+            'hours_to' => '22:00',
             'is_open_now' => $this->checkIsOpenNow(),
         ];
     }
@@ -244,8 +244,8 @@ class SalonInfoDataService
         $min = (int) $now->format('i');
 
         $currentMinutes = $hour * 60 + $min;
-        $openMinutes = 14 * 60;       // 14:00
-        $closeMinutes = 22 * 60 + 30; // 22:30
+        $openMinutes = 14 * 60;       // 14:00 (2:00 PM)
+        $closeMinutes = 22 * 60;      // 22:00 (10:00 PM)
 
         return $currentMinutes >= $openMinutes && $currentMinutes <= $closeMinutes;
     }

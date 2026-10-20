@@ -24,6 +24,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('أناقتكِ تتجدد');
         $response->assertSee('عن هيرلاين');
         $response->assertSee('حسابي');
+        $response->assertSee('سياسة الخصوصية');
     });
 
     test('about page returns 200 and renders bio, hours, and location', function () {

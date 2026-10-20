@@ -40,14 +40,9 @@
             <!-- Item 1: التعريف بالصالون (من نحن) -->
             <button onclick="openSidebarSection('about')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                        <i class="fa-solid fa-crown text-sm"></i>
-                    </div>
-                    <div>
-                        <span class="block text-sm font-extrabold text-sage-dark">التعريف بالصالون</span>
-                        <span class="text-[11px] text-gray-500">(من نحن)</span>
-                    </div>
+                <div>
+                    <span class="block text-sm font-extrabold text-sage-dark">التعريف بالصالون</span>
+                    <span class="text-[11px] text-gray-500">(من نحن)</span>
                 </div>
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>
@@ -67,16 +62,26 @@
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>
 
-            <!-- Item 3: التواصل (اتصل بنا) -->
+            <!-- Item 3: للتواصل والاستفسار -->
             <button onclick="openSidebarSection('contact')" 
+                    class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
+                <div>
+                    <span class="block text-sm font-extrabold text-sage-dark">للتواصل والاستفسار</span>
+                    <span class="text-[11px] text-gray-500">(اتصل بنا)</span>
+                </div>
+                <span class="text-lg text-gold-dark font-bold">‹</span>
+            </button>
+
+            <!-- Item 4: سياسة الخصوصية -->
+            <button onclick="openSidebarSection('privacy')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
                 <div class="flex items-center gap-3">
                     <div class="w-10 h-10 rounded-xl bg-white shadow-xs text-sage-dark group-hover:bg-sage-dark group-hover:text-gold flex items-center justify-center transition">
-                        <i class="fa-solid fa-phone-volume text-sm"></i>
+                        <i class="fa-solid fa-shield-halved text-sm"></i>
                     </div>
                     <div>
-                        <span class="block text-sm font-extrabold text-sage-dark">التواصل</span>
-                        <span class="text-[11px] text-gray-500">(اتصل بنا)</span>
+                        <span class="block text-sm font-extrabold text-sage-dark">سياسة الخصوصية</span>
+                        <span class="text-[11px] text-gray-500">(حماية وسرية بياناتكِ)</span>
                     </div>
                 </div>
                 <span class="text-lg text-gold-dark font-bold">‹</span>

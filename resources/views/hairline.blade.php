@@ -387,72 +387,116 @@
                                             <h4 class="font-extrabold text-sm text-sage-dark">${sp.name}</h4>
                                             <p class="text-xs text-gold-dark font-bold">${sp.role}</p>
                                             <span class="inline-block mt-1 text-[11px] text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">
-                                                ${sp.experience} • ★ ${sp.rating}
+                                                ${sp.experience}
                                             </span>
                                         </div>
                                     </div>
                                 </div>
                                 <p class="text-xs text-gray-600 leading-relaxed">${sp.bio}</p>
-                                <button onclick="openBookingFlow()" class="w-full py-2.5 rounded-xl bg-sage-dark text-white text-xs font-bold hover:bg-sage-deeper transition">
-                                    احجزي موعداً مع ${sp.name.split(' ')[1]}
-                                </button>
                             </div>
                         `).join('')}
                     </div>
                 `;
             } else if (sectionType === 'contact') {
-                sheetTitle.textContent = "التواصل (اتصل بنا)";
+                sheetTitle.textContent = "للتواصل والاستفسار";
                 sheetSubtitle.textContent = "نسعد بخدمتكِ والرد على استفساراتكِ";
                 sheetBody.innerHTML = `
                     <div class="space-y-3.5 animate-step">
-                        <div class="p-4 rounded-2xl bg-sage-soft border border-sage-light flex items-center gap-3.5">
-                            <div class="w-11 h-11 rounded-xl bg-sage-dark text-gold flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-clock text-lg"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-extrabold text-sm text-sage-dark">أوقات العمل الرسمية</h4>
-                                <p class="text-xs text-gray-600 mt-0.5">{{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 10:00 صباحاً حتى 10:00 مساءً' }}</p>
-                            </div>
+                        <div class="p-4 rounded-2xl bg-sage-soft border border-sage-light">
+                            <h4 class="font-extrabold text-sm text-sage-dark">أوقات العمل الرسمية</h4>
+                            <p class="text-xs text-gray-600 mt-1">{{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}</p>
                         </div>
 
                         <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-xl bg-gold-light text-gold-dark flex items-center justify-center">
-                                    <i class="fa-solid fa-phone text-base"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-extrabold text-sm text-sage-dark">الرقم الموحد للحجوزات</h4>
-                                    <p class="text-xs text-gray-500 dir-ltr text-right">054 885 7705</p>
-                                </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-sage-dark">الرقم الموحد للحجوزات</h4>
+                                <p class="text-xs text-gray-500 dir-ltr text-right mt-0.5">054 885 7705</p>
                             </div>
-                            <a href="tel:0548857705" class="px-3.5 py-2 rounded-xl bg-sage-dark text-white text-xs font-bold">
+                            <a href="tel:0548857705" class="px-4 py-2 rounded-xl bg-sage-dark text-white text-xs font-bold hover:bg-sage-deeper transition">
                                 اتصال
                             </a>
                         </div>
 
                         <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                    <i class="fa-brands fa-whatsapp text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-extrabold text-sm text-sage-dark">خدمة عميلات واتساب</h4>
-                                    <p class="text-xs text-gray-500">استشارة مجانية للشعر قبل الحجز</p>
-                                </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-sage-dark">خدمة عميلات واتساب</h4>
+                                <p class="text-xs text-gray-500 mt-0.5">استشارة مجانية للشعر قبل الحجز</p>
                             </div>
-                            <a href="https://wa.me/966548857705" target="_blank" class="px-3.5 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold">
+                            <a href="https://wa.me/966548857705" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
                                 مراسلة
                             </a>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-xl bg-gold-light text-gold-dark flex items-center justify-center shrink-0">
-                                <i class="fa-solid fa-map-location-dot text-base"></i>
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50">
+                            <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
+                            <p class="text-xs text-gray-600 mt-1">{{ $location['full_address_ar'] ?? 'الرياض - حي الملقا، طريق أنس بن مالك' }}</p>
+                        </div>
+                    </div>
+                `;
+            } else if (sectionType === 'privacy') {
+                sheetTitle.textContent = "سياسة الخصوصية";
+                sheetSubtitle.textContent = "التزامنا التام بخصوصيتكِ وسلامة وأمان بياناتكِ";
+                sheetBody.innerHTML = `
+                    <div class="space-y-3.5 animate-step">
+                        <!-- Card 1: خصوصية الجلسات وبيئة الصالون -->
+                        <div class="p-4 rounded-2xl bg-sage-soft border border-sage-light flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-sage-dark text-gold flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-shield-halved text-base"></i>
                             </div>
                             <div>
-                                <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
-                                <p class="text-xs text-gray-600">{{ $location['full_address_ar'] ?? 'الرياض - حي الملقا، طريق أنس بن مالك' }}</p>
+                                <h4 class="font-extrabold text-sm text-sage-dark">خصوصية المكان والزيارة</h4>
+                                <p class="text-xs text-gray-600 leading-relaxed mt-1">
+                                    نضمن لكِ بيئة نسائية خاصة ومحمية بالكامل 100%. تم تصميم كافة أقسام صالون هيرلاين وغرف المعالجات لتوفير أقصى درجات الراحة والاستقلالية والسكينة لكافة عميلاتنا.
+                                </p>
                             </div>
+                        </div>
+
+                        <!-- Card 2: سياسة حظر التصوير -->
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-gold-light text-gold-dark flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-camera-slash text-base"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-sage-dark">حظر التصوير الصارم</h4>
+                                <p class="text-xs text-gray-600 leading-relaxed mt-1">
+                                    يُمنع منعاً باتاً التقاط الصور أو تسجيل مقاطع الفيديو داخل أروقة وأقسام الصالون احتراماً لخصوصية العميلات. أي توثيق لنتائج الخدمات لا يتم إلا بطلب وموافقة صريحة من العميلة وبما يحفظ هويتها.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: سرية بيانات الحجز والعميلات -->
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-sage-light text-sage-dark flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-user-lock text-base"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-sage-dark">سرية البيانات الشخصية</h4>
+                                <p class="text-xs text-gray-600 leading-relaxed mt-1">
+                                    بياناتكِ المسجلة (الاسم، رقم الجوال، وسجل الحجوزات) مشفرة ومحمية وتُستخدم فقط لتأكيد مواعيدكِ وإرسال تذكيرات الحجز، ولا يتم مشاركتها أو بيعها لأي جهة خارجية إطلاقاً.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 4: أمان المعاملات المالية والدفع -->
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-start gap-3.5">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                                <i class="fa-solid fa-credit-card text-base"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-extrabold text-sm text-sage-dark">أمان المدفوعات</h4>
+                                <p class="text-xs text-gray-600 leading-relaxed mt-1">
+                                    تتم كافة عمليات الحجز والدفع الإلكتروني عبر بوابات دفع بنكية معتمدة ومشفّرة بمعايير الأمان العالمية، دون تخزين أي بيانات للبطاقات البنكية أو أرقام سرية لدينا.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Card 5: الدعم والاستفسار -->
+                        <div class="p-3.5 rounded-xl bg-gold-light/40 border border-gold-soft/40 flex items-center justify-between text-xs">
+                            <span class="text-gray-600 font-medium">لديكِ استفسار حول سياسة الخصوصية؟</span>
+                            <button onclick="openSidebarSection('contact')" class="font-bold text-gold-dark hover:underline flex items-center gap-1">
+                                <span>تواصلي معنا</span>
+                                <i class="fa-solid fa-arrow-left text-[10px]"></i>
+                            </button>
                         </div>
                     </div>
                 `;

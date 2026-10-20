@@ -42,7 +42,7 @@
             </button>
 
             <!-- 2. Quick Working Hours / Status Icon -->
-            <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 10:00 ص حتى 10:00 م' }}')" 
+            <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}')" 
                     title="أوقات العمل"
                     class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-gray-900 shadow-md shadow-black/10 flex items-center justify-center hover:bg-white/90 hover:text-primary transition active:scale-95 relative">
                 <span class="w-2 h-2 rounded-full bg-emerald-500 absolute top-1.5 right-1.5 sm:top-2 sm:right-2 ring-2 ring-white"></span>
