@@ -1,7 +1,7 @@
 <section aria-label="أقسام الخدمات الرئيسية" class="space-y-3.5">
     
     <!-- Row 1: جميع الخدمات (زيارة فورية) -->
-    <button onclick="openAllServicesModal()" 
+    <button onclick="switchTab('services')" 
             class="w-full relative overflow-hidden bg-white rounded-2xl p-4 sm:p-5 shadow-card border border-gold-soft/50 hover:border-primary hover:shadow-lg hover:shadow-primary/10 transition-all duration-300 active:scale-[0.985] cursor-pointer text-center group">
         <!-- Top subtle accent shimmer line -->
         <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent group-hover:via-primary transition-all duration-300"></div>

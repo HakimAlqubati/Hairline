@@ -21,10 +21,13 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Google Fonts: Tajawal & Cormorant Garamond -->
+    <!-- Google Fonts: Tajawal, Montserrat & Cormorant Garamond -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,600&family=Montserrat:wght@300;400;500;600;700&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Official Service Menu Stylesheet -->
+    <link rel="stylesheet" href="{{ asset('css/services-menu.css') }}">
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -148,6 +151,7 @@
         </main>
 
         <!-- 3. DYNAMIC TAB VIEWS -->
+        <x-tabs.services :menuPages="$menuPages ?? []" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" />
         <x-tabs.account />
 
@@ -196,9 +200,9 @@
         // Confirmed bookings in "حسابي"
         let confirmedBookings = [
             {
-                id: "HL-8492",
+                id: "482",
                 categoryTitle: "المعالجات الحارة",
-                serviceName: "البروتين بالتمليس الحراري (كامل الشعر)",
+                serviceName: "البروتين بالتمليس الحراري",
                 specialistName: "الأخصائية نورة العتيبي",
                 date: "الأحد القادم",
                 time: "05:30 م",
@@ -280,22 +284,28 @@
             const homeView = document.getElementById('mainHomeView');
             const aboutView = document.getElementById('aboutTabView');
             const accountView = document.getElementById('accountTabView');
+            const servicesView = document.getElementById('servicesTabView');
 
-            homeView.classList.add('hidden');
-            aboutView.classList.add('hidden');
-            accountView.classList.add('hidden');
+            if (homeView) homeView.classList.add('hidden');
+            if (aboutView) aboutView.classList.add('hidden');
+            if (accountView) accountView.classList.add('hidden');
+            if (servicesView) servicesView.classList.add('hidden');
 
             if (tabName === 'home') {
-                homeView.classList.remove('hidden');
+                if (homeView) homeView.classList.remove('hidden');
                 updateUrl('/');
             }
+            if (tabName === 'services') {
+                if (servicesView) servicesView.classList.remove('hidden');
+                updateUrl('/services');
+            }
             if (tabName === 'about') {
-                aboutView.classList.remove('hidden');
+                if (aboutView) aboutView.classList.remove('hidden');
                 updateUrl('/about');
             }
             if (tabName === 'account') {
                 renderMyBookings();
-                accountView.classList.remove('hidden');
+                if (accountView) accountView.classList.remove('hidden');
                 updateUrl('/profile');
             }
 
@@ -513,71 +523,8 @@
         /* WALK-IN SERVICES CATALOG (من ملف الـ PDF)                                   */
         /* -------------------------------------------------------------------------- */
         function openAllServicesModal() {
-            updateUrl('/services');
-            const sheetTitle = document.getElementById('sheetTitle');
-            const sheetSubtitle = document.getElementById('sheetSubtitle');
-            const sheetBackBtn = document.getElementById('sheetBackBtn');
-            const bookingStepper = document.getElementById('bookingStepper');
-            const sheetBody = document.getElementById('sheetBody');
-            const sheetFooter = document.getElementById('sheetFooter');
-
-            sheetTitle.textContent = "جميع الخدمات (زيارة فورية)";
-            sheetSubtitle.textContent = "قائمة الخدمات المعتمدة من ملف الصالون للحضور المباشر";
-            sheetBackBtn.classList.add('hidden');
-            bookingStepper.classList.add('hidden');
-
-            sheetBody.innerHTML = `
-                <div class="space-y-5 animate-step">
-                    <!-- Informative Banner -->
-                    <div class="p-3.5 rounded-2xl bg-gold-light/80 border border-gold/40 flex items-center gap-3">
-                        <div class="w-9 h-9 rounded-full bg-gold text-white flex items-center justify-center shrink-0">
-                            <i class="fa-solid fa-circle-info text-sm"></i>
-                        </div>
-                        <p class="text-xs text-sage-dark font-medium leading-relaxed">
-                            جميع الأسعار معتمدة ومطابقة لكتالوج الصالون الرسمي وشاملة ضريبة القيمة المضافة 15%. يمكنكِ الحضور مباشرة للخدمات السريعة أو الحجز مع أخصائيتكِ المفضلة.
-                        </p>
-                    </div>
-
-                    ${walkInServicesData.map(group => `
-                        <div class="space-y-2.5">
-                            <h4 class="font-extrabold text-sm text-sage-dark flex items-center gap-2">
-                                <span class="w-2 h-2 rounded-full bg-gold"></span>
-                                <span>${group.category}</span>
-                            </h4>
-                            <div class="space-y-2">
-                                ${group.items.map(item => `
-                                    <div class="p-3.5 rounded-2xl bg-surface border border-gray-100 flex items-center justify-between">
-                                        <div>
-                                            <h5 class="font-bold text-xs sm:text-sm text-sage-dark">${item.name}</h5>
-                                            <div class="flex items-center gap-2 mt-1">
-                                                <span class="text-[11px] text-gray-500">
-                                                    <i class="fa-regular fa-clock ml-1 text-gold-dark"></i>${item.duration}
-                                                </span>
-                                                <span class="px-2 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold">
-                                                    ${item.tag}
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <span class="font-extrabold text-sm text-gold-dark bg-gold-light px-3 py-1.5 rounded-xl border border-gold/20 shrink-0">
-                                            ${item.price}
-                                        </span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-
-            sheetFooter.classList.remove('hidden');
-            sheetFooter.innerHTML = `
-                <button onclick="openBookingFlow()" class="w-full py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-sm hover:bg-sage-deeper transition flex items-center justify-center gap-2 shadow-md">
-                    <i class="fa-regular fa-calendar-check text-gold"></i>
-                    <span>الانتقال إلى الخدمات المتاحة للحجز (مع الأخصائيات)</span>
-                </button>
-            `;
-
-            showBottomSheet();
+            closeBottomSheet();
+            switchTab('services');
         }
 
         /* -------------------------------------------------------------------------- */
@@ -872,54 +819,44 @@
 
             // STEP 4: شاشة التأكيد
             else if (bookingState.step === 4) {
-                sheetTitle.textContent = "تم تأكيد حجزكِ بنجاح";
-                sheetSubtitle.textContent = "نتطلع لاستقبالكِ في هيرلاين بيوتي لاونج";
-                sheetFooter.classList.add('hidden');
-
                 const lastBooking = confirmedBookings[0];
+                sheetTitle.textContent = "تم تأكيد حجزك بنجاح";
+                sheetSubtitle.textContent = "رقم الحجز: " + lastBooking.id;
+                sheetFooter.classList.add('hidden');
 
                 sheetBody.innerHTML = `
                     <div class="text-center py-4 space-y-4 animate-step">
-                        <div class="w-20 h-20 rounded-full bg-sage-light border-4 border-gold mx-auto flex items-center justify-center text-sage-dark text-3xl shadow-md">
-                            <i class="fa-solid fa-check text-sage-dark"></i>
+                        <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
+                            <i class="fa-solid fa-check"></i>
                         </div>
 
                         <div>
-                            <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">
-                                رقم الحجز #${lastBooking.id}
-                            </span>
-                            <h3 class="text-xl font-black text-sage-dark mt-2">موعدكِ مؤكد يا جميلة!</h3>
-                            <p class="text-xs text-gray-500 mt-1">تم إرسال تفاصيل الموعد إلى حسابكِ</p>
+                            <h3 class="text-xl font-black text-sage-dark">تم تأكيد حجزك بنجاح</h3>
+                            <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
+                                رقم الحجز: ${lastBooking.id}
+                            </div>
                         </div>
 
-                        <!-- Receipt Card -->
-                        <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-2.5 text-xs">
-                            <div class="flex justify-between py-1 border-b border-gray-200/60">
-                                <span class="text-gray-500">القسم الرئيسي:</span>
-                                <span class="font-bold text-sage-dark">${lastBooking.categoryTitle}</span>
+                        <!-- Receipt Card: فقط العناصر الثلاثة المطلوبة بدون تفاصيل أخرى -->
+                        <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
+                            <div class="pb-2.5 border-b border-gray-200/60">
+                                <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
+                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.serviceName}</span>
                             </div>
-                            <div class="flex justify-between py-1 border-b border-gray-200/60">
-                                <span class="text-gray-500">الخدمة المختارة:</span>
-                                <span class="font-extrabold text-sage-dark max-w-[200px] text-left">${lastBooking.serviceName}</span>
+                            <div class="pb-2.5 border-b border-gray-200/60">
+                                <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
+                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
                             </div>
-                            <div class="flex justify-between py-1 border-b border-gray-200/60">
-                                <span class="text-gray-500">الأخصائية:</span>
-                                <span class="font-extrabold text-gold-dark">${lastBooking.specialistName}</span>
-                            </div>
-                            <div class="flex justify-between py-1 border-b border-gray-200/60">
-                                <span class="text-gray-500">الموعد:</span>
-                                <span class="font-bold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
-                            </div>
-                            <div class="flex justify-between pt-1">
-                                <span class="text-gray-500 font-bold">التكلفة التقديرية (شاملة VAT):</span>
-                                <span class="font-black text-sm text-sage-dark">${lastBooking.price}</span>
+                            <div class="pt-0.5">
+                                <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
+                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
                             </div>
                         </div>
 
                         <div class="flex gap-2.5 pt-2">
                             <button onclick="closeBottomSheet(); switchTab('account');" 
                                     class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition">
-                                عرض في حجوزاتي
+                                  حجوزاتي
                             </button>
                             <button onclick="closeBottomSheet()" 
                                     class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition">
@@ -972,7 +909,7 @@
             if (!bookingState.selectedCategory || !bookingState.selectedSubService || !bookingState.selectedSpecialist) return;
 
             const newBooking = {
-                id: "HL-" + Math.floor(1000 + Math.random() * 9000),
+                id: String(Math.floor(100 + Math.random() * 900)),
                 categoryTitle: bookingState.selectedCategory.title,
                 serviceName: bookingState.selectedSubService.name,
                 specialistName: bookingState.selectedSpecialist.name,
@@ -1178,11 +1115,47 @@
             }, 300);
         }
 
+        // Instant Search & Highlight across all services in servicesTabView
+        function initServicesSearch() {
+            const searchInput = document.getElementById('serviceSearch');
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (!searchInput) return;
+
+            searchInput.addEventListener('input', () => {
+                const query = searchInput.value.trim().toLowerCase();
+                if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
+
+                const rows = document.querySelectorAll('#servicesTabView .service-row');
+                let firstMatch = null;
+
+                rows.forEach(row => {
+                    row.classList.remove('search-highlight');
+                    if (query.length >= 2 && row.textContent.toLowerCase().includes(query)) {
+                        row.classList.add('search-highlight');
+                        if (!firstMatch) firstMatch = row;
+                    }
+                });
+
+                if (firstMatch) {
+                    firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            });
+
+            if (clearBtn) {
+                clearBtn.addEventListener('click', () => {
+                    searchInput.value = '';
+                    clearBtn.classList.add('hidden');
+                    document.querySelectorAll('#servicesTabView .service-row').forEach(r => r.classList.remove('search-highlight'));
+                });
+            }
+        }
+
         // Initialize on Window Load
         window.onload = function () {
             startHeroSlider();
             updateBookingBadge();
             renderMyBookings();
+            initServicesSearch();
 
             // Listen to native fullscreen change events (e.g. user presses ESC or browser controls)
             ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
@@ -1196,7 +1169,7 @@
             } else if (initial === 'account') {
                 switchTab('account');
             } else if (initial === 'services') {
-                openAllServicesModal();
+                switchTab('services');
             } else if (initial === 'booking') {
                 openBookingFlow();
             } else {

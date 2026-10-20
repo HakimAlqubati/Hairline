@@ -9,7 +9,7 @@
         </button>
 
         <!-- 2. الخدمات -->
-        <button onclick="openAllServicesModal()" id="nav-services" class="nav-item flex flex-col items-center justify-center py-1 text-gray-400 hover:text-sage-dark font-medium transition">
+        <button onclick="switchTab('services')" id="nav-services" class="nav-item flex flex-col items-center justify-center py-1 text-gray-400 hover:text-sage-dark font-medium transition cursor-pointer">
             <i class="fa-solid fa-spa text-lg mb-1"></i>
             <span class="text-[11px]">الخدمات</span>
             <span class="w-1.5 h-1.5 rounded-full bg-transparent mt-0.5 nav-dot"></span>

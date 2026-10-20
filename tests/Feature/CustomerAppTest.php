@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Services\FrontData\BookingCalendarDataService;
 use App\Services\FrontData\CartAndCheckoutDataService;
 use App\Services\FrontData\CatalogDataService;
+use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\CustomerAccountDataService;
 use App\Services\FrontData\HomeServiceDataService;
 use App\Services\FrontData\SalonInfoDataService;
@@ -38,18 +39,23 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('التعريف بالصالون');
     });
 
-    test('services catalog page returns 200 and lists categories', function () {
+    test('services catalog page returns 200 and renders official 8-page catalog without booking transition button', function () {
         $response = $this->get('/services');
 
         $response->assertStatus(200);
         $response->assertSee('جميع الخدمات (زيارة فورية)');
         $response->assertSee('خدمات الشعر');
         $response->assertSee('معالجات الشعر');
-        $response->assertSee('الاستشوار والتصفيف');
-        $response->assertSee('المناكير والبادكير');
+        $response->assertSee('الاستشوار');
+        $response->assertSee('المناكير و البادكير');
+        $response->assertSee('أطــــوال الشــــعر');
+        $response->assertSee('services-menu.css');
+        $response->assertSee('servicesTabView');
+        $response->assertSee('serviceSearch');
+        $response->assertDontSee('الانتقال إلى الخدمات المتاحة للحجز');
     });
 
-    test('booking page returns 200 and shows all steps', function () {
+    test('booking page returns 200 and shows all steps including confirmation details', function () {
         $response = $this->get('/booking');
 
         $response->assertStatus(200);
@@ -59,6 +65,13 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('جلسات العناية بالشعر');
         $response->assertSee('الاستشوار والتصفيف');
         $response->assertSee('المناكير والبادكير');
+        $response->assertSee('تم تأكيد حجزك بنجاح');
+        $response->assertSee('الخدمة المختارة:');
+        $response->assertSee('الأخصائية:');
+        $response->assertSee('الموعد:');
+        $response->assertDontSee('القسم الرئيسي:');
+        $response->assertDontSee('التكلفة التقديرية (شاملة VAT):');
+        $response->assertDontSee('موعدكِ مؤكد يا جميلة!');
     });
 
     test('profile page returns 200 and shows member profile and bookings', function () {
@@ -105,6 +118,19 @@ describe('Static Data Services', function () {
         $totals = $service->calculateTotals(['hs_full_cut', 'nl_manicure']);
         expect($totals['total_price'])->toBe(150);
         expect($totals['count'])->toBe(2);
+    });
+
+    test('CatalogMenuDataService returns all 8 official menu pages', function () {
+        $service = app(CatalogMenuDataService::class);
+
+        $pages = $service->getMenuPages();
+        expect($pages)->toHaveCount(8);
+        expect($pages[0]['title_ar'])->toBe('خدمات الشعر');
+        expect($pages[1]['title_ar'])->toBe('معالجات الشعر');
+        expect($pages[2]['title_ar'])->toBe('جلسات العناية بالشعر');
+        expect($pages[3]['title_ar'])->toBe('الاستشوار');
+        expect($pages[4]['title_ar'])->toBe('المناكير و البادكير');
+        expect($pages[7]['title_ar'])->toBe('أطــــوال الشــــعر');
     });
 
     test('HomeServiceDataService covers 12 districts across 3 zones', function () {

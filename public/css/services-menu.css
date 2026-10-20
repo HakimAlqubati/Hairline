@@ -1,0 +1,330 @@
+/* ==========================================================================
+   HAIRLINE BEAUTY LOUNGE — Official Service Menu 2026 Stylesheet
+   ========================================================================== */
+
+:root {
+    --brand-gold: #b7a077;
+    --brand-gold-text: #b39d76;
+    --brand-gray-ar: #7e7c78;
+    --brand-page-bg: #fdfbf7;
+}
+
+.font-en {
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Services Tab Main View */
+#servicesTabView {
+    width: 100%;
+    background-color: #ece8e0;
+    color: var(--brand-gray-ar);
+    padding-bottom: 2rem;
+}
+
+/* A4 Menu Page Container - Exact match to original PDF page */
+.menu-page {
+    width: 100%;
+    max-width: 840px;
+    min-height: 1188px;
+    background-color: var(--brand-page-bg);
+    margin: 0 auto 2.5rem auto;
+    position: relative;
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.06);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.2rem 3.2rem 1.8rem 3.2rem;
+    overflow: hidden;
+}
+
+/* Flowing Vertical Wave Lines Container */
+.wave-bg-layer {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Content wrapper above wave lines */
+.page-content {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Main Section Title (e.g., خدمات الشعر / HAIR SERVICES) */
+.section-main-title {
+    text-align: center;
+    margin: 0.4rem auto 1.6rem auto;
+}
+
+.section-main-title .ar-title {
+    font-size: 1.75rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    line-height: 1.25;
+    margin: 0;
+}
+
+.section-main-title .en-title {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Sub-Section Title (e.g., المعالجات الحارة / المعالجات الباردة) */
+.subsection-title {
+    text-align: center;
+    margin: 1rem auto 0.9rem auto;
+}
+
+.subsection-title .ar {
+    font-size: 1.35rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    display: block;
+    line-height: 1.25;
+}
+
+.subsection-title .en {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    display: block;
+}
+
+/* Category Group Layout: Right Side Label + Left/Center Services (NO borders/boxes) */
+.category-group {
+    display: grid;
+    grid-template-columns: 165px 1fr;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 1.35rem;
+}
+
+.category-side-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.category-side-label .ar {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    line-height: 1.25;
+}
+
+.category-side-label .en {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.88rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Service Row (NO borders, NO boxes around service name) */
+.service-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0.36rem 0;
+    transition: transform 0.15s ease;
+}
+
+.service-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+}
+
+.service-info .ar-name {
+    font-size: 1.02rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    line-height: 1.3;
+}
+
+.service-info .ar-sub {
+    font-size: 0.78rem;
+    font-weight: 400;
+    color: var(--brand-gray-ar);
+    line-height: 1.25;
+    margin-top: 1px;
+}
+
+.service-info .en-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    margin-top: 2px;
+}
+
+/* Solid Gold Price Pill on the Left */
+.price-badge {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #ffffff;
+    background-color: var(--brand-gold);
+    padding: 0.24rem 0.6rem;
+    border-radius: 5px;
+    width: 155px;
+    text-align: center;
+    white-space: nowrap;
+    direction: ltr;
+    letter-spacing: 0.03em;
+    flex-shrink: 0;
+}
+
+/* Multi-Length Service Layout (Right Service Title + Center Length + Left Price) */
+.multi-length-block {
+    display: grid;
+    grid-template-columns: 230px 1fr;
+    gap: 14px;
+    align-items: center;
+    margin-bottom: 1.25rem;
+}
+
+.multi-length-title {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 0.25rem;
+}
+
+.multi-length-title .ar-name {
+    font-size: 1.08rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    line-height: 1.35;
+}
+
+.multi-length-title .en-name {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-top: 3px;
+}
+
+.length-rows-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.length-row-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.22rem 0;
+}
+
+.length-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    flex: 1;
+}
+
+.length-label .ar {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--brand-gray-ar);
+    line-height: 1.15;
+}
+
+.length-label .en {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.64rem;
+    font-weight: 400;
+    color: var(--brand-gold-text);
+    letter-spacing: 0.06em;
+    margin-top: 1px;
+}
+
+/* Highlight for search results */
+.search-highlight {
+    background-color: rgba(183, 160, 119, 0.25) !important;
+    border-radius: 6px;
+    box-shadow: 0 0 0 2px rgba(183, 160, 119, 0.45);
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Page Footer */
+.page-footer {
+    margin-top: auto;
+    padding-top: 1.2rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Responsive adjustments for mobile screens */
+@media (max-width: 680px) {
+    .menu-page {
+        padding: 1.5rem 0.85rem;
+        min-height: auto;
+        margin-bottom: 1.25rem;
+    }
+    .category-group,
+    .multi-length-block {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    .category-side-label,
+    .multi-length-title {
+        margin-bottom: 0.25rem;
+    }
+    .price-badge {
+        width: 125px;
+        font-size: 0.8rem;
+    }
+}
+
+/* Print Media Query */
+@media print {
+    body {
+        background: #ffffff !important;
+    }
+    .no-print {
+        display: none !important;
+    }
+    .menu-page {
+        box-shadow: none !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+        width: 210mm !important;
+        height: 297mm !important;
+        page-break-after: always;
+        break-after: page;
+    }
+}
