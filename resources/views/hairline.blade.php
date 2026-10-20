@@ -353,7 +353,7 @@
                             </div>
                         </div>
                         <p class="text-sm text-gray-600 leading-relaxed">
-                            تأسس صالون <strong class="text-sage-dark">هيرلاين بيوتي لاونج</strong> ليكون الملاذ الأول لكل سيدة تبحث عن التميز في العناية بشعرها وجمالها في حي الملقا بالرياض. نعتمد في كافة جلساتنا على تشخيص دقيق لطبيعة الشعر وأحدث المعالجات المعتمدة في قائمة خدماتنا الرسمية.
+                            تأسس صالون <strong class="text-sage-dark">هيرلاين</strong> ليكون الملاذ الأول لكل سيدة تبحث عن التميز في العناية بشعرها وجمالها في حي المصيف بالرياض (مخرج 5). نعتمد في كافة جلساتنا على تشخيص دقيق لطبيعة الشعر وأحدث المعالجات المعتمدة في قائمة خدماتنا الرسمية.
                         </p>
                         <div class="bg-sage-soft p-4 rounded-2xl border border-sage-light space-y-2">
                             <h4 class="font-extrabold text-xs text-sage-dark flex items-center gap-2">
@@ -427,9 +427,16 @@
                             </a>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50">
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 space-y-2">
                             <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
-                            <p class="text-xs text-gray-600 mt-1">{{ $location['full_address_ar'] ?? 'الرياض - حي الملقا، طريق أنس بن مالك' }}</p>
+                            <p class="text-xs text-gray-700 font-medium leading-relaxed">{{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}</p>
+                            <a href="{{ $location['google_maps_url'] ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5' }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="inline-flex items-center gap-1.5 text-xs font-bold text-gold-dark hover:underline pt-1">
+                                <span>عرض الموقع على خرائط جوجل (Google Maps)</span>
+                                <span class="text-[10px]">↗</span>
+                            </a>
                         </div>
                     </div>
                 `;

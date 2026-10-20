@@ -86,7 +86,7 @@ describe('Static Data Services', function () {
 
         $location = $service->getLocation();
         expect($location['city'])->toBe('الرياض');
-        expect($location['district'])->toBe('حي الملقا');
+        expect($location['district'])->toBe('حي المصيف');
     });
 
     test('CatalogDataService provides 7 categories and search works', function () {

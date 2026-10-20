@@ -170,14 +170,14 @@ class SalonInfoDataService
     {
         return [
             'city' => 'الرياض',
-            'district' => 'حي الملقا',
-            'street' => 'طريق أنس بن مالك',
-            'full_address_ar' => 'الرياض - حي الملقا، طريق أنس بن مالك',
+            'district' => 'حي المصيف',
+            'street' => 'مخرج 5',
+            'full_address_ar' => 'الرياض - حي المصيف، مخرج 5',
             'parking_note' => 'مواقف خاصة متوفرة أمام الصالون مباشرة',
-            'google_maps_url' => 'https://maps.google.com/?q=Riyadh+Al+Malqa',
+            'google_maps_url' => 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5',
             'coordinates' => [
-                'lat' => 24.7880,
-                'lng' => 46.6352,
+                'lat' => 24.7677,
+                'lng' => 46.6896,
             ],
         ];
     }
