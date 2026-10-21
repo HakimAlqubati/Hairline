@@ -455,36 +455,57 @@
                             <p class="text-xs text-gray-600 mt-1">{{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}</p>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center justify-between">
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
-                                <h4 class="font-extrabold text-sm text-sage-dark">الرقم الموحد للحجوزات</h4>
+                                <h4 class="font-extrabold text-sm text-sage-dark">التواصل والحجوزات</h4>
                                 <p class="text-xs text-gray-500 dir-ltr text-right mt-0.5">0548857705</p>
                             </div>
-                            <a href="tel:0548857705" class="px-4 py-2 rounded-xl bg-sage-dark text-white text-xs font-bold hover:bg-sage-deeper transition">
-                                اتصال
-                            </a>
-                        </div>
-
-                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-center justify-between">
-                            <div>
-                                <h4 class="font-extrabold text-sm text-sage-dark">خدمة عميلات واتساب</h4>
-                                <p class="text-xs text-gray-500 mt-0.5">استشارة مجانية للشعر قبل الحجز</p>
+                            <div class="flex items-center gap-2">
+                                <a href="https://wa.me/966548857705" target="_blank" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
+                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    <span>واتساب</span>
+                                </a>
+                                <a href="tel:0548857705" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-sage-dark hover:bg-sage-deeper text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
+                                    <i class="fa-solid fa-phone text-xs"></i>
+                                    <span>اتصال</span>
+                                </a>
                             </div>
-                            <a href="https://wa.me/966548857705" target="_blank" class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition">
-                                مراسلة
-                            </a>
                         </div>
 
-                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 space-y-2">
-                            <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
-                            <p class="text-xs text-gray-700 font-medium leading-relaxed">{{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}</p>
-                            <a href="{{ $location['google_maps_url'] ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5' }}" 
+                        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <h4 class="font-extrabold text-sm text-sage-dark">العنوان وموقع الصالون</h4>
+                                    <p class="text-xs text-gray-700 font-medium leading-relaxed mt-0.5">{{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}</p>
+                                </div>
+                                <span class="px-2.5 py-1 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30 shrink-0">مخرج 5</span>
+                            </div>
+
+                            <!-- Clickable Map Frame -->
+                            <a href="{{ $location['google_maps_url'] ?? 'https://maps.google.com/?q=24.7677,46.6896' }}" 
                                target="_blank" 
                                rel="noopener noreferrer"
-                               class="inline-flex items-center gap-1.5 text-xs font-bold text-gold-dark hover:underline pt-1">
-                                <span>عرض الموقع على خرائط جوجل (Google Maps)</span>
-                                <span class="text-[10px]">↗</span>
+                               title="انقري لفتح الموقع في تطبيق الخرائط"
+                               class="relative block w-full h-44 rounded-xl overflow-hidden border border-gold-soft shadow-xs group cursor-pointer">
+                                <iframe 
+                                    src="https://maps.google.com/maps?q={{ $location['coordinates']['lat'] ?? '24.7677' }},{{ $location['coordinates']['lng'] ?? '46.6896' }}&hl=ar&z=15&output=embed"
+                                    class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95" 
+                                    loading="lazy" 
+                                    allowfullscreen="" 
+                                    referrerpolicy="no-referrer-when-downgrade"
+                                    title="موقع صالون هيرلاين">
+                                </iframe>
+                                
+                                <!-- Floating Click-to-Open Badge -->
+                                <div class="absolute inset-0 bg-sage-dark/10 group-hover:bg-sage-dark/25 transition-all flex items-end p-2.5">
+                                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/95 backdrop-blur-xs text-xs font-bold text-sage-dark group-hover:bg-gold group-hover:text-white transition shadow-sm border border-gray-200/60">
+                                        <i class="fa-solid fa-location-dot text-gold group-hover:text-white text-xs"></i>
+                                        <span>فتح في خرائط جوجل (Google Maps)</span>
+                                        <span class="text-[11px]">↗</span>
+                                    </span>
+                                </div>
                             </a>
+
                         </div>
                     </div>
                 `;
