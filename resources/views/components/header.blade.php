@@ -93,6 +93,41 @@
     body.simulated-fullscreen #mainHeader {
         max-width: 100% !important;
     }
+
+    /* Header Action Circular Buttons (Guaranteed 1:1 Aspect Ratio & Comfortable Touch Target) */
+    .header-action-btn {
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
+        flex-shrink: 0;
+        aspect-ratio: 1 / 1;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        touch-action: manipulation;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (max-width: 374px) {
+        .header-action-btn {
+            width: 35px;
+            height: 35px;
+            min-width: 35px;
+            min-height: 35px;
+        }
+    }
+
+    @media (min-width: 640px) {
+        .header-action-btn {
+            width: 40px;
+            height: 40px;
+            min-width: 40px;
+            min-height: 40px;
+        }
+    }
 </style>
 
 <!-- Placeholder container to preserve layout flow and prevent layout shift (CLS) -->
@@ -105,11 +140,11 @@
                 <!-- Subtle decorative pattern overlay -->
                 <div class="absolute inset-0 opacity-25 pointer-events-none bg-[radial-gradient(rgba(255,255,255,0.45)_1.2px,transparent_1.2px)] [background-size:16px_16px]"></div>
 
-                <div class="max-w-7xl mx-auto px-5 sm:px-8 md:px-14 lg:px-20 relative flex items-center justify-between gap-2.5 sm:gap-4 w-full">
+                <div class="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-14 lg:px-20 relative flex items-center justify-between gap-2 sm:gap-4 w-full">
                     <!-- Right Side: Official Salon Logo + Name & Subtitle -->
                     <div class="flex items-center gap-2 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('home')">
                         <!-- Circular Luxury Logo with White Background & Border -->
-                        <div class="w-11 h-11 sm:w-14 sm:h-14 md:w-15 md:h-15 rounded-full bg-white border-2 border-white/90 shadow-md ring-2 ring-black/5 flex items-center justify-center relative overflow-hidden shrink-0 p-1 sm:p-1.5 transition-transform hover:scale-105">
+                        <div class="w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-white border-2 border-white/90 shadow-md ring-2 ring-black/5 flex items-center justify-center relative overflow-hidden shrink-0 p-1 sm:p-1.5 transition-transform hover:scale-105">
                             <img src="{{ asset('images/logo.png') }}"
                                  alt="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} - {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}"
                                  class="w-full h-full object-contain">
@@ -156,7 +191,7 @@
                                 class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
                             <div class="flex items-center gap-1.5">
                                 <span>حسابي</span>
-                                <span id="desktopBookingCountBadge" class="hidden px-1.5 py-0.2 rounded-full bg-gold text-white text-[10px] font-black">1</span>
+                                <span id="desktopBookingCountBadge" class="hidden px-1.5 py-0.5 rounded-full bg-gold text-white text-[10px] font-black">1</span>
                             </div>
                             <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
                         </button>
@@ -175,31 +210,34 @@
                                 onclick="toggleFullscreen()" 
                                 title="ملء الشاشة"
                                 aria-label="ملء الشاشة"
-                                class="md:hidden w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-white text-gray-900 shadow-md shadow-black/10 flex items-center justify-center hover:bg-white/90 hover:text-primary transition active:scale-95">
-                            <i id="fullscreenIcon" class="fa-solid fa-expand text-xs sm:text-sm"></i>
+                                class="header-action-btn md:hidden bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">
+                            <i id="fullscreenIcon" class="fa-solid fa-expand text-[13px] sm:text-sm"></i>
                         </button>
 
                         <!-- 2. Quick Working Hours / Status Icon -->
                         <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}')" 
                                 title="أوقات العمل"
-                                class="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-white text-gray-900 shadow-md shadow-black/10 flex items-center justify-center hover:bg-white/90 hover:text-primary transition active:scale-95 relative cursor-pointer">
-                            <span class="w-2 h-2 rounded-full bg-gold absolute top-1.5 right-1.5 sm:top-2 sm:right-2 ring-2 ring-white"></span>
-                            <i class="fa-regular fa-bell text-xs sm:text-sm"></i>
+                                aria-label="أوقات العمل"
+                                class="header-action-btn bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">
+                            <span class="w-2.5 h-2.5 rounded-full bg-gold absolute top-1.5 right-1.5 sm:top-2 sm:right-2 ring-2 ring-white"></span>
+                            <i class="fa-regular fa-bell text-[13px] sm:text-sm"></i>
                         </button>
 
                         <!-- 3. Quick Location / Contact Icon -->
                         <button onclick="openSidebarSection('contact')" 
                                 title="موقع الصالون والتواصل"
-                                class="w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-white text-primary shadow-md shadow-black/10 flex items-center justify-center hover:bg-white/90 hover:opacity-80 transition active:scale-95 cursor-pointer">
-                            <i class="fa-solid fa-location-dot text-xs sm:text-sm text-primary"></i>
+                                aria-label="موقع الصالون والتواصل"
+                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-white/95 hover:opacity-80 transition active:scale-95 cursor-pointer">
+                            <i class="fa-solid fa-location-dot text-[13px] sm:text-sm text-primary"></i>
                         </button>
 
                         <!-- 4. Far-Left Sidebar Menu Button (Mobile Only) -->
                         <button id="menuBtn" 
                                 onclick="toggleSidebar(true)" 
+                                title="القائمة الجانبية"
                                 aria-label="القائمة الجانبية"
-                                class="md:hidden w-8.5 h-8.5 sm:w-10 sm:h-10 rounded-full bg-white text-gray-900 shadow-md shadow-black/10 flex items-center justify-center hover:bg-gray-900 hover:text-white transition active:scale-95 border border-white/60">
-                            <i class="fa-solid fa-ellipsis-vertical text-xs sm:text-base"></i>
+                                class="header-action-btn md:hidden bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-gray-900 hover:text-white transition active:scale-95 cursor-pointer border border-white/60">
+                            <i class="fa-solid fa-ellipsis-vertical text-[13px] sm:text-base"></i>
                         </button>
                     </div>
                 </div>
