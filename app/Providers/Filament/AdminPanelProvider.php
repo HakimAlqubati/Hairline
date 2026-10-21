@@ -39,37 +39,30 @@ class AdminPanelProvider extends PanelProvider
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.bookings'))
-                    ->icon('heroicon-o-calendar-days')
                     ->collapsed(false),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.services_catalog'))
-                    ->icon('heroicon-o-sparkles')
                     ->collapsed(false),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.specialists_team'))
-                    ->icon('heroicon-o-user-group')
                     ->collapsed(false),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.customers_loyalty'))
-                    ->icon('heroicon-o-heart')
                     ->collapsed(false),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.website_content'))
-                    ->icon('heroicon-o-globe-alt')
                     ->collapsed(false),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.financials_logistics'))
-                    ->icon('heroicon-o-banknotes')
                     ->collapsed(true),
 
                 NavigationGroup::make()
                     ->label(fn (): string => __('admin.nav.system_settings'))
-                    ->icon('heroicon-o-cog-6-tooth')
                     ->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
