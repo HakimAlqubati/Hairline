@@ -3,7 +3,7 @@
     'stats' => [],
 ])
 
-<section id="aboutTabView" class="hidden flex-1 px-4 pt-5 space-y-4 animate-step">
+<section id="aboutTabView" class="hidden flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-4 animate-step">
     <div class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-soft/40 space-y-4 max-w-4xl mx-auto">
         <div class="flex items-center justify-between">
             <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">من نحن</span>

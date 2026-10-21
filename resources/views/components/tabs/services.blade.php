@@ -33,13 +33,13 @@
     </defs>
 </svg>
 
-<section id="servicesTabView" class="hidden flex-1 animate-step selection:bg-[#b7a077]/30 selection:text-[#4a4336]">
+<section id="servicesTabView" class="hidden flex-1 w-full animate-step selection:bg-[#b7a077]/30 selection:text-[#4a4336]">
 
     <!-- Minimal Search Bar Sticky at Top -->
     <x-services.search-header />
 
     <!-- Main Pages Container -->
-    <main id="pagesContainer" class="py-4 px-1.5 sm:px-3">
+    <main id="pagesContainer" class="py-4 px-1.5 sm:px-3 max-w-7xl mx-auto">
 
         <!-- ==========================================
              PAGE 1: خدمات الشعر | HAIR SERVICES

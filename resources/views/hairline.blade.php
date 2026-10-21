@@ -133,16 +133,16 @@
     </style>
 </head>
 
-<body class="min-h-screen flex justify-center bg-[#E4ECE7] md:bg-[#F3F6F4] selection:bg-sage-dark selection:text-white">
+<body class="min-h-screen bg-[#E4ECE7] md:bg-[#F8FAF9] flex justify-center md:block selection:bg-sage-dark selection:text-white">
 
-    <!-- Responsive App Container (Mobile phone frame on mobile, spacious luxury portal on desktop) -->
-    <div id="appContainer" class="w-full max-w-[480px] md:max-w-6xl lg:max-w-7xl min-h-screen bg-surface relative flex flex-col shadow-2xl md:shadow-lg md:border-x md:border-gray-200/50 overflow-hidden pb-28 md:pb-16 transition-all duration-300">
+    <!-- Responsive App Canvas (Phone frame on mobile, full-screen website layout on desktop) -->
+    <div id="appContainer" class="w-full max-w-[480px] md:max-w-none min-h-screen bg-surface md:bg-transparent relative flex flex-col shadow-2xl md:shadow-none overflow-x-hidden pb-28 md:pb-16 transition-all duration-300">
 
-        <!-- 1. TOP HEADER COMPONENT -->
+        <!-- 1. TOP HEADER COMPONENT (Edge-to-edge full screen with contained inner content) -->
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
 
-        <!-- 2. MAIN HOME VIEW -->
-        <main id="mainHomeView" class="flex-1 px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
+        <!-- 2. MAIN HOME VIEW (Contained in luxury max-w-7xl centered container) -->
+        <main id="mainHomeView" class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
             <!-- Main Service Rows (Strictly 2 Wide Rows) -->
             <x-service-rows />
 
@@ -174,21 +174,18 @@
         <div id="desktopFloatingBookingContainer" class="hidden md:flex fixed bottom-8 left-8 z-40 items-center">
             <button id="desktopFloatingBookingBtn"
                     onclick="toggleDesktopBooking()"
-                    aria-label="احجزي موعدكِ الآن"
-                    title="احجزي موعدكِ الآن"
-                    class="group flex items-center gap-3.5 px-6 py-3.5 rounded-full bg-sage-dark text-white shadow-fab border-2 border-gold/50 hover:border-gold hover:bg-sage-deeper hover:shadow-2xl active:scale-95 transition-all duration-300 cursor-pointer">
+                    aria-label="للحجز"
+                    title="للحجز"
+                    class="group flex items-center gap-2.5 px-5 py-3 rounded-full bg-sage-dark text-white shadow-fab border-2 border-gold/50 hover:border-gold hover:bg-sage-deeper hover:shadow-2xl active:scale-95 transition-all duration-300 cursor-pointer">
                 
                 <!-- Glowing Pulse Indicator -->
-                <span class="relative flex h-3.5 w-3.5">
+                <span class="relative flex h-3 w-3">
                     <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3.5 w-3.5 bg-gold shadow-xs"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-gold shadow-xs"></span>
                 </span>
 
-                <i class="fa-regular fa-calendar-check text-xl text-gold group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
-                <div class="flex flex-col text-right">
-                    <span class="text-sm font-black tracking-wide leading-tight">احجزي موعدكِ الآن</span>
-                    <span class="text-[11px] text-gold-soft font-medium leading-tight">اختيار الخدمة والأخصائية</span>
-                </div>
+                <i class="fa-regular fa-calendar-check text-lg text-gold group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
+                <span class="text-sm font-black tracking-wide">للحجز</span>
             </button>
         </div>
 

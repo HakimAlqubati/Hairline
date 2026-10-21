@@ -18,11 +18,11 @@
         <!-- 3. احجزي (Central Large Prominent Circular Button in Dark Forest Green) -->
         <div class="flex flex-col items-center justify-center relative">
             <button onclick="openBookingFlow()" 
-                    aria-label="احجزي موعدك"
+                    aria-label="للحجز"
                     class="-mt-8 w-16 h-16 rounded-full bg-sage-dark text-white shadow-fab border-4 border-white flex flex-col items-center justify-center hover:bg-sage-deeper active:scale-95 transition-all group">
                 <i class="fa-regular fa-calendar-check text-xl text-gold group-hover:scale-110 transition-transform"></i>
             </button>
-            <span class="text-[11px] font-extrabold text-sage-dark mt-1">احجزي</span>
+            <span class="text-[11px] font-extrabold text-sage-dark mt-1">للحجز</span>
         </div>
 
         <!-- 4. عن هيرلاين -->

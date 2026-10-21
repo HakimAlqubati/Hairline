@@ -3,11 +3,11 @@
     'workingHours' => [],
 ])
 
-<header class="bg-primary pt-5 pb-6 md:py-4 px-4 sm:px-6 lg:px-8 rounded-b-[28px] md:rounded-b-2xl shadow-lg shadow-black/10 relative z-20 border-b border-white/20 transition-all">
+<header class="w-full bg-primary pt-5 pb-6 md:py-4 rounded-b-[28px] md:rounded-b-none shadow-lg shadow-black/10 relative z-20 border-b border-white/20 transition-all">
     <!-- Subtle decorative pattern overlay -->
-    <div class="absolute inset-0 opacity-25 pointer-events-none rounded-b-[28px] md:rounded-b-2xl bg-[radial-gradient(rgba(255,255,255,0.45)_1.2px,transparent_1.2px)] [background-size:16px_16px]"></div>
+    <div class="absolute inset-0 opacity-25 pointer-events-none rounded-b-[28px] md:rounded-b-none bg-[radial-gradient(rgba(255,255,255,0.45)_1.2px,transparent_1.2px)] [background-size:16px_16px]"></div>
 
-    <div class="relative flex items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex items-center justify-between gap-4 w-full">
         <!-- Right Side: Official Salon Logo + Name & Subtitle -->
         <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('home')">
             <!-- Circular Luxury Logo with White Background & Border -->
