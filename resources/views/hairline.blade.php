@@ -15,7 +15,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#1F3A2E">
+    <meta name="theme-color" content="#211C18">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
 
     <!-- Tailwind CSS CDN -->
@@ -44,11 +44,11 @@
                             dark: '#A3803B'
                         },
                         sage: {
-                            light: '#DCE7E0',
-                            soft: '#EDF3EF',
-                            medium: '#8FA998',
-                            dark: '#1F3A2E',
-                            deeper: '#162920'
+                            light: '#EAE4DC',
+                            soft: '#F6F3ED',
+                            medium: '#94887D',
+                            dark: '#211C18',
+                            deeper: '#161311'
                         },
                         gold: {
                             light: '#F6EFE2',
@@ -56,16 +56,16 @@
                             DEFAULT: '{{ $brandPrimaryColor }}',
                             dark: '#A3803B'
                         },
-                        surface: '#F7F8F7'
+                        surface: '#FAF8F5'
                     },
                     fontFamily: {
                         sans: ['Tajawal', 'sans-serif'],
                         serif: ['Cormorant Garamond', 'serif']
                     },
                     boxShadow: {
-                        'card': '0 6px 24px -4px rgba(31, 58, 46, 0.06)',
-                        'floating': '0 -4px 25px rgba(31, 58, 46, 0.08)',
-                        'fab': '0 10px 25px -3px rgba(31, 58, 46, 0.45)'
+                        'card': '0 6px 24px -4px rgba(33, 28, 24, 0.06)',
+                        'floating': '0 -4px 25px rgba(33, 28, 24, 0.08)',
+                        'fab': '0 10px 25px -3px rgba(33, 28, 24, 0.45)'
                     }
                 }
             }
@@ -83,8 +83,8 @@
         }
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #E8EFEA;
-            color: #1F3A2E;
+            background-color: #F6F3ED;
+            color: #211C18;
             overflow-x: hidden;
         }
         .no-scrollbar::-webkit-scrollbar {
@@ -124,7 +124,7 @@
             animation: fadeSlideUp 0.3s ease-out forwards;
         }
         body.simulated-fullscreen {
-            background-color: #F7F8F7 !important;
+            background-color: #FAF8F5 !important;
         }
         body.simulated-fullscreen #appContainer {
             max-width: 100% !important;
@@ -133,7 +133,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-[#E4ECE7] md:bg-[#F8FAF9] flex justify-center md:block selection:bg-sage-dark selection:text-white">
+<body class="min-h-screen bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
 
     <!-- Responsive App Canvas (Phone frame on mobile, full-screen website layout on desktop) -->
     <div id="appContainer" class="w-full max-w-[480px] md:max-w-none min-h-screen bg-surface md:bg-transparent relative flex flex-col shadow-2xl md:shadow-none overflow-x-hidden pb-28 md:pb-16 transition-all duration-300">
@@ -429,7 +429,7 @@
                                     <div class="flex items-center gap-3">
                                         <img src="${sp.avatar}" 
                                              alt="${sp.name}"
-                                             onerror="this.src='https://placehold.co/120x120/1F3A2E/F6EFE2?text=HL'"
+                                             onerror="this.src='https://placehold.co/120x120/211C18/F6EFE2?text=HL'"
                                              class="w-14 h-14 rounded-full object-cover border-2 border-gold">
                                         <div>
                                             <h4 class="font-extrabold text-sm text-sage-dark">${sp.name}</h4>
@@ -470,7 +470,7 @@
                                 <h4 class="font-extrabold text-sm text-sage-dark">خدمة عميلات واتساب</h4>
                                 <p class="text-xs text-gray-500 mt-0.5">استشارة مجانية للشعر قبل الحجز</p>
                             </div>
-                            <a href="https://wa.me/966548857705" target="_blank" class="px-4 py-2 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition">
+                            <a href="https://wa.me/966548857705" target="_blank" class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition">
                                 مراسلة
                             </a>
                         </div>
@@ -534,7 +534,7 @@
 
                         <!-- Card 4: أمان المعاملات المالية والدفع -->
                         <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex items-start gap-3.5">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <div class="w-10 h-10 rounded-xl bg-gold-light text-gold-dark flex items-center justify-center shrink-0 mt-0.5">
                                 <i class="fa-solid fa-credit-card text-base"></i>
                             </div>
                             <div>
@@ -780,7 +780,7 @@
                                             <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
                                                 <img src="${sp.avatar}" 
                                                      alt="${sp.name}"
-                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=1F3A2E&color=C29E6D&bold=true&size=96';"
+                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=211C18&color=C29E6D&bold=true&size=96';"
                                                      class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-sage-dark ring-2 ring-sage-dark/15' : 'border-gold/30'} shrink-0 shadow-2xs"
                                                      style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
                                             </div>

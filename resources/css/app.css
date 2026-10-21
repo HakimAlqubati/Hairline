@@ -14,22 +14,22 @@
     --color-primary-soft: #E6D5B8;
     --color-primary-dark: #A3803B;
 
-    --color-sage-light: #DCE7E0;
-    --color-sage-soft: #EDF3EF;
-    --color-sage-medium: #8FA998;
-    --color-sage-dark: #1F3A2E;
-    --color-sage-deeper: #162920;
+    --color-sage-light: #EAE4DC;
+    --color-sage-soft: #F6F3ED;
+    --color-sage-medium: #94887D;
+    --color-sage-dark: #211C18;
+    --color-sage-deeper: #161311;
 
     --color-gold-light: #F6EFE2;
     --color-gold-soft: #E6D5B8;
     --color-gold: var(--color-primary, #C29E6D);
     --color-gold-dark: #A3803B;
 
-    --color-surface: #F7F8F7;
+    --color-surface: #FAF8F5;
 
-    --shadow-card: 0 6px 24px -4px rgba(31, 58, 46, 0.06);
-    --shadow-floating: 0 -4px 25px rgba(31, 58, 46, 0.08);
-    --shadow-fab: 0 10px 25px -3px rgba(31, 58, 46, 0.45);
+    --shadow-card: 0 6px 24px -4px rgba(33, 28, 24, 0.06);
+    --shadow-floating: 0 -4px 25px rgba(33, 28, 24, 0.08);
+    --shadow-fab: 0 10px 25px -3px rgba(33, 28, 24, 0.45);
 }
 
 * {
@@ -39,8 +39,8 @@
 
 body {
     font-family: 'Tajawal', sans-serif;
-    background-color: #E8EFEA;
-    color: #1F3A2E;
+    background-color: #F6F3ED;
+    color: #211C18;
     overflow-x: hidden;
 }
 

@@ -42,7 +42,6 @@ class SalonInfoDataService
             'stats' => [
                 ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
                 ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
-                ['value' => '4.9 ★', 'label' => 'تقييم العميلات', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
             ],
             'hero_slides' => [
                 [

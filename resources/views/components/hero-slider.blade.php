@@ -13,7 +13,7 @@
              class="w-full h-full object-cover object-center transition-all duration-700 transform scale-100">
 
         <!-- Dark Gradient Overlay from Bottom for Text Legibility -->
-        <div class="absolute inset-0 bg-gradient-to-t from-[#11221A] via-[#1F3A2E]/45 to-transparent"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-[#141210] via-[#211C18]/60 to-transparent"></div>
 
         <!-- Banner Content -->
         <div class="absolute inset-0 p-6 md:p-10 flex flex-col justify-end">
