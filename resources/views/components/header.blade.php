@@ -215,14 +215,14 @@
                         </button>
 
                         <!-- 2. Quick Working Hours / Status Icon -->
-                        <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}')" 
+                      <!--  <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}')" 
                                 title="أوقات العمل"
                                 aria-label="أوقات العمل"
                                 class="header-action-btn bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">
                             <span class="w-2.5 h-2.5 rounded-full bg-gold absolute top-1.5 right-1.5 sm:top-2 sm:right-2 ring-2 ring-white"></span>
                             <i class="fa-regular fa-bell text-[13px] sm:text-sm"></i>
                         </button>
-
+-->
                         <!-- 3. Quick Location / Contact Icon -->
                         <button onclick="openSidebarSection('contact')" 
                                 title="موقع الصالون والتواصل"
