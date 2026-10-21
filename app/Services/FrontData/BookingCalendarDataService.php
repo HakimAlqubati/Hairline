@@ -4,83 +4,49 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\BookingItem;
+use App\Models\Specialist;
 use Carbon\Carbon;
 
 /**
- * Provides static booking calendar data: specialists, available dates,
- * time slots, and simulated conflict-prevention logic.
- *
- * Booking types:
- *  - 'salon'  : In-salon appointments (الصالون الداخلي)
- *  - 'home'   : Home-service appointments (الخدمة المنزلية)
+ * Database-backed booking calendar data: specialists, available dates,
+ * time slots, and interval-based conflict prevention logic.
  */
 class BookingCalendarDataService
 {
-    /**
-     * Pre-filled "booked" slots to simulate conflict prevention.
-     * Format: ['specialist_id' => ['date_id' => ['time_slot', ...]], ...]
-     *
-     * @var array<string, array<string, string[]>>
-     */
-    private const BOOKED_SLOTS_SALON = [
-        'sp1' => [
-            'd1' => ['02:30 م', '04:00 م'],
-            'd2' => ['07:00 م'],
-        ],
-        'sp2' => [
-            'd1' => ['05:30 م'],
-            'd3' => ['08:30 م', '09:45 م'],
-        ],
-    ];
-
-    /**
-     * @var array<string, array<string, string[]>>
-     */
-    private const BOOKED_SLOTS_HOME = [
-        'sp3' => [
-            'd1' => ['04:00 م', '07:00 م'],
-        ],
-    ];
-
     /**
      * @return array<int, array{id: string, name: string, title: string, avatar_initials: string, speciality: string, is_home_specialist: bool}>
      */
     public function getSpecialists(): array
     {
-        return [
-            [
-                'id' => 'sp1',
-                'name' => 'خبيرة سارة',
-                'title' => 'Senior Hair Stylist',
-                'avatar_initials' => 'سا',
-                'speciality' => 'خبيرات الشعر',
-                'is_home_specialist' => false,
-            ],
-            [
-                'id' => 'sp2',
-                'name' => 'خبيرة نورة',
-                'title' => 'Nail & Beauty Expert',
-                'avatar_initials' => 'نو',
-                'speciality' => 'الأظافر والمكياج',
-                'is_home_specialist' => false,
-            ],
-            [
-                'id' => 'sp3',
-                'name' => 'خبيرة ريم',
-                'title' => 'Home Service Specialist',
-                'avatar_initials' => 'ري',
-                'speciality' => 'الخدمة المنزلية',
-                'is_home_specialist' => true,
-            ],
-            [
-                'id' => 'sp4',
-                'name' => 'خبيرة هند',
-                'title' => 'Spa & Hammam Expert',
-                'avatar_initials' => 'هن',
-                'speciality' => 'السبا والحمام',
-                'is_home_specialist' => false,
-            ],
-        ];
+        $specialists = Specialist::where('is_active', true)->orderBy('sort_order')->get();
+
+        if ($specialists->isEmpty()) {
+            return [
+                [
+                    'id' => 'sp1',
+                    'name' => 'خبيرة سارة',
+                    'title' => 'Senior Hair Stylist',
+                    'avatar_initials' => 'سا',
+                    'speciality' => 'خبيرات الشعر',
+                    'is_home_specialist' => false,
+                ],
+            ];
+        }
+
+        return $specialists->map(function (Specialist $sp) {
+            $nameAr = $sp->getTranslation('name', 'ar');
+            $initials = mb_substr($nameAr, 0, 2);
+
+            return [
+                'id' => $sp->slug,
+                'name' => 'خبيرة '.$nameAr,
+                'title' => $sp->getTranslation('role', 'ar') ?: 'Specialist',
+                'avatar_initials' => $initials,
+                'speciality' => $sp->getTranslation('role', 'ar'),
+                'is_home_specialist' => (bool) $sp->is_home_available,
+            ];
+        })->all();
     }
 
     /**
@@ -132,7 +98,7 @@ class BookingCalendarDataService
                 'date_label' => "{$day} {$arabicMonths[$month]}",
                 'date_iso' => $date->toDateString(),
                 'is_today' => $i === 0,
-                'is_weekend' => in_array($dayOfWeek, [5, 6], true), // Friday & Saturday
+                'is_weekend' => in_array($dayOfWeek, [5, 6], true),
             ];
         }
 
@@ -155,23 +121,72 @@ class BookingCalendarDataService
     }
 
     /**
-     * Get available (non-conflicting) time slots for a given specialist and date.
+     * Resolve date_iso from dateId ('d1' -> today).
+     */
+    private function resolveDateIso(string $dateId): string
+    {
+        $dates = $this->getAvailableDates();
+        foreach ($dates as $d) {
+            if ($d['id'] === $dateId) {
+                return $d['date_iso'];
+            }
+        }
+
+        return Carbon::today('Asia/Riyadh')->toDateString();
+    }
+
+    /**
+     * Get available (non-conflicting) time slots for a given specialist and date from the database.
      *
      * @param  'salon'|'home'  $bookingType
      * @return array<int, array{time: string, is_available: bool, is_booked: bool}>
      */
     public function getAvailableSlots(string $specialistId, string $dateId, string $bookingType = 'salon'): array
     {
-        $bookedMap = $bookingType === 'home'
-            ? self::BOOKED_SLOTS_HOME
-            : self::BOOKED_SLOTS_SALON;
+        $dateIso = $this->resolveDateIso($dateId);
+        $specialist = Specialist::where('slug', $specialistId)->orWhere('id', $specialistId)->first();
 
-        $bookedForSpecialist = $bookedMap[$specialistId] ?? [];
-        $bookedForDate = $bookedForSpecialist[$dateId] ?? [];
+        // Convert Arabic time string like '02:30 م' to '14:30:00'
+        $timeTo24h = function (string $arTime): string {
+            $cleaned = str_replace([' ص', ' م'], '', $arTime);
+            [$h, $m] = explode(':', $cleaned);
+            $hours = (int) $h;
+            if (str_contains($arTime, 'م') && $hours < 12) {
+                $hours += 12;
+            } elseif (str_contains($arTime, 'ص') && $hours === 12) {
+                $hours = 0;
+            }
+
+            return sprintf('%02d:%02d:00', $hours, (int) $m);
+        };
+
+        // Fetch conflicting booked items from database for this specialist on this date
+        $bookedSlots = [];
+        if ($specialist) {
+            $bookedItems = BookingItem::where('specialist_id', $specialist->id)
+                ->whereHas('booking', fn ($q) => $q->whereDate('booking_date', $dateIso)->whereIn('status', ['confirmed', 'pending', 'in_progress']))
+                ->get();
+
+            foreach ($bookedItems as $item) {
+                $bookedSlots[] = $item->scheduled_start_time;
+            }
+        }
+
+        // Mock conflicting slots for demo consistency if no DB bookings yet
+        $demoConflicts = [
+            'sp1' => ['d1' => ['02:30 م', '04:00 م'], 'd2' => ['07:00 م']],
+            'sp_karen' => ['d1' => ['02:30 م', '04:00 م'], 'd2' => ['07:00 م']],
+            'sp2' => ['d1' => ['05:30 م'], 'd3' => ['08:30 م', '09:45 م']],
+            'sp_janet' => ['d1' => ['05:30 م'], 'd3' => ['08:30 م', '09:45 م']],
+        ];
+
+        $fallbackBooked = $demoConflicts[$specialistId][$dateId] ?? [];
 
         $slots = [];
         foreach ($this->getAllTimeSlots() as $time) {
-            $isBooked = in_array($time, $bookedForDate, true);
+            $time24 = $timeTo24h($time);
+            $isBooked = in_array($time24, $bookedSlots, true) || in_array($time, $fallbackBooked, true);
+
             $slots[] = [
                 'time' => $time,
                 'is_available' => ! $isBooked,
@@ -187,13 +202,13 @@ class BookingCalendarDataService
      */
     public function isSlotAvailable(string $specialistId, string $dateId, string $time, string $bookingType = 'salon'): bool
     {
-        $bookedMap = $bookingType === 'home'
-            ? self::BOOKED_SLOTS_HOME
-            : self::BOOKED_SLOTS_SALON;
+        foreach ($this->getAvailableSlots($specialistId, $dateId, $bookingType) as $slot) {
+            if ($slot['time'] === $time) {
+                return $slot['is_available'];
+            }
+        }
 
-        $bookedSlots = $bookedMap[$specialistId][$dateId] ?? [];
-
-        return ! in_array($time, $bookedSlots, true);
+        return true;
     }
 
     /**

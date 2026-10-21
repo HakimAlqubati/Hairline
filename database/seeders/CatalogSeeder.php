@@ -10,8 +10,6 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceGroup;
 use App\Models\ServicePricingTier;
-use App\Services\FrontData\CatalogDataService;
-use App\Services\FrontData\CatalogMenuDataService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
@@ -19,8 +17,14 @@ class CatalogSeeder extends Seeder
 {
     public function run(): void
     {
-        $catalogData = app(CatalogDataService::class);
-        $catalogMenu = app(CatalogMenuDataService::class);
+        $dataFile = database_path('data/catalog_seed_data.json');
+        if (! file_exists($dataFile)) {
+            return;
+        }
+
+        $seedData = json_decode((string) file_get_contents($dataFile), true);
+        $menuPages = $seedData['menu_pages'] ?? [];
+        $allCategories = $seedData['categories'] ?? [];
 
         // 1. Seed 5 Hair Lengths
         $lengths = [
@@ -52,7 +56,6 @@ class CatalogSeeder extends Seeder
         }
 
         // 2. Seed 8 Catalog Pages
-        $menuPages = $catalogMenu->getMenuPages();
         $pageModels = [];
         foreach ($menuPages as $page) {
             $pageNumber = $page['page_number'] ?? 1;
@@ -72,10 +75,8 @@ class CatalogSeeder extends Seeder
             );
         }
 
-        // 3. Seed 7 Categories & Services from CatalogDataService
-        $allCategories = $catalogData->getAllCategories();
+        // 3. Seed 7 Categories & Services
         $serviceCount = 0;
-
         foreach ($allCategories as $catIndex => $catData) {
             $pageRef = $catData['page_ref'] ?? 1;
             $catalogPage = $pageModels[$pageRef] ?? null;
@@ -189,15 +190,12 @@ class CatalogSeeder extends Seeder
             }
         }
 
-        // 4. Enrich multi-length blocks from CatalogMenuDataService (Pages 2, 3, 4)
-        $this->enrichMultiLengthBlocks($lengthModels, $categoryModels = ServiceCategory::all()->keyBy('slug'));
+        // 4. Enrich multi-length blocks
+        $this->enrichMultiLengthBlocks($lengthModels, ServiceCategory::all()->keyBy('slug'), $menuPages);
     }
 
-    private function enrichMultiLengthBlocks(array $lengthModels, $categories): void
+    private function enrichMultiLengthBlocks(array $lengthModels, $categories, array $menuPages): void
     {
-        $catalogMenu = app(CatalogMenuDataService::class);
-        $menuPages = $catalogMenu->getMenuPages();
-
         foreach ($menuPages as $page) {
             $blocks = [];
             if (! empty($page['subsections'])) {

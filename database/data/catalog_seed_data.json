@@ -1,0 +1,2617 @@
+{
+    "menu_pages": [
+        {
+            "page_number": 1,
+            "title_ar": "خدمات الشعر",
+            "title_en": "HAIR SERVICES",
+            "layout_type": "groups",
+            "groups": [
+                {
+                    "label_ar": "التساريح",
+                    "label_en": "HAIRDO STYLES",
+                    "container_class": "",
+                    "items": [
+                        {
+                            "ar_name": "تسريحة مع تركيب طرحة عروس",
+                            "en_name": "HAIRSTYLE BRIDAL VEIL STYLING",
+                            "price": "400 SR"
+                        },
+                        {
+                            "ar_name": "تسريحة تثبيت - رفعة - ريترو - قصير جداً",
+                            "en_name": "HAIRDO - RETRO- V. SHORT",
+                            "price": "200 SR"
+                        },
+                        {
+                            "ar_name": "تسريحة تثبيت - رفعة - ريترو - قصير",
+                            "en_name": "HAIRDO- RETRO - SHORT",
+                            "price": "250 SR"
+                        },
+                        {
+                            "ar_name": "تسريحة تثبيت - رفعه - ريترو - وسط",
+                            "en_name": "HAIRDO- RETRO - MEDIUM",
+                            "price": "350 SR"
+                        },
+                        {
+                            "ar_name": "تسريحة تثبيت - رفعة- ريترو - طويل",
+                            "en_name": "HAIRDO - RETRO - LONG",
+                            "price": "400 SR"
+                        }
+                    ]
+                },
+                {
+                    "label_ar": "الجـــذور",
+                    "label_en": "HAIR ROOTS",
+                    "container_class": "",
+                    "items": [
+                        {
+                            "ar_name": "صبغة الجذور",
+                            "en_name": "ROOTS COLOING",
+                            "price": "100 SR"
+                        }
+                    ]
+                },
+                {
+                    "label_ar": "الصبغــات",
+                    "label_en": "HAIR COLORING",
+                    "container_class": "",
+                    "items": [
+                        {
+                            "ar_name": "صبغة لون كامل",
+                            "en_name": "FULL HAIR COLOR",
+                            "price": "350 - 1400 SR"
+                        },
+                        {
+                            "ar_name": "خصل (اومبري -سومبري -بلياج)",
+                            "en_name": "HIGHLIGHTS (OMBRE - SOMBRE - BALAYAGE)",
+                            "price": "750 - 1800 SR",
+                            "extra_class": "mb-3"
+                        },
+                        {
+                            "ar_name": "رينســاج قصيــر جــداً",
+                            "en_name": "RANCAGE V. SHOR",
+                            "price": "110 SR"
+                        },
+                        {
+                            "ar_name": "رينســاج قصيــر",
+                            "en_name": "RANCAGE SHOR",
+                            "price": "195 SR"
+                        },
+                        {
+                            "ar_name": "رينســاج وســط",
+                            "en_name": "RANCAGE MEDIUM",
+                            "price": "290 SR"
+                        },
+                        {
+                            "ar_name": "رينســاج طويــل",
+                            "en_name": "RANCAGE LONG",
+                            "price": "395 SR"
+                        },
+                        {
+                            "ar_name": "رينســاج طويــل جــداً",
+                            "en_name": "RANCAGE V. LONG",
+                            "price": "470 SR"
+                        },
+                        {
+                            "ar_name": "صبغة بدون امونيا",
+                            "en_name": "AMMONIA-FREE",
+                            "price": "+35 SR"
+                        }
+                    ]
+                },
+                {
+                    "label_ar": "قص الشعر",
+                    "label_en": "HAIR CUT",
+                    "container_class": "mb-0",
+                    "items": [
+                        {
+                            "ar_name": "قص الشعر كامل",
+                            "en_name": "FULL HAIRCUT",
+                            "price": "80 SR"
+                        },
+                        {
+                            "ar_name": "قص الأطراف",
+                            "en_name": "HAIR ENDS CUT",
+                            "price": "60 SR"
+                        },
+                        {
+                            "ar_name": "قص الأطراف بالماكينة",
+                            "en_name": "MACHINE HAIR ENDS CUT",
+                            "price": "48 SR"
+                        },
+                        {
+                            "ar_name": "قص أو ترتيب البوي",
+                            "en_name": "BOY CUT",
+                            "price": "95 SR"
+                        },
+                        {
+                            "ar_name": "قص الغرة",
+                            "en_name": "BANGS CUT",
+                            "price": "25 SR"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "page_number": 2,
+            "title_ar": "معالجات الشعر",
+            "title_en": "HAIR TREATMENTS",
+            "layout_type": "subsections",
+            "subsections": [
+                {
+                    "title_ar": "المعالجات الحارة",
+                    "title_en": "HOT TREATMENTS",
+                    "type": "simple_rows",
+                    "container_class": "mb-4",
+                    "items": [
+                        {
+                            "ar_name": "البروتين بالتمليس الحراري",
+                            "en_name": "PROTIEN BY STRAIGHTENER MACHINE",
+                            "price": "750-1800 SR"
+                        },
+                        {
+                            "ar_name": "البروتين بدون التمليس الحراري",
+                            "en_name": "PROTIEN WITHOUT STRAIGHTENER MACHINE",
+                            "price": "560-1300 SR"
+                        },
+                        {
+                            "ar_name": "بروتين الجذور",
+                            "en_name": "ROOTS PROTIEN",
+                            "price": "520 SR"
+                        }
+                    ]
+                },
+                {
+                    "title_ar": "المعالجات الباردة",
+                    "title_en": "COLD TREATMENTS",
+                    "type": "multi_length",
+                    "blocks": [
+                        {
+                            "ar_name": "جلسة فيلر المورفوسيس (لترميم الشعر)",
+                            "en_name": "FILLER MORPHSIS SESSION",
+                            "container_class": "",
+                            "lengths": [
+                                {
+                                    "ar": "قصير",
+                                    "en": "SHORT",
+                                    "price": "195 SR"
+                                },
+                                {
+                                    "ar": "وسط",
+                                    "en": "MEDIUM",
+                                    "price": "230 SR"
+                                },
+                                {
+                                    "ar": "طويل",
+                                    "en": "LONG",
+                                    "price": "288 SR"
+                                },
+                                {
+                                    "ar": "طويل جداً",
+                                    "en": "V. LONG",
+                                    "price": "335 SR"
+                                }
+                            ]
+                        },
+                        {
+                            "ar_name": "جلسة الترندي (لترميم الشعر)",
+                            "en_name": "TRENDY SESSION FOR HAIR RECOVERY",
+                            "container_class": "",
+                            "lengths": [
+                                {
+                                    "ar": "قصير جداً",
+                                    "en": "V. SHORT",
+                                    "price": "310 SR"
+                                },
+                                {
+                                    "ar": "قصير",
+                                    "en": "SHORT",
+                                    "price": "340 SR"
+                                },
+                                {
+                                    "ar": "وسط",
+                                    "en": "MEDIUM",
+                                    "price": "380 SR"
+                                },
+                                {
+                                    "ar": "طويل",
+                                    "en": "LONG",
+                                    "price": "410 SR"
+                                },
+                                {
+                                    "ar": "طويل جداً",
+                                    "en": "V. LONG",
+                                    "price": "780 SR"
+                                }
+                            ]
+                        },
+                        {
+                            "ar_name": "جلسة العناية بالشعر الكيرلي",
+                            "en_name": "CURLY HAIR TREATMENT",
+                            "container_class": "mb-0",
+                            "lengths": [
+                                {
+                                    "ar": "قصير",
+                                    "en": "SHORT",
+                                    "price": "380 SR"
+                                },
+                                {
+                                    "ar": "وسط",
+                                    "en": "MEDIUM",
+                                    "price": "400 SR"
+                                },
+                                {
+                                    "ar": "طويل",
+                                    "en": "LONG",
+                                    "price": "515 SR"
+                                },
+                                {
+                                    "ar": "طويل جداً",
+                                    "en": "V. LONG",
+                                    "price": "879 SR"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "page_number": 3,
+            "title_ar": "جلسات العناية بالشعر",
+            "title_en": "HAIR CARE SESSIONS",
+            "layout_type": "hair_care",
+            "top_items": [
+                {
+                    "ar_name": "جلسة تنظيف فروة الرأس العادية",
+                    "en_name": "REGULAR SCALP CLEANING SESSION",
+                    "price": "215 SR"
+                },
+                {
+                    "ar_name": "جلسة تنظيف فروة الرأس العميقة",
+                    "en_name": "DEEP SCALP CLEANING SESSION",
+                    "price": "600 SR"
+                },
+                {
+                    "ar_name": "غسيل الشعر",
+                    "en_name": "HAIR WASH",
+                    "price": "25 SR"
+                },
+                {
+                    "ar_name": "غسيل بشامبو الرنساج \/ غسيل الحنة",
+                    "en_name": "WASHING BY RENCAGE SHAMPOO \/ WASHING THE HENNA SESSION",
+                    "price": "50 SR"
+                }
+            ],
+            "multi_length_blocks": [
+                {
+                    "ar_name": "جلسة الصبار الطبيعي",
+                    "en_name": "OLIVERA SESSION",
+                    "container_class": "",
+                    "lengths": [
+                        {
+                            "ar": "قصير",
+                            "en": "SHORT",
+                            "price": "130 SR"
+                        },
+                        {
+                            "ar": "وسط",
+                            "en": "MEDIUM",
+                            "price": "160 SR"
+                        },
+                        {
+                            "ar": "طويل",
+                            "en": "LONG",
+                            "price": "190 SR"
+                        },
+                        {
+                            "ar": "طويل جداً",
+                            "en": "V. LONG",
+                            "price": "220 SR"
+                        }
+                    ]
+                },
+                {
+                    "ar_name": "جلسة الحنة مع السدر (لكامل الشعر)",
+                    "en_name": "HENNA MIXED WITH SIDR (FULL HAIR)",
+                    "container_class": "",
+                    "lengths": [
+                        {
+                            "ar": "قصير",
+                            "en": "SHORT",
+                            "price": "150 SR"
+                        },
+                        {
+                            "ar": "وسط",
+                            "en": "MEDIUM",
+                            "price": "180 SR"
+                        },
+                        {
+                            "ar": "طويل",
+                            "en": "LONG",
+                            "price": "200 SR"
+                        },
+                        {
+                            "ar": "طويل جداً",
+                            "en": "V. LONG",
+                            "price": "240 SR"
+                        }
+                    ]
+                },
+                {
+                    "ar_name": "جلسة الحنة (لكامل الشعر)",
+                    "en_name": "HENNA (FULL HAIR)",
+                    "container_class": "",
+                    "lengths": [
+                        {
+                            "ar": "قصير",
+                            "en": "SHORT",
+                            "price": "130 SR"
+                        },
+                        {
+                            "ar": "وسط",
+                            "en": "MEDIUM",
+                            "price": "160 SR"
+                        },
+                        {
+                            "ar": "طويل",
+                            "en": "LONG",
+                            "price": "190 SR"
+                        },
+                        {
+                            "ar": "طويل جداً",
+                            "en": "V.LONG",
+                            "price": "220 SR"
+                        }
+                    ]
+                }
+            ],
+            "bottom_items": [
+                {
+                    "ar_name": "الوسمة للجذور",
+                    "en_name": "WASMA FOR THE ROOTS",
+                    "price": "80 SR"
+                }
+            ]
+        },
+        {
+            "page_number": 4,
+            "title_ar": "الاستشوار",
+            "title_en": "BLOW DRY STYLES",
+            "title_class": "mb-10",
+            "layout_type": "blow_dry",
+            "blocks": [
+                {
+                    "ar_name": "استشوار عادي",
+                    "en_name": "STRAIGHT BLOW DRY",
+                    "ar_title_class": "text-2xl",
+                    "en_title_class": "text-xs mt-1",
+                    "gap_class": "gap-3",
+                    "container_class": "",
+                    "lengths": [
+                        {
+                            "ar": "قصير جداً",
+                            "en": "V. SHORT",
+                            "price": "70 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "قصير",
+                            "en": "SHORT",
+                            "price": "110 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "وسط",
+                            "en": "MEDIUM",
+                            "price": "140 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "طويل",
+                            "en": "LONG",
+                            "price": "180 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "طويل جداً",
+                            "en": "V. LONG",
+                            "price": "210 SR",
+                            "ar_class": "text-base"
+                        }
+                    ]
+                },
+                {
+                    "ar_name": "استشوار ويفي",
+                    "en_name": "Wavy Blowdry",
+                    "ar_title_class": "text-2xl",
+                    "en_title_class": "text-xs mt-1 !normal-case",
+                    "gap_class": "gap-3",
+                    "container_class": "",
+                    "lengths": [
+                        {
+                            "ar": "قصير",
+                            "en": "SHORT",
+                            "price": "140 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "وسط",
+                            "en": "MEDIUM",
+                            "price": "180 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "طويل",
+                            "en": "LONG",
+                            "price": "230 SR",
+                            "ar_class": "text-base"
+                        },
+                        {
+                            "ar": "طويل جداً",
+                            "en": "V. LONG",
+                            "price": "300 SR",
+                            "ar_class": "text-base"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "page_number": 5,
+            "title_ar": "المناكير و البادكير",
+            "title_en": "MANICURES AND PEDICURES",
+            "layout_type": "simple_list",
+            "items": [
+                {
+                    "ar_name": "جلسة لاكجري سبا",
+                    "ar_sub": "(مناكير + بادكير + بارفين + يدين ورجلين + مساج اقدام واكتاف)",
+                    "en_name": "LUXURY SPA SESSION",
+                    "price": "280 SR"
+                },
+                {
+                    "ar_name": "جلسة ريلاكس سبا",
+                    "ar_sub": "(مناكير + بادكير + مساج اقدام واكتاف)",
+                    "en_name": "RELAX SPA SESSION",
+                    "price": "230 SR"
+                },
+                {
+                    "ar_name": "جلسة كلاسيك سبا",
+                    "ar_sub": "(مناكير + بادكير)",
+                    "en_name": "CLASSIC SPA SESSION",
+                    "price": "180 SR"
+                },
+                {
+                    "ar_name": "مناكير (تنظيف يدين)",
+                    "en_name": "MANICURE (HAND CLEANING)",
+                    "price": "70 SR"
+                },
+                {
+                    "ar_name": "بادكير (تنظيف اقدام)",
+                    "en_name": "PEDICURE (FOOT CLEANING)",
+                    "price": "110 SR"
+                },
+                {
+                    "ar_name": "بادكير + مساج اقدام",
+                    "en_name": "PEDICURE + FOOT MASSAGE",
+                    "price": "120 SR"
+                },
+                {
+                    "ar_name": "بارفين يدين",
+                    "ar_sub": "(شمع البارفين لترطيب اليدين)",
+                    "en_name": "PARAFFIN HAND",
+                    "price": "25 SR"
+                },
+                {
+                    "ar_name": "بارفين أقدام",
+                    "ar_sub": "(شمع البارفين لترطيب القدمين)",
+                    "en_name": "PARAFFIN FEET",
+                    "price": "35 SR"
+                },
+                {
+                    "ar_name": "برد و قص (يدين)",
+                    "en_name": "TOUCH UP (HANDS)",
+                    "price": "25 SR"
+                },
+                {
+                    "ar_name": "برد و قص (قدمين)",
+                    "en_name": "TOUCH UP (FEET)",
+                    "price": "35 SR"
+                },
+                {
+                    "ar_name": "لون عادي",
+                    "en_name": "NAIL COLORING",
+                    "price": "20 SR"
+                },
+                {
+                    "ar_name": "لون فرنش",
+                    "en_name": "FRENCH COLOR",
+                    "price": "50 SR"
+                },
+                {
+                    "ar_name": "لون آرت",
+                    "en_name": "ART COLOR",
+                    "price": "50 SR"
+                },
+                {
+                    "ar_name": "تركيب أظافر مع لون",
+                    "en_name": "NAIL EXTENSIONS WITH COLOR",
+                    "price": "80 SR"
+                }
+            ]
+        },
+        {
+            "page_number": 6,
+            "layout_type": "two_sections",
+            "sections": [
+                {
+                    "title_ar": "خدمات البشرة",
+                    "title_en": "SKIN SERVICES",
+                    "title_classes": "!mt-1 !mb-3",
+                    "container_class": "mb-4",
+                    "items": [
+                        {
+                            "ar_name": "تنظيف البشرة",
+                            "en_name": "FACIAL",
+                            "price": "250 SR"
+                        },
+                        {
+                            "ar_name": "جلسة تقشير البشرة بماسك الصبار",
+                            "en_name": "ALOE VERA FACIAL SCRUB",
+                            "price": "125 SR"
+                        },
+                        {
+                            "ar_name": "فيشل الأنف",
+                            "en_name": "NOSE FACIAL",
+                            "price": "57 SR"
+                        },
+                        {
+                            "ar_name": "تنظيف الوجه بالواكس \/ فتله",
+                            "en_name": "FACE WAXING OR THREADING",
+                            "price": "80 SR"
+                        },
+                        {
+                            "ar_name": "تنظيف الشنب بالواكس \/ فتله",
+                            "en_name": "UPPER LIP WAXING OR THREADING",
+                            "price": "30 SR"
+                        }
+                    ]
+                },
+                {
+                    "title_ar": "الرموش و الحواجب",
+                    "title_en": "EYELASHES AND EYEBROWS",
+                    "title_classes": "!mt-2 !mb-3",
+                    "container_class": "",
+                    "items": [
+                        {
+                            "ar_name": "مكياج كامل",
+                            "en_name": "FULL MAKEUP",
+                            "price": "300 SR"
+                        },
+                        {
+                            "ar_name": "مكياج عيون",
+                            "en_name": "EYES MAKEUP",
+                            "price": "250 SR"
+                        },
+                        {
+                            "ar_name": "الرموش الدائمة",
+                            "en_name": "PERMANENT EYELASHES",
+                            "price": "500 SR"
+                        },
+                        {
+                            "ar_name": "الرموش الكاملة الإسبوعية",
+                            "en_name": "WEEKLY EYELASHES EXTENSIONS",
+                            "price": "35 SR"
+                        },
+                        {
+                            "ar_name": "الرموش بالحبة الإسبوعية",
+                            "en_name": "SINGLE EYELASHES EXTENSIONS",
+                            "price": "80 SR"
+                        },
+                        {
+                            "ar_name": "برم الرموش",
+                            "en_name": "EYELASHES CURLING",
+                            "price": "350 SR"
+                        },
+                        {
+                            "ar_name": "رفع الحواجب",
+                            "en_name": "EYEBROW LIFTING",
+                            "price": "350 SR"
+                        },
+                        {
+                            "ar_name": "تشقير الحواجب",
+                            "en_name": "EYEBROW BLEACHING",
+                            "price": "40 SR"
+                        },
+                        {
+                            "ar_name": "صبغة الحواجب",
+                            "en_name": "EYEBROWS COLORING",
+                            "price": "40 SR"
+                        },
+                        {
+                            "ar_name": "تشقير الحواجب + صبغة الحواجب",
+                            "en_name": "EYEBROW BLEACHING + COLORING",
+                            "price": "80 SR"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "page_number": 7,
+            "layout_type": "two_sections",
+            "sections": [
+                {
+                    "title_ar": "خدمات المساج",
+                    "title_en": "MASSAGE SERVICES",
+                    "title_classes": "!mt-1 !mb-4",
+                    "container_class": "mb-6 space-y-1",
+                    "items": [
+                        {
+                            "ar_name": "مساج الوجه بطريقة الشد للأعلى",
+                            "en_name": "UPWARD LIFTING FACIAL MASSAGE",
+                            "price": "180 SR"
+                        },
+                        {
+                            "ar_name": "مساج الأكتاف والرقبة",
+                            "en_name": "SHOULDER AND NECK MASSAGE",
+                            "price": "75 SR"
+                        },
+                        {
+                            "ar_name": "مساج الظهر والرقبة",
+                            "en_name": "BACK AND NECK MASSAGE",
+                            "price": "120 SR"
+                        },
+                        {
+                            "ar_name": "مساج الرأس والرقبة",
+                            "en_name": "HEAD AND NECK MASSAGE",
+                            "price": "75 SR"
+                        },
+                        {
+                            "ar_name": "مساج اليدين كاملة",
+                            "en_name": "FULL HAND MASSAGE",
+                            "price": "85 SR"
+                        },
+                        {
+                            "ar_name": "مساج الرجلين كاملة",
+                            "en_name": "FULL FOOT MASSAGE",
+                            "price": "97 SR"
+                        },
+                        {
+                            "ar_name": "مساج الأقدام",
+                            "en_name": "FOOT MASSAGE",
+                            "price": "40 SR"
+                        }
+                    ]
+                },
+                {
+                    "title_ar": "الحلاوة و الواكس",
+                    "title_en": "HOT & COLD WAX",
+                    "title_classes": "!mt-4 !mb-4",
+                    "container_class": "space-y-1",
+                    "items": [
+                        {
+                            "ar_name": "نصف اليدين",
+                            "en_name": "HALF HANDS",
+                            "price": "50 SR"
+                        },
+                        {
+                            "ar_name": "كامل اليدين",
+                            "en_name": "FULL HANDS",
+                            "price": "70 SR"
+                        },
+                        {
+                            "ar_name": "نصف الرجلين",
+                            "en_name": "HALF LEGS",
+                            "price": "60 SR"
+                        },
+                        {
+                            "ar_name": "كامل الرجلين",
+                            "en_name": "FULL LEGS",
+                            "price": "115 SR"
+                        },
+                        {
+                            "ar_name": "أندر أرم",
+                            "en_name": "UNDER ARMS",
+                            "price": "57 SR"
+                        },
+                        {
+                            "ar_name": "بكج حلاوة \/ واكس",
+                            "en_name": "WAX PACKAGE",
+                            "price": "220 SR"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "page_number": 8,
+            "title_ar": "أطــــوال الشــــعر",
+            "title_en": "HAIR LENGTHS",
+            "layout_type": "hair_lengths_guide"
+        }
+    ],
+    "categories": [
+        {
+            "id": "hair_services",
+            "title": "خدمات الشعر",
+            "title_en": "HAIR SERVICES",
+            "subtitle": "تساريح، صبغات، جذور، وقص احترافي",
+            "badge_count": "19 خدمة",
+            "icon": "scissors",
+            "page_ref": 1,
+            "services": [
+                {
+                    "id": "hs_bridal",
+                    "name": "تسريحة مع تركيب طرحة عروس",
+                    "name_en": "HAIRSTYLE BRIDAL VEIL STYLING",
+                    "group": "التساريح",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تسريحة عروس ملكية متكاملة مع تثبيت وتنسيق طرحة الزفاف",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 400,
+                    "price_display": "400 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_retro_vshort",
+                    "name": "تسريحة تثبيت - رفعة - ريترو (قصير جداً)",
+                    "name_en": "HAIRDO - RETRO - V. SHORT",
+                    "group": "التساريح",
+                    "length_tier": "v_short",
+                    "length_label": "قصير جداً",
+                    "description": "تسريحة تثبيت ورفعة ريترو أنيقة للشعر القصير جداً",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 200,
+                    "price_display": "200 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_retro_short",
+                    "name": "تسريحة تثبيت - رفعة - ريترو (قصير)",
+                    "name_en": "HAIRDO - RETRO - SHORT",
+                    "group": "التساريح",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "تسريحة تثبيت ورفعة كلاسيكية للشعر القصير",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 250,
+                    "price_display": "250 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_retro_medium",
+                    "name": "تسريحة تثبيت - رفعة - ريترو (وسط)",
+                    "name_en": "HAIRDO - RETRO - MEDIUM",
+                    "group": "التساريح",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "تسريحة تثبيت ورفعة ملكية متقنة للشعر المتوسط",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 350,
+                    "price_display": "350 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_retro_long",
+                    "name": "تسريحة تثبيت - رفعة - ريترو (طويل)",
+                    "name_en": "HAIRDO - RETRO - LONG",
+                    "group": "التساريح",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "تسريحة سهرة فاخرة وتثبيت يدوم طويلاً للشعر الطويل",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 400,
+                    "price_display": "400 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_roots_color",
+                    "name": "صبغة الجذور",
+                    "name_en": "ROOTS COLORING",
+                    "group": "الجذور",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تغطية متكاملة لجذور الشعر واللون الأبيض بأرقى الصبغات الإيطالية",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 100,
+                    "price_display": "100 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_full_color",
+                    "name": "صبغة لون كامل",
+                    "name_en": "FULL HAIR COLOR",
+                    "group": "الصبغات",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "صبغة شاملة لكامل الشعر بأحدث درجات الألوان (يبدأ من 350 إلى 1400 SR حسب الطول والكثافة)",
+                    "duration": "120 دقيقة",
+                    "duration_min": 120,
+                    "price": 350,
+                    "price_display": "350 - 1400 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_highlights",
+                    "name": "خصل (أومبري - سومبري - بلياج)",
+                    "name_en": "HIGHLIGHTS (OMBRE - SOMBRE - BALAYAGE)",
+                    "group": "الصبغات",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تقنيات التفتيح المودرن وخصل البلياج والأومبري الاحترافية (من 750 إلى 1800 SR)",
+                    "duration": "150 دقيقة",
+                    "duration_min": 150,
+                    "price": 750,
+                    "price_display": "750 - 1800 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_rancage_vshort",
+                    "name": "رينساج (قصير جداً)",
+                    "name_en": "RANCAGE V. SHORT",
+                    "group": "الصبغات",
+                    "length_tier": "v_short",
+                    "length_label": "قصير جداً",
+                    "description": "تجديد وتصحيح لون وخصل الشعر القصير جداً وإضفاء لمعة حيوية",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 110,
+                    "price_display": "110 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_rancage_short",
+                    "name": "رينساج (قصير)",
+                    "name_en": "RANCAGE SHORT",
+                    "group": "الصبغات",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "تصحيح وانعكاسات لون الشعر القصير وإزالة التدرجات غير المرغوبة",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 195,
+                    "price_display": "195 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_rancage_medium",
+                    "name": "رينساج (وسط)",
+                    "name_en": "RANCAGE MEDIUM",
+                    "group": "الصبغات",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "تنشيط لون الصبغة والخصل للشعر المتوسط وإعادة إشراقته",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 290,
+                    "price_display": "290 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_rancage_long",
+                    "name": "رينساج (طويل)",
+                    "name_en": "RANCAGE LONG",
+                    "group": "الصبغات",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "معالجة رينساج مغذية ومصححة لدرجات لون الشعر الطويل",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 395,
+                    "price_display": "395 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_rancage_vlong",
+                    "name": "رينساج (طويل جداً)",
+                    "name_en": "RANCAGE V. LONG",
+                    "group": "الصبغات",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "جلسة رينساج كاملة وتألق استثنائي للشعر الطويل جداً",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 470,
+                    "price_display": "470 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_ammonia_free",
+                    "name": "صبغة بدون أمونيا (إضافة)",
+                    "name_en": "AMMONIA-FREE ADD-ON",
+                    "group": "الصبغات",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "ترقية الصبغة بتركيبة نباتية لطيفة خالية تماماً من الأمونيا للحوامل والحساسية (+35 SR)",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 35,
+                    "price_display": "+35 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hs_full_cut",
+                    "name": "قص الشعر كامل",
+                    "name_en": "FULL HAIRCUT",
+                    "group": "قص الشعر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص كامل وتشكيل احترافي متناسق مع ملامح الوجه",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_ends_cut",
+                    "name": "قص الأطراف",
+                    "name_en": "HAIR ENDS CUT",
+                    "group": "قص الشعر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص وتطهير أطراف الشعر المتقصفة بدقة مع المحافظة على الطول",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 60,
+                    "price_display": "60 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_machine_cut",
+                    "name": "قص الأطراف بالماكينة",
+                    "name_en": "MACHINE HAIR ENDS CUT",
+                    "group": "قص الشعر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص متساوٍ ودقيق للغاية لأطراف الشعر بواسطة الماكينة التخصصية",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 48,
+                    "price_display": "48 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_boy_cut",
+                    "name": "قص أو ترتيب البوي",
+                    "name_en": "BOY CUT",
+                    "group": "قص الشعر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قصة بوي عصرية مميزة أو تشذيب وإعادة تشكيل القصة القصيرة",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 95,
+                    "price_display": "95 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hs_bangs_cut",
+                    "name": "قص الغرة",
+                    "name_en": "BANGS CUT",
+                    "group": "قص الشعر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص وترتيب الغرة الأمامية بتنسيق ناعم ومثالي للوجه",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 25,
+                    "price_display": "25 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                }
+            ]
+        },
+        {
+            "id": "hair_treatments",
+            "title": "معالجات الشعر",
+            "title_en": "HAIR TREATMENTS",
+            "subtitle": "معالجات حارة، فيلر مورفوسيس، وترميم الشعر",
+            "badge_count": "16 خدمة",
+            "icon": "sparkles",
+            "page_ref": 2,
+            "services": [
+                {
+                    "id": "ht_protein_machine",
+                    "name": "البروتين بالتمليس الحراري",
+                    "name_en": "PROTEIN BY STRAIGHTENER MACHINE",
+                    "group": "المعالجات الحارة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "معالجة بروتين مكثفة مع سحب حراري لنعومة حريرية تدوم طويلاً (750 - 1800 SR)",
+                    "duration": "180 دقيقة",
+                    "duration_min": 180,
+                    "price": 750,
+                    "price_display": "750 - 1800 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_protein_no_machine",
+                    "name": "البروتين بدون التمليس الحراري",
+                    "name_en": "PROTEIN WITHOUT STRAIGHTENER MACHINE",
+                    "group": "المعالجات الحارة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تغذية وترميم روابط الشعر بالبروتين البارد بدون حرارة (560 - 1300 SR)",
+                    "duration": "120 دقيقة",
+                    "duration_min": 120,
+                    "price": 560,
+                    "price_display": "560 - 1300 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_roots_protein",
+                    "name": "بروتين الجذور",
+                    "name_en": "ROOTS PROTEIN",
+                    "group": "المعالجات الحارة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "معالجة وتمليس بروتين مخصص للجذور النامية فقط",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 520,
+                    "price_display": "520 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_filler_short",
+                    "name": "جلسة فيلر المورفوسيس (لترميم الشعر) - قصير",
+                    "name_en": "FILLER MORPHSIS SESSION - SHORT",
+                    "group": "فيلر المورفوسيس",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "جلسة ترميم وبناء ألياف الشعر بالفيلر الإيطالي للشعر القصير",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 195,
+                    "price_display": "195 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_filler_medium",
+                    "name": "جلسة فيلر المورفوسيس (لترميم الشعر) - وسط",
+                    "name_en": "FILLER MORPHSIS SESSION - MEDIUM",
+                    "group": "فيلر المورفوسيس",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "ترميم عميق بفيلر المورفوسيس واستعادة الكثافة للشعر المتوسط",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 230,
+                    "price_display": "230 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_filler_long",
+                    "name": "جلسة فيلر المورفوسيس (لترميم الشعر) - طويل",
+                    "name_en": "FILLER MORPHSIS SESSION - LONG",
+                    "group": "فيلر المورفوسيس",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "تغذية وبناء كامل لألياف الشعر الطويل والتخلص من البهتان",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 288,
+                    "price_display": "288 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_filler_vlong",
+                    "name": "جلسة فيلر المورفوسيس (لترميم الشعر) - طويل جداً",
+                    "name_en": "FILLER MORPHSIS SESSION - V. LONG",
+                    "group": "فيلر المورفوسيس",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "عناية فائقة بفيلر المورفوسيس لكامل أطوال الشعر الطويل جداً",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 335,
+                    "price_display": "335 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_trendy_vshort",
+                    "name": "جلسة الترندي (لترميم الشعر) - قصير جداً",
+                    "name_en": "TRENDY SESSION FOR HAIR RECOVERY - V. SHORT",
+                    "group": "جلسة الترندي",
+                    "length_tier": "v_short",
+                    "length_label": "قصير جداً",
+                    "description": "جلسة علاجية ترندي حصرية لإنعاش وترميم الشعر القصير جداً",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 310,
+                    "price_display": "310 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_trendy_short",
+                    "name": "جلسة الترندي (لترميم الشعر) - قصير",
+                    "name_en": "TRENDY SESSION FOR HAIR RECOVERY - SHORT",
+                    "group": "جلسة الترندي",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "ترميم متكامل وحماية مضاعفة للشعر القصير المتضرر",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 340,
+                    "price_display": "340 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_trendy_medium",
+                    "name": "جلسة الترندي (لترميم الشعر) - وسط",
+                    "name_en": "TRENDY SESSION FOR HAIR RECOVERY - MEDIUM",
+                    "group": "جلسة الترندي",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "معالجة ترندي مركزة لإعادة الحيوية والنعومة للشعر المتوسط",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 380,
+                    "price_display": "380 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_trendy_long",
+                    "name": "جلسة الترندي (لترميم الشعر) - طويل",
+                    "name_en": "TRENDY SESSION FOR HAIR RECOVERY - LONG",
+                    "group": "جلسة الترندي",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "إصلاح التلف العميق ومقاومة التقصف للشعر الطويل",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 410,
+                    "price_display": "410 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_trendy_vlong",
+                    "name": "جلسة الترندي (لترميم الشعر) - طويل جداً",
+                    "name_en": "TRENDY SESSION FOR HAIR RECOVERY - V. LONG",
+                    "group": "جلسة الترندي",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "علاج ملكي استثنائي لترميم وحماية الشعر الطويل جداً",
+                    "duration": "105 دقيقة",
+                    "duration_min": 105,
+                    "price": 780,
+                    "price_display": "780 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_curly_short",
+                    "name": "جلسة العناية (بالشعر الكيرلي) - قصير",
+                    "name_en": "CURLY HAIR TREATMENT - SHORT",
+                    "group": "الشعر الكيرلي",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "ترطيب عميق وتحديد تموجات الكيرلي للشعر القصير بمنتجات متخصصة",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 380,
+                    "price_display": "380 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_curly_medium",
+                    "name": "جلسة العناية (بالشعر الكيرلي) - وسط",
+                    "name_en": "CURLY HAIR TREATMENT - MEDIUM",
+                    "group": "الشعر الكيرلي",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "تغذية مكثفة ومكافحة النفشة وتحديد الكيرلز للشعر المتوسط",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 400,
+                    "price_display": "400 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_curly_long",
+                    "name": "جلسة العناية (بالشعر الكيرلي) - طويل",
+                    "name_en": "CURLY HAIR TREATMENT - LONG",
+                    "group": "الشعر الكيرلي",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "عناية فائقة ومرونة طبيعية ومظهر كيرلي صحي وجذاب للشعر الطويل",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 515,
+                    "price_display": "515 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ht_curly_vlong",
+                    "name": "جلسة العناية (بالشعر الكيرلي) - طويل جداً",
+                    "name_en": "CURLY HAIR TREATMENT - V. LONG",
+                    "group": "الشعر الكيرلي",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "طقوس متكاملة للشعر الكيرلي الطويل جداً مع حماية الأطراف من الجفاف",
+                    "duration": "105 دقيقة",
+                    "duration_min": 105,
+                    "price": 879,
+                    "price_display": "879 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                }
+            ]
+        },
+        {
+            "id": "hair_care",
+            "title": "جلسات العناية بالشعر",
+            "title_en": "HAIR CARE SESSIONS",
+            "subtitle": "تنظيف فروة الرأس، الصبار الطبيعي، الحنة والسدر",
+            "badge_count": "17 خدمة",
+            "icon": "leaf",
+            "page_ref": 3,
+            "services": [
+                {
+                    "id": "hc_scalp_reg",
+                    "name": "جلسة تنظيف فروة الرأس العادية",
+                    "name_en": "REGULAR SCALP CLEANING SESSION",
+                    "group": "فروة الرأس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف خفيف وإزالة الشوائب والدهون وتنشيط الدورة الدموية للفروة",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 215,
+                    "price_display": "215 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_scalp_deep",
+                    "name": "جلسة تنظيف فروة الرأس العميقة",
+                    "name_en": "DEEP SCALP CLEANING SESSION",
+                    "group": "فروة الرأس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف طبي عميق مع تقشير المسام وتغذية الفروة بالأمصال المقوية",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 600,
+                    "price_display": "600 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "hc_wash",
+                    "name": "غسيل الشعر",
+                    "name_en": "HAIR WASH",
+                    "group": "الغسيل",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "غسيل احترافي مع مساج مهدئ للفروة بشامبو وبلسم فاخر",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 25,
+                    "price_display": "25 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_wash_special",
+                    "name": "غسيل بشامبو الرنساج \/ غسيل الحنة",
+                    "name_en": "WASHING BY RENCAGE SHAMPOO \/ HENNA",
+                    "group": "الغسيل",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "غسيل تخصصي لشطف الحنة تماماً أو تنظيف وحماية الصبغة بشامبو الرنساج",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 50,
+                    "price_display": "50 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_wasma",
+                    "name": "الوسمة للجذور",
+                    "name_en": "WASMA FOR THE ROOTS",
+                    "group": "الأعشاب الطبيعية",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "عشبة الوسمة الطبيعية النقية لتغطية الشيب ومنح الجذور لوناً داكناً صحياً",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_aloe_short",
+                    "name": "جلسة الصبار الطبيعي - قصير",
+                    "name_en": "ALOE VERA SESSION - SHORT",
+                    "group": "الصبار الطبيعي",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "ماسك جل الصبار العضوي الطازج لترطيب وتكثيف الشعر القصير",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 130,
+                    "price_display": "130 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_aloe_medium",
+                    "name": "جلسة الصبار الطبيعي - وسط",
+                    "name_en": "ALOE VERA SESSION - MEDIUM",
+                    "group": "الصبار الطبيعي",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "تغذية عميقة بجل الصبار الطبيعي لترطيب الفروة وتحفيز اللمعان",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 160,
+                    "price_display": "160 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_aloe_long",
+                    "name": "جلسة الصبار الطبيعي - طويل",
+                    "name_en": "ALOE VERA SESSION - LONG",
+                    "group": "الصبار الطبيعي",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "ترميم وترطيب الشعر الطويل بالصبار الطبيعي الخالص",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 190,
+                    "price_display": "190 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_aloe_vlong",
+                    "name": "جلسة الصبار الطبيعي - طويل جداً",
+                    "name_en": "ALOE VERA SESSION - V. LONG",
+                    "group": "الصبار الطبيعي",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "حمام صبار طبيعي شامل ومكثف للشعر الطويل جداً",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 220,
+                    "price_display": "220 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_sidr_short",
+                    "name": "جلسة الحنة مع السدر (لكامل الشعر) - قصير",
+                    "name_en": "HENNA MIXED WITH SIDR (FULL HAIR) - SHORT",
+                    "group": "الحنة والسدر",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "خلطة حنة المدينة مع السدر البلدي لتقوية ولمعان الشعر القصير",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 150,
+                    "price_display": "150 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_sidr_medium",
+                    "name": "جلسة الحنة مع السدر (لكامل الشعر) - وسط",
+                    "name_en": "HENNA MIXED WITH SIDR (FULL HAIR) - MEDIUM",
+                    "group": "الحنة والسدر",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "خلطة تراثية فاخرة بالحنة والسدر والزيوت المغذية للشعر المتوسط",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 180,
+                    "price_display": "180 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_sidr_long",
+                    "name": "جلسة الحنة مع السدر (لكامل الشعر) - طويل",
+                    "name_en": "HENNA MIXED WITH SIDR (FULL HAIR) - LONG",
+                    "group": "الحنة والسدر",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "تغذية أصيلة ومكافحة التساقط للشعر الطويل بخلطة الحنة والسدر",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 200,
+                    "price_display": "200 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_sidr_vlong",
+                    "name": "جلسة الحنة مع السدر (لكامل الشعر) - طويل جداً",
+                    "name_en": "HENNA MIXED WITH SIDR (FULL HAIR) - V. LONG",
+                    "group": "الحنة والسدر",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "عناية كاملة للشعر الطويل جداً بالحنة النقية وخلاصة السدر",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 240,
+                    "price_display": "240 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_short",
+                    "name": "جلسة الحنة (لكامل الشعر) - قصير",
+                    "name_en": "HENNA (FULL HAIR) - SHORT",
+                    "group": "الحنة الطبيعية",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "حنة عضوية أصيلة لتغذية فروة الرأس ومنح لون دافئ للشعر القصير",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 130,
+                    "price_display": "130 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_medium",
+                    "name": "جلسة الحنة (لكامل الشعر) - وسط",
+                    "name_en": "HENNA (FULL HAIR) - MEDIUM",
+                    "group": "الحنة الطبيعية",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "تطبيق متقن للحنة الطبيعية مع تغطية كاملة للشعر المتوسط",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 160,
+                    "price_display": "160 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_long",
+                    "name": "جلسة الحنة (لكامل الشعر) - طويل",
+                    "name_en": "HENNA (FULL HAIR) - LONG",
+                    "group": "الحنة الطبيعية",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "حنة كاملة للشعر الطويل مع ماسك ترطيب ملحق لمنع الجفاف",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 190,
+                    "price_display": "190 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "hc_henna_vlong",
+                    "name": "جلسة الحنة (لكامل الشعر) - طويل جداً",
+                    "name_en": "HENNA (FULL HAIR) - V. LONG",
+                    "group": "الحنة الطبيعية",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "جلسة حنة متكاملة للشعر الطويل جداً من الجذور حتى الأطراف",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 220,
+                    "price_display": "220 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                }
+            ]
+        },
+        {
+            "id": "blowdry",
+            "title": "الاستشوار والتصفيف",
+            "title_en": "BLOW DRY STYLES",
+            "subtitle": "استشوار عادي وويفي حسب أطوال الشعر المعتمدة",
+            "badge_count": "9 خدمات",
+            "icon": "wind",
+            "page_ref": 4,
+            "services": [
+                {
+                    "id": "bd_straight_vshort",
+                    "name": "استشوار عادي - قصير جداً",
+                    "name_en": "STRAIGHT BLOW DRY - V. SHORT",
+                    "group": "استشوار عادي",
+                    "length_tier": "v_short",
+                    "length_label": "قصير جداً",
+                    "description": "سشوار مالس ناعم وخفيف للشعر القصير جداً",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 70,
+                    "price_display": "70 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_straight_short",
+                    "name": "استشوار عادي - قصير",
+                    "name_en": "STRAIGHT BLOW DRY - SHORT",
+                    "group": "استشوار عادي",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "تصفيف وسشوار ناعم حريري للشعر القصير",
+                    "duration": "35 دقيقة",
+                    "duration_min": 35,
+                    "price": 110,
+                    "price_display": "110 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_straight_medium",
+                    "name": "استشوار عادي - وسط",
+                    "name_en": "STRAIGHT BLOW DRY - MEDIUM",
+                    "group": "استشوار عادي",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "سشوار احترافي بحماية حرارية ولمعان جذاب للشعر المتوسط",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 140,
+                    "price_display": "140 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_straight_long",
+                    "name": "استشوار عادي - طويل",
+                    "name_en": "STRAIGHT BLOW DRY - LONG",
+                    "group": "استشوار عادي",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "سشوار متقن وانسدال تام للشعر الطويل يدوم لساعات طويلة",
+                    "duration": "55 دقيقة",
+                    "duration_min": 55,
+                    "price": 180,
+                    "price_display": "180 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_straight_vlong",
+                    "name": "استشوار عادي - طويل جداً",
+                    "name_en": "STRAIGHT BLOW DRY - V. LONG",
+                    "group": "استشوار عادي",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "تصفيف وسشوار فاخر لكامل أطوال الشعر الطويل جداً",
+                    "duration": "65 دقيقة",
+                    "duration_min": 65,
+                    "price": 210,
+                    "price_display": "210 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_wavy_short",
+                    "name": "استشوار ويفي - قصير",
+                    "name_en": "WAVY BLOWDRY - SHORT",
+                    "group": "استشوار ويفي",
+                    "length_tier": "short",
+                    "length_label": "قصير",
+                    "description": "ويفي عصري مموج وخفيف يناسب الإطلالات اليومية للشعر القصير",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 140,
+                    "price_display": "140 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_wavy_medium",
+                    "name": "استشوار ويفي - وسط",
+                    "name_en": "WAVY BLOWDRY - MEDIUM",
+                    "group": "استشوار ويفي",
+                    "length_tier": "medium",
+                    "length_label": "وسط",
+                    "description": "أمواج ويفي ناعمة مفعمة بالحيوية والحجم للشعر المتوسط",
+                    "duration": "50 دقيقة",
+                    "duration_min": 50,
+                    "price": 180,
+                    "price_display": "180 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_wavy_long",
+                    "name": "استشوار ويفي - طويل",
+                    "name_en": "WAVY BLOWDRY - LONG",
+                    "group": "استشوار ويفي",
+                    "length_tier": "long",
+                    "length_label": "طويل",
+                    "description": "تمويج هوليوودي ساحر وحجم كثيف وجذاب للشعر الطويل",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 230,
+                    "price_display": "230 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "bd_wavy_vlong",
+                    "name": "استشوار ويفي - طويل جداً",
+                    "name_en": "WAVY BLOWDRY - V. LONG",
+                    "group": "استشوار ويفي",
+                    "length_tier": "v_long",
+                    "length_label": "طويل جداً",
+                    "description": "تصفيف ويفي ملكي فخم للمناسبات الخاصة للشعر الطويل جداً",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 300,
+                    "price_display": "300 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                }
+            ]
+        },
+        {
+            "id": "nails",
+            "title": "المناكير والبادكير",
+            "title_en": "MANICURES AND PEDICURES",
+            "subtitle": "جلسات سبا فاخرة، بارفين، ألوان وتركيب أظافر",
+            "badge_count": "14 خدمة",
+            "icon": "hand",
+            "page_ref": 5,
+            "services": [
+                {
+                    "id": "nl_luxury_spa",
+                    "name": "جلسة لاكجري سبا",
+                    "name_en": "LUXURY SPA SESSION",
+                    "group": "باقات السبا",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "باقة ملكية كاملة: مناكير + بادكير + بارفين + يدين ورجلين + مساج أقدام وأكتاف",
+                    "duration": "80 دقيقة",
+                    "duration_min": 80,
+                    "price": 280,
+                    "price_display": "280 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_relax_spa",
+                    "name": "جلسة ريلاكس سبا",
+                    "name_en": "RELAX SPA SESSION",
+                    "group": "باقات السبا",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "استرخاء فاخر: مناكير + بادكير + مساج استرخائي للأقدام والأكتاف",
+                    "duration": "65 دقيقة",
+                    "duration_min": 65,
+                    "price": 230,
+                    "price_display": "230 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_classic_spa",
+                    "name": "جلسة كلاسيك سبا",
+                    "name_en": "CLASSIC SPA SESSION",
+                    "group": "باقات السبا",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "عناية كلاسيكية متكاملة للأيدي والأقدام: مناكير + بادكير",
+                    "duration": "50 دقيقة",
+                    "duration_min": 50,
+                    "price": 180,
+                    "price_display": "180 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_manicure",
+                    "name": "مناكير (تنظيف يدين)",
+                    "name_en": "MANICURE (HAND CLEANING)",
+                    "group": "العناية الأساسية",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف دقيق للجلد الميت حول الأظافر وترتيب وبرد ناعم لليدين",
+                    "duration": "35 دقيقة",
+                    "duration_min": 35,
+                    "price": 70,
+                    "price_display": "70 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_pedicure",
+                    "name": "بادكير (تنظيف اقدام)",
+                    "name_en": "PEDICURE (FOOT CLEANING)",
+                    "group": "العناية الأساسية",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف عميق لكعوب الأقدام بالأملاح البحرية وإزالة الجلد الجاف",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 110,
+                    "price_display": "110 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_pedicure_massage",
+                    "name": "بادكير + مساج اقدام",
+                    "name_en": "PEDICURE + FOOT MASSAGE",
+                    "group": "العناية الأساسية",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "بادكير تخصصي متبوع بمساج استرخائي مهدئ للقدمين والساقين",
+                    "duration": "55 دقيقة",
+                    "duration_min": 55,
+                    "price": 120,
+                    "price_display": "120 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_paraffin_hand",
+                    "name": "بارفين يدين",
+                    "name_en": "PARAFFIN HAND",
+                    "group": "البارفين والترطيب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "شمع البارفين الدافئ لترطيب ونعومة فائقة لبشرة ومفاصل اليدين",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 25,
+                    "price_display": "25 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_paraffin_feet",
+                    "name": "بارفين أقدام",
+                    "name_en": "PARAFFIN FEET",
+                    "group": "البارفين والترطيب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "شمع البارفين المعالج لتنعيم كعوب الأقدام وترطيب التشققات",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 35,
+                    "price_display": "35 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_touchup_hands",
+                    "name": "برد و قص (يدين)",
+                    "name_en": "TOUCH UP (HANDS)",
+                    "group": "الترتيب السريع",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص وبرد وتنسيق شكل أظافر اليدين السريع",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 25,
+                    "price_display": "25 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_touchup_feet",
+                    "name": "برد و قص (قدمين)",
+                    "name_en": "TOUCH UP (FEET)",
+                    "group": "الترتيب السريع",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "قص وبرد وتنسيق أظافر القدمين بدقة ونظافة",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 35,
+                    "price_display": "35 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_color_regular",
+                    "name": "لون عادي",
+                    "name_en": "NAIL COLORING",
+                    "group": "ألوان الأظافر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "طلاء أظافر كلاسيكي بالألوان المفضلة وسريعة الجفاف",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 20,
+                    "price_display": "20 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_color_french",
+                    "name": "لون فرنش",
+                    "name_en": "FRENCH COLOR",
+                    "group": "ألوان الأظافر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "طلاء فرنش كلاسيكي أنيق بلمسة بيضاء ناعمة",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 50,
+                    "price_display": "50 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "nl_color_art",
+                    "name": "لون آرت",
+                    "name_en": "ART COLOR",
+                    "group": "ألوان الأظافر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "رسم ونقش فني مبتكر بأشكال وتصاميم أظافر مودرن",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 50,
+                    "price_display": "50 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "nl_extensions_color",
+                    "name": "تركيب أظافر مع لون",
+                    "name_en": "NAIL EXTENSIONS WITH COLOR",
+                    "group": "تركيب الأظافر",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تركيب أظافر بجودة عالية ومقاسات مريحة مع اختيار اللون المفضل",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                }
+            ]
+        },
+        {
+            "id": "skin_eyebrows",
+            "title": "البشرة، المكياج والرموش",
+            "title_en": "SKIN, MAKEUP & EYEBROWS",
+            "subtitle": "تنظيف بشرة، مكياج كامل، ورموش وحواجب",
+            "badge_count": "15 خدمة",
+            "icon": "face",
+            "page_ref": 6,
+            "services": [
+                {
+                    "id": "sk_facial",
+                    "name": "تنظيف البشرة (فيشل)",
+                    "name_en": "FACIAL",
+                    "group": "خدمات البشرة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "جلسة تنظيف عميق للمسام وإزالة الرؤوس السوداء والترطيب الماسي",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 250,
+                    "price_display": "250 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "sk_scrub_aloe",
+                    "name": "جلسة تقشير البشرة بماسك الصبار",
+                    "name_en": "ALOE VERA FACIAL SCRUB",
+                    "group": "خدمات البشرة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تقشير لطيف وتجديد خلايا البشرة بماسك الصبار الطبيعي المرطب",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 125,
+                    "price_display": "125 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "sk_nose_facial",
+                    "name": "فيشل الأنف",
+                    "name_en": "NOSE FACIAL",
+                    "group": "خدمات البشرة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف موضعي مركز لمنطقة الأنف وإزالة الدهون والرؤوس السوداء",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 57,
+                    "price_display": "57 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "sk_face_wax",
+                    "name": "تنظيف الوجه بالواكس \/ فتله",
+                    "name_en": "FACE WAXING OR THREADING",
+                    "group": "خدمات البشرة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة شعر الوجه والوبر بدقة بالواكس المخصص للبشرة الحساسة أو الفتلة",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "sk_upperlip_wax",
+                    "name": "تنظيف الشنب بالواكس \/ فتله",
+                    "name_en": "UPPER LIP WAXING OR THREADING",
+                    "group": "خدمات البشرة",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تنظيف الشنب بدقة وأمان بالواكس أو الفتلة",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 30,
+                    "price_display": "30 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "sk_full_makeup",
+                    "name": "مكياج كامل",
+                    "name_en": "FULL MAKEUP",
+                    "group": "المكياج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "مكياج سهرة كامل وفاخر بأرقى الماركات العالمية يناسب إطلالتكِ",
+                    "duration": "60 دقيقة",
+                    "duration_min": 60,
+                    "price": 300,
+                    "price_display": "300 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "sk_eyes_makeup",
+                    "name": "مكياج عيون",
+                    "name_en": "EYES MAKEUP",
+                    "group": "المكياج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "رسم وظلال عيون احترافية مع آيلاينر متقن",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 250,
+                    "price_display": "250 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "eb_perm_lashes",
+                    "name": "الرموش الدائمة",
+                    "name_en": "PERMANENT EYELASHES",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تركيب رموش دائمة شعرة بشعرة لإطلالة طبيعية ساحرة تدوم لأسابيع",
+                    "duration": "90 دقيقة",
+                    "duration_min": 90,
+                    "price": 500,
+                    "price_display": "500 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "eb_weekly_full_lashes",
+                    "name": "الرموش الكاملة الإسبوعية",
+                    "name_en": "WEEKLY EYELASHES EXTENSIONS",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تركيب شريط رموش كاملة تدوم لمدة أسبوع كامل",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 35,
+                    "price_display": "35 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "eb_weekly_single_lashes",
+                    "name": "الرموش بالحبة الإسبوعية",
+                    "name_en": "SINGLE EYELASHES EXTENSIONS",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تركيب رموش بالحبة بطريقة طبيعية تدوم لمدة أسبوع",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "eb_lash_curling",
+                    "name": "برم الرموش",
+                    "name_en": "EYELASHES CURLING",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "رفع وتجعيد الرموش الطبيعية (Lash Lift) مع تغذية الكيراتين",
+                    "duration": "50 دقيقة",
+                    "duration_min": 50,
+                    "price": 350,
+                    "price_display": "350 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "eb_brow_lifting",
+                    "name": "رفع الحواجب",
+                    "name_en": "EYEBROW LIFTING",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تثبيت وتنسيق اتجاه شعر الحواجب بتقنية اللامينيشن لإطلالة ممتلئة",
+                    "duration": "45 دقيقة",
+                    "duration_min": 45,
+                    "price": 350,
+                    "price_display": "350 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": false
+                },
+                {
+                    "id": "eb_brow_bleach",
+                    "name": "تشقير الحواجب",
+                    "name_en": "EYEBROW BLEACHING",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تشقير وتنظيف دقيق لرسمة وتحديد الحواجب",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 40,
+                    "price_display": "40 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "eb_brow_color",
+                    "name": "صبغة الحواجب",
+                    "name_en": "EYEBROWS COLORING",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "صبغة حواجب مميزة بدرجات طبيعية تبرز جمال العينين",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 40,
+                    "price_display": "40 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "eb_brow_bleach_color",
+                    "name": "تشقير الحواجب + صبغة الحواجب",
+                    "name_en": "EYEBROW BLEACHING + COLORING",
+                    "group": "الرموش والحواجب",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "باقة مزدوجة: تشقير وتنظيف مع صبغة لتحديد ورسم الحواجب",
+                    "duration": "35 دقيقة",
+                    "duration_min": 35,
+                    "price": 80,
+                    "price_display": "80 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                }
+            ]
+        },
+        {
+            "id": "massage_wax",
+            "title": "المساج، الحلاوة والواكس",
+            "title_en": "MASSAGE SERVICES, HOT & COLD WAX",
+            "subtitle": "مساجات متخصصة للراحة، حلاوة وواكس للجسم",
+            "badge_count": "13 خدمة",
+            "icon": "spa",
+            "page_ref": 7,
+            "services": [
+                {
+                    "id": "ms_face_lifting",
+                    "name": "مساج الوجه بطريقة الشد للأعلى",
+                    "name_en": "UPWARD LIFTING FACIAL MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "مساج تقني يرفع عضلات الوجه ويحفز الكولاجين ونضارة البشرة",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 180,
+                    "price_display": "180 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": false
+                },
+                {
+                    "id": "ms_shoulder_neck",
+                    "name": "مساج الأكتاف والرقبة",
+                    "name_en": "SHOULDER AND NECK MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تخفيف الشد العضلي والإرهاق المتراكم في منطقة الكتفين والرقبة",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 75,
+                    "price_display": "75 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "ms_back_neck",
+                    "name": "مساج الظهر والرقبة",
+                    "name_en": "BACK AND NECK MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "جلسة مساج مهدئة تركز على فقرات الظهر وأعلى الأكتاف لراحة عميقة",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 120,
+                    "price_display": "120 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "ms_head_neck",
+                    "name": "مساج الرأس و الرقبة",
+                    "name_en": "HEAD AND NECK MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "مساج مهدئ لفروة الرأس والرقبة يساعد على الاسترخاء وصفاء الذهن",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 75,
+                    "price_display": "75 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "ms_hands_full",
+                    "name": "مساج اليدين كاملة",
+                    "name_en": "FULL HAND MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "تدليك كامل لليدين والذراعين مع زيوت عطرية مرطبة",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 85,
+                    "price_display": "85 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "ms_feet_full",
+                    "name": "مساج الرجلين كاملة",
+                    "name_en": "FULL FOOT MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "مساج شامل للساقين وعضلات الأرجل لتنشيط الدورة الدموية والتخفيف من الثقل",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 97,
+                    "price_display": "97 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "ms_foot",
+                    "name": "مساج الأقدام",
+                    "name_en": "FOOT MASSAGE",
+                    "group": "خدمات المساج",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "ريفلوكسولوجي مهدئ لباطن وأصابع القدمين بعد يوم متعب",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 40,
+                    "price_display": "40 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_half_hands",
+                    "name": "نصف اليدين",
+                    "name_en": "HALF HANDS",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة الشعر لنصف اليدين بالواكس أو الحلاوة لنعومة تدوم",
+                    "duration": "20 دقيقة",
+                    "duration_min": 20,
+                    "price": 50,
+                    "price_display": "50 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_full_hands",
+                    "name": "كامل اليدين",
+                    "name_en": "FULL HANDS",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة شعر اليدين كاملة بأفضل أنواع الواكس البارد والحار",
+                    "duration": "30 دقيقة",
+                    "duration_min": 30,
+                    "price": 70,
+                    "price_display": "70 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_half_legs",
+                    "name": "نصف الرجلين",
+                    "name_en": "HALF LEGS",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة شعر نصف الساقين بدقة ونعومة حريرية",
+                    "duration": "25 دقيقة",
+                    "duration_min": 25,
+                    "price": 60,
+                    "price_display": "60 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_full_legs",
+                    "name": "كامل الرجلين",
+                    "name_en": "FULL LEGS",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة شعر كامل الرجلين مع ترطيب لاحق بالزيوت المهدئة",
+                    "duration": "40 دقيقة",
+                    "duration_min": 40,
+                    "price": 115,
+                    "price_display": "115 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_underarms",
+                    "name": "أندر أرم",
+                    "name_en": "UNDER ARMS",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "إزالة شعر منطقة الإبط بالواكس اللطيف بأقل ألم ممكن",
+                    "duration": "15 دقيقة",
+                    "duration_min": 15,
+                    "price": 57,
+                    "price_display": "57 SR",
+                    "currency": "SAR",
+                    "is_popular": false,
+                    "is_home_available": true
+                },
+                {
+                    "id": "wx_package",
+                    "name": "بكج حلاوة \/ واكس",
+                    "name_en": "WAX PACKAGE",
+                    "group": "الحلاوة والواكس",
+                    "length_tier": null,
+                    "length_label": null,
+                    "description": "باقة متكاملة واقتصادية لإزالة شعر الجسم بالكامل بنعومة فائقة",
+                    "duration": "75 دقيقة",
+                    "duration_min": 75,
+                    "price": 220,
+                    "price_display": "220 SR",
+                    "currency": "SAR",
+                    "is_popular": true,
+                    "is_home_available": true
+                }
+            ]
+        }
+    ],
+    "bookable_services": {
+        "hs_full_color": {
+            "category_id": "color_services",
+            "category_title": "الصبغات",
+            "category_title_en": "HAIR COLORING",
+            "category_badge": "صبغات وتفتيح",
+            "category_icon": "fa-palette",
+            "category_desc": "صبغة لون واحد، وتفتيح أومبري وسومبري وبيلياج بأجود المنتجات الإيطالية",
+            "name": "صبغة لون واحد",
+            "desc": "صبغة شاملة متكاملة بلون واحد جذاب بأحدث الدرجات والصبغات الإيطالية",
+            "duration": "120 دقيقة",
+            "price": "350 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_janet",
+                "sp_karen"
+            ]
+        },
+        "hs_highlights": {
+            "category_id": "color_services",
+            "category_title": "الصبغات",
+            "category_title_en": "HAIR COLORING",
+            "category_badge": "صبغات وتفتيح",
+            "category_icon": "fa-palette",
+            "category_desc": "صبغة لون واحد، وتفتيح أومبري وسومبري وبيلياج بأجود المنتجات الإيطالية",
+            "name": "صبغة تفتيح \/ اومبري سومبري بيلياج",
+            "desc": "تفتيح احترافي متدرج وخصل بلياج وسومبري مع حماية روابط الشعر",
+            "duration": "150 دقيقة",
+            "price": "750 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_janet",
+                "sp_karen"
+            ]
+        },
+        "ht_protein_machine": {
+            "category_id": "hot_treatments",
+            "category_title": "المعالجات الحارة",
+            "category_title_en": "HOT TREATMENTS",
+            "category_badge": "بروتين وسحب حراري",
+            "category_icon": "fa-fire-flame-curved",
+            "category_desc": "بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور",
+            "name": "البروتين بالتمليس الحراري",
+            "desc": "معالجة بروتين مكثفة وسحب حراري لنعومة فائقة ولمعان حريري يدوم طويلاً",
+            "duration": "180 دقيقة",
+            "price": "750 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_karen",
+                "sp_janet"
+            ]
+        },
+        "ht_protein_no_machine": {
+            "category_id": "hot_treatments",
+            "category_title": "المعالجات الحارة",
+            "category_title_en": "HOT TREATMENTS",
+            "category_badge": "بروتين وسحب حراري",
+            "category_icon": "fa-fire-flame-curved",
+            "category_desc": "بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور",
+            "name": "البروتين بدون تمليس حراري",
+            "desc": "تغذية وترميم ألياف الشعر بالبروتين البارد بدون تعريض لحرارة مكثفة",
+            "duration": "120 دقيقة",
+            "price": "560 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_karen",
+                "sp_janet"
+            ]
+        },
+        "ht_roots_protein": {
+            "category_id": "hot_treatments",
+            "category_title": "المعالجات الحارة",
+            "category_title_en": "HOT TREATMENTS",
+            "category_badge": "بروتين وسحب حراري",
+            "category_icon": "fa-fire-flame-curved",
+            "category_desc": "بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور",
+            "name": "بروتين الجذور",
+            "desc": "معالجة وتمليس بروتين مخصص للجذور النامية فقط",
+            "duration": "90 دقيقة",
+            "price": "520 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_karen",
+                "sp_janet"
+            ]
+        },
+        "ht_morphsis_filler": {
+            "category_id": "cold_treatments",
+            "category_title": "المعالجات الباردة",
+            "category_title_en": "COLD TREATMENTS",
+            "category_badge": "فيلر وترميم",
+            "category_icon": "fa-snowflake",
+            "category_desc": "جلسات الفيلر الإيطالي وجلسات الترندي الحصرية لترميم الشعر",
+            "name": "جلسة الفيلر لترميم الشعر",
+            "desc": "جلسة ترميم وبناء ألياف الشعر التالف بالفيلر الإيطالي المورفوسيس",
+            "duration": "60 دقيقة",
+            "price": "230 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_janet",
+                "sp_jenky",
+                "sp_karen"
+            ]
+        },
+        "ht_trendy_session": {
+            "category_id": "cold_treatments",
+            "category_title": "المعالجات الباردة",
+            "category_title_en": "COLD TREATMENTS",
+            "category_badge": "فيلر وترميم",
+            "category_icon": "fa-snowflake",
+            "category_desc": "جلسات الفيلر الإيطالي وجلسات الترندي الحصرية لترميم الشعر",
+            "name": "جلسة ترددي لترميم الشعر",
+            "desc": "جلسة ترندي علاجية حصرية لإصلاح روابط الشعر المجهد واستعادة حيويته",
+            "duration": "75 دقيقة",
+            "price": "380 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_janet",
+                "sp_jenky",
+                "sp_karen"
+            ]
+        },
+        "hs_all_hairstyles": {
+            "category_id": "hairstyles",
+            "category_title": "التساريح",
+            "category_title_en": "HAIRSTYLES",
+            "category_badge": "سهرة وريترو",
+            "category_icon": "fa-scissors",
+            "category_desc": "كافة أنواع التساريح والرفعات والريترو والسهرات بأيدي خبيرات التصفيف",
+            "name": "التساريح (جميع انواع التساريح)",
+            "desc": "تساريح سهرة راقية، رفعة، ريترو، ويفي ملوكي وتثبيت احترافي يدوم طويلاً",
+            "duration": "60 دقيقة",
+            "price": "250 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_karen",
+                "sp_jenky"
+            ]
+        },
+        "sk_makeup_lashes": {
+            "category_id": "makeup",
+            "category_title": "المكياج",
+            "category_title_en": "MAKEUP",
+            "category_badge": "مكياج مع رموش",
+            "category_icon": "fa-wand-magic-sparkles",
+            "category_desc": "مكياج سهرة احترافي يبرز جمال الملامح مع تركيب الرموش",
+            "name": "المكياج ( مع الرموش)",
+            "desc": "مكياج احترافي كامل يبرز جمال الملامح بأرقى الماركات مع تركيب الرموش",
+            "duration": "60 دقيقة",
+            "price": "300 ر.س",
+            "is_bookable": true,
+            "specialists": [
+                "sp_najla"
+            ]
+        }
+    }
+}

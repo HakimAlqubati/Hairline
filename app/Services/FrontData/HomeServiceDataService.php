@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\CancellationPolicy;
 use App\Models\District;
 use App\Services\Cache\HairlineCacheService;
 use Illuminate\Support\Facades\Cache;
@@ -29,6 +30,9 @@ class HomeServiceDataService
      */
     public function getHomeServiceDetails(): array
     {
+        $policy = CancellationPolicy::where('is_active', true)->first();
+        $freeHours = $policy?->free_cancellation_hours ?? 12;
+
         return [
             'is_available' => true,
             'title' => 'خدمة الصالون في بيتكِ',
@@ -38,19 +42,19 @@ class HomeServiceDataService
             'currency' => 'SAR',
             'min_order_amount' => 200,
             'booking_notice_hours' => 24,
-            'cancellation_hours' => 12,
+            'cancellation_hours' => $freeHours,
             'notes' => [
                 'يجب توفير مكان مناسب ومضاء للخدمة',
                 'رسوم الزيارة 50 ريال تُضاف لقيمة الخدمات',
                 'الحد الأدنى للطلب 200 ريال (بدون رسوم الزيارة)',
                 'يُرجى الحجز قبل 24 ساعة على الأقل',
-                'الإلغاء المجاني قبل 12 ساعة من الموعد',
+                "الإلغاء المجاني قبل {$freeHours} ساعة من الموعد",
             ],
         ];
     }
 
     /**
-     * Returns the 12 covered districts grouped by geographic zone.
+     * Returns the covered districts grouped by geographic zone from database.
      *
      * @return array<string, array<int, array{
      *     id: string,
@@ -64,28 +68,6 @@ class HomeServiceDataService
     {
         return Cache::rememberForever(HairlineCacheService::KEY_DISTRICTS, function () {
             $districts = District::all();
-            if ($districts->isEmpty()) {
-                return [
-                    'شمال الرياض' => [
-                        ['id' => 'd_malqa',    'name' => 'حي الملقا',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_nakheel',  'name' => 'حي النخيل',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_yasmin',   'name' => 'حي الياسمين',   'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_qurtuba',  'name' => 'حي قرطبة',      'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                    ],
-                    'شرق الرياض' => [
-                        ['id' => 'd_rawdah',   'name' => 'حي الروضة',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_zahra',    'name' => 'حي الزهراء',    'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_mansura',  'name' => 'حي المنصورة',   'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
-                        ['id' => 'd_khaleej',  'name' => 'حي الخليج',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
-                    ],
-                    'غرب الرياض' => [
-                        ['id' => 'd_sulayman', 'name' => 'حي السلطان',    'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_izdihar',  'name' => 'حي الإزدهار',   'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_rabwa',    'name' => 'حي الربوة',     'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                        ['id' => 'd_hittin',   'name' => 'حي حطين',       'zone' => 'غرب الرياض',  'is_available' => false, 'extra_fee' => 0],
-                    ],
-                ];
-            }
 
             $grouped = [];
             foreach ($districts as $d) {

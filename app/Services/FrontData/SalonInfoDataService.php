@@ -158,26 +158,12 @@ class SalonInfoDataService
      */
     public function getLocation(): array
     {
-        $setting = Cache::rememberForever(HairlineCacheService::KEY_SALON_IDENTITY, function () {
-            return SalonSetting::first();
-        });
+        $setting = SalonSetting::first();
 
-        // Ensure we handle either cached array or model
-        $address = is_array($setting)
-            ? ($setting['address']['ar'] ?? 'الرياض - حي المصيف، مخرج 5')
-            : ($setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5');
-
-        $gmaps = is_array($setting)
-            ? ($setting['google_maps_url'] ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5')
-            : ($setting?->google_maps_url ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5');
-
-        $lat = is_array($setting)
-            ? (float) ($setting['latitude'] ?? 24.7677)
-            : (float) ($setting?->latitude ?? 24.7677);
-
-        $lng = is_array($setting)
-            ? (float) ($setting['longitude'] ?? 46.6896)
-            : (float) ($setting?->longitude ?? 46.6896);
+        $address = $setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5';
+        $gmaps = $setting?->google_maps_url ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5';
+        $lat = (float) ($setting?->latitude ?? 24.7677);
+        $lng = (float) ($setting?->longitude ?? 46.6896);
 
         return [
             'city' => 'الرياض',
@@ -207,15 +193,22 @@ class SalonInfoDataService
      */
     public function getContactLinks(): array
     {
+        $setting = SalonSetting::first();
+
+        $wa = $setting?->whatsapp ?: '966548857705';
+        $ig = $setting?->instagram ?: 'hairline.5';
+        $sc = $setting?->snapchat ?: 'hairline.5';
+        $tt = $setting?->tiktok ?: 'hairline';
+
         return [
-            'whatsapp' => 'https://wa.me/966548857705',
+            'whatsapp' => 'https://wa.me/'.$wa,
             'whatsapp_display' => '054 885 7705',
-            'instagram' => 'https://www.instagram.com/hairline.5',
-            'instagram_handle' => '@hairline.5',
-            'snapchat' => 'https://www.snapchat.com/add/hairline.5',
-            'snapchat_handle' => '@hairline.5',
-            'tiktok' => 'https://www.tiktok.com/@hairline',
-            'tiktok_handle' => '@hairline',
+            'instagram' => 'https://www.instagram.com/'.$ig,
+            'instagram_handle' => '@'.$ig,
+            'snapchat' => 'https://www.snapchat.com/add/'.$sc,
+            'snapchat_handle' => '@'.$sc,
+            'tiktok' => 'https://www.tiktok.com/@'.$tt,
+            'tiktok_handle' => '@'.$tt,
         ];
     }
 

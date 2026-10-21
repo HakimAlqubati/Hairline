@@ -4,16 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\CancellationPolicy;
+use App\Models\PaymentMethod;
+
 /**
  * Manages the in-session booking cart: service selection, totals,
- * deposit (3aybon) calculation, cancellation policy, and payment options.
- *
- * Note: Session persistence is handled by Livewire's component state.
- * This service only provides the stateless calculation and data logic.
+ * deposit calculation, cancellation policy, and payment options backed by DB.
  */
 class CartAndCheckoutDataService
 {
-    /** Deposit percentage of the total (عربون الحجز) */
+    /** Deposit percentage of the total */
     public const DEPOSIT_PERCENTAGE = 30;
 
     /** Minimum deposit amount in SAR */
@@ -30,14 +30,14 @@ class CartAndCheckoutDataService
      */
     public function getCancellationPolicy(): array
     {
+        $policy = CancellationPolicy::where('is_active', true)->first();
+
         return [
-            'policy_ar' => 'يمكن إلغاء الحجز مجاناً قبل 12 ساعة من الموعد. '
-                .'الإلغاء بين 6-12 ساعة يستوجب خصم 50% من العربون. '
-                .'الإلغاء بعد أقل من 6 ساعات أو عدم الحضور يُفقدكِ العربون كاملاً.',
-            'free_cancellation_hours' => 12,
-            'partial_refund_hours' => 6,
-            'partial_refund_percentage' => 50,
-            'no_show_fee_percentage' => 100,
+            'policy_ar' => $policy?->getTranslation('policy_text', 'ar') ?? 'يمكن إلغاء الحجز مجاناً قبل 12 ساعة من الموعد.',
+            'free_cancellation_hours' => $policy?->free_cancellation_hours ?? 12,
+            'partial_refund_hours' => $policy?->partial_refund_hours ?? 6,
+            'partial_refund_percentage' => (int) ($policy?->partial_refund_percentage ?? 50),
+            'no_show_fee_percentage' => (int) ($policy?->no_show_penalty_percentage ?? 100),
         ];
     }
 
@@ -46,44 +46,17 @@ class CartAndCheckoutDataService
      */
     public function getPaymentOptions(): array
     {
-        return [
-            [
-                'id' => 'pay_at_salon',
-                'name_ar' => 'الدفع عند الحضور',
-                'name_en' => 'Pay at Salon',
-                'icon' => 'cash',
-                'is_available' => true,
-                'fee' => 0,
-                'description_ar' => 'ادفعي نقداً أو بطاقة عند وصولكِ للصالون',
-            ],
-            [
-                'id' => 'mada',
-                'name_ar' => 'بطاقة مدى',
-                'name_en' => 'Mada',
-                'icon' => 'mada',
-                'is_available' => true,
-                'fee' => 0,
-                'description_ar' => 'دفع آمن مباشر من حسابكِ البنكي السعودي',
-            ],
-            [
-                'id' => 'apple_pay',
-                'name_ar' => 'Apple Pay',
-                'name_en' => 'Apple Pay',
-                'icon' => 'apple',
-                'is_available' => true,
-                'fee' => 0,
-                'description_ar' => 'دفع سريع وآمن بلمسة واحدة',
-            ],
-            [
-                'id' => 'tabby',
-                'name_ar' => 'تابي — 4 دفعات',
-                'name_en' => 'Tabby Installments',
-                'icon' => 'tabby',
-                'is_available' => true,
-                'fee' => 0,
-                'description_ar' => 'قسّمي قيمة الخدمة على 4 دفعات شهرية بدون فوائد',
-            ],
-        ];
+        $methods = PaymentMethod::where('is_available', true)->orderBy('sort_order')->get();
+
+        return $methods->map(fn (PaymentMethod $m) => [
+            'id' => $m->code,
+            'name_ar' => $m->getTranslation('name', 'ar'),
+            'name_en' => $m->getTranslation('name', 'en'),
+            'icon' => $m->icon,
+            'is_available' => (bool) $m->is_available,
+            'fee' => (int) $m->fee,
+            'description_ar' => $m->getTranslation('description', 'ar'),
+        ])->all();
     }
 
     /**
@@ -119,7 +92,6 @@ class CartAndCheckoutDataService
      * @param  array{
      *     client_name: string,
      *     client_phone: string,
-     *     date_id: string,
      *     date_label: string,
      *     time: string,
      *     specialist_id?: string,
