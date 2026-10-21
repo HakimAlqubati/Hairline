@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\SalonSettings\Tables;
 
-use Filament\Tables\Actions\EditAction;
+use Filament\Actions\EditAction;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
