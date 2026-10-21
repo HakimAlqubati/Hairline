@@ -2221,444 +2221,233 @@ class CatalogDataService
      *     }>
      * }>
      */
+    /**
+     * Map of services available for booking (متاح للحجز).
+     *
+     * Exactly matches the official salon booking guidelines from the attachment:
+     * 1. الصبغات: صبغة لون واحد | صبغة تفتيح / اومبري سومبري بيلياج
+     * 2. المعالجات الحارة: البروتين بالتمليس الحراري | البروتين بدون تمليس حراري | بروتين الجذور
+     * 3. المعالجات الباردة: جلسة الفيلر لترميم الشعر | جلسة ترددي لترميم الشعر
+     * 4. التساريح: التساريح (جميع انواع التساريح)
+     * 5. المكياج: المكياج (مع الرموش)
+     *
+     * @var array<string, array{
+     *     category_id: string,
+     *     category_title: string,
+     *     category_title_en: string,
+     *     category_badge: string,
+     *     category_icon: string,
+     *     category_desc: string,
+     *     name: string,
+     *     desc: string,
+     *     duration: string,
+     *     price: string,
+     *     is_bookable: bool,
+     *     specialists: array<int, string>
+     * }>
+     */
+    public const BOOKABLE_SERVICES = [
+        // --- 1. الصبغات ---
+        'hs_full_color' => [
+            'category_id' => 'color_services',
+            'category_title' => 'الصبغات',
+            'category_title_en' => 'HAIR COLORING',
+            'category_badge' => 'صبغات وتفتيح',
+            'category_icon' => 'fa-palette',
+            'category_desc' => 'صبغة لون واحد، وتفتيح أومبري وسومبري وبيلياج بأجود المنتجات الإيطالية',
+            'name' => 'صبغة لون واحد',
+            'desc' => 'صبغة شاملة متكاملة بلون واحد جذاب بأحدث الدرجات والصبغات الإيطالية',
+            'duration' => '120 دقيقة',
+            'price' => '350 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_janet', 'sp_karen'],
+        ],
+        'hs_highlights' => [
+            'category_id' => 'color_services',
+            'category_title' => 'الصبغات',
+            'category_title_en' => 'HAIR COLORING',
+            'category_badge' => 'صبغات وتفتيح',
+            'category_icon' => 'fa-palette',
+            'category_desc' => 'صبغة لون واحد، وتفتيح أومبري وسومبري وبيلياج بأجود المنتجات الإيطالية',
+            'name' => 'صبغة تفتيح / اومبري سومبري بيلياج',
+            'desc' => 'تفتيح احترافي متدرج وخصل بلياج وسومبري مع حماية روابط الشعر',
+            'duration' => '150 دقيقة',
+            'price' => '750 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_janet', 'sp_karen'],
+        ],
+
+        // --- 2. المعالجات الحارة ---
+        'ht_protein_machine' => [
+            'category_id' => 'hot_treatments',
+            'category_title' => 'المعالجات الحارة',
+            'category_title_en' => 'HOT TREATMENTS',
+            'category_badge' => 'بروتين وسحب حراري',
+            'category_icon' => 'fa-fire-flame-curved',
+            'category_desc' => 'بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور',
+            'name' => 'البروتين بالتمليس الحراري',
+            'desc' => 'معالجة بروتين مكثفة وسحب حراري لنعومة فائقة ولمعان حريري يدوم طويلاً',
+            'duration' => '180 دقيقة',
+            'price' => '750 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_karen', 'sp_janet'],
+        ],
+        'ht_protein_no_machine' => [
+            'category_id' => 'hot_treatments',
+            'category_title' => 'المعالجات الحارة',
+            'category_title_en' => 'HOT TREATMENTS',
+            'category_badge' => 'بروتين وسحب حراري',
+            'category_icon' => 'fa-fire-flame-curved',
+            'category_desc' => 'بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور',
+            'name' => 'البروتين بدون تمليس حراري',
+            'desc' => 'تغذية وترميم ألياف الشعر بالبروتين البارد بدون تعريض لحرارة مكثفة',
+            'duration' => '120 دقيقة',
+            'price' => '560 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_karen', 'sp_janet'],
+        ],
+        'ht_roots_protein' => [
+            'category_id' => 'hot_treatments',
+            'category_title' => 'المعالجات الحارة',
+            'category_title_en' => 'HOT TREATMENTS',
+            'category_badge' => 'بروتين وسحب حراري',
+            'category_icon' => 'fa-fire-flame-curved',
+            'category_desc' => 'بروتين بالتمليس وبدون تمليس حراري، وبروتين الجذور',
+            'name' => 'بروتين الجذور',
+            'desc' => 'معالجة وتمليس بروتين مخصص للجذور النامية فقط',
+            'duration' => '90 دقيقة',
+            'price' => '520 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_karen', 'sp_janet'],
+        ],
+
+        // --- 3. المعالجات الباردة ---
+        'ht_morphsis_filler' => [
+            'category_id' => 'cold_treatments',
+            'category_title' => 'المعالجات الباردة',
+            'category_title_en' => 'COLD TREATMENTS',
+            'category_badge' => 'فيلر وترميم',
+            'category_icon' => 'fa-snowflake',
+            'category_desc' => 'جلسات الفيلر الإيطالي وجلسات الترندي الحصرية لترميم الشعر',
+            'name' => 'جلسة الفيلر لترميم الشعر',
+            'desc' => 'جلسة ترميم وبناء ألياف الشعر التالف بالفيلر الإيطالي المورفوسيس',
+            'duration' => '60 دقيقة',
+            'price' => '230 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_janet', 'sp_jenky', 'sp_karen'],
+        ],
+        'ht_trendy_session' => [
+            'category_id' => 'cold_treatments',
+            'category_title' => 'المعالجات الباردة',
+            'category_title_en' => 'COLD TREATMENTS',
+            'category_badge' => 'فيلر وترميم',
+            'category_icon' => 'fa-snowflake',
+            'category_desc' => 'جلسات الفيلر الإيطالي وجلسات الترندي الحصرية لترميم الشعر',
+            'name' => 'جلسة ترددي لترميم الشعر',
+            'desc' => 'جلسة ترندي علاجية حصرية لإصلاح روابط الشعر المجهد واستعادة حيويته',
+            'duration' => '75 دقيقة',
+            'price' => '380 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_janet', 'sp_jenky', 'sp_karen'],
+        ],
+
+        // --- 4. التساريح ---
+        'hs_all_hairstyles' => [
+            'category_id' => 'hairstyles',
+            'category_title' => 'التساريح',
+            'category_title_en' => 'HAIRSTYLES',
+            'category_badge' => 'سهرة وريترو',
+            'category_icon' => 'fa-scissors',
+            'category_desc' => 'كافة أنواع التساريح والرفعات والريترو والسهرات بأيدي خبيرات التصفيف',
+            'name' => 'التساريح (جميع انواع التساريح)',
+            'desc' => 'تساريح سهرة راقية، رفعة، ريترو، ويفي ملوكي وتثبيت احترافي يدوم طويلاً',
+            'duration' => '60 دقيقة',
+            'price' => '250 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_karen', 'sp_jenky'],
+        ],
+
+        // --- 5. المكياج ---
+        'sk_makeup_lashes' => [
+            'category_id' => 'makeup',
+            'category_title' => 'المكياج',
+            'category_title_en' => 'MAKEUP',
+            'category_badge' => 'مكياج مع رموش',
+            'category_icon' => 'fa-wand-magic-sparkles',
+            'category_desc' => 'مكياج سهرة احترافي يبرز جمال الملامح مع تركيب الرموش',
+            'name' => 'المكياج ( مع الرموش)',
+            'desc' => 'مكياج احترافي كامل يبرز جمال الملامح بأرقى الماركات مع تركيب الرموش',
+            'duration' => '60 دقيقة',
+            'price' => '300 ر.س',
+            'is_bookable' => true,
+            'specialists' => ['sp_najla'],
+        ],
+    ];
+
+    /**
+     * Check if a service is available for online booking.
+     */
+    public function isServiceBookable(string $serviceId): bool
+    {
+        return isset(self::BOOKABLE_SERVICES[$serviceId]) && self::BOOKABLE_SERVICES[$serviceId]['is_bookable'];
+    }
+
+    /**
+     * Returns bookable categories and services filtered by "متاح للحجز" (is_bookable === true).
+     *
+     * @return array<int, array{
+     *     id: string,
+     *     title: string,
+     *     title_en: string,
+     *     badge: string,
+     *     icon: string,
+     *     description: string,
+     *     subServices: array<int, array{
+     *         id: string,
+     *         name: string,
+     *         desc: string,
+     *         duration: string,
+     *         price: string,
+     *         is_bookable: bool,
+     *         specialists: array<int, string>
+     *     }>
+     * }>
+     */
     public function getBookableCategoriesWithSpecialists(): array
     {
-        return [
-            // Page 1: خدمات الشعر
-            [
-                'id' => 'hair_services',
-                'title' => 'خدمات الشعر',
-                'title_en' => 'HAIR SERVICES',
-                'badge' => 'تساريح وقص وصبغات',
-                'icon' => 'fa-scissors',
-                'description' => 'تساريح عرائس وريترو، صبغات إيطالية وخصل، تغطية الجذور، وقص احترافي',
-                'subServices' => [
-                    [
-                        'id' => 'hs_bridal',
-                        'name' => 'تسريحة مع تركيب طرحة عروس',
-                        'desc' => 'تسريحة عروس ملكية متكاملة مع تثبيت وتنسيق طرحة الزفاف',
-                        'duration' => '90 دقيقة',
-                        'price' => '400 ر.س',
-                        'specialists' => ['sp_karen', 'sp_karen'],
-                    ],
-                    [
-                        'id' => 'hs_retro_style',
-                        'name' => 'تسريحة تثبيت - رفعة - ريترو',
-                        'desc' => 'تسريحة سهرة فاخرة وتثبيت يدوم طويلاً (حسب الطول: 200 - 400 ر.س)',
-                        'duration' => '60 دقيقة',
-                        'price' => '250 ر.س',
-                        'specialists' => ['sp_karen', 'sp_karen'],
-                    ],
-                    [
-                        'id' => 'hs_roots_color',
-                        'name' => 'صبغة الجذور',
-                        'desc' => 'تغطية متكاملة لجذور الشعر واللون الأبيض بأرقى الصبغات الإيطالية',
-                        'duration' => '60 دقيقة',
-                        'price' => '100 ر.س',
-                        'specialists' => ['sp_janet', 'sp_karen'],
-                    ],
-                    [
-                        'id' => 'hs_full_color',
-                        'name' => 'صبغة لون كامل',
-                        'desc' => 'صبغة شاملة لكامل الشعر بأحدث درجات الألوان (350 - 1400 ر.س)',
-                        'duration' => '120 دقيقة',
-                        'price' => '350 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'hs_highlights',
-                        'name' => 'خصل (أومبري - سومبري - بلياج)',
-                        'desc' => 'تفتيح احترافي متدرج مع حماية الروابط (750 - 1800 ر.س)',
-                        'duration' => '150 دقيقة',
-                        'price' => '750 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'hs_rancage',
-                        'name' => 'رينساج لتصحيح وتنشيط اللون',
-                        'desc' => 'تجديد وتصحيح انعكاسات اللون وإزالة البهتان (110 - 470 ر.س)',
-                        'duration' => '45 دقيقة',
-                        'price' => '195 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'hs_full_cut',
-                        'name' => 'قص الشعر كامل',
-                        'desc' => 'قص كامل وتشكيل احترافي متناسق مع ملامح الوجه',
-                        'duration' => '45 دقيقة',
-                        'price' => '80 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'hs_ends_cut',
-                        'name' => 'قص الأطراف (بالمقص أو الماكينة)',
-                        'desc' => 'قص وتطهير أطراف الشعر المتقصفة بدقة مع المحافظة على الطول (48 - 60 ر.س)',
-                        'duration' => '30 دقيقة',
-                        'price' => '60 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'hs_boy_cut',
-                        'name' => 'قص أو ترتيب البوي',
-                        'desc' => 'قصة بوي عصرية مميزة أو تشذيب وإعادة تشكيل القصة القصيرة',
-                        'duration' => '40 دقيقة',
-                        'price' => '95 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'hs_bangs_cut',
-                        'name' => 'قص الغرة',
-                        'desc' => 'قص وترتيب الغرة الأمامية بتنسيق ناعم ومثالي للوجه',
-                        'duration' => '15 دقيقة',
-                        'price' => '25 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                ],
-            ],
+        $categoriesMap = [];
 
-            // Page 2: معالجات الشعر
-            [
-                'id' => 'hair_treatments',
-                'title' => 'معالجات الشعر',
-                'title_en' => 'HAIR TREATMENTS',
-                'badge' => 'حارة وباردة',
-                'icon' => 'fa-fire-flame-curved',
-                'description' => 'البروتين بالتمليس الحراري وبدونه، فيلر المورفوسيس، جلسة الترندي، والعناية بالكيرلي',
-                'subServices' => [
-                    [
-                        'id' => 'ht_protein_machine',
-                        'name' => 'البروتين بالتمليس الحراري',
-                        'desc' => 'معالجة بروتين مكثفة وسحب حراري لنعومة فائقة (750 - 1800 ر.س حسب الطول)',
-                        'duration' => '180 دقيقة',
-                        'price' => '750 ر.س',
-                        'specialists' => ['sp_karen', 'sp_karen'],
-                    ],
-                    [
-                        'id' => 'ht_protein_no_machine',
-                        'name' => 'البروتين بدون التمليس الحراري',
-                        'desc' => 'تغذية وترميم ألياف الشعر بالبروتين بدون حرارة مكثفة (560 - 1300 ر.س)',
-                        'duration' => '120 دقيقة',
-                        'price' => '560 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'ht_roots_protein',
-                        'name' => 'بروتين الجذور',
-                        'desc' => 'معالجة وتمليس بروتين مخصص للجذور النامية فقط',
-                        'duration' => '90 دقيقة',
-                        'price' => '520 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'ht_morphsis_filler',
-                        'name' => 'جلسة فيلر المورفوسيس (لترميم الشعر)',
-                        'desc' => 'جلسة ترميم وبناء ألياف الشعر بالفيلر الإيطالي (195 - 335 ر.س حسب الطول)',
-                        'duration' => '60 دقيقة',
-                        'price' => '230 ر.س',
-                        'specialists' => ['sp_janet', 'sp_jenky'],
-                    ],
-                    [
-                        'id' => 'ht_trendy_session',
-                        'name' => 'جلسة الترندي (لترميم الشعر)',
-                        'desc' => 'جلسة علاجية ترندي حصرية لإصلاح التلف العميق (310 - 780 ر.س حسب الطول)',
-                        'duration' => '75 دقيقة',
-                        'price' => '380 ر.س',
-                        'specialists' => ['sp_janet', 'sp_jenky'],
-                    ],
-                    [
-                        'id' => 'ht_curly_care',
-                        'name' => 'جلسة العناية (بالشعر الكيرلي)',
-                        'desc' => 'ترطيب عميق وتحديد تموجات الكيرلي بدون هيشان (380 - 879 ر.س حسب الطول)',
-                        'duration' => '75 دقيقة',
-                        'price' => '400 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                ],
-            ],
+        foreach (self::BOOKABLE_SERVICES as $serviceId => $serviceData) {
+            // تصفية الخدمات المتاحة للحجز فقط
+            if (! ($serviceData['is_bookable'] ?? false)) {
+                continue;
+            }
 
-            // Page 3: جلسات العناية بالشعر
-            [
-                'id' => 'hair_care',
-                'title' => 'جلسات العناية بالشعر',
-                'title_en' => 'HAIR CARE SESSIONS',
-                'badge' => 'فروة وأعشاب',
-                'icon' => 'fa-leaf',
-                'description' => 'تنظيف فروة الرأس، الصبار الطبيعي، الحنة مع السدر، والوسمة للجذور',
-                'subServices' => [
-                    [
-                        'id' => 'hc_scalp_reg',
-                        'name' => 'جلسة تنظيف فروة الرأس العادية',
-                        'desc' => 'تنظيف خفيف وإزالة الشوائب وتنشيط الدورة الدموية للفروة',
-                        'duration' => '45 دقيقة',
-                        'price' => '215 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'hc_scalp_deep',
-                        'name' => 'جلسة تنظيف فروة الرأس العميقة',
-                        'desc' => 'تنظيف طبي عميق مع تقشير المسام وتغذية الفروة بالأمصال المقوية',
-                        'duration' => '75 دقيقة',
-                        'price' => '600 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'hc_aloe_vera',
-                        'name' => 'جلسة الصبار الطبيعي',
-                        'desc' => 'ماسك جل الصبار العضوي الطازج لترطيب وتكثيف الشعر (130 - 220 ر.س)',
-                        'duration' => '45 دقيقة',
-                        'price' => '160 ر.س',
-                        'specialists' => ['sp_janet', 'sp_karen'],
-                    ],
-                    [
-                        'id' => 'hc_henna_sidr',
-                        'name' => 'جلسة الحنة مع السدر (لكامل الشعر)',
-                        'desc' => 'خلطة حنة المدينة مع السدر البلدي لتقوية ولمعان الشعر (150 - 240 ر.س)',
-                        'duration' => '60 دقيقة',
-                        'price' => '180 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'hc_henna_full',
-                        'name' => 'جلسة الحنة (لكامل الشعر)',
-                        'desc' => 'حنة عضوية أصيلة لتغذية فروة الرأس ومنح لون دافئ (130 - 220 ر.س)',
-                        'duration' => '60 دقيقة',
-                        'price' => '160 ر.س',
-                        'specialists' => ['sp_karen'],
-                    ],
-                    [
-                        'id' => 'hc_wasma',
-                        'name' => 'الوسمة للجذور',
-                        'desc' => 'عشبة الوسمة الطبيعية النقية لتغطية الشيب ومنح الجذور لوناً داكناً',
-                        'duration' => '45 دقيقة',
-                        'price' => '80 ر.س',
-                        'specialists' => ['sp_karen'],
-                    ],
-                    [
-                        'id' => 'hc_wash',
-                        'name' => 'غسيل الشعر / غسيل بشامبو الرنساج والحنة',
-                        'desc' => 'غسيل احترافي مع مساج مهدئ للفروة بشامبو وبلسم فاخر (25 - 50 ر.س)',
-                        'duration' => '25 دقيقة',
-                        'price' => '50 ر.س',
-                        'specialists' => ['sp_jenky', 'sp_janet'],
-                    ],
-                ],
-            ],
+            $catId = $serviceData['category_id'];
 
-            // Page 4: الاستشوار والتصفيف
-            [
-                'id' => 'blowdry',
-                'title' => 'الاستشوار والتصفيف',
-                'title_en' => 'BLOW DRY STYLES',
-                'badge' => 'عادي وويفي',
-                'icon' => 'fa-wind',
-                'description' => 'استشوار عادي ناعم واستشوار ويفي مموج لجميع أطوال الشعر المعتمدة',
-                'subServices' => [
-                    [
-                        'id' => 'bd_straight',
-                        'name' => 'استشوار عادي',
-                        'desc' => 'سشوار مالس ناعم بحماية حرارية (قصير جداً 70، قصير 110، وسط 140، طويل 180، طويل جداً 210 ر.س)',
-                        'duration' => '45 دقيقة',
-                        'price' => '140 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'bd_wavy',
-                        'name' => 'استشوار ويفي',
-                        'desc' => 'تمويج ويفي عصري جذاب (قصير 140، وسط 180، طويل 230، طويل جداً 300 ر.س)',
-                        'duration' => '50 دقيقة',
-                        'price' => '180 ر.س',
-                        'specialists' => ['sp_karen', 'sp_janet'],
-                    ],
-                ],
-            ],
+            if (! isset($categoriesMap[$catId])) {
+                $categoriesMap[$catId] = [
+                    'id' => $catId,
+                    'title' => $serviceData['category_title'],
+                    'title_en' => $serviceData['category_title_en'],
+                    'badge' => $serviceData['category_badge'],
+                    'icon' => $serviceData['category_icon'],
+                    'description' => $serviceData['category_desc'],
+                    'subServices' => [],
+                ];
+            }
 
-            // Page 5: المناكير والبادكير
-            [
-                'id' => 'nails',
-                'title' => 'المناكير والبادكير',
-                'title_en' => 'MANICURES & PEDICURES',
-                'badge' => 'أظافر وسبا',
-                'icon' => 'fa-hand',
-                'description' => 'باقات السبا الملكية، مناكير وبادكير، شمع البارفين، وألوان وتركيب أظافر',
-                'subServices' => [
-                    [
-                        'id' => 'nl_luxury_spa',
-                        'name' => 'جلسة لاكجري سبا',
-                        'desc' => 'باقة ملكية كاملة: مناكير + بادكير + بارفين + يدين ورجلين + مساج أقدام وأكتاف',
-                        'duration' => '80 دقيقة',
-                        'price' => '280 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'nl_relax_spa',
-                        'name' => 'جلسة ريلاكس سبا',
-                        'desc' => 'استرخاء فاخر: مناكير + بادكير + مساج استرخائي للأقدام والأكتاف',
-                        'duration' => '65 دقيقة',
-                        'price' => '230 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'nl_classic_spa',
-                        'name' => 'جلسة كلاسيك سبا (مناكير + بادكير)',
-                        'desc' => 'عناية كلاسيكية متكاملة للأيدي والأقدام',
-                        'duration' => '50 دقيقة',
-                        'price' => '180 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'nl_mani_pedi',
-                        'name' => 'مناكير أو بادكير تنظيف أقدام ومساج',
-                        'desc' => 'تنظيف دقيق للجلد الميت والبرد الناعم والعناية بالكعوب (70 - 120 ر.س)',
-                        'duration' => '45 دقيقة',
-                        'price' => '110 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'nl_paraffin',
-                        'name' => 'بارفين يدين أو أقدام',
-                        'desc' => 'شمع البارفين الدافئ لترطيب ونعومة فائقة للجلد والمفاصل (25 - 35 ر.س)',
-                        'duration' => '25 دقيقة',
-                        'price' => '35 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                    [
-                        'id' => 'nl_colors_extensions',
-                        'name' => 'ألوان أظافر (عادي / فرنش / آرت) أو تركيب أظافر',
-                        'desc' => 'طلاء أظافر فاخر وسريع الجفاف أو تركيب احترافي بمقاسات مريحة (20 - 80 ر.س)',
-                        'duration' => '30 دقيقة',
-                        'price' => '50 ر.س',
-                        'specialists' => ['sp_janet', 'sp_janet'],
-                    ],
-                ],
-            ],
+            $categoriesMap[$catId]['subServices'][] = [
+                'id' => $serviceId,
+                'name' => $serviceData['name'],
+                'desc' => $serviceData['desc'],
+                'duration' => $serviceData['duration'],
+                'price' => $serviceData['price'],
+                'is_bookable' => true,
+                'specialists' => $serviceData['specialists'],
+            ];
+        }
 
-            // Page 6: البشرة والمكياج والرموش والحواجب
-            [
-                'id' => 'skin_eyebrows',
-                'title' => 'البشرة، المكياج والرموش والحواجب',
-                'title_en' => 'SKIN, MAKEUP & EYEBROWS',
-                'badge' => 'نضارة وتجميل',
-                'icon' => 'fa-wand-magic-sparkles',
-                'description' => 'تنظيف بشرة فيشل، مكياج سهرة، رموش دائمة وأسبوعية، ورفع وتشقير الحواجب',
-                'subServices' => [
-                    [
-                        'id' => 'sk_facial',
-                        'name' => 'تنظيف البشرة (فيشل)',
-                        'desc' => 'جلسة تنظيف عميق للمسام وإزالة الرؤوس السوداء والترطيب الماسي',
-                        'duration' => '60 دقيقة',
-                        'price' => '250 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'sk_scrub_aloe',
-                        'name' => 'جلسة تقشير البشرة بماسك الصبار / فيشل الأنف',
-                        'desc' => 'تقشير لطيف وتجديد خلايا البشرة بماسك الصبار الطبيعي (57 - 125 ر.س)',
-                        'duration' => '40 دقيقة',
-                        'price' => '125 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'sk_face_waxing',
-                        'name' => 'تنظيف الوجه أو الشنب بالواكس / فتلة',
-                        'desc' => 'إزالة شعر الوجه والوبر بدقة بالواكس المخصص للبشرة الحساسة أو الفتلة (30 - 80 ر.س)',
-                        'duration' => '30 دقيقة',
-                        'price' => '80 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'sk_makeup',
-                        'name' => 'مكياج كامل / مكياج عيون',
-                        'desc' => 'مكياج سهرة كامل فاخر بأرقى الماركات أو رسم وظلال عيون احترافية (250 - 300 ر.س)',
-                        'duration' => '60 دقيقة',
-                        'price' => '300 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'eb_permanent_lashes',
-                        'name' => 'الرموش الدائمة',
-                        'desc' => 'تركيب رموش دائمة شعرة بشعرة لإطلالة طبيعية ساحرة تدوم لأسابيع',
-                        'duration' => '90 دقيقة',
-                        'price' => '500 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'eb_weekly_lashes',
-                        'name' => 'الرموش الأسبوعية (الكاملة / بالحبة)',
-                        'desc' => 'تركيب رموش أسبوعية كاملة أو بالحبة تدوم أسبوعاً كاملاً (35 - 80 ر.س)',
-                        'duration' => '30 دقيقة',
-                        'price' => '80 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'eb_lift_curl',
-                        'name' => 'برم الرموش / رفع الحواجب',
-                        'desc' => 'تثبيت ورفع الرموش والحواجب بتقنية اللامينيشن لإطلالة ممتلئة (350 ر.س)',
-                        'duration' => '50 دقيقة',
-                        'price' => '350 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                    [
-                        'id' => 'eb_brow_bleach_color',
-                        'name' => 'تشقير وصبغة الحواجب',
-                        'desc' => 'تشقير وتنظيف دقيق لرسمة الحواجب أو صبغة مميزة أو باقة مدمجة (40 - 80 ر.س)',
-                        'duration' => '35 دقيقة',
-                        'price' => '80 ر.س',
-                        'specialists' => ['sp_janet'],
-                    ],
-                ],
-            ],
-
-            // Page 7: المساج، الحلاوة والواكس
-            [
-                'id' => 'massage_wax',
-                'title' => 'المساج، الحلاوة والواكس',
-                'title_en' => 'MASSAGE, HOT & COLD WAX',
-                'badge' => 'راحة ونعومة',
-                'icon' => 'fa-spa',
-                'description' => 'مساجات تقنية استرخائية، وإزالة شعر الجسم بالواكس والحلاوة وبكجات متكاملة',
-                'subServices' => [
-                    [
-                        'id' => 'ms_face_lifting',
-                        'name' => 'مساج الوجه بطريقة الشد للأعلى',
-                        'desc' => 'مساج تقني يرفع عضلات الوجه ويحفز الكولاجين ونضارة البشرة',
-                        'duration' => '40 دقيقة',
-                        'price' => '180 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'ms_body_relax',
-                        'name' => 'مساج الأكتاف والرقبة / الظهر والرقبة / الرأس',
-                        'desc' => 'تخفيف الشد العضلي والإرهاق المتراكم لراحة عميقة (75 - 120 ر.س)',
-                        'duration' => '40 دقيقة',
-                        'price' => '120 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'ms_extremities',
-                        'name' => 'مساج اليدين أو الرجلين كاملة / مساج الأقدام',
-                        'desc' => 'تدليك شامل لتنشيط الدورة الدموية والتخفيف من الثقل (40 - 97 ر.س)',
-                        'duration' => '40 دقيقة',
-                        'price' => '97 ر.س',
-                        'specialists' => ['sp_jenky'],
-                    ],
-                    [
-                        'id' => 'wx_body_parts',
-                        'name' => 'حلاوة وواكس (اليدين / الرجلين / أندر أرم)',
-                        'desc' => 'إزالة شعر نصف أو كامل اليدين والرجلين والإبط بنعومة تدوم (50 - 115 ر.س)',
-                        'duration' => '30 دقيقة',
-                        'price' => '70 ر.س',
-                        'specialists' => ['sp_janet', 'sp_jenky'],
-                    ],
-                    [
-                        'id' => 'wx_full_package',
-                        'name' => 'بكج حلاوة / واكس',
-                        'desc' => 'باقة متكاملة واقتصادية لإزالة شعر الجسم بالكامل بنعومة فائقة',
-                        'duration' => '75 دقيقة',
-                        'price' => '220 ر.س',
-                        'specialists' => ['sp_janet', 'sp_jenky'],
-                    ],
-                ],
-            ],
-        ];
+        return array_values($categoriesMap);
     }
 }

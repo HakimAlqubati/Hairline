@@ -587,7 +587,14 @@
 
         function openBookingFlowWithCategory(categoryId) {
             updateUrl('/booking');
-            const cat = bookableCategories.find(c => c.id === categoryId);
+            const aliasMap = {
+                'hair_treatments': 'hot_treatments',
+                'hair_services': 'color_services',
+                'blowdry': 'hairstyles',
+                'nails': 'color_services'
+            };
+            const targetId = aliasMap[categoryId] || categoryId;
+            const cat = bookableCategories.find(c => c.id === targetId || c.id === categoryId);
             if (!cat) {
                 openBookingFlow();
                 return;
