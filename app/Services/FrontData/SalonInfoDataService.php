@@ -4,12 +4,16 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\HeroSlide;
+use App\Models\SalonGallery;
+use App\Models\SalonSetting;
+use App\Models\SalonWorkingHour;
+use App\Services\Cache\HairlineCacheService;
+use Illuminate\Support\Facades\Cache;
+
 /**
- * Provides static data for the salon's main identity, about section,
+ * Provides database-backed and cached data for the salon's main identity,
  * working hours, location, and contact information.
- *
- * All data is returned as typed arrays/value objects for easy replacement
- * with a real data source in the future.
  */
 class SalonInfoDataService
 {
@@ -22,66 +26,66 @@ class SalonInfoDataService
      *     description_line1: string,
      *     description_line2: string,
      *     hero_slogans: string[],
+     *     logo_url: string,
+     *     stats: array<int, array{value: string, label: string, bg: string, text: string}>,
+     *     hero_slides: array<int, array{img: string, fallback: string, title: string, subtitle: string}>,
      *     hero_images: array<int, array{url: string, alt: string, fallback: string}>
      * }
      */
     public function getSalonIdentity(): array
     {
-        return [
-            'name_en' => 'HAIRLINE',
-            'name_ar' => 'هيرلاين',
-            'tagline_en' => 'BEAUTY SALON',
-            'tagline_ar' => 'صالون هيرلاين النسائي',
-            'description_line1' => 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
-            'description_line2' => 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',
-            'hero_slogans' => [
-                'فخامة الجمال',
-                'أناقتكِ تتجدد',
-            ],
-            'logo_url' => '/images/logo.png',
-            'stats' => [
-                ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
-                ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
-            ],
-            'hero_slides' => [
-                [
-                    'img' => '/images/salon/reception-desk.jpg',
-                    'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'هير لاين لأن الجمال إحساس',
-                    'subtitle' => 'اهتمامك يستحق عناية احترافية على يد أخصائيات خبيرات.',
+        return Cache::rememberForever(HairlineCacheService::KEY_SALON_IDENTITY, function () {
+            $setting = SalonSetting::first();
+            $slides = HeroSlide::where('is_active', true)->orderBy('sort_order')->get();
+
+            $slidesArray = [];
+            foreach ($slides as $slide) {
+                $slidesArray[] = [
+                    'img' => $slide->image_path,
+                    'fallback' => $slide->fallback_url ?: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
+                    'title' => $slide->getTranslation('title', 'ar'),
+                    'subtitle' => $slide->getTranslation('subtitle', 'ar') ?: '',
+                ];
+            }
+
+            return [
+                'name_en' => $setting?->getTranslation('name', 'en') ?: 'HAIRLINE',
+                'name_ar' => $setting?->getTranslation('name', 'ar') ?: 'هيرلاين',
+                'tagline_en' => $setting?->getTranslation('tagline', 'en') ?: 'BEAUTY SALON',
+                'tagline_ar' => $setting?->getTranslation('tagline', 'ar') ?: 'صالون هيرلاين النسائي',
+                'description_line1' => $setting?->getTranslation('description_line1', 'ar') ?: 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
+                'description_line2' => $setting?->getTranslation('description_line2', 'ar') ?: 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',
+                'hero_slogans' => [
+                    'فخامة الجمال',
+                    'أناقتكِ تتجدد',
                 ],
-                [
-                    'img' => '/images/salon/hair-styling-chairs.jpg',
-                    'fallback' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'شعرك عنوان إطلالتك',
-                    'subtitle' => 'لأن جمال شعرك يبدأ من جودة العناية نمنحك عناية عالية الجودة تمنحك الرضا في كل زيارة.',
+                'logo_url' => $setting?->logo_path ?: '/images/logo.png',
+                'stats' => $setting?->stats ?: [
+                    ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
+                    ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
                 ],
-                [
-                    'img' => '/images/salon/salon-stations-tv.jpg',
-                    'fallback' => 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'استثمري في جمال شعرك',
-                    'subtitle' => 'مع اشتراكات هير لاين الدورية التي تجمع لك الجلسات والباقات المصممة لك.',
+                'hero_slides' => ! empty($slidesArray) ? $slidesArray : [
+                    [
+                        'img' => '/images/salon/reception-desk.jpg',
+                        'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
+                        'title' => 'هير لاين لأن الجمال إحساس',
+                        'subtitle' => 'اهتمامك يستحق عناية احترافية على يد أخصائيات خبيرات.',
+                    ],
                 ],
-                [
-                    'img' => '/images/salon/salon-screen-display.jpg',
-                    'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'عناية تبدأ بفهم طبيعة شعرك',
-                    'subtitle' => 'خلطات عضوية، معالجات مغذية، وحلول متنوعة، نختار منها ما يناسب احتياج شعرك.',
+                'hero_images' => [
+                    [
+                        'url' => '/images/salon/reception-desk.jpg',
+                        'alt' => 'منطقة الاستقبال والترحيب الفاخرة في صالون هيرلاين',
+                        'fallback' => 'https://placehold.co/800x1000/E2EFEA/4A5D54?text=HAIRLINE+LOUNGE',
+                    ],
+                    [
+                        'url' => '/images/salon/hair-styling-chairs.jpg',
+                        'alt' => 'محطات تصفيف الشعر الفاخرة وجدار الورود في هيرلاين',
+                        'fallback' => 'https://placehold.co/800x1000/F5EFE6/C5A373?text=HAIRLINE+BEAUTY',
+                    ],
                 ],
-            ],
-            'hero_images' => [
-                [
-                    'url' => '/images/salon/reception-desk.jpg',
-                    'alt' => 'منطقة الاستقبال والترحيب الفاخرة في صالون هيرلاين',
-                    'fallback' => 'https://placehold.co/800x1000/E2EFEA/4A5D54?text=HAIRLINE+LOUNGE',
-                ],
-                [
-                    'url' => '/images/salon/hair-styling-chairs.jpg',
-                    'alt' => 'محطات تصفيف الشعر الفاخرة وجدار الورود في هيرلاين',
-                    'fallback' => 'https://placehold.co/800x1000/F5EFE6/C5A373?text=HAIRLINE+BEAUTY',
-                ],
-            ],
-        ];
+            ];
+        });
     }
 
     /**
@@ -96,48 +100,22 @@ class SalonInfoDataService
      */
     public function getSalonGallery(): array
     {
-        return [
-            [
-                'id' => 'reception',
-                'title' => 'الاستقبال الملكي',
-                'subtitle' => 'شعار هيرلاين المذهب ومنطقة الضيافة وخدمة العملاء',
-                'image_url' => '/images/salon/reception-desk.jpg',
-                'aspect_ratio' => '16/10',
-                'tag' => 'منطقة الاستقبال',
-            ],
-            [
-                'id' => 'styling_chairs',
-                'title' => 'محطات التصفيف الفاخرة',
-                'subtitle' => 'مرايا بإضاءة نهارية سينمائية وجدار الورود الطبيعية',
-                'image_url' => '/images/salon/hair-styling-chairs.jpg',
-                'aspect_ratio' => '3/4',
-                'tag' => 'تصفيف الشعر',
-            ],
-            [
-                'id' => 'stations_tv',
-                'title' => 'أجواء اللوج الفندقية',
-                'subtitle' => 'شاشات عرض الموديلات وأحدث صيحات التجميل والعناية',
-                'image_url' => '/images/salon/salon-stations-tv.jpg',
-                'aspect_ratio' => '16/10',
-                'tag' => 'الصالون الداخلي',
-            ],
-            [
-                'id' => 'screen_display',
-                'title' => 'ركن الجمال والخصوصية',
-                'subtitle' => 'فواصل خصوصية تامة وخدمة متفردة لكل عميلة',
-                'image_url' => '/images/salon/salon-screen-display.jpg',
-                'aspect_ratio' => '16/10',
-                'tag' => 'خصوصية تامة',
-            ],
-            [
-                'id' => 'business_cards',
-                'title' => 'هوية وتفاصيل الفخامة',
-                'subtitle' => 'بطاقات العضوية وخدمة الحجز المباشر 0548857705',
-                'image_url' => '/images/salon/business-cards.jpg',
-                'aspect_ratio' => '3/4',
-                'tag' => 'هوية هيرلاين',
-            ],
-        ];
+        return Cache::rememberForever(HairlineCacheService::KEY_SALON_GALLERY, function () {
+            $galleries = SalonGallery::where('is_active', true)->orderBy('sort_order')->get();
+
+            if ($galleries->isEmpty()) {
+                return [];
+            }
+
+            return $galleries->map(fn ($g) => [
+                'id' => $g->slug,
+                'title' => $g->getTranslation('title', 'ar'),
+                'subtitle' => $g->getTranslation('subtitle', 'ar') ?: '',
+                'image_url' => $g->image_path,
+                'aspect_ratio' => $g->aspect_ratio,
+                'tag' => $g->getTranslation('tag', 'ar') ?: '',
+            ])->toArray();
+        });
     }
 
     /**
@@ -151,13 +129,20 @@ class SalonInfoDataService
      */
     public function getWorkingHours(): array
     {
-        return [
-            'days' => 'يومياً',
-            'hours_ar' => 'من 2:00 ظهراً حتى 10:00 مساءً',
-            'hours_from' => '14:00',
-            'hours_to' => '22:00',
+        $cachedHours = Cache::rememberForever(HairlineCacheService::KEY_WORKING_HOURS, function () {
+            $hour = SalonWorkingHour::where('is_closed', false)->first();
+
+            return [
+                'days' => 'يومياً',
+                'hours_ar' => $hour ? $hour->getTranslation('notes', 'ar') : 'من 2:00 ظهراً حتى 10:00 مساءً',
+                'hours_from' => $hour ? substr((string) $hour->opening_time, 0, 5) : '14:00',
+                'hours_to' => $hour ? substr((string) $hour->closing_time, 0, 5) : '22:00',
+            ];
+        });
+
+        return array_merge($cachedHours, [
             'is_open_now' => $this->checkIsOpenNow(),
-        ];
+        ]);
     }
 
     /**
@@ -173,16 +158,37 @@ class SalonInfoDataService
      */
     public function getLocation(): array
     {
+        $setting = Cache::rememberForever(HairlineCacheService::KEY_SALON_IDENTITY, function () {
+            return SalonSetting::first();
+        });
+
+        // Ensure we handle either cached array or model
+        $address = is_array($setting)
+            ? ($setting['address']['ar'] ?? 'الرياض - حي المصيف، مخرج 5')
+            : ($setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5');
+
+        $gmaps = is_array($setting)
+            ? ($setting['google_maps_url'] ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5')
+            : ($setting?->google_maps_url ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5');
+
+        $lat = is_array($setting)
+            ? (float) ($setting['latitude'] ?? 24.7677)
+            : (float) ($setting?->latitude ?? 24.7677);
+
+        $lng = is_array($setting)
+            ? (float) ($setting['longitude'] ?? 46.6896)
+            : (float) ($setting?->longitude ?? 46.6896);
+
         return [
             'city' => 'الرياض',
             'district' => 'حي المصيف',
             'street' => 'مخرج 5',
-            'full_address_ar' => 'الرياض - حي المصيف، مخرج 5',
+            'full_address_ar' => $address,
             'parking_note' => 'مواقف خاصة متوفرة أمام الصالون مباشرة',
-            'google_maps_url' => 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5',
+            'google_maps_url' => $gmaps,
             'coordinates' => [
-                'lat' => 24.7677,
-                'lng' => 46.6896,
+                'lat' => $lat,
+                'lng' => $lng,
             ],
         ];
     }

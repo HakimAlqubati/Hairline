@@ -4,11 +4,12 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\District;
+use App\Services\Cache\HairlineCacheService;
+use Illuminate\Support\Facades\Cache;
+
 /**
- * Provides static data for the home-service offering.
- *
- * Manages covered districts (12 neighbourhoods in north, east, and west Riyadh),
- * pricing, and availability checking — all from in-memory arrays.
+ * Provides database-backed and cached data for the home-service offering.
  */
 class HomeServiceDataService
 {
@@ -61,30 +62,49 @@ class HomeServiceDataService
      */
     public function getCoveredDistrictsGrouped(): array
     {
-        return [
-            'شمال الرياض' => [
-                ['id' => 'd_malqa',    'name' => 'حي الملقا',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_nakheel',  'name' => 'حي النخيل',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_yasmin',   'name' => 'حي الياسمين',   'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_qurtuba', 'name' => 'حي قرطبة',      'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
-            ],
-            'شرق الرياض' => [
-                ['id' => 'd_rawdah',   'name' => 'حي الروضة',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_zahra',    'name' => 'حي الزهراء',    'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_mansura',  'name' => 'حي المنصورة',   'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
-                ['id' => 'd_khaleej',  'name' => 'حي الخليج',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
-            ],
-            'غرب الرياض' => [
-                ['id' => 'd_sulayman', 'name' => 'حي السلطان',    'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_izdihar',  'name' => 'حي الإزدهار',   'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_rabwa',    'name' => 'حي الربوة',     'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
-                ['id' => 'd_hittin',   'name' => 'حي حطين',       'zone' => 'غرب الرياض',  'is_available' => false, 'extra_fee' => 0],
-            ],
-        ];
+        return Cache::rememberForever(HairlineCacheService::KEY_DISTRICTS, function () {
+            $districts = District::all();
+            if ($districts->isEmpty()) {
+                return [
+                    'شمال الرياض' => [
+                        ['id' => 'd_malqa',    'name' => 'حي الملقا',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_nakheel',  'name' => 'حي النخيل',     'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_yasmin',   'name' => 'حي الياسمين',   'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_qurtuba',  'name' => 'حي قرطبة',      'zone' => 'شمال الرياض', 'is_available' => true,  'extra_fee' => 0],
+                    ],
+                    'شرق الرياض' => [
+                        ['id' => 'd_rawdah',   'name' => 'حي الروضة',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_zahra',    'name' => 'حي الزهراء',    'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_mansura',  'name' => 'حي المنصورة',   'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
+                        ['id' => 'd_khaleej',  'name' => 'حي الخليج',     'zone' => 'شرق الرياض',  'is_available' => true,  'extra_fee' => 15],
+                    ],
+                    'غرب الرياض' => [
+                        ['id' => 'd_sulayman', 'name' => 'حي السلطان',    'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_izdihar',  'name' => 'حي الإزدهار',   'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_rabwa',    'name' => 'حي الربوة',     'zone' => 'غرب الرياض',  'is_available' => true,  'extra_fee' => 0],
+                        ['id' => 'd_hittin',   'name' => 'حي حطين',       'zone' => 'غرب الرياض',  'is_available' => false, 'extra_fee' => 0],
+                    ],
+                ];
+            }
+
+            $grouped = [];
+            foreach ($districts as $d) {
+                $zone = $d->getTranslation('zone', 'ar') ?: 'شمال الرياض';
+                $grouped[$zone][] = [
+                    'id' => $d->slug,
+                    'name' => $d->getTranslation('name', 'ar'),
+                    'zone' => $zone,
+                    'is_available' => (bool) $d->is_available,
+                    'extra_fee' => (int) $d->extra_fee,
+                ];
+            }
+
+            return $grouped;
+        });
     }
 
     /**
-     * Returns a flat list of all 12 covered districts.
+     * Returns a flat list of all covered districts.
      *
      * @return array<int, array{id: string, name: string, zone: string, is_available: bool, extra_fee: int}>
      */
@@ -128,7 +148,7 @@ class HomeServiceDataService
                 return [
                     'is_covered' => false,
                     'district' => $district,
-                    'message' => "نأسف، الخدمة المنزلية غير متوفرة حالياً في {$district['name']}. يسعدنا خدمتكِ في الصالون.",
+                    'message' => "عذراً، الخدمة المنزلية غير متوفرة حالياً في {$district['name']}.",
                 ];
             }
         }
@@ -136,38 +156,7 @@ class HomeServiceDataService
         return [
             'is_covered' => false,
             'district' => null,
-            'message' => 'الحي المختار غير مدرج ضمن نطاق خدمتنا المنزلية حالياً.',
-        ];
-    }
-
-    /**
-     * Calculate total cost including home service fee for a given district.
-     *
-     * @param  string[]  $serviceIds
-     * @return array{
-     *     services_total: int,
-     *     visit_fee: int,
-     *     extra_district_fee: int,
-     *     grand_total: int,
-     *     currency: string
-     * }
-     */
-    public function calculateHomeServiceTotal(array $serviceIds, string $districtId, CatalogDataService $catalog): array
-    {
-        $totals = $catalog->calculateTotals($serviceIds);
-        $availability = $this->checkDistrictAvailability($districtId);
-        $details = $this->getHomeServiceDetails();
-
-        $extraFee = ($availability['district']['extra_fee'] ?? 0);
-        $visitFee = $details['base_fee'];
-        $grandTotal = $totals['total_price'] + $visitFee + $extraFee;
-
-        return [
-            'services_total' => $totals['total_price'],
-            'visit_fee' => $visitFee,
-            'extra_district_fee' => $extraFee,
-            'grand_total' => $grandTotal,
-            'currency' => 'SAR',
+            'message' => 'عذراً، هذا الحي غير مشمول في مناطق التغطية حالياً.',
         ];
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
 use App\Models\User;
@@ -15,11 +17,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        User::firstOrCreate(
+            ['email' => 'admin@hairlinesalon.sa'],
+            [
+                'name' => 'Hairline Admin',
+                'password' => bcrypt('password'),
+            ]
+        );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            SalonSetupSeeder::class,
+            CatalogSeeder::class,
+            SpecialistSeeder::class,
+            HomeServiceSeeder::class,
+            CustomerAndLoyaltySeeder::class,
+            PolicyAndPaymentSeeder::class,
+            DemoBookingSeeder::class,
         ]);
     }
 }

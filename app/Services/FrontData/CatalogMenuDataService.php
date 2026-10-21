@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Services\Cache\HairlineCacheService;
+use Illuminate\Support\Facades\Cache;
+
 /**
  * Provides structured catalog menu pages data for Hairline Beauty Lounge.
  *
@@ -20,22 +23,24 @@ namespace App\Services\FrontData;
 class CatalogMenuDataService
 {
     /**
-     * Get all 8 official menu pages.
+     * Get all 8 official menu pages (Cached).
      *
      * @return array<int, array<string, mixed>>
      */
     public function getMenuPages(): array
     {
-        return [
-            $this->getPage1HairServices(),
-            $this->getPage2HairTreatments(),
-            $this->getPage3HairCare(),
-            $this->getPage4BlowDry(),
-            $this->getPage5Nails(),
-            $this->getPage6SkinAndBrows(),
-            $this->getPage7MassageAndWax(),
-            $this->getPage8HairLengths(),
-        ];
+        return Cache::rememberForever(HairlineCacheService::KEY_CATALOG_MENU_PAGES, function () {
+            return [
+                $this->getPage1HairServices(),
+                $this->getPage2HairTreatments(),
+                $this->getPage3HairCare(),
+                $this->getPage4BlowDry(),
+                $this->getPage5Nails(),
+                $this->getPage6SkinAndBrows(),
+                $this->getPage7MassageAndWax(),
+                $this->getPage8HairLengths(),
+            ];
+        });
     }
 
     /**
