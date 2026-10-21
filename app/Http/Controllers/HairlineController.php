@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Services\FrontData\AboutUsDataService;
 use App\Services\FrontData\CatalogDataService;
 use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\SalonInfoDataService;
@@ -16,7 +17,8 @@ class HairlineController extends Controller
         private readonly SalonInfoDataService $salonInfo,
         private readonly CatalogDataService $catalog,
         private readonly SpecialistsDataService $specialists,
-        private readonly CatalogMenuDataService $catalogMenu
+        private readonly CatalogMenuDataService $catalogMenu,
+        private readonly AboutUsDataService $aboutUs
     ) {}
 
     public function show(string $initialView = 'home'): View
@@ -28,6 +30,7 @@ class HairlineController extends Controller
             'salonIdentity' => $identity,
             'heroSlides' => $identity['hero_slides'],
             'stats' => $identity['stats'],
+            'aboutUs' => $this->aboutUs->getAboutUsContent(),
             'contactLinks' => $this->salonInfo->getContactLinks(),
             'workingHours' => $this->salonInfo->getWorkingHours(),
             'location' => $this->salonInfo->getLocation(),

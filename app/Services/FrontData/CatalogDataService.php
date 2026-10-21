@@ -2239,7 +2239,7 @@ class CatalogDataService
                         'desc' => 'تسريحة عروس ملكية متكاملة مع تثبيت وتنسيق طرحة الزفاف',
                         'duration' => '90 دقيقة',
                         'price' => '400 ر.س',
-                        'specialists' => ['sp_layla', 'sp_noura'],
+                        'specialists' => ['sp_karen', 'sp_karen'],
                     ],
                     [
                         'id' => 'hs_retro_style',
@@ -2247,7 +2247,7 @@ class CatalogDataService
                         'desc' => 'تسريحة سهرة فاخرة وتثبيت يدوم طويلاً (حسب الطول: 200 - 400 ر.س)',
                         'duration' => '60 دقيقة',
                         'price' => '250 ر.س',
-                        'specialists' => ['sp_layla', 'sp_noura'],
+                        'specialists' => ['sp_karen', 'sp_karen'],
                     ],
                     [
                         'id' => 'hs_roots_color',
@@ -2255,7 +2255,7 @@ class CatalogDataService
                         'desc' => 'تغطية متكاملة لجذور الشعر واللون الأبيض بأرقى الصبغات الإيطالية',
                         'duration' => '60 دقيقة',
                         'price' => '100 ر.س',
-                        'specialists' => ['sp_dana', 'sp_noura'],
+                        'specialists' => ['sp_janet', 'sp_karen'],
                     ],
                     [
                         'id' => 'hs_full_color',
@@ -2263,7 +2263,7 @@ class CatalogDataService
                         'desc' => 'صبغة شاملة لكامل الشعر بأحدث درجات الألوان (350 - 1400 ر.س)',
                         'duration' => '120 دقيقة',
                         'price' => '350 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'hs_highlights',
@@ -2271,7 +2271,7 @@ class CatalogDataService
                         'desc' => 'تفتيح احترافي متدرج مع حماية الروابط (750 - 1800 ر.س)',
                         'duration' => '150 دقيقة',
                         'price' => '750 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'hs_rancage',
@@ -2279,7 +2279,7 @@ class CatalogDataService
                         'desc' => 'تجديد وتصحيح انعكاسات اللون وإزالة البهتان (110 - 470 ر.س)',
                         'duration' => '45 دقيقة',
                         'price' => '195 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'hs_full_cut',
@@ -2287,7 +2287,7 @@ class CatalogDataService
                         'desc' => 'قص كامل وتشكيل احترافي متناسق مع ملامح الوجه',
                         'duration' => '45 دقيقة',
                         'price' => '80 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'hs_ends_cut',
@@ -2295,7 +2295,7 @@ class CatalogDataService
                         'desc' => 'قص وتطهير أطراف الشعر المتقصفة بدقة مع المحافظة على الطول (48 - 60 ر.س)',
                         'duration' => '30 دقيقة',
                         'price' => '60 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'hs_boy_cut',
@@ -2303,7 +2303,7 @@ class CatalogDataService
                         'desc' => 'قصة بوي عصرية مميزة أو تشذيب وإعادة تشكيل القصة القصيرة',
                         'duration' => '40 دقيقة',
                         'price' => '95 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'hs_bangs_cut',
@@ -2311,7 +2311,7 @@ class CatalogDataService
                         'desc' => 'قص وترتيب الغرة الأمامية بتنسيق ناعم ومثالي للوجه',
                         'duration' => '15 دقيقة',
                         'price' => '25 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                 ],
             ],
@@ -2331,7 +2331,7 @@ class CatalogDataService
                         'desc' => 'معالجة بروتين مكثفة وسحب حراري لنعومة فائقة (750 - 1800 ر.س حسب الطول)',
                         'duration' => '180 دقيقة',
                         'price' => '750 ر.س',
-                        'specialists' => ['sp_noura', 'sp_layla'],
+                        'specialists' => ['sp_karen', 'sp_karen'],
                     ],
                     [
                         'id' => 'ht_protein_no_machine',
@@ -2339,7 +2339,7 @@ class CatalogDataService
                         'desc' => 'تغذية وترميم ألياف الشعر بالبروتين بدون حرارة مكثفة (560 - 1300 ر.س)',
                         'duration' => '120 دقيقة',
                         'price' => '560 ر.س',
-                        'specialists' => ['sp_noura', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                     [
                         'id' => 'ht_roots_protein',
@@ -2347,7 +2347,7 @@ class CatalogDataService
                         'desc' => 'معالجة وتمليس بروتين مخصص للجذور النامية فقط',
                         'duration' => '90 دقيقة',
                         'price' => '520 ر.س',
-                        'specialists' => ['sp_noura', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                     [
                         'id' => 'ht_morphsis_filler',
@@ -2355,7 +2355,7 @@ class CatalogDataService
                         'desc' => 'جلسة ترميم وبناء ألياف الشعر بالفيلر الإيطالي (195 - 335 ر.س حسب الطول)',
                         'duration' => '60 دقيقة',
                         'price' => '230 ر.س',
-                        'specialists' => ['sp_reem', 'sp_sara'],
+                        'specialists' => ['sp_janet', 'sp_jenky'],
                     ],
                     [
                         'id' => 'ht_trendy_session',
@@ -2363,7 +2363,7 @@ class CatalogDataService
                         'desc' => 'جلسة علاجية ترندي حصرية لإصلاح التلف العميق (310 - 780 ر.س حسب الطول)',
                         'duration' => '75 دقيقة',
                         'price' => '380 ر.س',
-                        'specialists' => ['sp_reem', 'sp_sara'],
+                        'specialists' => ['sp_janet', 'sp_jenky'],
                     ],
                     [
                         'id' => 'ht_curly_care',
@@ -2371,7 +2371,7 @@ class CatalogDataService
                         'desc' => 'ترطيب عميق وتحديد تموجات الكيرلي بدون هيشان (380 - 879 ر.س حسب الطول)',
                         'duration' => '75 دقيقة',
                         'price' => '400 ر.س',
-                        'specialists' => ['sp_layla', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                 ],
             ],
@@ -2391,7 +2391,7 @@ class CatalogDataService
                         'desc' => 'تنظيف خفيف وإزالة الشوائب وتنشيط الدورة الدموية للفروة',
                         'duration' => '45 دقيقة',
                         'price' => '215 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'hc_scalp_deep',
@@ -2399,7 +2399,7 @@ class CatalogDataService
                         'desc' => 'تنظيف طبي عميق مع تقشير المسام وتغذية الفروة بالأمصال المقوية',
                         'duration' => '75 دقيقة',
                         'price' => '600 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'hc_aloe_vera',
@@ -2407,7 +2407,7 @@ class CatalogDataService
                         'desc' => 'ماسك جل الصبار العضوي الطازج لترطيب وتكثيف الشعر (130 - 220 ر.س)',
                         'duration' => '45 دقيقة',
                         'price' => '160 ر.س',
-                        'specialists' => ['sp_reem', 'sp_noura'],
+                        'specialists' => ['sp_janet', 'sp_karen'],
                     ],
                     [
                         'id' => 'hc_henna_sidr',
@@ -2415,7 +2415,7 @@ class CatalogDataService
                         'desc' => 'خلطة حنة المدينة مع السدر البلدي لتقوية ولمعان الشعر (150 - 240 ر.س)',
                         'duration' => '60 دقيقة',
                         'price' => '180 ر.س',
-                        'specialists' => ['sp_noura', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                     [
                         'id' => 'hc_henna_full',
@@ -2423,7 +2423,7 @@ class CatalogDataService
                         'desc' => 'حنة عضوية أصيلة لتغذية فروة الرأس ومنح لون دافئ (130 - 220 ر.س)',
                         'duration' => '60 دقيقة',
                         'price' => '160 ر.س',
-                        'specialists' => ['sp_noura'],
+                        'specialists' => ['sp_karen'],
                     ],
                     [
                         'id' => 'hc_wasma',
@@ -2431,7 +2431,7 @@ class CatalogDataService
                         'desc' => 'عشبة الوسمة الطبيعية النقية لتغطية الشيب ومنح الجذور لوناً داكناً',
                         'duration' => '45 دقيقة',
                         'price' => '80 ر.س',
-                        'specialists' => ['sp_noura'],
+                        'specialists' => ['sp_karen'],
                     ],
                     [
                         'id' => 'hc_wash',
@@ -2439,7 +2439,7 @@ class CatalogDataService
                         'desc' => 'غسيل احترافي مع مساج مهدئ للفروة بشامبو وبلسم فاخر (25 - 50 ر.س)',
                         'duration' => '25 دقيقة',
                         'price' => '50 ر.س',
-                        'specialists' => ['sp_sara', 'sp_reem'],
+                        'specialists' => ['sp_jenky', 'sp_janet'],
                     ],
                 ],
             ],
@@ -2459,7 +2459,7 @@ class CatalogDataService
                         'desc' => 'سشوار مالس ناعم بحماية حرارية (قصير جداً 70، قصير 110، وسط 140، طويل 180، طويل جداً 210 ر.س)',
                         'duration' => '45 دقيقة',
                         'price' => '140 ر.س',
-                        'specialists' => ['sp_layla', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                     [
                         'id' => 'bd_wavy',
@@ -2467,7 +2467,7 @@ class CatalogDataService
                         'desc' => 'تمويج ويفي عصري جذاب (قصير 140، وسط 180، طويل 230، طويل جداً 300 ر.س)',
                         'duration' => '50 دقيقة',
                         'price' => '180 ر.س',
-                        'specialists' => ['sp_layla', 'sp_reem'],
+                        'specialists' => ['sp_karen', 'sp_janet'],
                     ],
                 ],
             ],
@@ -2487,7 +2487,7 @@ class CatalogDataService
                         'desc' => 'باقة ملكية كاملة: مناكير + بادكير + بارفين + يدين ورجلين + مساج أقدام وأكتاف',
                         'duration' => '80 دقيقة',
                         'price' => '280 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                     [
                         'id' => 'nl_relax_spa',
@@ -2495,7 +2495,7 @@ class CatalogDataService
                         'desc' => 'استرخاء فاخر: مناكير + بادكير + مساج استرخائي للأقدام والأكتاف',
                         'duration' => '65 دقيقة',
                         'price' => '230 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                     [
                         'id' => 'nl_classic_spa',
@@ -2503,7 +2503,7 @@ class CatalogDataService
                         'desc' => 'عناية كلاسيكية متكاملة للأيدي والأقدام',
                         'duration' => '50 دقيقة',
                         'price' => '180 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                     [
                         'id' => 'nl_mani_pedi',
@@ -2511,7 +2511,7 @@ class CatalogDataService
                         'desc' => 'تنظيف دقيق للجلد الميت والبرد الناعم والعناية بالكعوب (70 - 120 ر.س)',
                         'duration' => '45 دقيقة',
                         'price' => '110 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                     [
                         'id' => 'nl_paraffin',
@@ -2519,7 +2519,7 @@ class CatalogDataService
                         'desc' => 'شمع البارفين الدافئ لترطيب ونعومة فائقة للجلد والمفاصل (25 - 35 ر.س)',
                         'duration' => '25 دقيقة',
                         'price' => '35 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                     [
                         'id' => 'nl_colors_extensions',
@@ -2527,7 +2527,7 @@ class CatalogDataService
                         'desc' => 'طلاء أظافر فاخر وسريع الجفاف أو تركيب احترافي بمقاسات مريحة (20 - 80 ر.س)',
                         'duration' => '30 دقيقة',
                         'price' => '50 ر.س',
-                        'specialists' => ['sp_reem', 'sp_dana'],
+                        'specialists' => ['sp_janet', 'sp_janet'],
                     ],
                 ],
             ],
@@ -2547,7 +2547,7 @@ class CatalogDataService
                         'desc' => 'جلسة تنظيف عميق للمسام وإزالة الرؤوس السوداء والترطيب الماسي',
                         'duration' => '60 دقيقة',
                         'price' => '250 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'sk_scrub_aloe',
@@ -2555,7 +2555,7 @@ class CatalogDataService
                         'desc' => 'تقشير لطيف وتجديد خلايا البشرة بماسك الصبار الطبيعي (57 - 125 ر.س)',
                         'duration' => '40 دقيقة',
                         'price' => '125 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'sk_face_waxing',
@@ -2563,7 +2563,7 @@ class CatalogDataService
                         'desc' => 'إزالة شعر الوجه والوبر بدقة بالواكس المخصص للبشرة الحساسة أو الفتلة (30 - 80 ر.س)',
                         'duration' => '30 دقيقة',
                         'price' => '80 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'sk_makeup',
@@ -2571,7 +2571,7 @@ class CatalogDataService
                         'desc' => 'مكياج سهرة كامل فاخر بأرقى الماركات أو رسم وظلال عيون احترافية (250 - 300 ر.س)',
                         'duration' => '60 دقيقة',
                         'price' => '300 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'eb_permanent_lashes',
@@ -2579,7 +2579,7 @@ class CatalogDataService
                         'desc' => 'تركيب رموش دائمة شعرة بشعرة لإطلالة طبيعية ساحرة تدوم لأسابيع',
                         'duration' => '90 دقيقة',
                         'price' => '500 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'eb_weekly_lashes',
@@ -2587,7 +2587,7 @@ class CatalogDataService
                         'desc' => 'تركيب رموش أسبوعية كاملة أو بالحبة تدوم أسبوعاً كاملاً (35 - 80 ر.س)',
                         'duration' => '30 دقيقة',
                         'price' => '80 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'eb_lift_curl',
@@ -2595,7 +2595,7 @@ class CatalogDataService
                         'desc' => 'تثبيت ورفع الرموش والحواجب بتقنية اللامينيشن لإطلالة ممتلئة (350 ر.س)',
                         'duration' => '50 دقيقة',
                         'price' => '350 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                     [
                         'id' => 'eb_brow_bleach_color',
@@ -2603,7 +2603,7 @@ class CatalogDataService
                         'desc' => 'تشقير وتنظيف دقيق لرسمة الحواجب أو صبغة مميزة أو باقة مدمجة (40 - 80 ر.س)',
                         'duration' => '35 دقيقة',
                         'price' => '80 ر.س',
-                        'specialists' => ['sp_dana'],
+                        'specialists' => ['sp_janet'],
                     ],
                 ],
             ],
@@ -2623,7 +2623,7 @@ class CatalogDataService
                         'desc' => 'مساج تقني يرفع عضلات الوجه ويحفز الكولاجين ونضارة البشرة',
                         'duration' => '40 دقيقة',
                         'price' => '180 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'ms_body_relax',
@@ -2631,7 +2631,7 @@ class CatalogDataService
                         'desc' => 'تخفيف الشد العضلي والإرهاق المتراكم لراحة عميقة (75 - 120 ر.س)',
                         'duration' => '40 دقيقة',
                         'price' => '120 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'ms_extremities',
@@ -2639,7 +2639,7 @@ class CatalogDataService
                         'desc' => 'تدليك شامل لتنشيط الدورة الدموية والتخفيف من الثقل (40 - 97 ر.س)',
                         'duration' => '40 دقيقة',
                         'price' => '97 ر.س',
-                        'specialists' => ['sp_sara'],
+                        'specialists' => ['sp_jenky'],
                     ],
                     [
                         'id' => 'wx_body_parts',
@@ -2647,7 +2647,7 @@ class CatalogDataService
                         'desc' => 'إزالة شعر نصف أو كامل اليدين والرجلين والإبط بنعومة تدوم (50 - 115 ر.س)',
                         'duration' => '30 دقيقة',
                         'price' => '70 ر.س',
-                        'specialists' => ['sp_reem', 'sp_sara'],
+                        'specialists' => ['sp_janet', 'sp_jenky'],
                     ],
                     [
                         'id' => 'wx_full_package',
@@ -2655,7 +2655,7 @@ class CatalogDataService
                         'desc' => 'باقة متكاملة واقتصادية لإزالة شعر الجسم بالكامل بنعومة فائقة',
                         'duration' => '75 دقيقة',
                         'price' => '220 ر.س',
-                        'specialists' => ['sp_reem', 'sp_sara'],
+                        'specialists' => ['sp_janet', 'sp_jenky'],
                     ],
                 ],
             ],

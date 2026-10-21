@@ -152,7 +152,7 @@
 
         <!-- 3. DYNAMIC TAB VIEWS -->
         <x-tabs.services :menuPages="$menuPages ?? []" />
-        <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" />
+        <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" />
         <x-tabs.account />
 
         <!-- 4. BOTTOM NAVIGATION BAR -->

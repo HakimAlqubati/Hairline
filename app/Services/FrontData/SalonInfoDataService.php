@@ -47,20 +47,26 @@ class SalonInfoDataService
                 [
                     'img' => '/images/salon/reception-desk.jpg',
                     'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'أناقتكِ تتجدد',
-                    'subtitle' => 'أحدث تقنيات المعالجات الحارة والعناية الفائقة بالشعر على أيدي نخبة من الأخصائيات',
+                    'title' => 'هير لاين لأن الجمال إحساس',
+                    'subtitle' => 'اهتمامك يستحق عناية احترافية على يد أخصائيات خبيرات.',
                 ],
                 [
                     'img' => '/images/salon/hair-styling-chairs.jpg',
                     'fallback' => 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'لمسة حريرية فاخرة',
-                    'subtitle' => 'استعيدي حيوية ولمعان شعركِ مع جلسات فيلر المورفوسيس والبروتين بالتمليس الحراري',
+                    'title' => 'شعرك عنوان إطلالتك',
+                    'subtitle' => 'لأن جمال شعرك يبدأ من جودة العناية نمنحك عناية عالية الجودة تمنحك الرضا في كل زيارة.',
                 ],
                 [
                     'img' => '/images/salon/salon-stations-tv.jpg',
                     'fallback' => 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=80',
-                    'title' => 'جمالكِ يستحق التميز',
-                    'subtitle' => 'أجواء هادئة وراقية مصممة لراحتكِ وخصوصيتكِ في هيرلاين بيوتي لاونج',
+                    'title' => 'استثمري في جمال شعرك',
+                    'subtitle' => 'مع اشتراكات هير لاين الدورية التي تجمع لك الجلسات والباقات المصممة لك.',
+                ],
+                [
+                    'img' => '/images/salon/salon-screen-display.jpg',
+                    'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
+                    'title' => 'عناية تبدأ بفهم طبيعة شعرك',
+                    'subtitle' => 'خلطات عضوية، معالجات مغذية، وحلول متنوعة، نختار منها ما يناسب احتياج شعرك.',
                 ],
             ],
             'hero_images' => [
