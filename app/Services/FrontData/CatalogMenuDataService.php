@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Services\FrontData;
 
+use App\Models\CatalogPage;
 use App\Models\HairLength;
 use App\Models\Service;
 use App\Services\Cache\HairlineCacheService;
@@ -12,7 +13,7 @@ use Illuminate\Support\Facades\Cache;
 /**
  * Database-backed & cached catalog menu pages for Hairline Beauty Lounge.
  *
- * Provides the official 8-page menu enriched with live database records.
+ * Provides the official 8-page menu fetched 100% from MySQL database and cached.
  */
 class CatalogMenuDataService
 {
@@ -24,20 +25,16 @@ class CatalogMenuDataService
     public function getMenuPages(): array
     {
         return Cache::rememberForever(HairlineCacheService::KEY_CATALOG_MENU_PAGES, function () {
-            $dataFile = database_path('data/catalog_seed_data.json');
-            $seedPages = [];
-            if (file_exists($dataFile)) {
-                $decoded = json_decode((string) file_get_contents($dataFile), true);
-                $seedPages = $decoded['menu_pages'] ?? [];
-            }
+            // 1. Fetch catalog pages directly from MySQL catalog_pages table
+            $dbPages = CatalogPage::where('is_active', true)->orderBy('page_number')->get();
 
-            // Load live services keyed by Arabic name for real-time pricing synchronization
+            // 2. Load live services keyed by Arabic name for real-time pricing synchronization
             $liveServices = Service::with('pricingTiers.hairLength')
                 ->where('is_active', true)
                 ->get()
                 ->keyBy(fn (Service $s) => $s->getTranslation('name', 'ar'));
 
-            // Live hair lengths for Page 8
+            // 3. Live hair lengths from hair_lengths table for Page 8
             $liveLengths = HairLength::where('is_active', true)
                 ->orderBy('diagram_order')
                 ->get()
@@ -51,8 +48,15 @@ class CatalogMenuDataService
                 ->all();
 
             $pages = [];
-            foreach ($seedPages as $page) {
-                $pageNumber = $page['page_number'] ?? 1;
+            foreach ($dbPages as $catalogPage) {
+                $page = $catalogPage->meta ?? [];
+                $pageNumber = $catalogPage->page_number;
+
+                // Ensure page headers are always synced with database title
+                $page['page_number'] = $pageNumber;
+                $page['title_ar'] = $catalogPage->getTranslation('title', 'ar');
+                $page['title_en'] = $catalogPage->getTranslation('title', 'en');
+                $page['layout_type'] = $catalogPage->layout_type;
 
                 if ($pageNumber === 8) {
                     $page['lengths'] = ! empty($liveLengths) ? $liveLengths : ($page['lengths'] ?? []);

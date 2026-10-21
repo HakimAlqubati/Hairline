@@ -67,9 +67,7 @@ class CatalogSeeder extends Seeder
                         'en' => $page['title_en'] ?? 'SALON SERVICES',
                     ],
                     'layout_type' => $page['layout_type'] ?? 'groups',
-                    'meta' => [
-                        'title_class' => $page['title_class'] ?? null,
-                    ],
+                    'meta' => $page,
                     'is_active' => true,
                 ]
             );
