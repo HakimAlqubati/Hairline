@@ -162,10 +162,9 @@ test('unauthenticated user can access custom filament login page and see salon b
     $response = $this->get('/admin/login');
 
     $response->assertSuccessful();
-    $response->assertSee(__('admin.auth.salon_badge'));
     $response->assertSee(__('admin.brand.name'));
     $response->assertSee('reception-desk.jpg');
-    $response->assertSee('hair-styling-chairs.jpg');
+    $response->assertSee('logo.png');
 });
 
 test('user can authenticate via custom filament login page', function () {

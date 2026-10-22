@@ -95,28 +95,6 @@
             z-index: 10;
         }
 
-        .hl-badge-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.45rem 1.15rem;
-            border-radius: 9999px;
-            background: rgba(255, 255, 255, 0.18);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.35);
-            color: #FAF8F5;
-            font-size: 0.85rem;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.18);
-        }
-
-        .hl-badge-pill .hl-sparkle {
-            color: #E6D5B8;
-            font-size: 0.95rem;
-        }
-
         .hl-showcase-title {
             font-size: 2.75rem;
             font-weight: 800;
@@ -140,30 +118,6 @@
             max-width: 32rem;
             font-weight: 400;
             text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
-        }
-
-        .hl-thumbnails-strip {
-            margin-top: 2.5rem;
-            padding-top: 1.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .hl-thumb-img {
-            width: 96px;
-            height: 64px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 1.5px solid rgba(255, 255, 255, 0.35);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
-            transition: transform 0.25s ease, border-color 0.25s ease;
-        }
-
-        .hl-thumb-img:hover {
-            transform: translateY(-3px) scale(1.05);
-            border-color: #C29E6D;
         }
 
         .hl-showcase-footer {
@@ -446,44 +400,14 @@
             <div class="hl-showcase-overlay" aria-hidden="true"></div>
             <div class="hl-showcase-radial" aria-hidden="true"></div>
 
-            {{-- Top Showcase Badge --}}
-            <div class="hl-showcase-content">
-                <div class="hl-badge-pill">
-                    <span class="hl-sparkle">✦</span>
-                    <span>{{ __('admin.auth.salon_badge') }}</span>
-                </div>
-            </div>
-
             {{-- Center Showcase Greeting & Atmosphere (NO feature list) --}}
             <div class="hl-showcase-content" style="margin-top: auto; margin-bottom: auto; padding-top: 2rem; padding-bottom: 2rem;">
-                <span style="font-size: 0.85rem; letter-spacing: 0.12em; text-transform: uppercase; color: #E6D5B8; font-weight: 700;">
-                    {{ __('admin.auth.admin_panel_subtitle') }}
-                </span>
                 <h1 class="hl-showcase-title">
                     {{ __('admin.brand.name') }}
                 </h1>
                 <p class="hl-showcase-desc">
                     {{ __('admin.auth.salon_quote') }}
                 </p>
-
-                {{-- Ambiance Thumbnails Strip --}}
-                <div class="hl-thumbnails-strip">
-                    <img
-                        src="{{ asset('images/salon/hair-styling-chairs.jpg') }}"
-                        alt="Hair Styling Chairs"
-                        class="hl-thumb-img"
-                    />
-                    <img
-                        src="{{ asset('images/salon/salon-screen-display.jpg') }}"
-                        alt="Salon Screen"
-                        class="hl-thumb-img"
-                    />
-                    <img
-                        src="{{ asset('images/salon/salon-stations-tv.jpg') }}"
-                        alt="Salon Stations"
-                        class="hl-thumb-img"
-                    />
-                </div>
             </div>
 
             {{-- Bottom Showcase Footer --}}
