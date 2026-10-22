@@ -22,11 +22,7 @@ class DistrictForm
                     ->schema([
                         TranslatableField::text('name', __('admin.fields.name'), required: true),
 
-                        TextInput::make('zone')
-                            ->label(__('admin.fields.zone'))
-                            ->placeholder('شمال الرياض / North Riyadh')
-                            ->nullable()
-                            ->maxLength(255),
+                        TranslatableField::text('zone', __('admin.fields.zone')),
 
                         Grid::make(2)->schema([
                             TextInput::make('delivery_fee')

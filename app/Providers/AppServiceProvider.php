@@ -19,6 +19,7 @@ use App\Models\SpecialistShift;
 use App\Observers\SalonSettingObserver;
 use App\Observers\ServiceObserver;
 use App\Observers\SpecialistObserver;
+use App\Services\LogoProcessor;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -38,6 +39,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        LogoProcessor::ensureLogosExist();
+
         View::share('brandPrimaryColor', BrandColor::Primary->value);
 
         LanguageSwitch::configureUsing(function (LanguageSwitch $switch): void {

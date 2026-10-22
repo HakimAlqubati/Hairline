@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Customers\RelationManagers;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\RelationManagers\RelationManager;
@@ -65,10 +65,7 @@ class CustomerAddressesRelationManager extends RelationManager
                         ->nullable(),
                 ]),
 
-                Textarea::make('notes')
-                    ->label(__('admin.fields.notes'))
-                    ->rows(2)
-                    ->nullable(),
+                TranslatableField::textarea('notes', __('admin.fields.notes'), rows: 2),
 
                 Toggle::make('is_default')
                     ->label(__('admin.fields.is_default'))

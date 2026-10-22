@@ -7,8 +7,6 @@ namespace Database\Seeders;
 use App\Models\Service;
 use App\Models\Specialist;
 use App\Models\SpecialistShift;
-use App\Models\SpecialistUnavailability;
-use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 
 class SpecialistSeeder extends Seeder
@@ -124,23 +122,6 @@ class SpecialistSeeder extends Seeder
                     ]);
                 }
             }
-        }
-
-        // Add a sample unavailability
-        if (! empty($specialistModels['sp_karen'])) {
-            SpecialistUnavailability::updateOrCreate(
-                [
-                    'specialist_id' => $specialistModels['sp_karen']->id,
-                    'start_datetime' => Carbon::tomorrow()->setTime(17, 0, 0),
-                    'end_datetime' => Carbon::tomorrow()->setTime(17, 30, 0),
-                ],
-                [
-                    'reason' => [
-                        'ar' => 'استراحة قصيرة وتجهيز المحطة',
-                        'en' => 'Short break & station prep',
-                    ],
-                ]
-            );
         }
     }
 }

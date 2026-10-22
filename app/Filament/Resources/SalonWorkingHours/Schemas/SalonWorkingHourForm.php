@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\SalonWorkingHours\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -22,18 +21,12 @@ class SalonWorkingHourForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            Select::make('day_of_week')
-                                ->label(__('admin.fields.day_of_week'))
-                                ->options(__('admin.options.days'))
-                                ->required(),
+                        Select::make('day_of_week')
+                            ->label(__('admin.fields.day_of_week'))
+                            ->options(__('admin.options.days'))
+                            ->required(),
 
-                            TextInput::make('day_label')
-                                ->label(__('admin.fields.day_label'))
-                                ->placeholder('مثال: الأحد إلى الخميس')
-                                ->nullable()
-                                ->maxLength(255),
-                        ]),
+                        TranslatableField::text('day_label', __('admin.fields.day_label')),
 
                         Grid::make(2)->schema([
                             TimePicker::make('open_time')
@@ -49,10 +42,7 @@ class SalonWorkingHourForm
                             ->label(__('admin.fields.is_closed'))
                             ->default(false),
 
-                        Textarea::make('notes')
-                            ->label(__('admin.fields.notes'))
-                            ->rows(2)
-                            ->nullable(),
+                        TranslatableField::textarea('notes', __('admin.fields.notes'), rows: 2),
                     ]),
             ]);
     }

@@ -2,7 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\Bookings\Pages\EditBooking;
 use App\Filament\Resources\ServiceCategories\Pages\EditServiceCategory;
+use App\Models\Booking;
+use App\Models\Customer;
 use App\Models\ServiceCategory;
 use App\Models\User;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
@@ -31,7 +34,6 @@ test('authenticated user can access filament resource index pages without action
     '/admin/catalog-pages',
     '/admin/specialists',
     '/admin/specialist-shifts',
-    '/admin/specialist-unavailabilities',
     '/admin/customers',
     '/admin/membership-tiers',
     '/admin/loyalty-point-transactions',
@@ -62,7 +64,6 @@ test('authenticated user can access filament resource create pages without schem
     '/admin/catalog-pages/create',
     '/admin/specialists/create',
     '/admin/specialist-shifts/create',
-    '/admin/specialist-unavailabilities/create',
     '/admin/customers/create',
     '/admin/membership-tiers/create',
     '/admin/loyalty-point-transactions/create',
@@ -109,6 +110,39 @@ test('authenticated user can access service category edit page without schema or
             'name.en' => 'Hair Care',
             'subtitle.ar' => 'خدمات متكاملة واحترافية',
             'subtitle.en' => 'Complete and professional services',
+        ]);
+});
+
+test('booking edit page handles translatable admin notes without object string errors', function () {
+    $user = User::factory()->create();
+    $customer = Customer::factory()->create();
+    $booking = Booking::create([
+        'booking_number' => 'HL-TEST-001',
+        'customer_id' => $customer->id,
+        'booking_type' => 'salon',
+        'booking_date' => now()->toDateString(),
+        'overall_start_time' => '10:00:00',
+        'overall_end_time' => '11:00:00',
+        'status' => 'confirmed',
+        'subtotal_amount' => 100,
+        'total_amount' => 100,
+        'admin_notes' => [
+            'ar' => 'عميلة مميزة تفضل قهوة عربية',
+            'en' => 'VIP customer prefers arabic coffee',
+        ],
+    ]);
+
+    $response = $this->actingAs($user)->get("/admin/bookings/{$booking->id}/edit");
+
+    $response->assertSuccessful();
+
+    Livewire::actingAs($user)
+        ->test(EditBooking::class, [
+            'record' => $booking->id,
+        ])
+        ->assertSchemaStateSet([
+            'admin_notes.ar' => 'عميلة مميزة تفضل قهوة عربية',
+            'admin_notes.en' => 'VIP customer prefers arabic coffee',
         ]);
 });
 

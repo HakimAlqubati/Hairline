@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\SalonSettings\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\KeyValue;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -21,34 +21,15 @@ class SalonSettingForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
-                            TextInput::make('tagline')
-                                ->label(__('admin.fields.tagline'))
-                                ->nullable()
-                                ->maxLength(255),
-                        ]),
+                        TranslatableField::text('tagline', __('admin.fields.tagline')),
 
-                        Grid::make(2)->schema([
-                            Textarea::make('description_line1')
-                                ->label(__('admin.fields.description_line1'))
-                                ->rows(2)
-                                ->nullable(),
+                        TranslatableField::textarea('description_line1', __('admin.fields.description_line1'), rows: 2),
 
-                            Textarea::make('description_line2')
-                                ->label(__('admin.fields.description_line2'))
-                                ->rows(2)
-                                ->nullable(),
-                        ]),
+                        TranslatableField::textarea('description_line2', __('admin.fields.description_line2'), rows: 2),
 
-                        Textarea::make('address')
-                            ->label(__('admin.fields.address'))
-                            ->rows(2)
-                            ->nullable(),
+                        TranslatableField::textarea('address', __('admin.fields.address'), rows: 2),
 
                         FileUpload::make('logo_path')
                             ->label(__('admin.fields.logo_path'))

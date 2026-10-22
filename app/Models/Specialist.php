@@ -55,11 +55,6 @@ class Specialist extends Model
         return $this->hasMany(SpecialistShift::class);
     }
 
-    public function unavailabilities(): HasMany
-    {
-        return $this->hasMany(SpecialistUnavailability::class);
-    }
-
     public function bookingItems(): HasMany
     {
         return $this->hasMany(BookingItem::class);

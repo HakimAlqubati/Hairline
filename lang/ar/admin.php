@@ -26,8 +26,6 @@ return [
         'booking_items' => 'بنود الخدمات بالحجز',
         'specialist_shift' => 'مناوبة أخصائية',
         'specialist_shifts' => 'مناوبات الأخصائيات',
-        'specialist_unavailability' => 'فترة غياب أو إجازة',
-        'specialist_unavailabilities' => 'فترات الغياب والإجازات',
 
         // Services & Catalog
         'service' => 'خدمة',

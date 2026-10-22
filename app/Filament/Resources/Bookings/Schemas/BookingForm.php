@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Bookings\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
@@ -139,10 +139,7 @@ class BookingForm
                             ->default('confirmed')
                             ->required(),
 
-                        Textarea::make('admin_notes')
-                            ->label(__('admin.fields.admin_notes'))
-                            ->rows(3)
-                            ->nullable(),
+                        TranslatableField::textarea('admin_notes', __('admin.fields.admin_notes'), rows: 3),
                     ]),
             ]);
     }

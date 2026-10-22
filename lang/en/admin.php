@@ -26,8 +26,6 @@ return [
         'booking_items' => 'Booking Items',
         'specialist_shift' => 'Specialist Shift',
         'specialist_shifts' => 'Specialist Shifts',
-        'specialist_unavailability' => 'Unavailability / Time Off',
-        'specialist_unavailabilities' => 'Unavailability Periods',
 
         // Services & Catalog
         'service' => 'Service',

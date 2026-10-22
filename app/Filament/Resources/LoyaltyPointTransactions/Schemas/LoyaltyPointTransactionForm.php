@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\LoyaltyPointTransactions\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
@@ -49,10 +49,7 @@ class LoyaltyPointTransactionForm
                                 ->required(),
                         ]),
 
-                        Textarea::make('description')
-                            ->label(__('admin.fields.description'))
-                            ->rows(3)
-                            ->required(),
+                        TranslatableField::textarea('description', __('admin.fields.description'), required: true, rows: 3),
                     ]),
             ]);
     }
