@@ -68,6 +68,7 @@ class BookingForm
                     ]),
 
                 Section::make(__('admin.sections.financial_summary'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(4)->schema([
                             TextInput::make('subtotal_amount')
@@ -122,6 +123,7 @@ class BookingForm
                     ]),
 
                 Section::make(__('admin.sections.status_and_notes'))
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('status')
                             ->label(__('admin.fields.status'))
