@@ -17,6 +17,10 @@ test('authenticated user can access filament admin dashboard without navigation 
     $response = $this->actingAs($user)->get('/admin');
 
     $response->assertSuccessful();
+    $response->assertSee(__('admin.charts.revenue_trend'));
+    $response->assertSee(__('admin.charts.bookings_status'));
+    $response->assertSee(__('admin.charts.top_services'));
+    $response->assertSee(__('admin.charts.top_specialists'));
 });
 
 test('authenticated user can access filament resource index pages without action or syntax errors', function (string $url) {

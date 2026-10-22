@@ -12,6 +12,8 @@ return [
         'bookings' => 'Bookings & Scheduling',
         'services_catalog' => 'Services & Pricing Catalog',
         'specialists_team' => 'Specialists & Team',
+        'customers' => 'Customers',
+        'loyalty_program' => 'Loyalty Program',
         'customers_loyalty' => 'Customers & Loyalty',
         'website_content' => 'Website Content & CMS',
         'financials_logistics' => 'Financials & Logistics',
@@ -311,6 +313,20 @@ return [
         'save' => 'Save Changes',
         'cancel' => 'Cancel',
         'confirm' => 'Confirm',
+    ],
+
+    'charts' => [
+        'revenue_trend' => 'Monthly Revenue Trend (SAR)',
+        'bookings_status' => 'Bookings Distribution by Status',
+        'top_services' => 'Top Requested Services',
+        'top_specialists' => 'Top Requested Specialists',
+        'appointments_count' => 'Appointments Count',
+        'revenue_label' => 'Collected Revenue',
+        'bookings_count' => 'Bookings Count',
+        'requests_count' => 'Times Requested',
+        'salon_service' => 'In-Salon',
+        'home_service' => 'Home Service',
+        'no_data' => 'No recorded data currently',
     ],
 
     'units' => [

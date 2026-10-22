@@ -12,6 +12,8 @@ return [
         'bookings' => 'إدارة الحجوزات والمواعيد',
         'services_catalog' => 'كتالوج الخدمات والأسعار',
         'specialists_team' => 'فريق العمل والأخصائيات',
+        'customers' => 'العملاء',
+        'loyalty_program' => 'برنامج الولاء',
         'customers_loyalty' => 'العملاء وبرنامج الولاء',
         'website_content' => 'إدارة محتوى الموقع والواجهة',
         'financials_logistics' => 'المالية والتغطية الجغرافية',
@@ -311,6 +313,20 @@ return [
         'save' => 'حفظ البيانات',
         'cancel' => 'إلغاء',
         'confirm' => 'تأكيد',
+    ],
+
+    'charts' => [
+        'revenue_trend' => 'منحنى الإيرادات الشهرية (ر.س)',
+        'bookings_status' => 'توزيع حالات الحجوزات',
+        'top_services' => 'أكثر الخدمات طلباً',
+        'top_specialists' => 'الأخصائيات الأكثر طلباً',
+        'appointments_count' => 'عدد المواعيد والجلسات',
+        'revenue_label' => 'الإيرادات المحصلة',
+        'bookings_count' => 'عدد الحجوزات',
+        'requests_count' => 'مرات الطلب',
+        'salon_service' => 'داخل الصالون',
+        'home_service' => 'خدمة منزلية',
+        'no_data' => 'لا توجد بيانات مسجلة حالياً',
     ],
 
     'units' => [
