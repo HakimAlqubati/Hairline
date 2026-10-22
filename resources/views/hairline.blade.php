@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</title>
 
     <!-- Favicon & Touch Icons -->
@@ -31,6 +32,9 @@
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Identity Services (OAuth 2.0 Popup) -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <script>
         tailwind.config = {
@@ -208,26 +212,36 @@
         let slideInterval = null;
 
         let bookingState = {
-            step: 1, // 1: Category, 2: Sub-service, 3: Specialist & Time, 4: Success
+            step: 1, // 1: Services (Main Category + Sub-Services directly underneath), 2: Specialist & Time, 3: Confirmation
             selectedCategory: null,
             selectedSubService: null,
             selectedSpecialist: null,
             selectedDate: "غداً - السبت",
-            selectedTime: null
+            selectedTime: null,
+            verifiedPhone: "",
+            confirmedCustomerName: "",
+            confirmedCustomerEmail: ""
         };
 
-        // Confirmed bookings in "حسابي"
-        let confirmedBookings = [
-            {
-                id: "482",
-                categoryTitle: "المعالجات الحارة",
-                serviceName: "البروتين بالتمليس الحراري",
-                specialistName: "الأخصائية نورة العتيبي",
-                date: "الأحد القادم",
-                time: "05:30 م",
-                price: "750 ر.س"
-            }
-        ];
+        // Saudi Mobile Regex: accepts 05XXXXXXXX, +9665XXXXXXXX, 009665XXXXXXXX, 9665XXXXXXXX, or 5XXXXXXXX
+        const SAUDI_PHONE_REGEX = /^(?:\+966|00966|966|0)?5[0-9]{8}$/;
+
+        // Confirmed bookings backed by Database
+        const dbInitialBookings = {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!};
+        let confirmedBookings = Array.isArray(dbInitialBookings) && dbInitialBookings.length > 0
+            ? dbInitialBookings
+            : [
+                {
+                    id: "482",
+                    customerName: "سارة العتيبي",
+                    categoryTitle: "المعالجات الحارة",
+                    serviceName: "البروتين بالتمليس الحراري",
+                    specialistName: "الأخصائية نورة العتيبي",
+                    date: "الأحد القادم",
+                    time: "05:30 م",
+                    price: "750 ر.س"
+                }
+            ];
 
         /* -------------------------------------------------------------------------- */
         /* HERO SLIDER LOGIC                                                          */
@@ -590,7 +604,7 @@
         }
 
         /* -------------------------------------------------------------------------- */
-        /* 3-STEP BOOKING FLOW (من ملف الـ PDF)                                        */
+        /* 2-STEP BOOKING FLOW + PHONE REGEX POPUP & GOOGLE REGISTRATION (DB-BACKED)  */
         /* -------------------------------------------------------------------------- */
         function openBookingFlow() {
             updateUrl('/booking');
@@ -600,7 +614,10 @@
                 selectedSubService: null,
                 selectedSpecialist: null,
                 selectedDate: "غداً - السبت",
-                selectedTime: null
+                selectedTime: null,
+                verifiedPhone: "",
+                confirmedCustomerName: "",
+                confirmedCustomerEmail: ""
             };
             renderBookingStep();
             showBottomSheet();
@@ -615,33 +632,20 @@
                 'nails': 'color_services'
             };
             const targetId = aliasMap[categoryId] || categoryId;
-            const cat = bookableCategories.find(c => c.id === targetId || c.id === categoryId);
-            if (!cat) {
-                openBookingFlow();
-                return;
-            }
-            bookingState = {
-                step: 2,
-                selectedCategory: cat,
-                selectedSubService: null,
-                selectedSpecialist: null,
-                selectedDate: "غداً - السبت",
-                selectedTime: null
-            };
-            renderBookingStep();
-            showBottomSheet();
+            openBookingFlow();
+            setTimeout(() => {
+                const sectionEl = document.getElementById(`booking-cat-${targetId}`) || document.getElementById(`booking-cat-${categoryId}`);
+                if (sectionEl) {
+                    sectionEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 250);
         }
 
         function handleSheetBack() {
-            if (bookingState.step === 3) {
-                bookingState.step = 2;
+            if (bookingState.step === 2) {
+                bookingState.step = 1;
                 bookingState.selectedSpecialist = null;
                 bookingState.selectedTime = null;
-                renderBookingStep();
-            } else if (bookingState.step === 2) {
-                bookingState.step = 1;
-                bookingState.selectedCategory = null;
-                bookingState.selectedSubService = null;
                 renderBookingStep();
             }
         }
@@ -650,19 +654,19 @@
             const bookingStepper = document.getElementById('bookingStepper');
             const sheetBackBtn = document.getElementById('sheetBackBtn');
 
-            if (step >= 1 && step <= 3) {
+            if (step === 1 || step === 2) {
                 bookingStepper.classList.remove('hidden');
             } else {
                 bookingStepper.classList.add('hidden');
             }
 
-            if (step === 2 || step === 3) {
+            if (step === 2) {
                 sheetBackBtn.classList.remove('hidden');
             } else {
                 sheetBackBtn.classList.add('hidden');
             }
 
-            for (let i = 1; i <= 3; i++) {
+            for (let i = 1; i <= 2; i++) {
                 const el = document.getElementById(`stepIndicator${i}`);
                 if (!el) continue;
                 const bar = el.children[0];
@@ -689,83 +693,68 @@
 
             updateStepperUI(bookingState.step);
 
-            // STEP 1: اختيار القسم
+            // STEP 1: عرض الخدمة الرئيسية مع الخدمات الفرعية تحتها مباشرة وقابلة للاختيار فوراً
             if (bookingState.step === 1) {
-                sheetTitle.textContent = "الخطوة 1: اختيار القسم الرئيسي";
-                sheetSubtitle.textContent = "اختاري القسم لعرض الأصناف الدقيقة والأخصائيات";
+                sheetTitle.textContent = "الخدمات المتاحة للحجز";
+                sheetSubtitle.textContent = "اختاري الخدمة المطلوبة مباشرة للانتقال لاختيار الأخصائية";
                 sheetFooter.classList.add('hidden');
 
                 sheetBody.innerHTML = `
-                    <div class="space-y-3 animate-step">
+                    <div class="space-y-6 animate-step">
                         ${bookableCategories.map(cat => `
-                            <button onclick="selectCategory('${cat.id}')" 
-                                    class="w-full p-4 rounded-2xl bg-surface hover:bg-sage-soft/70 border border-gold-soft/50 hover:border-sage-dark transition-all flex items-center justify-between text-right group">
-                                <div class="space-y-1">
-                                    <div class="flex items-center gap-2">
-                                        <h4 class="font-extrabold text-base text-sage-dark">${cat.title}</h4>
-                                        <span class="px-2 py-0.5 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30">
-                                            ${cat.badge}
+                            <div id="booking-cat-${cat.id}" class="space-y-2.5">
+                                <!-- Main Category Header (الخدمة الرئيسية) -->
+                                <div class="sticky top-0 z-10 px-4 py-3 rounded-2xl bg-sage-dark text-white shadow-sm flex items-center justify-between border border-gold/40">
+                                    <div class="flex items-center gap-2.5 min-w-0">
+                                        <span class="w-8 h-8 rounded-xl bg-white/10 text-gold flex items-center justify-center shrink-0 border border-gold/30">
+                                            <i class="fa-solid ${cat.icon || 'fa-scissors'} text-xs"></i>
                                         </span>
+                                        <div class="min-w-0">
+                                            <h4 class="font-extrabold text-sm sm:text-base text-white truncate">${cat.title}</h4>
+                                            ${cat.description ? `<p class="text-[11px] text-gold-light/85 truncate">${cat.description}</p>` : ''}
+                                        </div>
                                     </div>
-                                    <p class="text-xs text-gray-500 leading-relaxed">${cat.description}</p>
-                                    <span class="inline-block pt-1 text-[11px] font-bold text-sage-dark">
-                                        ${cat.subServices.length} أصناف معتمدة للحجز
+                                    <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold-light text-[10px] font-extrabold border border-gold/40 shrink-0">
+                                        ${cat.subServices.length} خدمات
                                     </span>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-white text-sage-dark group-hover:bg-sage-dark group-hover:text-white flex items-center justify-center shrink-0 shadow-xs transition mr-2">
-                                    <span class="text-lg font-bold leading-none -mt-0.5">‹</span>
+
+                                <!-- Sub-Services Directly Underneath (الخدمات الفرعية) -->
+                                <div class="space-y-2.5 pr-1">
+                                    ${cat.subServices.map(sub => `
+                                        <button onclick="selectSubService('${sub.id}', '${cat.id}')" 
+                                                class="w-full p-4 rounded-2xl bg-surface hover:bg-gold-light/40 border border-gray-200/90 hover:border-gold transition-all text-right flex flex-col gap-2 group cursor-pointer shadow-2xs">
+                                            <div class="flex items-start justify-between gap-2 w-full">
+                                                <h5 class="font-extrabold text-sm sm:text-base text-sage-dark group-hover:text-sage-deeper">
+                                                    ${sub.name}
+                                                </h5>
+                                                <span class="px-3 py-1 rounded-xl bg-sage-dark text-gold-light font-extrabold text-xs shrink-0">
+                                                    ${sub.price}
+                                                </span>
+                                            </div>
+                                            ${sub.desc ? `<p class="text-xs text-gray-500 leading-relaxed">${sub.desc}</p>` : ''}
+                                            <div class="pt-2 border-t border-gray-200/70 flex items-center justify-between w-full text-[11px]">
+                                                <span class="text-gray-500 font-medium">
+                                                    <i class="fa-regular fa-clock ml-1 text-gold-dark"></i>المدة: ${sub.duration}
+                                                </span>
+                                                <span class="font-extrabold text-sage-dark group-hover:text-gold-dark flex items-center gap-1 transition-colors">
+                                                    <span>اختيار الأخصائية (${sub.specialists.length} متاحات)</span>
+                                                    <span class="text-base leading-none">‹</span>
+                                                </span>
+                                            </div>
+                                        </button>
+                                    `).join('')}
                                 </div>
-                            </button>
+                            </div>
                         `).join('')}
                     </div>
                 `;
             }
 
-            // STEP 2: تحديد الخدمة الدقيقة
+            // STEP 2: اختيار الأخصائية وتحديد الوقت (بنفس الطريقة الحالية)
             else if (bookingState.step === 2) {
-                const cat = bookingState.selectedCategory;
-                sheetTitle.textContent = `الخطوة 2: ${cat.title}`;
-                sheetSubtitle.textContent = "حددي الخدمة الدقيقة التي ترغبين بحجزها";
-                sheetFooter.classList.add('hidden');
-
-                sheetBody.innerHTML = `
-                    <div class="space-y-3 animate-step">
-                        <div class="px-3.5 py-2.5 rounded-xl bg-sage-soft border border-sage-light flex items-center justify-between">
-                            <span class="text-xs font-bold text-sage-dark">القسم المختار: ${cat.title}</span>
-                            <button onclick="handleSheetBack()" class="text-xs font-bold text-gold-dark underline">تغيير القسم</button>
-                        </div>
-
-                        ${cat.subServices.map(sub => `
-                            <button onclick="selectSubService('${sub.id}')" 
-                                    class="w-full p-4 rounded-2xl bg-surface hover:bg-gold-light/40 border border-gray-200 hover:border-gold transition-all text-right flex flex-col gap-2.5 group">
-                                <div class="flex items-start justify-between gap-2 w-full">
-                                    <h4 class="font-extrabold text-sm sm:text-base text-sage-dark group-hover:text-sage-deeper">
-                                        ${sub.name}
-                                    </h4>
-                                    <span class="px-3 py-1 rounded-xl bg-sage-dark text-gold-light font-extrabold text-xs shrink-0">
-                                        ${sub.price}
-                                    </span>
-                                </div>
-                                <p class="text-xs text-gray-500 leading-relaxed">${sub.desc}</p>
-                                <div class="pt-2 border-t border-gray-200/70 flex items-center justify-between w-full text-[11px]">
-                                    <span class="text-gray-500 font-medium">
-                                        <i class="fa-regular fa-clock ml-1 text-gold-dark"></i>المدة: ${sub.duration}
-                                    </span>
-                                    <span class="font-extrabold text-sage-dark flex items-center gap-1">
-                                        <span>اختيار الأخصائية (${sub.specialists.length} متاحات)</span>
-                                        <span class="text-base leading-none">‹</span>
-                                    </span>
-                                </div>
-                            </button>
-                        `).join('')}
-                    </div>
-                `;
-            }
-
-            // STEP 3: اختيار الأخصائية وتحديد الوقت
-            else if (bookingState.step === 3) {
                 const sub = bookingState.selectedSubService;
-                sheetTitle.textContent = "الخطوة 3: اختيار الأخصائية";
+                sheetTitle.textContent = "الخطوة 2: اختيار الأخصائية";
                 sheetSubtitle.textContent = "الأخصائيات المؤهلات لتقديم هذه الخدمة تحديداً";
 
                 const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
@@ -843,7 +832,7 @@
                             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
                                 ${datesList.map(d => `
                                     <button onclick="selectBookingDate('${d}')" 
-                                            class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition ${
+                                            class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
                                                 bookingState.selectedDate === d 
                                                 ? 'bg-sage-dark text-white border-sage-dark' 
                                                 : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
@@ -856,7 +845,7 @@
                             <div class="grid grid-cols-4 gap-2">
                                 ${bookingState.selectedSpecialist.availableSlots.map(slot => `
                                     <button onclick="selectBookingTime('${slot}')" 
-                                            class="py-2 rounded-xl text-xs font-bold border transition ${
+                                            class="py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
                                                 bookingState.selectedTime === slot 
                                                 ? 'bg-gold text-white border-gold shadow-xs' 
                                                 : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
@@ -872,16 +861,17 @@
                 sheetFooter.classList.remove('hidden');
                 sheetFooter.innerHTML = `
                     <button onclick="confirmFinalBooking()" 
-                            class="w-full py-4 rounded-2xl bg-sage-dark hover:bg-sage-deeper text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
+                            class="w-full py-4 rounded-2xl bg-sage-dark hover:bg-sage-deeper text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
                         <i class="fa-solid fa-circle-check text-gold"></i>
                         <span>تأكيد الحجز مع ${bookingState.selectedSpecialist.name}</span>
                     </button>
                 `;
             }
 
-            // STEP 4: شاشة التأكيد
-            else if (bookingState.step === 4) {
+            // STEP 3: شاشة التأكيد النهائية (بعد التحقق من الجوال أو التسجيل عبر Google وحفظ الحجز في الداتابيز)
+            else if (bookingState.step === 3 || bookingState.step === 4) {
                 const lastBooking = confirmedBookings[0];
+                const customerName = bookingState.confirmedCustomerName || lastBooking.customerName || "عميلتنا المميزة";
                 sheetTitle.textContent = "تم تأكيد حجزك بنجاح";
                 sheetSubtitle.textContent = "رقم الحجز: " + lastBooking.id;
                 sheetFooter.classList.add('hidden');
@@ -894,13 +884,20 @@
 
                         <div>
                             <h3 class="text-xl font-black text-sage-dark">تم تأكيد حجزك بنجاح</h3>
+                            <p class="text-sm font-extrabold text-primary-dark mt-1">
+                                باسم: <span class="text-sage-dark">${customerName}</span>
+                            </p>
                             <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
                                 رقم الحجز: ${lastBooking.id}
                             </div>
                         </div>
 
-                        <!-- Receipt Card: فقط العناصر الثلاثة المطلوبة بدون تفاصيل أخرى -->
+                        <!-- Receipt Card -->
                         <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
+                            <div class="pb-2.5 border-b border-gray-200/60">
+                                <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
+                                <span class="text-sm font-extrabold text-sage-dark">${customerName}</span>
+                            </div>
                             <div class="pb-2.5 border-b border-gray-200/60">
                                 <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
                                 <span class="text-sm font-extrabold text-sage-dark">${lastBooking.serviceName}</span>
@@ -917,16 +914,20 @@
 
                         <div class="flex gap-2.5 pt-2">
                             <button onclick="closeBottomSheet(); switchTab('account');" 
-                                    class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition">
+                                    class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition cursor-pointer">
                                   حجوزاتي
                             </button>
                             <button onclick="closeBottomSheet()" 
-                                    class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition">
+                                    class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition cursor-pointer">
                                 العودة للرئيسية
                             </button>
                         </div>
                     </div>
                 `;
+            }
+
+            if (sheetBody) {
+                sheetBody.scrollTop = 0;
             }
         }
 
@@ -934,18 +935,31 @@
             const found = bookableCategories.find(c => c.id === catId);
             if (!found) return;
             bookingState.selectedCategory = found;
-            bookingState.step = 2;
+            bookingState.step = 1;
             renderBookingStep();
         }
 
-        function selectSubService(subId) {
-            if (!bookingState.selectedCategory) return;
-            const found = bookingState.selectedCategory.subServices.find(s => s.id === subId);
-            if (!found) return;
-            bookingState.selectedSubService = found;
+        function selectSubService(subId, catId = null) {
+            let foundCategory = catId ? bookableCategories.find(c => c.id === catId) : bookingState.selectedCategory;
+            let foundSub = foundCategory ? foundCategory.subServices.find(s => s.id === subId) : null;
+
+            if (!foundSub) {
+                for (const cat of bookableCategories) {
+                    const candidate = cat.subServices.find(s => s.id === subId);
+                    if (candidate) {
+                        foundCategory = cat;
+                        foundSub = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (!foundCategory || !foundSub) return;
+            bookingState.selectedCategory = foundCategory;
+            bookingState.selectedSubService = foundSub;
             bookingState.selectedSpecialist = null;
             bookingState.selectedTime = null;
-            bookingState.step = 3;
+            bookingState.step = 2;
             renderBookingStep();
         }
 
@@ -967,11 +981,331 @@
             renderBookingStep();
         }
 
+        /**
+         * Opens the Phone Verification Popup instead of confirming the booking directly.
+         */
         function confirmFinalBooking() {
             if (!bookingState.selectedCategory || !bookingState.selectedSubService || !bookingState.selectedSpecialist) return;
+            openPhoneVerificationModal();
+        }
 
-            const newBooking = {
-                id: String(Math.floor(100 + Math.random() * 900)),
+        function normalizeDigitsJs(str) {
+            const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            const western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            let out = String(str || '').trim();
+            for (let i = 0; i < eastern.length; i++) {
+                out = out.split(eastern[i]).join(western[i]);
+            }
+            return out.replace(/[\s\-\(\)]+/g, '');
+        }
+
+        function openPhoneVerificationModal() {
+            const modal = document.getElementById('bookingVerificationModal');
+            const card = document.getElementById('bookingVerificationCard');
+            const summaryEl = document.getElementById('popupBookingSummary');
+            const phoneInput = document.getElementById('bookingPhoneInput');
+            const errorEl = document.getElementById('phoneVerifyError');
+
+            if (!modal || !card) return;
+
+            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+            if (summaryEl) {
+                summaryEl.innerHTML = `
+                    <div class="flex items-center justify-between font-extrabold text-sage-dark">
+                        <span>${bookingState.selectedSubService.name}</span>
+                        <span class="text-gold-dark">${bookingState.selectedSubService.price}</span>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-gray-500">
+                        <span>${bookingState.selectedSpecialist.name}</span>
+                        <span>${bookingState.selectedDate} • ${timeSlot}</span>
+                    </div>
+                `;
+            }
+
+            switchPopupToPhoneStep();
+            if (errorEl) errorEl.classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-95');
+                card.classList.add('scale-100');
+                if (phoneInput) phoneInput.focus();
+            });
+        }
+
+        function closePhoneVerificationModal() {
+            const modal = document.getElementById('bookingVerificationModal');
+            const card = document.getElementById('bookingVerificationCard');
+            if (!modal || !card) return;
+
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 250);
+        }
+
+        function switchPopupToPhoneStep() {
+            const phoneStep = document.getElementById('phoneVerifyStep');
+            const googleStep = document.getElementById('googleRegisterStep');
+            if (phoneStep) phoneStep.classList.remove('hidden');
+            if (googleStep) googleStep.classList.add('hidden');
+        }
+
+        function switchPopupToGoogleStep(phone) {
+            const phoneStep = document.getElementById('phoneVerifyStep');
+            const googleStep = document.getElementById('googleRegisterStep');
+            const badge = document.getElementById('googleStepPhoneBadge');
+            const errorEl = document.getElementById('googleRegisterError');
+
+            if (badge) badge.textContent = phone;
+            if (errorEl) errorEl.classList.add('hidden');
+            if (phoneStep) phoneStep.classList.add('hidden');
+            if (googleStep) googleStep.classList.remove('hidden');
+        }
+
+        function handlePhoneInputValidation(inputEl) {
+            const errorEl = document.getElementById('phoneVerifyError');
+            const val = normalizeDigitsJs(inputEl.value);
+            if (val.length === 0 || SAUDI_PHONE_REGEX.test(val)) {
+                if (errorEl) errorEl.classList.add('hidden');
+                inputEl.classList.remove('border-red-500');
+            }
+        }
+
+        const googleOAuthClientId = @json(config('services.google.client_id'));
+
+        // Listen for OAuth popup callback messages
+        window.addEventListener('message', function (event) {
+            if (!event.data || event.data.type !== 'HAIRLINE_GOOGLE_AUTH_RESULT') return;
+            const payload = event.data.payload;
+            const btn = document.getElementById('googleOAuthBtn');
+            const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const errorEl = document.getElementById('googleRegisterError');
+            const errorText = document.getElementById('googleRegisterErrorText');
+
+            if (btn) btn.disabled = false;
+            if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+
+            if (payload && payload.status === 'confirmed') {
+                finalizeConfirmedBookingFromServer(payload);
+            } else {
+                if (errorText) errorText.textContent = payload?.message || 'تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.';
+                if (errorEl) errorEl.classList.remove('hidden');
+            }
+        });
+
+        async function submitPhoneVerification(event) {
+            if (event) event.preventDefault();
+            const phoneInput = document.getElementById('bookingPhoneInput');
+            const errorEl = document.getElementById('phoneVerifyError');
+            const errorText = document.getElementById('phoneVerifyErrorText');
+            const submitBtn = document.getElementById('phoneVerifySubmitBtn');
+
+            const rawPhone = normalizeDigitsJs(phoneInput ? phoneInput.value : '');
+
+            if (!SAUDI_PHONE_REGEX.test(rawPhone)) {
+                if (errorText) {
+                    errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).';
+                }
+                if (errorEl) errorEl.classList.remove('hidden');
+                if (phoneInput) phoneInput.classList.add('border-red-500');
+                return;
+            }
+
+            if (errorEl) errorEl.classList.add('hidden');
+            if (phoneInput) phoneInput.classList.remove('border-red-500');
+
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري التحقق من الرقم...</span>`;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+
+                const response = await fetch("{{ route('booking.verify_phone') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify({
+                        phone: rawPhone,
+                        service_id: bookingState.selectedSubService.id,
+                        specialist_id: bookingState.selectedSpecialist.id,
+                        booking_date: bookingState.selectedDate,
+                        booking_time: timeSlot
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.status === 'validation_error') {
+                    if (errorText) errorText.textContent = data.message || 'تأكدي من صحة رقم الجوال المدخل.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                // Case 1: Phone exists in customers table -> Booking created in DB, show confirmation with customer's name
+                if (data.exists && data.status === 'confirmed') {
+                    finalizeConfirmedBookingFromServer(data);
+                }
+                // Case 2: Phone does NOT exist in customers table -> Show Google Registration Screen
+                else {
+                    bookingState.verifiedPhone = data.phone || rawPhone;
+                    switchPopupToGoogleStep(bookingState.verifiedPhone);
+                }
+            } catch (err) {
+                if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                if (errorEl) errorEl.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
+            }
+        }
+
+        function startGoogleSignInProcess() {
+            const btn = document.getElementById('googleOAuthBtn');
+            const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const errorEl = document.getElementById('googleRegisterError');
+            const errorText = document.getElementById('googleRegisterErrorText');
+
+            if (errorEl) errorEl.classList.add('hidden');
+            if (btnTitle) btnTitle.textContent = 'جاري الاتصال بحساب Google...';
+
+            // 1. If Google Identity Services (OAuth2 Code Client) is loaded, launch the official Google Popup
+            if (window.google && window.google.accounts && window.google.accounts.oauth2 && googleOAuthClientId) {
+                try {
+                    const codeClient = window.google.accounts.oauth2.initCodeClient({
+                        client_id: googleOAuthClientId,
+                        scope: 'openid email profile',
+                        ux_mode: 'popup',
+                        callback: function (response) {
+                            if (response && response.code) {
+                                completeGoogleBookingWithOAuth({ code: response.code });
+                            } else {
+                                if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                                if (errorText) errorText.textContent = 'تم إلغاء عملية تسجيل الدخول عبر Google.';
+                                if (errorEl) errorEl.classList.remove('hidden');
+                            }
+                        },
+                        error_callback: function () {
+                            openGoogleOAuthRedirectPopup();
+                        }
+                    });
+                    codeClient.requestCode();
+                    return;
+                } catch (e) {
+                    openGoogleOAuthRedirectPopup();
+                    return;
+                }
+            }
+
+            // 2. Fallback to standard OAuth 2.0 Popup window (/auth/google/redirect -> /auth/google/callback)
+            openGoogleOAuthRedirectPopup();
+        }
+
+        function openGoogleOAuthRedirectPopup() {
+            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+            const params = new URLSearchParams({
+                phone: bookingState.verifiedPhone,
+                service_id: bookingState.selectedSubService.id,
+                specialist_id: bookingState.selectedSpecialist.id,
+                booking_date: bookingState.selectedDate,
+                booking_time: timeSlot
+            });
+
+            const width = 520;
+            const height = 640;
+            const left = Math.max(0, (window.screen.width - width) / 2);
+            const top = Math.max(0, (window.screen.height - height) / 2);
+
+            const popup = window.open(
+                "{{ route('booking.google_redirect') }}?" + params.toString(),
+                "HairlineGoogleOAuth",
+                `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,status=yes`
+            );
+
+            if (!popup) {
+                const btnTitle = document.getElementById('googleOAuthBtnTitle');
+                const errorEl = document.getElementById('googleRegisterError');
+                const errorText = document.getElementById('googleRegisterErrorText');
+                if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                if (errorText) errorText.textContent = 'يرجى السماح بالنوافذ المنبثقة (Popups) لإتمام تسجيل الدخول عبر Google.';
+                if (errorEl) errorEl.classList.remove('hidden');
+            }
+        }
+
+        async function completeGoogleBookingWithOAuth(oauthPayload) {
+            const btn = document.getElementById('googleOAuthBtn');
+            const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const errorEl = document.getElementById('googleRegisterError');
+            const errorText = document.getElementById('googleRegisterErrorText');
+
+            if (errorEl) errorEl.classList.add('hidden');
+            if (btn) btn.disabled = true;
+            if (btnTitle) btnTitle.textContent = 'جاري تأكيد الحجز...';
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+
+                const response = await fetch("{{ route('booking.google_register') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: JSON.stringify(Object.assign({
+                        phone: bookingState.verifiedPhone,
+                        service_id: bookingState.selectedSubService.id,
+                        specialist_id: bookingState.selectedSpecialist.id,
+                        booking_date: bookingState.selectedDate,
+                        booking_time: timeSlot
+                    }, oauthPayload))
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || data.status === 'validation_error') {
+                    if (errorText) errorText.textContent = data.message || 'تعذر التحقق من حساب Google.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                if (data.status === 'confirmed') {
+                    finalizeConfirmedBookingFromServer(data);
+                }
+            } catch (err) {
+                if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                if (errorEl) errorEl.classList.remove('hidden');
+            } finally {
+                if (btn) btn.disabled = false;
+                if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+            }
+        }
+
+        function finalizeConfirmedBookingFromServer(data) {
+            closePhoneVerificationModal();
+
+            const customerName = data.customer?.name || 'عميلتنا المميزة';
+            bookingState.confirmedCustomerName = customerName;
+            bookingState.confirmedCustomerEmail = data.customer?.email || '';
+
+            const savedBooking = data.booking || {
+                id: String(Math.floor(1000 + Math.random() * 9000)),
+                customerName: customerName,
                 categoryTitle: bookingState.selectedCategory.title,
                 serviceName: bookingState.selectedSubService.name,
                 specialistName: bookingState.selectedSpecialist.name,
@@ -980,10 +1314,11 @@
                 price: bookingState.selectedSubService.price
             };
 
-            confirmedBookings.unshift(newBooking);
+            confirmedBookings.unshift(savedBooking);
             updateBookingBadge();
-            bookingState.step = 4;
+            bookingState.step = 3;
             renderBookingStep();
+            openToast(`تم تأكيد الحجز بنجاح باسم ${customerName} ✨`);
         }
 
         function updateBookingBadge() {
@@ -1021,7 +1356,7 @@
                 <div class="p-4 rounded-2xl bg-surface border border-gold-soft/60 space-y-2">
                     <div class="flex items-center justify-between">
                         <span class="px-2.5 py-0.5 rounded-full bg-sage-light text-sage-dark text-[10px] font-extrabold">
-                            مؤكد • #${b.id}
+                            مؤكد • #${b.id}${b.customerName ? ` • ${b.customerName}` : ''}
                         </span>
                         <span class="text-xs font-black text-gold-dark">${b.price}</span>
                     </div>

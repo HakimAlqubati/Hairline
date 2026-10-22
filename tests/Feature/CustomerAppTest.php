@@ -2,6 +2,10 @@
 
 declare(strict_types=1);
 
+use App\Models\Booking;
+use App\Models\Customer;
+use App\Models\Service;
+use App\Models\Specialist;
 use App\Services\FrontData\BookingCalendarDataService;
 use App\Services\FrontData\CartAndCheckoutDataService;
 use App\Services\FrontData\CatalogDataService;
@@ -9,6 +13,7 @@ use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\CustomerAccountDataService;
 use App\Services\FrontData\HomeServiceDataService;
 use App\Services\FrontData\SalonInfoDataService;
+use Illuminate\Support\Facades\Http;
 
 describe('Customer-Facing Pages', function () {
     test('home page returns 200 and renders brand identity', function () {
@@ -82,6 +87,182 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('VIP');
         $response->assertSee('عضوية هيرلاين الذهبية');
         $response->assertSee('حجوزاتي المؤكدة');
+    });
+
+    test('verifying an existing Saudi phone number immediately confirms and saves booking in database', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $initialBookingCount = Booking::count();
+
+        $response = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '+966551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'exists' => true,
+                'status' => 'confirmed',
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => 'سارة العتيبي',
+                    'phone' => '0551234567',
+                ],
+                'booking' => [
+                    'customerName' => 'سارة العتيبي',
+                    'serviceName' => $service->getTranslation('name', 'ar'),
+                ],
+            ]);
+
+        expect(Booking::count())->toBe($initialBookingCount + 1);
+        $this->assertDatabaseHas('bookings', [
+            'customer_id' => $customer->id,
+            'status' => 'confirmed',
+        ]);
+        $this->assertDatabaseHas('booking_items', [
+            'service_id' => $service->id,
+            'specialist_id' => $specialist->id,
+        ]);
+    });
+
+    test('verifying a non-existing Saudi phone number returns needs_registration for Google sign-up', function () {
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $initialBookingCount = Booking::count();
+
+        $response = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0509988776',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'exists' => false,
+                'status' => 'needs_registration',
+                'phone' => '0509988776',
+            ]);
+
+        expect(Booking::count())->toBe($initialBookingCount);
+    });
+
+    test('rejects invalid non-Saudi phone number with 422 validation error', function () {
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+
+        $response = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '01234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+            ]);
+    });
+
+    test('registering a new customer via Google saves customer and booking in database with email owner name', function () {
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+
+        $response = $this->postJson(route('booking.google_register'), [
+            'phone' => '0509988776',
+            'email' => 'maha.alqhtani@gmail.com',
+            'name' => 'مها القحطاني',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'الأحد القادم',
+            'booking_time' => '08:00 م',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'exists' => true,
+                'registered_via_google' => true,
+                'status' => 'confirmed',
+                'customer' => [
+                    'name' => 'مها القحطاني',
+                    'phone' => '0509988776',
+                    'email' => 'maha.alqhtani@gmail.com',
+                ],
+                'booking' => [
+                    'customerName' => 'مها القحطاني',
+                    'serviceName' => $service->getTranslation('name', 'ar'),
+                ],
+            ]);
+
+        $this->assertDatabaseHas('customers', [
+            'phone' => '0509988776',
+            'email' => 'maha.alqhtani@gmail.com',
+            'name' => 'مها القحطاني',
+        ]);
+
+        $newCustomer = Customer::where('phone', '0509988776')->firstOrFail();
+        $this->assertDatabaseHas('bookings', [
+            'customer_id' => $newCustomer->id,
+            'status' => 'confirmed',
+        ]);
+    });
+
+    test('google oauth redirect and callback completes registration and confirms booking with google account owner name', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-access-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'reem.alsaud@gmail.com',
+                'name' => 'ريم آل سعود',
+                'picture' => 'https://example.com/avatar.jpg',
+            ], 200),
+        ]);
+
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+
+        $redirectResponse = $this->get(route('booking.google_redirect', [
+            'phone' => '0554433221',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
+        ]));
+
+        $redirectResponse->assertRedirect();
+        expect($redirectResponse->headers->get('Location'))->toContain('https://accounts.google.com/o/oauth2/v2/auth');
+
+        $state = base64_encode((string) json_encode([
+            'phone' => '0554433221',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
+        ], JSON_UNESCAPED_UNICODE));
+
+        $callbackResponse = $this->get(route('booking.google_callback', [
+            'code' => 'mock-auth-code',
+            'state' => $state,
+        ]));
+
+        $callbackResponse->assertStatus(200);
+        $callbackResponse->assertSee('HAIRLINE_GOOGLE_AUTH_RESULT', false);
+        $callbackResponse->assertSee('ريم آل سعود');
+
+        $this->assertDatabaseHas('customers', [
+            'phone' => '0554433221',
+            'email' => 'reem.alsaud@gmail.com',
+            'name' => 'ريم آل سعود',
+        ]);
     });
 });
 
