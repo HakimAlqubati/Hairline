@@ -34,7 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->path('admin')
             ->login()
             ->colors([
-                'primary' => Color::Rose,
+                'primary' => Color::hex(config('brand.primary')),
                 'gray' => Color::Zinc,
             ])
             ->font('Tajawal')
