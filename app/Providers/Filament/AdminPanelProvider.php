@@ -35,35 +35,32 @@ class AdminPanelProvider extends PanelProvider
                 'gray' => Color::Zinc,
             ])
             ->font('Tajawal')
-            ->brandName(fn(): string => __('admin.brand.name'))
+            ->brandName(fn (): string => __('admin.brand.name'))
             ->navigationGroups([
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.services_catalog'))
+                    ->label(fn (): string => __('admin.nav.services_catalog'))
                     ->collapsed(false),
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.bookings'))
+                    ->label(fn (): string => __('admin.nav.specialists_team'))
                     ->collapsed(false),
-
-
-
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.specialists_team'))
+                    ->label(fn (): string => __('admin.nav.website_content'))
                     ->collapsed(false),
 
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.customers_loyalty'))
+                    ->label(fn (): string => __('admin.nav.bookings'))
                     ->collapsed(false),
 
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.website_content'))
+                    ->label(fn (): string => __('admin.nav.customers_loyalty'))
                     ->collapsed(false),
 
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.financials_logistics'))
+                    ->label(fn (): string => __('admin.nav.financials_logistics'))
                     ->collapsed(true),
 
                 NavigationGroup::make()
-                    ->label(fn(): string => __('admin.nav.system_settings'))
+                    ->label(fn (): string => __('admin.nav.system_settings'))
                     ->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')

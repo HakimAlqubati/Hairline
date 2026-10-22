@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Services\Schemas;
 
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\RichEditor;
-use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 
 class ServiceForm
@@ -27,8 +27,8 @@ class ServiceForm
                                 ->required()
                                 ->maxLength(255),
 
-                            TextInput::make('slug')
-                                ->label(__('admin.fields.slug'))
+                            TextInput::make('code')
+                                ->label(__('admin.fields.code'))
                                 ->required()
                                 ->unique(ignoreRecord: true)
                                 ->maxLength(255),
@@ -42,7 +42,7 @@ class ServiceForm
                                 ->preload()
                                 ->required(),
 
-                            Select::make('service_group_id')
+                            Select::make('group_id')
                                 ->label(__('admin.fields.service_group'))
                                 ->relationship('serviceGroup', 'name')
                                 ->searchable()

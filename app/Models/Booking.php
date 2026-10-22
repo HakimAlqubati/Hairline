@@ -60,6 +60,11 @@ class Booking extends Model
         return $this->belongsTo(CustomerAddress::class, 'customer_address_id');
     }
 
+    public function customerAddress(): BelongsTo
+    {
+        return $this->address();
+    }
+
     public function items(): HasMany
     {
         return $this->hasMany(BookingItem::class);

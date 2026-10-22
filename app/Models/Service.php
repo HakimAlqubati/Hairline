@@ -64,6 +64,11 @@ class Service extends Model
         return $this->belongsTo(ServiceGroup::class, 'group_id');
     }
 
+    public function serviceGroup(): BelongsTo
+    {
+        return $this->group();
+    }
+
     public function pricingTiers(): HasMany
     {
         return $this->hasMany(ServicePricingTier::class)->orderBy('sort_order');
