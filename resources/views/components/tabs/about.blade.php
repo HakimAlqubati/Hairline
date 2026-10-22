@@ -29,7 +29,7 @@
             {{ $aboutUs['belief_paragraph'] ?? '' }}
         </p>
 
-        {{-- Stats Grid from Static Service --}}
+        {{-- Stats Grid (Dynamic & Cached) --}}
         <div class="grid grid-cols-2 gap-3 pt-2 text-center">
             @foreach($stats as $st)
                 <div class="p-3.5 rounded-2xl {{ $st['bg'] ?? 'bg-sage-soft' }}">

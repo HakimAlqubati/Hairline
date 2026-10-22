@@ -10,7 +10,7 @@ class HairlineCacheService
 {
     public const TTL_ONE_DAY = 86400; // 24 hours
 
-    public const KEY_SALON_IDENTITY = 'hairline:salon:identity';
+    public const KEY_SALON_IDENTITY = 'hairline:salon:identity:v2';
 
     public const KEY_HERO_SLIDES = 'hairline:salon:hero_slides';
 
@@ -29,6 +29,8 @@ class HairlineCacheService
     public const KEY_ALL_CATEGORIES = 'hairline:catalog:all_categories';
 
     public const KEY_SPECIALISTS_ALL = 'hairline:specialists:all';
+
+    public const KEY_SPECIALISTS_COUNT = 'hairline:specialists:count';
 
     public const KEY_DISTRICTS = 'hairline:home_service:districts';
 
@@ -72,6 +74,8 @@ class HairlineCacheService
     public static function clearSpecialists(): void
     {
         Cache::forget(self::KEY_SPECIALISTS_ALL);
+        Cache::forget(self::KEY_SPECIALISTS_COUNT);
+        Cache::forget(self::KEY_SALON_IDENTITY);
         Cache::forget(self::KEY_BOOKABLE_CATEGORIES);
     }
 

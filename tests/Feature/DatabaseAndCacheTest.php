@@ -108,15 +108,37 @@ describe('Professional Caching & Auto-Invalidation', function () {
         expect(Cache::has(HairlineCacheService::KEY_ALL_CATEGORIES))->toBeFalse();
     });
 
+    test('specialists count is cached and reflected dynamically in salon stats', function () {
+        $specialistsService = app(SpecialistsDataService::class);
+        $activeCount = Specialist::where('is_active', true)->count();
+
+        expect($specialistsService->getActiveSpecialistsCount())->toBe($activeCount);
+        expect(Cache::has(HairlineCacheService::KEY_SPECIALISTS_COUNT))->toBeTrue();
+
+        $salonService = app(SalonInfoDataService::class);
+        $identity = $salonService->getSalonIdentity();
+
+        $specialistStat = collect($identity['stats'])->first(fn ($s) => str_contains($s['label'], 'أخصائ'));
+        expect($specialistStat)->not->toBeNull();
+        expect($specialistStat['value'])->toBe("+{$activeCount}");
+    });
+
     test('updating a specialist invalidates specialists cache via observer', function () {
         app(SpecialistsDataService::class)->getAllSpecialists();
+        app(SpecialistsDataService::class)->getActiveSpecialistsCount();
+        app(SalonInfoDataService::class)->getSalonIdentity();
+
         expect(Cache::has(HairlineCacheService::KEY_SPECIALISTS_ALL))->toBeTrue();
+        expect(Cache::has(HairlineCacheService::KEY_SPECIALISTS_COUNT))->toBeTrue();
+        expect(Cache::has(HairlineCacheService::KEY_SALON_IDENTITY))->toBeTrue();
 
         // Updating specialist triggers SpecialistObserver
         $sp = Specialist::first();
         $sp->update(['is_active' => true]);
 
         expect(Cache::has(HairlineCacheService::KEY_SPECIALISTS_ALL))->toBeFalse();
+        expect(Cache::has(HairlineCacheService::KEY_SPECIALISTS_COUNT))->toBeFalse();
+        expect(Cache::has(HairlineCacheService::KEY_SALON_IDENTITY))->toBeFalse();
     });
 });
 

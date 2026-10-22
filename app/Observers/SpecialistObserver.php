@@ -17,4 +17,9 @@ class SpecialistObserver
     {
         HairlineCacheService::clearSpecialists();
     }
+
+    public function restored(): void
+    {
+        HairlineCacheService::clearSpecialists();
+    }
 }

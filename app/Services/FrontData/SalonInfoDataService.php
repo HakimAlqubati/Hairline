@@ -17,6 +17,10 @@ use Illuminate\Support\Facades\Cache;
  */
 class SalonInfoDataService
 {
+    public function __construct(
+        private readonly ?SpecialistsDataService $specialistsService = null
+    ) {}
+
     /**
      * @return array{
      *     name_en: string,
@@ -60,10 +64,7 @@ class SalonInfoDataService
                     'أناقتكِ تتجدد',
                 ],
                 'logo_url' => $setting?->logo_path ?: '/images/logo.png',
-                'stats' => $setting?->stats ?: [
-                    ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
-                    ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
-                ],
+                'stats' => $this->getStats($setting),
                 'hero_slides' => ! empty($slidesArray) ? $slidesArray : [
                     [
                         'img' => '/images/salon/reception-desk.jpg',
@@ -86,6 +87,42 @@ class SalonInfoDataService
                 ],
             ];
         });
+    }
+
+    /**
+     * @return array<int, array{value: string, label: string, bg: string, text: string}>
+     */
+    public function getStats(?SalonSetting $setting = null): array
+    {
+        $setting ??= SalonSetting::first();
+        $specialists = $this->specialistsService ?? app(SpecialistsDataService::class);
+        $formattedCount = $specialists->getFormattedSpecialistsCount();
+
+        $rawStats = $setting?->stats ?: [
+            ['value' => $formattedCount, 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
+            ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
+        ];
+
+        $hasSpecialistStat = false;
+        $stats = [];
+        foreach ($rawStats as $stat) {
+            if (isset($stat['label']) && (str_contains((string) $stat['label'], 'أخصائ') || stripos((string) $stat['label'], 'specialist') !== false)) {
+                $stat['value'] = $formattedCount;
+                $hasSpecialistStat = true;
+            }
+            $stats[] = $stat;
+        }
+
+        if (! $hasSpecialistStat) {
+            array_unshift($stats, [
+                'value' => $formattedCount,
+                'label' => 'أخصائية محترفة',
+                'bg' => 'bg-sage-soft',
+                'text' => 'text-sage-dark',
+            ]);
+        }
+
+        return $stats;
     }
 
     /**

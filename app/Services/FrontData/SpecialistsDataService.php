@@ -15,6 +15,26 @@ use Illuminate\Support\Facades\Cache;
 class SpecialistsDataService
 {
     /**
+     * Get the count of active specialists, cached.
+     */
+    public function getActiveSpecialistsCount(): int
+    {
+        return (int) Cache::rememberForever(HairlineCacheService::KEY_SPECIALISTS_COUNT, function (): int {
+            return Specialist::where('is_active', true)->count();
+        });
+    }
+
+    /**
+     * Get the formatted display string for specialists count (e.g. "+5").
+     */
+    public function getFormattedSpecialistsCount(): string
+    {
+        $count = $this->getActiveSpecialistsCount();
+
+        return $count > 0 ? "+{$count}" : '0';
+    }
+
+    /**
      * @return array<string, array{
      *     id: string,
      *     name: string,
