@@ -157,3 +157,41 @@ test('language switcher can switch locale between arabic and english', function 
     LanguageSwitch::switchLocale('en');
     expect(session('locale'))->toBe('en');
 });
+
+test('unauthenticated user can access custom filament login page and see salon branding and images', function () {
+    $response = $this->get('/admin/login');
+
+    $response->assertSuccessful();
+    $response->assertSee(__('admin.auth.salon_badge'));
+    $response->assertSee(__('admin.brand.name'));
+    $response->assertSee('reception-desk.jpg');
+    $response->assertSee('hair-styling-chairs.jpg');
+});
+
+test('user can authenticate via custom filament login page', function () {
+    $user = User::factory()->create([
+        'email' => 'admin@hairline.test',
+        'password' => bcrypt('password123'),
+    ]);
+
+    Livewire::test(\App\Filament\Pages\Auth\Login::class)
+        ->fillForm([
+            'email' => 'admin@hairline.test',
+            'password' => 'password123',
+        ])
+        ->call('authenticate')
+        ->assertHasNoFormErrors()
+        ->assertRedirect('/admin');
+
+    $this->assertAuthenticatedAs($user);
+});
+
+test('invalid credentials show validation error on custom filament login page', function () {
+    Livewire::test(\App\Filament\Pages\Auth\Login::class)
+        ->fillForm([
+            'email' => 'wrong@email.com',
+            'password' => 'wrongpassword',
+        ])
+        ->call('authenticate')
+        ->assertHasFormErrors(['email']);
+});

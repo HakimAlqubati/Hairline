@@ -343,4 +343,18 @@ return [
         'phone_format' => 'Please enter phone in international format, e.g.: 9665xxxxxxxx',
         'slug_auto' => 'Automatically generated from the name for friendly URLs',
     ],
+
+    'auth' => [
+        'login_title' => 'Login - Admin Panel',
+        'login_heading' => 'Welcome Back',
+        'login_subheading' => 'Sign in to access Hairline Salon management panel',
+        'salon_badge' => 'Hairline Luxury Salon & Spa',
+        'salon_quote' => 'Exceptional hair care and elegance in every single detail',
+        'feature_1' => 'Comprehensive bookings & appointments management',
+        'feature_2' => 'Track salon revenue and specialist performance',
+        'feature_3' => 'Customer loyalty program & membership tiers',
+        'back_to_website' => 'Return to Main Website',
+        'copyright' => 'All rights reserved for Hairline Salon',
+        'admin_panel_subtitle' => 'Central Management & Operations Portal',
+    ],
 ];

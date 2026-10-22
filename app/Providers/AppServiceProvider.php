@@ -49,7 +49,8 @@ class AppServiceProvider extends ServiceProvider
                 ->labels([
                     'ar' => 'العربية',
                     'en' => 'English',
-                ]);
+                ])
+                ->userPreferredLocale(fn (): string => request()->cookie('filament_language_switch_locale') ?? config('app.locale', 'ar'));
         });
 
         // Register Cache Invalidation Observers
