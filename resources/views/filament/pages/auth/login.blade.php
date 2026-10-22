@@ -1,312 +1,332 @@
 <div class="hl-auth-root" dir="{{ __('filament-panels::layout.direction') ?? 'rtl' }}">
     <style>
         /* ============================================================
-           HAIRLINE LUXURY SALON — CUSTOM AUTHENTICATION DESIGN
-           Palette: Hairline Gold (#C29E6D), Warm Cream (#FBF9F5),
-           Deep Espresso (#211C18), Soft Sand (#F5F0E8)
+           HAIRLINE SALON — MODERN FULL-SCREEN GLASSMORPHIC LOGIN
+           Palette (Strictly derived from Logo):
+           - Hairline Champagne Gold: #C29E6D
+           - Deep Antique Gold:       #A3803B
+           - Warm Ivory / Cream:      #FBF9F5
+           - Soft Sand:               #F2EAE0
+           - Deep Espresso:           #211C18
            ============================================================ */
 
         .hl-auth-root {
             min-height: 100vh;
+            min-height: 100dvh;
             width: 100%;
-            background-color: #FBF9F5;
+            background-color: #211C18;
             color: #211C18;
             font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
             display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
             position: relative;
             overflow-x: hidden;
             box-sizing: border-box;
+            padding: 1.25rem 1rem;
         }
 
-        .hl-auth-root * {
-            box-sizing: border-box;
-        }
-
-        .hl-auth-container {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-
-        /* ------------------------------------------------------------
-           Right/Showcase Section (Desktop >= 1024px)
-           ------------------------------------------------------------ */
-        .hl-auth-showcase {
-            display: none;
-        }
-
-        @media (min-width: 1024px) {
-            .hl-auth-showcase {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between;
-                width: 56%;
-                position: relative;
-                padding: 3.5rem 4rem;
-                overflow: hidden;
-                background-color: #211C18;
-                border-inline-end: 1px solid rgba(194, 158, 109, 0.25);
+        @media (min-width: 640px) {
+            .hl-auth-root {
+                padding: 1.75rem 2rem;
             }
         }
 
-        .hl-showcase-photo {
+        .hl-auth-root *,
+        .hl-auth-root *::before,
+        .hl-auth-root *::after {
+            box-sizing: border-box;
+        }
+
+        /* ------------------------------------------------------------
+           Full-Screen Background Layer (Desktop Horizontal & Mobile Vertical)
+           ------------------------------------------------------------ */
+        .hl-bg-stage {
+            position: fixed;
+            inset: 0;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+            background-color: #211C18;
+        }
+
+        /* Mobile First: Vertical Salon Image (694x1024) */
+        .hl-bg-photo {
             position: absolute;
             inset: 0;
-            background-image: url('{{ asset('images/salon/reception-desk.jpg') }}');
+            background-image: url('{{ asset('images/salon/hair-styling-chairs.jpg') }}');
             background-size: cover;
-            background-position: center;
+            background-position: center center;
             background-repeat: no-repeat;
-            transform: scale(1.02);
-            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 1;
+            transform: scale(1.03);
+            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: brightness(0.92) contrast(1.03);
         }
 
-        .hl-auth-showcase:hover .hl-showcase-photo {
-            transform: scale(1.05);
+        /* Tablet & Desktop: Horizontal Salon Reception Image (1024x682) */
+        @media (min-width: 768px) {
+            .hl-bg-photo {
+                background-image: url('{{ asset('images/salon/reception-desk.jpg') }}');
+                background-position: center center;
+                filter: brightness(0.94) contrast(1.02);
+            }
         }
 
-        /* Luxury Warm Golden Overlay (NOT black) */
-        .hl-showcase-overlay {
+        /* Warm Gold & Espresso Luxury Overlay */
+        .hl-bg-overlay {
             position: absolute;
             inset: 0;
             background: linear-gradient(
-                to top,
-                rgba(33, 28, 24, 0.90) 0%,
-                rgba(33, 28, 24, 0.55) 45%,
-                rgba(194, 158, 109, 0.30) 80%,
-                rgba(33, 28, 24, 0.40) 100%
+                160deg,
+                rgba(33, 28, 24, 0.52) 0%,
+                rgba(33, 28, 24, 0.38) 45%,
+                rgba(194, 158, 109, 0.28) 80%,
+                rgba(33, 28, 24, 0.68) 100%
             );
             z-index: 2;
         }
 
-        .hl-showcase-radial {
+        /* Subtle Golden Radial Glow behind the centered card */
+        .hl-bg-glow {
             position: absolute;
             inset: 0;
             background: radial-gradient(
-                ellipse at top right,
-                rgba(194, 158, 109, 0.35) 0%,
-                transparent 65%
+                circle at 50% 48%,
+                rgba(251, 249, 245, 0.22) 0%,
+                rgba(194, 158, 109, 0.18) 35%,
+                transparent 70%
             );
             z-index: 3;
         }
 
-        .hl-showcase-content {
-            position: relative;
-            z-index: 10;
-        }
-
-        .hl-showcase-title {
-            font-size: 2.75rem;
-            font-weight: 800;
-            line-height: 1.25;
-            color: #FFFFFF;
-            margin-top: 1.25rem;
-            margin-bottom: 0.75rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
-        }
-
-        @media (min-width: 1280px) {
-            .hl-showcase-title {
-                font-size: 3.25rem;
-            }
-        }
-
-        .hl-showcase-desc {
-            color: #F6EFE2;
-            font-size: 1.15rem;
-            line-height: 1.7;
-            max-width: 32rem;
-            font-weight: 400;
-            text-shadow: 0 1px 6px rgba(0, 0, 0, 0.25);
-        }
-
-        .hl-showcase-footer {
+        /* ------------------------------------------------------------
+           TopSpacer / Viewport Balance
+           ------------------------------------------------------------ */
+        .hl-viewport-top {
+            width: 100%;
+            max-width: 1280px;
             display: flex;
-            justify-content: space-between;
+            justify-content: flex-end;
             align-items: center;
-            font-size: 0.85rem;
-            color: #E6D5B8;
             position: relative;
-            z-index: 10;
+            z-index: 20;
+            min-height: 0.5rem;
         }
 
         /* ------------------------------------------------------------
-           Left/Form Section (Desktop & Mobile) — WARM LIGHT PALETTE
+           Center Glassmorphic Card (Lightly Translucent & Ultra-Readable)
            ------------------------------------------------------------ */
-        .hl-auth-form-side {
+        .hl-center-stage {
             width: 100%;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 2.25rem 1.5rem;
-            background-color: #FBF9F5;
+            justify-content: center;
+            align-items: center;
+            margin: auto 0;
             position: relative;
-            z-index: 10;
+            z-index: 15;
+            padding: 0.5rem 0;
+        }
+
+        .hl-glass-card {
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            /* Lightly translucent warm ivory glass matching Logo palette */
+            background: linear-gradient(
+                145deg,
+                rgba(251, 249, 245, 0.85) 0%,
+                rgba(245, 239, 230, 0.79) 100%
+            );
+            backdrop-filter: blur(18px) saturate(145%);
+            -webkit-backdrop-filter: blur(18px) saturate(145%);
+            border: 1.5px solid rgba(194, 158, 109, 0.48);
+            border-radius: 28px;
+            box-shadow:
+                0 28px 65px -12px rgba(20, 16, 13, 0.52),
+                0 0 0 1px rgba(255, 255, 255, 0.65) inset,
+                0 8px 28px -6px rgba(194, 158, 109, 0.22);
+            padding: 2.25rem 1.5rem 1.75rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         @media (min-width: 640px) {
-            .hl-auth-form-side {
-                padding: 3rem 2.5rem;
+            .hl-glass-card {
+                padding: 2.6rem 2.5rem 2rem;
+                border-radius: 30px;
             }
         }
 
-        @media (min-width: 1024px) {
-            .hl-auth-form-side {
-                width: 44%;
-                padding: 3.5rem 3.5rem;
-                background-color: #FBF9F5;
-                overflow-y: auto;
+        /* Subtle Decorative Gold Line at Top of Glass Card */
+        .hl-glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            inset-inline: 22%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #C29E6D, #A3803B, #C29E6D, transparent);
+            border-radius: 0 0 999px 999px;
+            opacity: 0.85;
+        }
+
+        /* ------------------------------------------------------------
+           Repositioned Language Switcher (Inside Top Corner of Glass Card)
+           ------------------------------------------------------------ */
+        .hl-card-lang-corner {
+            position: absolute;
+            top: 1.15rem;
+            inset-inline-start: 1.15rem;
+            z-index: 25;
+        }
+
+        @media (min-width: 640px) {
+            .hl-card-lang-corner {
+                top: 1.35rem;
+                inset-inline-start: 1.5rem;
             }
         }
 
-        /* Mobile Ambient Background */
-        .hl-mobile-ambient {
-            display: block;
-            position: fixed;
-            inset: 0;
-            background-image: url('{{ asset('images/salon/reception-desk.jpg') }}');
-            background-size: cover;
-            background-position: center;
-            filter: blur(12px) brightness(0.92);
-            transform: scale(1.08);
-            z-index: 1;
-            pointer-events-none;
+        /* Style Filament Language Switcher Trigger to match Logo Gold & Glass */
+        .hl-card-lang-corner .fi-ls-trigger {
+            background: rgba(255, 255, 255, 0.72) !important;
+            backdrop-filter: blur(8px) !important;
+            -webkit-backdrop-filter: blur(8px) !important;
+            border: 1px solid rgba(194, 158, 109, 0.45) !important;
+            border-radius: 9999px !important;
+            padding: 0.35rem 0.75rem !important;
+            height: 2.15rem !important;
+            color: #211C18 !important;
+            box-shadow: 0 2px 8px rgba(33, 28, 24, 0.06) !important;
+            transition: all 0.2s ease !important;
         }
 
-        .hl-mobile-ambient-overlay {
-            display: block;
-            position: fixed;
-            inset: 0;
-            background: linear-gradient(135deg, rgba(251, 249, 245, 0.88) 0%, rgba(245, 240, 232, 0.94) 100%);
-            z-index: 2;
-            pointer-events-none;
+        .hl-card-lang-corner .fi-ls-trigger:hover {
+            background: rgba(255, 255, 255, 0.95) !important;
+            border-color: #C29E6D !important;
+            box-shadow: 0 4px 12px rgba(194, 158, 109, 0.25) !important;
+            transform: translateY(-1px);
         }
 
-        @media (min-width: 1024px) {
-            .hl-mobile-ambient,
-            .hl-mobile-ambient-overlay {
-                display: none;
-            }
+        .hl-card-lang-corner .fi-ls-trigger span {
+            color: #211C18 !important;
+            font-weight: 700 !important;
+            font-size: 0.8rem !important;
         }
 
-        /* Top Header Bar */
-        .hl-form-topbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1rem;
-            width: 100%;
-            max-width: 420px;
-            margin: 0 auto 1.5rem;
-            position: relative;
-            z-index: 10;
+        .hl-card-lang-corner .fi-ls-trigger svg {
+            color: #A3803B !important;
+            width: 1.05rem !important;
+            height: 1.05rem !important;
         }
 
-        .hl-back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: #A3803B;
-            text-decoration: none;
-            transition: color 0.2s ease;
-        }
-
-        .hl-back-link:hover {
-            color: #C29E6D;
-        }
-
-        /* Form Card */
-        .hl-form-card {
-            width: 100%;
-            max-width: 420px;
-            margin: auto;
-            position: relative;
-            z-index: 10;
-        }
-
-        @media (max-width: 1023px) {
-            .hl-form-card {
-                background: #FFFFFF;
-                border: 1px solid rgba(194, 158, 109, 0.25);
-                border-radius: 24px;
-                box-shadow: 0 20px 45px -10px rgba(33, 28, 24, 0.10);
-                padding: 2.5rem 2rem;
-                margin-top: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-        }
-
-        /* SINGLE Logo — Precise Dimensions */
+        /* ------------------------------------------------------------
+           Brand Logo & Header Typography
+           ------------------------------------------------------------ */
         .hl-brand-logo-container {
             text-align: center;
-            margin-bottom: 1.75rem;
+            margin-bottom: 1.25rem;
+            padding-top: 0.25rem;
+        }
+
+        .hl-brand-logo-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 0.85rem;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(194, 158, 109, 0.28);
+            box-shadow: 0 4px 15px rgba(194, 158, 109, 0.12);
+            text-decoration: none;
+            transition: transform 0.25s ease, background-color 0.25s ease;
+        }
+
+        .hl-brand-logo-link:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.78);
         }
 
         .hl-brand-logo {
-            max-height: 56px;
+            max-height: 62px;
             width: auto;
-            max-width: 200px;
-            margin: 0 auto;
+            max-width: 190px;
             display: block;
             object-fit: contain;
         }
 
+        @media (max-width: 639px) {
+            .hl-brand-logo {
+                max-height: 54px;
+                max-width: 165px;
+            }
+        }
+
         .hl-heading {
-            font-size: 1.75rem;
+            font-size: 1.65rem;
             font-weight: 800;
             color: #211C18;
-            margin-top: 0;
-            margin-bottom: 0.4rem;
+            margin: 0 0 0.35rem;
             letter-spacing: -0.015em;
             text-align: center;
         }
 
+        @media (min-width: 640px) {
+            .hl-heading {
+                font-size: 1.8rem;
+            }
+        }
+
         .hl-subheading {
-            font-size: 0.925rem;
-            color: #6E6259;
-            margin-bottom: 2rem;
+            font-size: 0.92rem;
+            color: #5A4E44;
+            font-weight: 500;
+            margin: 0 0 1.65rem;
             line-height: 1.55;
             text-align: center;
         }
 
         /* ------------------------------------------------------------
-           FILAMENT FORM STYLING OVERRIDES (Crisp, High Contrast, Luxury)
+           FILAMENT FORM STYLING OVERRIDES (Crisp, High Contrast, Gold)
            ------------------------------------------------------------ */
         .hl-form-wrapper {
             width: 100%;
         }
 
-        /* Labels — Crystal Clear & High Contrast (NOT hidden) */
+        /* Labels — High Contrast Espresso */
         .hl-form-wrapper .fi-fo-field-wrp-label,
         .hl-form-wrapper label,
         .hl-form-wrapper .fi-fo-field-wrp-label label {
             color: #211C18 !important;
             font-weight: 700 !important;
             font-size: 0.9rem !important;
-            margin-bottom: 0.45rem !important;
+            margin-bottom: 0.4rem !important;
             display: inline-block !important;
             visibility: visible !important;
             opacity: 1 !important;
         }
 
         .hl-form-wrapper .fi-fo-field-wrp {
-            margin-bottom: 1.35rem !important;
+            margin-bottom: 1.15rem !important;
         }
 
-        /* Inputs — Clean White with Soft Gold Border */
+        /* Inputs — Translucent Pure White with Warm Gold Border */
         .hl-form-wrapper .fi-input-wrp {
-            background-color: #FFFFFF !important;
-            border: 1.5px solid #D8CFBF !important;
-            border-radius: 12px !important;
-            box-shadow: 0 1px 3px rgba(33, 28, 24, 0.04) !important;
+            background-color: rgba(255, 255, 255, 0.86) !important;
+            border: 1.5px solid rgba(194, 158, 109, 0.42) !important;
+            border-radius: 14px !important;
+            box-shadow: 0 2px 6px rgba(33, 28, 24, 0.04) !important;
             transition: all 0.2s ease !important;
         }
 
+        .hl-form-wrapper .fi-input-wrp:hover {
+            background-color: rgba(255, 255, 255, 0.94) !important;
+            border-color: rgba(194, 158, 109, 0.65) !important;
+        }
+
         .hl-form-wrapper .fi-input-wrp:focus-within {
+            background-color: #FFFFFF !important;
             border-color: #C29E6D !important;
-            box-shadow: 0 0 0 3px rgba(194, 158, 109, 0.25) !important;
+            box-shadow: 0 0 0 3.5px rgba(194, 158, 109, 0.25) !important;
         }
 
         .hl-form-wrapper input[type="email"],
@@ -315,17 +335,27 @@
             color: #211C18 !important;
             background-color: transparent !important;
             font-size: 0.95rem !important;
-            padding: 0.75rem 0.95rem !important;
+            font-weight: 500 !important;
+            padding: 0.72rem 0.95rem !important;
         }
 
         .hl-form-wrapper input::placeholder {
-            color: #94887D !important;
+            color: #8C7E71 !important;
+        }
+
+        /* Password Reveal Icon Button */
+        .hl-form-wrapper .fi-input-wrp button {
+            color: #7A6B5D !important;
+        }
+
+        .hl-form-wrapper .fi-input-wrp button:hover {
+            color: #A3803B !important;
         }
 
         /* Remember Me Checkbox & Text */
         .hl-form-wrapper .fi-fo-checkbox label span,
         .hl-form-wrapper .fi-checkbox-label {
-            color: #52473E !important;
+            color: #3D342C !important;
             font-weight: 600 !important;
             font-size: 0.875rem !important;
         }
@@ -334,141 +364,181 @@
             border-radius: 6px !important;
             border-color: #C29E6D !important;
             color: #C29E6D !important;
+            background-color: rgba(255, 255, 255, 0.9) !important;
         }
 
-        /* Validation Error Messages — High Visibility Red */
+        /* Validation Error Messages */
         .hl-form-wrapper .fi-fo-field-wrp-error-message,
         .hl-form-wrapper .text-danger-600,
         .hl-form-wrapper [class*="text-danger"] {
-            color: #DC2626 !important;
-            font-size: 0.85rem !important;
+            color: #B91C1C !important;
+            font-size: 0.84rem !important;
             font-weight: 700 !important;
-            margin-top: 0.4rem !important;
+            margin-top: 0.35rem !important;
             display: block !important;
         }
 
-        /* Submit Button — Luxurious Hairline Gold */
+        /* Submit Button — Signature Hairline Gold Gradient */
         .hl-form-wrapper .fi-btn {
             width: 100% !important;
             background: linear-gradient(135deg, #C29E6D 0%, #A3803B 100%) !important;
             color: #FFFFFF !important;
             font-weight: 700 !important;
-            font-size: 1.05rem !important;
-            padding: 0.85rem 1.5rem !important;
-            border-radius: 12px !important;
-            border: none !important;
-            box-shadow: 0 4px 20px rgba(194, 158, 109, 0.35) !important;
+            font-size: 1.02rem !important;
+            padding: 0.82rem 1.5rem !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 22px -4px rgba(163, 128, 59, 0.48) !important;
             cursor: pointer !important;
             transition: all 0.25s ease !important;
-            margin-top: 0.5rem !important;
+            margin-top: 0.35rem !important;
         }
 
         .hl-form-wrapper .fi-btn:hover {
             background: linear-gradient(135deg, #CCA876 0%, #B08D46 100%) !important;
-            box-shadow: 0 6px 24px rgba(194, 158, 109, 0.45) !important;
-            transform: translateY(-1px) !important;
+            box-shadow: 0 10px 26px -4px rgba(163, 128, 59, 0.6) !important;
+            transform: translateY(-1.5px) !important;
         }
 
         .hl-form-wrapper .fi-btn:active {
             transform: translateY(0) !important;
-            box-shadow: 0 2px 10px rgba(194, 158, 109, 0.3) !important;
+            box-shadow: 0 4px 12px rgba(163, 128, 59, 0.35) !important;
         }
 
-        /* Footer */
-        .hl-form-footer {
+        /* ------------------------------------------------------------
+           Card Bottom Utility Link (Back to Website)
+           ------------------------------------------------------------ */
+        .hl-card-bottom-actions {
+            margin-top: 1.35rem;
+            padding-top: 1.1rem;
+            border-top: 1px solid rgba(194, 158, 109, 0.28);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hl-back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            font-size: 0.86rem;
+            font-weight: 700;
+            color: #7D602B;
+            text-decoration: none;
+            padding: 0.35rem 0.85rem;
+            border-radius: 9999px;
+            background: rgba(194, 158, 109, 0.12);
+            border: 1px solid rgba(194, 158, 109, 0.25);
+            transition: all 0.2s ease;
+        }
+
+        .hl-back-link:hover {
+            color: #211C18;
+            background: rgba(194, 158, 109, 0.24);
+            border-color: #C29E6D;
+            transform: translateY(-1px);
+        }
+
+        /* ------------------------------------------------------------
+           Full-Screen Bottom Footer Bar (Hairline Salon & Copyright)
+           ------------------------------------------------------------ */
+        .hl-screen-footer {
             width: 100%;
-            max-width: 420px;
-            margin: 2rem auto 0;
-            padding-top: 1.25rem;
-            border-top: 1px solid rgba(194, 158, 109, 0.2);
-            text-align: center;
-            font-size: 0.85rem;
-            color: #8C8276;
+            max-width: 1200px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 0.5rem 1.5rem;
+            padding-top: 0.75rem;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: rgba(251, 249, 245, 0.92);
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
             position: relative;
-            z-index: 10;
+            z-index: 15;
+        }
+
+        .hl-screen-footer-brand {
+            color: #F5E6CE;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        @media (max-width: 639px) {
+            .hl-screen-footer {
+                flex-direction: column;
+                justify-content: center;
+                text-align: center;
+                gap: 0.25rem;
+                font-size: 0.78rem;
+            }
         }
     </style>
 
-    {{-- Mobile Ambient Layer --}}
-    <div class="hl-mobile-ambient" aria-hidden="true"></div>
-    <div class="hl-mobile-ambient-overlay" aria-hidden="true"></div>
+    {{-- Full-Screen Background (Vertical Salon Image on Mobile, Horizontal on Desktop) --}}
+    <div class="hl-bg-stage" aria-hidden="true">
+        <div class="hl-bg-photo"></div>
+        <div class="hl-bg-overlay"></div>
+        <div class="hl-bg-glow"></div>
+    </div>
 
-    <div class="hl-auth-container">
-        {{-- Right/Visual Showcase Column (Desktop Only >= 1024px) --}}
-        <div class="hl-auth-showcase">
-            <div class="hl-showcase-photo" aria-hidden="true"></div>
-            <div class="hl-showcase-overlay" aria-hidden="true"></div>
-            <div class="hl-showcase-radial" aria-hidden="true"></div>
+    {{-- Top Spacer for vertical centering balance --}}
+    <div class="hl-viewport-top" aria-hidden="true"></div>
 
-            {{-- Center Showcase Greeting & Atmosphere (NO feature list) --}}
-            <div class="hl-showcase-content" style="margin-top: auto; margin-bottom: auto; padding-top: 2rem; padding-bottom: 2rem;">
-                <h1 class="hl-showcase-title">
-                    {{ __('admin.brand.name') }}
-                </h1>
-                <p class="hl-showcase-desc">
-                    {{ __('admin.auth.salon_quote') }}
-                </p>
+    {{-- Center Glassmorphic Login Form Card --}}
+    <main class="hl-center-stage">
+        <div class="hl-glass-card">
+            {{-- Repositioned Language Switcher (Top Corner of Glass Card) --}}
+            @if (class_exists(\BezhanSalleh\LanguageSwitch\LanguageSwitch::class))
+                <div class="hl-card-lang-corner">
+                    @livewire('language-switch-component')
+                </div>
+            @endif
+
+            {{-- Brand Logo --}}
+            <div class="hl-brand-logo-container">
+                <a href="/" class="hl-brand-logo-link" title="{{ __('admin.brand.name') }}">
+                    <img
+                        src="{{ asset('images/logo.png') }}"
+                        alt="{{ __('admin.brand.name') }}"
+                        class="hl-brand-logo"
+                    />
+                </a>
             </div>
 
-            {{-- Bottom Showcase Footer --}}
-            <div class="hl-showcase-footer">
-                <span>{{ __('admin.auth.copyright') }} &copy; {{ date('Y') }}</span>
-                <span style="color: #FAF8F5; opacity: 0.85;">Hairline Luxury Lounge</span>
-            </div>
-        </div>
+            {{-- Heading & Subheading --}}
+            <h1 class="hl-heading">
+                {{ $this->getHeading() }}
+            </h1>
+            <p class="hl-subheading">
+                {{ $this->getSubheading() }}
+            </p>
 
-        {{-- Left/Form Column (Warm Luxury Palette) --}}
-        <div class="hl-auth-form-side">
-            {{-- Top Bar (Return link & Language switcher) --}}
-            <div class="hl-form-topbar">
+            {{-- Filament Livewire Auth Form --}}
+            <div class="hl-form-wrapper">
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_START, scopes: $this->getRenderHookScopes()) }}
+
+                {{ $this->content }}
+
+                <x-filament-actions::modals />
+
+                {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
+            </div>
+
+            {{-- Return to Main Website Link --}}
+            <div class="hl-card-bottom-actions">
                 <a href="/" class="hl-back-link">
                     <span class="rtl:rotate-180" style="display: inline-block;">&rarr;</span>
                     <span>{{ __('admin.auth.back_to_website') }}</span>
                 </a>
-
-                @if (class_exists(\BezhanSalleh\LanguageSwitch\LanguageSwitch::class))
-                    <div>
-                        @livewire('language-switch-component')
-                    </div>
-                @endif
-            </div>
-
-            {{-- Main Form Card --}}
-            <div class="hl-form-card">
-                {{-- Single Brand Logo (Clean & Sized) --}}
-                <div class="hl-brand-logo-container">
-                    <a href="/" style="display: inline-block; text-decoration: none;">
-                        <img
-                            src="{{ asset('images/logo.png') }}"
-                            alt="{{ __('admin.brand.name') }}"
-                            class="hl-brand-logo"
-                        />
-                    </a>
-                </div>
-
-                <h2 class="hl-heading">
-                    {{ $this->getHeading() }}
-                </h2>
-                <p class="hl-subheading">
-                    {{ $this->getSubheading() }}
-                </p>
-
-                {{-- Filament Livewire Auth Form --}}
-                <div class="hl-form-wrapper">
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_START, scopes: $this->getRenderHookScopes()) }}
-
-                    {{ $this->content }}
-
-                    <x-filament-actions::modals />
-
-                    {{ \Filament\Support\Facades\FilamentView::renderHook(\Filament\View\PanelsRenderHook::SIMPLE_PAGE_END, scopes: $this->getRenderHookScopes()) }}
-                </div>
-            </div>
-
-            {{-- Bottom Footer --}}
-            <div class="hl-form-footer">
-                <span>{{ __('admin.auth.copyright') }} &copy; {{ date('Y') }}</span>
             </div>
         </div>
-    </div>
+    </main>
+
+    {{-- Bottom Footer Bar --}}
+    <footer class="hl-screen-footer">
+        <span>{{ __('admin.auth.copyright') }} &copy; {{ date('Y') }}</span>
+        <span class="hl-screen-footer-brand">Hairline Salon</span>
+    </footer>
 </div>
