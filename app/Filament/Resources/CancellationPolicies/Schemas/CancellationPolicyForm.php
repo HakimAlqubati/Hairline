@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\CancellationPolicies\Schemas;
 
-use Filament\Forms\Components\RichEditor;
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -20,10 +20,7 @@ class CancellationPolicyForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        RichEditor::make('policy_text')
-                            ->label(__('admin.fields.policy_text'))
-                            ->required()
-                            ->columnSpanFull(),
+                        TranslatableField::richEditor('policy_text', __('admin.fields.policy_text'), required: true),
 
                         Grid::make(2)->schema([
                             TextInput::make('free_cancellation_hours')

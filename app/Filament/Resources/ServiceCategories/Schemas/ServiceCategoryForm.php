@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\ServiceCategories\Schemas;
 
-use Filament\Forms\Components\Textarea;
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -20,28 +20,15 @@ class ServiceCategoryForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
-                            TextInput::make('slug')
-                                ->label(__('admin.fields.slug'))
-                                ->required()
-                                ->unique(ignoreRecord: true)
-                                ->maxLength(255),
-                        ]),
-
-                        TextInput::make('subtitle')
-                            ->label(__('admin.fields.subtitle'))
-                            ->nullable()
+                        TextInput::make('slug')
+                            ->label(__('admin.fields.slug'))
+                            ->required()
+                            ->unique(ignoreRecord: true)
                             ->maxLength(255),
 
-                        Textarea::make('description')
-                            ->label(__('admin.fields.description'))
-                            ->rows(3)
-                            ->nullable(),
+                        TranslatableField::text('subtitle', __('admin.fields.subtitle')),
 
                         Grid::make(3)->schema([
                             TextInput::make('icon')

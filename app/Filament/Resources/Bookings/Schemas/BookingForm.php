@@ -20,6 +20,7 @@ class BookingForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.booking_info'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('booking_number')

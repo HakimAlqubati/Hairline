@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Districts\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Grid;
@@ -19,19 +20,13 @@ class DistrictForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->placeholder('حي النرجس / Al-Narjis')
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
-                            TextInput::make('zone')
-                                ->label(__('admin.fields.zone'))
-                                ->placeholder('شمال الرياض / North Riyadh')
-                                ->nullable()
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('zone')
+                            ->label(__('admin.fields.zone'))
+                            ->placeholder('شمال الرياض / North Riyadh')
+                            ->nullable()
+                            ->maxLength(255),
 
                         Grid::make(2)->schema([
                             TextInput::make('delivery_fee')

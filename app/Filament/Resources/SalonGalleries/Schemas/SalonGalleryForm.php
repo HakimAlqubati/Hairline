@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\SalonGalleries\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,41 +22,27 @@ class SalonGalleryForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('title')
-                                ->label(__('admin.fields.title'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('title', __('admin.fields.title'), required: true),
 
-                            TextInput::make('slug')
-                                ->label(__('admin.fields.slug'))
-                                ->required()
-                                ->unique(ignoreRecord: true)
-                                ->maxLength(255),
-                        ]),
+                        TextInput::make('slug')
+                            ->label(__('admin.fields.slug'))
+                            ->required()
+                            ->unique(ignoreRecord: true)
+                            ->maxLength(255),
 
-                        Grid::make(3)->schema([
-                            TextInput::make('subtitle')
-                                ->label(__('admin.fields.subtitle'))
-                                ->nullable()
-                                ->maxLength(255),
+                        TranslatableField::text('subtitle', __('admin.fields.subtitle')),
 
-                            TextInput::make('tag')
-                                ->label(__('admin.fields.tag'))
-                                ->placeholder('تسريحات، صبغات، عناية')
-                                ->nullable()
-                                ->maxLength(255),
+                        TranslatableField::text('tag', __('admin.fields.tag')),
 
-                            Select::make('aspect_ratio')
-                                ->label(__('admin.fields.aspect_ratio'))
-                                ->options([
-                                    '16/10' => '16:10 (عريض)',
-                                    '1/1' => '1:1 (مربع)',
-                                    '4/5' => '4:5 (بورتريه إنستغرام)',
-                                    '16/9' => '16:9 (سينمائي)',
-                                ])
-                                ->default('16/10'),
-                        ]),
+                        Select::make('aspect_ratio')
+                            ->label(__('admin.fields.aspect_ratio'))
+                            ->options([
+                                '16/10' => '16:10 (عريض)',
+                                '1/1' => '1:1 (مربع)',
+                                '4/5' => '4:5 (بورتريه إنستغرام)',
+                                '16/9' => '16:9 (سينمائي)',
+                            ])
+                            ->default('16/10'),
 
                         Grid::make(2)->schema([
                             TextInput::make('sort_order')

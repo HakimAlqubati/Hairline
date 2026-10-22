@@ -2,8 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Filament\Resources\ServiceCategories\Pages\EditServiceCategory;
 use App\Models\ServiceCategory;
 use App\Models\User;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Livewire\Livewire;
 
 test('authenticated user can access filament admin dashboard without navigation exception', function () {
     $user = User::factory()->create();
@@ -79,8 +82,14 @@ test('authenticated user can access service category edit page without schema or
     $user = User::factory()->create();
     $category = ServiceCategory::create([
         'slug' => 'test-category',
-        'name' => 'Test Category',
-        'subtitle' => 'Test Subtitle',
+        'name' => [
+            'ar' => 'عناية بالشعر',
+            'en' => 'Hair Care',
+        ],
+        'subtitle' => [
+            'ar' => 'خدمات متكاملة واحترافية',
+            'en' => 'Complete and professional services',
+        ],
         'icon' => 'scissors',
         'page_ref' => 1,
         'sort_order' => 1,
@@ -90,4 +99,23 @@ test('authenticated user can access service category edit page without schema or
     $response = $this->actingAs($user)->get("/admin/service-categories/{$category->id}/edit");
 
     $response->assertSuccessful();
+
+    Livewire::actingAs($user)
+        ->test(EditServiceCategory::class, [
+            'record' => $category->id,
+        ])
+        ->assertSchemaStateSet([
+            'name.ar' => 'عناية بالشعر',
+            'name.en' => 'Hair Care',
+            'subtitle.ar' => 'خدمات متكاملة واحترافية',
+            'subtitle.en' => 'Complete and professional services',
+        ]);
+});
+
+test('language switcher can switch locale between arabic and english', function () {
+    LanguageSwitch::switchLocale('ar');
+    expect(session('locale'))->toBe('ar');
+
+    LanguageSwitch::switchLocale('en');
+    expect(session('locale'))->toBe('en');
 });

@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Services\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -22,20 +22,15 @@ class ServiceForm
                 Section::make(__('admin.sections.service_details'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
+                        Grid::make(3)->schema([
                             TextInput::make('code')
                                 ->label(__('admin.fields.code'))
                                 ->required()
                                 ->unique(ignoreRecord: true)
                                 ->maxLength(255),
-                        ]),
 
-                        Grid::make(2)->schema([
                             Select::make('category_id')
                                 ->label(__('admin.fields.category'))
                                 ->relationship('category', 'name')
@@ -51,18 +46,11 @@ class ServiceForm
                                 ->nullable(),
                         ]),
 
-                        TextInput::make('price_display_override')
-                            ->label(__('admin.fields.price_display_override'))
-                            ->helperText(__('admin.helpers.price_display_override'))
-                            ->nullable(),
+                        TranslatableField::text('price_display_override', __('admin.fields.price_display_override')),
 
-                        RichEditor::make('inclusions')
-                            ->label(__('admin.fields.inclusions'))
-                            ->nullable(),
+                        TranslatableField::richEditor('inclusions', __('admin.fields.inclusions')),
 
-                        RichEditor::make('description')
-                            ->label(__('admin.fields.description'))
-                            ->nullable(),
+                        TranslatableField::richEditor('description', __('admin.fields.description')),
                     ]),
 
                 Section::make(__('admin.sections.pricing_and_duration'))

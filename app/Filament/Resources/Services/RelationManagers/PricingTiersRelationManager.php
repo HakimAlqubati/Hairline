@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Services\RelationManagers;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\EditAction;
@@ -31,18 +32,14 @@ class PricingTiersRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                Grid::make(2)->schema([
-                    Select::make('hair_length_id')
-                        ->label(__('admin.fields.hair_length'))
-                        ->relationship('hairLength', 'name')
-                        ->searchable()
-                        ->preload()
-                        ->required(),
+                Select::make('hair_length_id')
+                    ->label(__('admin.fields.hair_length'))
+                    ->relationship('hairLength', 'name')
+                    ->searchable()
+                    ->preload()
+                    ->required(),
 
-                    TextInput::make('custom_label')
-                        ->label(__('admin.fields.custom_label'))
-                        ->nullable(),
-                ]),
+                TranslatableField::text('custom_label', __('admin.fields.custom_label')),
 
                 Grid::make(3)->schema([
                     TextInput::make('price')

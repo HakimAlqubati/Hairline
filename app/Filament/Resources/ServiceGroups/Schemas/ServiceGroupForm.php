@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\ServiceGroups\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -20,19 +21,14 @@ class ServiceGroupForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            Select::make('category_id')
-                                ->label(__('admin.fields.category'))
-                                ->relationship('category', 'name')
-                                ->searchable()
-                                ->preload()
-                                ->required(),
+                        Select::make('category_id')
+                            ->label(__('admin.fields.category'))
+                            ->relationship('category', 'name')
+                            ->searchable()
+                            ->preload()
+                            ->required(),
 
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->required()
-                                ->maxLength(255),
-                        ]),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
                         Grid::make(2)->schema([
                             TextInput::make('type')

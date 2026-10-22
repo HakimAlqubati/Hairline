@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Specialists\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\RichEditor;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -22,30 +22,13 @@ class SpecialistForm
                 Section::make(__('admin.sections.specialist_profile'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
+                        Grid::make(2)->schema([
                             TextInput::make('slug')
                                 ->label(__('admin.fields.slug'))
                                 ->required()
                                 ->unique(ignoreRecord: true)
-                                ->maxLength(255),
-                        ]),
-
-                        Grid::make(3)->schema([
-                            TextInput::make('role')
-                                ->label(__('admin.fields.role'))
-                                ->placeholder('أخصائية صبغات ومكياج')
-                                ->required()
-                                ->maxLength(255),
-
-                            TextInput::make('experience')
-                                ->label(__('admin.fields.experience'))
-                                ->placeholder('7+ سنوات خبرة')
-                                ->nullable()
                                 ->maxLength(255),
 
                             TextInput::make('phone')
@@ -55,6 +38,10 @@ class SpecialistForm
                                 ->maxLength(255),
                         ]),
 
+                        TranslatableField::text('role', __('admin.fields.role'), required: true),
+
+                        TranslatableField::text('experience', __('admin.fields.experience')),
+
                         Select::make('services')
                             ->label(__('admin.resources.services'))
                             ->relationship('services', 'name')
@@ -62,9 +49,7 @@ class SpecialistForm
                             ->searchable()
                             ->preload(),
 
-                        RichEditor::make('bio')
-                            ->label(__('admin.fields.bio'))
-                            ->nullable(),
+                        TranslatableField::richEditor('bio', __('admin.fields.bio')),
                     ]),
 
                 Section::make(__('admin.sections.general_information'))

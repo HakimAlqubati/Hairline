@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\MembershipTiers\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -20,17 +21,11 @@ class MembershipTierForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('name')
-                                ->label(__('admin.fields.name'))
-                                ->placeholder('الذهبية / Gold')
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('name', __('admin.fields.name'), required: true),
 
-                            ColorPicker::make('badge_color')
-                                ->label(__('admin.fields.badge_color'))
-                                ->default('#D97706'),
-                        ]),
+                        ColorPicker::make('badge_color')
+                            ->label(__('admin.fields.badge_color'))
+                            ->default('#D97706'),
 
                         Grid::make(3)->schema([
                             TextInput::make('min_spend')

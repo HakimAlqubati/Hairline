@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\HeroSlides\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -20,29 +21,16 @@ class HeroSlideForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(2)->schema([
-                            TextInput::make('title')
-                                ->label(__('admin.fields.title'))
-                                ->required()
-                                ->maxLength(255),
+                        TranslatableField::text('title', __('admin.fields.title'), required: true),
 
-                            TextInput::make('subtitle')
-                                ->label(__('admin.fields.subtitle'))
-                                ->nullable()
-                                ->maxLength(255),
-                        ]),
+                        TranslatableField::text('subtitle', __('admin.fields.subtitle')),
 
-                        Grid::make(2)->schema([
-                            TextInput::make('badge_text')
-                                ->label(__('admin.fields.badge_text'))
-                                ->nullable()
-                                ->maxLength(255),
+                        TranslatableField::text('badge_text', __('admin.fields.badge_text')),
 
-                            TextInput::make('fallback_url')
-                                ->label(__('admin.fields.fallback_url'))
-                                ->url()
-                                ->nullable(),
-                        ]),
+                        TextInput::make('fallback_url')
+                            ->label(__('admin.fields.fallback_url'))
+                            ->url()
+                            ->nullable(),
 
                         Grid::make(2)->schema([
                             TextInput::make('sort_order')

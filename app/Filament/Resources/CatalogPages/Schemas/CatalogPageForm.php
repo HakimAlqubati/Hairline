@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\CatalogPages\Schemas;
 
+use App\Filament\Support\TranslatableField;
 use Filament\Forms\Components\KeyValue;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -21,16 +22,13 @@ class CatalogPageForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(3)->schema([
+                        TranslatableField::text('title', __('admin.fields.title'), required: true),
+
+                        Grid::make(2)->schema([
                             TextInput::make('page_number')
                                 ->label(__('admin.fields.page_number'))
                                 ->numeric()
                                 ->required(),
-
-                            TextInput::make('title')
-                                ->label(__('admin.fields.title'))
-                                ->required()
-                                ->maxLength(255),
 
                             Select::make('layout_type')
                                 ->label(__('admin.fields.layout_type'))
