@@ -1,35 +1,37 @@
 <div class="hl-auth-root" dir="{{ __('filament-panels::layout.direction') ?? 'rtl' }}">
     <style>
         /* ============================================================
-           HAIRLINE SALON — MODERN FULL-SCREEN GLASSMORPHIC LOGIN
+           HAIRLINE SALON — COMPACT LUXURY GLASSMORPHISM LOGIN
            Palette (Strictly derived from Logo):
            - Hairline Champagne Gold: #C29E6D
            - Deep Antique Gold:       #A3803B
            - Warm Ivory / Cream:      #FBF9F5
-           - Soft Sand:               #F2EAE0
-           - Deep Espresso:           #211C18
+           - Deep Espresso:           #1E1915
            ============================================================ */
 
         .hl-auth-root {
-            min-height: 100vh;
-            min-height: 100dvh;
+            height: 100vh;
+            height: 100dvh;
             width: 100%;
-            background-color: #211C18;
-            color: #211C18;
+            background-color: #1E1915;
+            color: #1E1915;
             font-family: 'Tajawal', system-ui, -apple-system, sans-serif;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
             align-items: center;
             position: relative;
-            overflow-x: hidden;
+            overflow: hidden;
             box-sizing: border-box;
-            padding: 1.25rem 1rem;
+            padding: 1rem;
         }
 
-        @media (min-width: 640px) {
+        @media (max-height: 640px) {
             .hl-auth-root {
-                padding: 1.75rem 2rem;
+                height: auto;
+                min-height: 100dvh;
+                overflow-y: auto;
+                padding: 1.25rem 1rem 3rem;
             }
         }
 
@@ -48,7 +50,7 @@
             z-index: 1;
             overflow: hidden;
             pointer-events: none;
-            background-color: #211C18;
+            background-color: #1E1915;
         }
 
         /* Mobile First: Vertical Salon Image (694x1024) */
@@ -59,9 +61,8 @@
             background-size: cover;
             background-position: center center;
             background-repeat: no-repeat;
-            transform: scale(1.03);
-            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-            filter: brightness(0.92) contrast(1.03);
+            transform: scale(1.02);
+            filter: brightness(0.95) contrast(1.04);
         }
 
         /* Tablet & Desktop: Horizontal Salon Reception Image (1024x682) */
@@ -69,302 +70,279 @@
             .hl-bg-photo {
                 background-image: url('{{ asset('images/salon/reception-desk.jpg') }}');
                 background-position: center center;
-                filter: brightness(0.94) contrast(1.02);
+                filter: brightness(0.96) contrast(1.03);
             }
         }
 
-        /* Warm Gold & Espresso Luxury Overlay */
+        /* Balanced Warm Overlay — Keeps background photo clearly visible */
         .hl-bg-overlay {
             position: absolute;
             inset: 0;
             background: linear-gradient(
-                160deg,
-                rgba(33, 28, 24, 0.52) 0%,
-                rgba(33, 28, 24, 0.38) 45%,
-                rgba(194, 158, 109, 0.28) 80%,
-                rgba(33, 28, 24, 0.68) 100%
+                165deg,
+                rgba(30, 25, 21, 0.34) 0%,
+                rgba(30, 25, 21, 0.18) 45%,
+                rgba(194, 158, 109, 0.16) 75%,
+                rgba(30, 25, 21, 0.52) 100%
             );
             z-index: 2;
         }
 
-        /* Subtle Golden Radial Glow behind the centered card */
+        /* Soft Ambient Vignette */
         .hl-bg-glow {
             position: absolute;
             inset: 0;
             background: radial-gradient(
-                circle at 50% 48%,
-                rgba(251, 249, 245, 0.22) 0%,
-                rgba(194, 158, 109, 0.18) 35%,
-                transparent 70%
+                circle at 50% 50%,
+                rgba(255, 252, 245, 0.10) 0%,
+                transparent 65%
             );
             z-index: 3;
         }
 
         /* ------------------------------------------------------------
-           TopSpacer / Viewport Balance
-           ------------------------------------------------------------ */
-        .hl-viewport-top {
-            width: 100%;
-            max-width: 1280px;
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            position: relative;
-            z-index: 20;
-            min-height: 0.5rem;
-        }
-
-        /* ------------------------------------------------------------
-           Center Glassmorphic Card (Lightly Translucent & Ultra-Readable)
+           Center Glassmorphic Card (True Translucent Glass + Compact)
            ------------------------------------------------------------ */
         .hl-center-stage {
             width: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin: auto 0;
             position: relative;
             z-index: 15;
-            padding: 0.5rem 0;
         }
 
         .hl-glass-card {
             width: 100%;
-            max-width: 450px;
+            max-width: 420px;
             position: relative;
-            /* Lightly translucent warm ivory glass matching Logo palette */
+            /* True Translucent Frosted Glass — Background photo shows through */
             background: linear-gradient(
-                145deg,
-                rgba(251, 249, 245, 0.85) 0%,
-                rgba(245, 239, 230, 0.79) 100%
+                135deg,
+                rgba(253, 250, 245, 0.62) 0%,
+                rgba(247, 240, 229, 0.48) 50%,
+                rgba(243, 233, 218, 0.56) 100%
             );
-            backdrop-filter: blur(18px) saturate(145%);
-            -webkit-backdrop-filter: blur(18px) saturate(145%);
-            border: 1.5px solid rgba(194, 158, 109, 0.48);
-            border-radius: 28px;
+            backdrop-filter: blur(14px) saturate(160%);
+            -webkit-backdrop-filter: blur(14px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.68);
+            border-radius: 26px;
             box-shadow:
-                0 28px 65px -12px rgba(20, 16, 13, 0.52),
-                0 0 0 1px rgba(255, 255, 255, 0.65) inset,
-                0 8px 28px -6px rgba(194, 158, 109, 0.22);
-            padding: 2.25rem 1.5rem 1.75rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+                0 24px 50px -12px rgba(18, 14, 10, 0.42),
+                0 0 0 1px rgba(194, 158, 109, 0.38),
+                inset 0 1px 1px rgba(255, 255, 255, 0.85),
+                inset 0 -1px 1px rgba(194, 158, 109, 0.22);
+            padding: 1.5rem 1.5rem 1.25rem;
         }
 
         @media (min-width: 640px) {
             .hl-glass-card {
-                padding: 2.6rem 2.5rem 2rem;
-                border-radius: 30px;
+                padding: 1.75rem 2.15rem 1.35rem;
             }
         }
 
-        /* Subtle Decorative Gold Line at Top of Glass Card */
+        /* Luminous Gold Specular Line at Top of Glass Card */
         .hl-glass-card::before {
             content: '';
             position: absolute;
             top: 0;
-            inset-inline: 22%;
-            height: 3px;
+            inset-inline: 24%;
+            height: 2.5px;
             background: linear-gradient(90deg, transparent, #C29E6D, #A3803B, #C29E6D, transparent);
             border-radius: 0 0 999px 999px;
-            opacity: 0.85;
+            opacity: 0.9;
         }
 
         /* ------------------------------------------------------------
-           Repositioned Language Switcher (Inside Top Corner of Glass Card)
+           Repositioned Language Switcher (Top Corner of Glass Card)
            ------------------------------------------------------------ */
         .hl-card-lang-corner {
             position: absolute;
-            top: 1.15rem;
-            inset-inline-start: 1.15rem;
+            top: 1rem;
+            inset-inline-start: 1.1rem;
             z-index: 25;
         }
 
-        @media (min-width: 640px) {
-            .hl-card-lang-corner {
-                top: 1.35rem;
-                inset-inline-start: 1.5rem;
-            }
-        }
-
-        /* Style Filament Language Switcher Trigger to match Logo Gold & Glass */
         .hl-card-lang-corner .fi-ls-trigger {
-            background: rgba(255, 255, 255, 0.72) !important;
+            background: rgba(255, 255, 255, 0.65) !important;
             backdrop-filter: blur(8px) !important;
             -webkit-backdrop-filter: blur(8px) !important;
-            border: 1px solid rgba(194, 158, 109, 0.45) !important;
+            border: 1px solid rgba(194, 158, 109, 0.48) !important;
             border-radius: 9999px !important;
-            padding: 0.35rem 0.75rem !important;
-            height: 2.15rem !important;
-            color: #211C18 !important;
-            box-shadow: 0 2px 8px rgba(33, 28, 24, 0.06) !important;
+            padding: 0.3rem 0.65rem !important;
+            height: 2rem !important;
+            color: #1E1915 !important;
+            box-shadow: 0 2px 8px rgba(30, 25, 21, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.8) !important;
             transition: all 0.2s ease !important;
         }
 
         .hl-card-lang-corner .fi-ls-trigger:hover {
-            background: rgba(255, 255, 255, 0.95) !important;
+            background: rgba(255, 255, 255, 0.92) !important;
             border-color: #C29E6D !important;
-            box-shadow: 0 4px 12px rgba(194, 158, 109, 0.25) !important;
+            box-shadow: 0 4px 12px rgba(194, 158, 109, 0.28) !important;
             transform: translateY(-1px);
         }
 
         .hl-card-lang-corner .fi-ls-trigger span {
-            color: #211C18 !important;
+            color: #1E1915 !important;
             font-weight: 700 !important;
-            font-size: 0.8rem !important;
+            font-size: 0.78rem !important;
         }
 
         .hl-card-lang-corner .fi-ls-trigger svg {
-            color: #A3803B !important;
-            width: 1.05rem !important;
-            height: 1.05rem !important;
+            color: #9A7632 !important;
+            width: 1rem !important;
+            height: 1rem !important;
         }
 
         /* ------------------------------------------------------------
-           Brand Logo & Header Typography
+           Brand Logo & Compact Subtitle (No redundant welcome heading)
            ------------------------------------------------------------ */
         .hl-brand-logo-container {
             text-align: center;
-            margin-bottom: 1.25rem;
-            padding-top: 0.25rem;
+            margin-bottom: 0.65rem;
         }
 
         .hl-brand-logo-link {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.5rem 0.85rem;
-            border-radius: 18px;
-            background: rgba(255, 255, 255, 0.55);
-            border: 1px solid rgba(194, 158, 109, 0.28);
-            box-shadow: 0 4px 15px rgba(194, 158, 109, 0.12);
+            padding: 0.45rem 0.9rem;
+            border-radius: 16px;
+            background: rgba(255, 253, 250, 0.68);
+            border: 1px solid rgba(255, 255, 255, 0.78);
+            box-shadow:
+                0 4px 14px rgba(30, 25, 21, 0.06),
+                0 0 0 1px rgba(194, 158, 109, 0.25);
             text-decoration: none;
             transition: transform 0.25s ease, background-color 0.25s ease;
         }
 
         .hl-brand-logo-link:hover {
-            transform: translateY(-2px);
-            background: rgba(255, 255, 255, 0.78);
+            transform: translateY(-1.5px);
+            background: rgba(255, 255, 255, 0.86);
         }
 
         .hl-brand-logo {
-            max-height: 62px;
+            max-height: 52px;
             width: auto;
-            max-width: 190px;
+            max-width: 165px;
             display: block;
             object-fit: contain;
         }
 
         @media (max-width: 639px) {
             .hl-brand-logo {
-                max-height: 54px;
-                max-width: 165px;
-            }
-        }
-
-        .hl-heading {
-            font-size: 1.65rem;
-            font-weight: 800;
-            color: #211C18;
-            margin: 0 0 0.35rem;
-            letter-spacing: -0.015em;
-            text-align: center;
-        }
-
-        @media (min-width: 640px) {
-            .hl-heading {
-                font-size: 1.8rem;
+                max-height: 46px;
+                max-width: 150px;
             }
         }
 
         .hl-subheading {
-            font-size: 0.92rem;
-            color: #5A4E44;
-            font-weight: 500;
-            margin: 0 0 1.65rem;
-            line-height: 1.55;
+            font-size: 0.95rem;
+            color: #1E1915;
+            font-weight: 700;
+            margin: 0 0 1.1rem;
+            line-height: 1.5;
             text-align: center;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.65);
         }
 
         /* ------------------------------------------------------------
-           FILAMENT FORM STYLING OVERRIDES (Crisp, High Contrast, Gold)
+           FILAMENT FORM STYLING OVERRIDES (Compact, Glassy & Crisp)
            ------------------------------------------------------------ */
         .hl-form-wrapper {
             width: 100%;
         }
 
-        /* Labels — High Contrast Espresso */
-        .hl-form-wrapper .fi-fo-field-wrp-label,
-        .hl-form-wrapper label,
-        .hl-form-wrapper .fi-fo-field-wrp-label label {
-            color: #211C18 !important;
-            font-weight: 700 !important;
-            font-size: 0.9rem !important;
-            margin-bottom: 0.4rem !important;
-            display: inline-block !important;
-            visibility: visible !important;
-            opacity: 1 !important;
+        /* Tighten Filament's default large vertical gaps */
+        .hl-form-wrapper form,
+        .hl-form-wrapper .fi-sc,
+        .hl-form-wrapper .fi-fo-component-ctn,
+        .hl-form-wrapper [class*="gap-y-"] {
+            gap: 0.75rem !important;
+            row-gap: 0.75rem !important;
         }
 
         .hl-form-wrapper .fi-fo-field-wrp {
-            margin-bottom: 1.15rem !important;
+            margin-bottom: 0 !important;
         }
 
-        /* Inputs — Translucent Pure White with Warm Gold Border */
+        /* Labels — High Contrast Espresso with subtle light halo for readability */
+        .hl-form-wrapper .fi-fo-field-wrp-label,
+        .hl-form-wrapper label,
+        .hl-form-wrapper .fi-fo-field-wrp-label label {
+            color: #1E1915 !important;
+            font-weight: 700 !important;
+            font-size: 0.86rem !important;
+            margin-bottom: 0.25rem !important;
+            display: inline-block !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Inputs — Frosted Glass White with Warm Gold Border */
         .hl-form-wrapper .fi-input-wrp {
-            background-color: rgba(255, 255, 255, 0.86) !important;
-            border: 1.5px solid rgba(194, 158, 109, 0.42) !important;
-            border-radius: 14px !important;
-            box-shadow: 0 2px 6px rgba(33, 28, 24, 0.04) !important;
+            background-color: rgba(255, 255, 255, 0.76) !important;
+            backdrop-filter: blur(6px) !important;
+            -webkit-backdrop-filter: blur(6px) !important;
+            border: 1px solid rgba(194, 158, 109, 0.5) !important;
+            border-radius: 12px !important;
+            box-shadow:
+                0 2px 6px rgba(30, 25, 21, 0.04),
+                inset 0 1px 1px rgba(255, 255, 255, 0.85) !important;
             transition: all 0.2s ease !important;
         }
 
         .hl-form-wrapper .fi-input-wrp:hover {
-            background-color: rgba(255, 255, 255, 0.94) !important;
-            border-color: rgba(194, 158, 109, 0.65) !important;
+            background-color: rgba(255, 255, 255, 0.88) !important;
+            border-color: rgba(163, 128, 59, 0.7) !important;
         }
 
         .hl-form-wrapper .fi-input-wrp:focus-within {
-            background-color: #FFFFFF !important;
-            border-color: #C29E6D !important;
-            box-shadow: 0 0 0 3.5px rgba(194, 158, 109, 0.25) !important;
+            background-color: rgba(255, 255, 255, 0.96) !important;
+            border-color: #B08A48 !important;
+            box-shadow: 0 0 0 3px rgba(194, 158, 109, 0.28) !important;
         }
 
         .hl-form-wrapper input[type="email"],
         .hl-form-wrapper input[type="password"],
         .hl-form-wrapper input[type="text"] {
-            color: #211C18 !important;
+            color: #1E1915 !important;
             background-color: transparent !important;
-            font-size: 0.95rem !important;
-            font-weight: 500 !important;
-            padding: 0.72rem 0.95rem !important;
+            font-size: 0.92rem !important;
+            font-weight: 600 !important;
+            padding: 0.56rem 0.85rem !important;
         }
 
         .hl-form-wrapper input::placeholder {
-            color: #8C7E71 !important;
+            color: #7D7064 !important;
         }
 
         /* Password Reveal Icon Button */
         .hl-form-wrapper .fi-input-wrp button {
-            color: #7A6B5D !important;
+            color: #6E5F51 !important;
         }
 
         .hl-form-wrapper .fi-input-wrp button:hover {
-            color: #A3803B !important;
+            color: #9A7632 !important;
         }
 
         /* Remember Me Checkbox & Text */
         .hl-form-wrapper .fi-fo-checkbox label span,
         .hl-form-wrapper .fi-checkbox-label {
-            color: #3D342C !important;
-            font-weight: 600 !important;
-            font-size: 0.875rem !important;
+            color: #1E1915 !important;
+            font-weight: 700 !important;
+            font-size: 0.84rem !important;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.55);
         }
 
         .hl-form-wrapper input[type="checkbox"] {
-            border-radius: 6px !important;
-            border-color: #C29E6D !important;
-            color: #C29E6D !important;
-            background-color: rgba(255, 255, 255, 0.9) !important;
+            border-radius: 5px !important;
+            border-color: #B08A48 !important;
+            color: #A3803B !important;
+            background-color: rgba(255, 255, 255, 0.85) !important;
         }
 
         /* Validation Error Messages */
@@ -372,46 +350,49 @@
         .hl-form-wrapper .text-danger-600,
         .hl-form-wrapper [class*="text-danger"] {
             color: #B91C1C !important;
-            font-size: 0.84rem !important;
+            font-size: 0.8rem !important;
             font-weight: 700 !important;
-            margin-top: 0.35rem !important;
+            margin-top: 0.25rem !important;
             display: block !important;
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.7);
         }
 
         /* Submit Button — Signature Hairline Gold Gradient */
         .hl-form-wrapper .fi-btn {
             width: 100% !important;
-            background: linear-gradient(135deg, #C29E6D 0%, #A3803B 100%) !important;
+            background: linear-gradient(135deg, #C29E6D 0%, #9E7B36 100%) !important;
             color: #FFFFFF !important;
             font-weight: 700 !important;
-            font-size: 1.02rem !important;
-            padding: 0.82rem 1.5rem !important;
-            border-radius: 14px !important;
-            border: 1px solid rgba(255, 255, 255, 0.25) !important;
-            box-shadow: 0 8px 22px -4px rgba(163, 128, 59, 0.48) !important;
+            font-size: 0.96rem !important;
+            padding: 0.68rem 1.25rem !important;
+            border-radius: 12px !important;
+            border: 1px solid rgba(255, 255, 255, 0.35) !important;
+            box-shadow:
+                0 8px 20px -4px rgba(158, 123, 54, 0.5),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
             cursor: pointer !important;
-            transition: all 0.25s ease !important;
-            margin-top: 0.35rem !important;
+            transition: all 0.22s ease !important;
+            margin-top: 0.15rem !important;
         }
 
         .hl-form-wrapper .fi-btn:hover {
-            background: linear-gradient(135deg, #CCA876 0%, #B08D46 100%) !important;
-            box-shadow: 0 10px 26px -4px rgba(163, 128, 59, 0.6) !important;
-            transform: translateY(-1.5px) !important;
+            background: linear-gradient(135deg, #CCA876 0%, #AD8940 100%) !important;
+            box-shadow: 0 10px 24px -4px rgba(158, 123, 54, 0.62) !important;
+            transform: translateY(-1px) !important;
         }
 
         .hl-form-wrapper .fi-btn:active {
             transform: translateY(0) !important;
-            box-shadow: 0 4px 12px rgba(163, 128, 59, 0.35) !important;
+            box-shadow: 0 4px 12px rgba(158, 123, 54, 0.38) !important;
         }
 
         /* ------------------------------------------------------------
-           Card Bottom Utility Link (Back to Website)
+           Card Bottom Utility Link (Back to Website — Compact)
            ------------------------------------------------------------ */
         .hl-card-bottom-actions {
-            margin-top: 1.35rem;
-            padding-top: 1.1rem;
-            border-top: 1px solid rgba(194, 158, 109, 0.28);
+            margin-top: 0.9rem;
+            padding-top: 0.75rem;
+            border-top: 1px solid rgba(194, 158, 109, 0.32);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -420,43 +401,41 @@
         .hl-back-link {
             display: inline-flex;
             align-items: center;
-            gap: 0.45rem;
-            font-size: 0.86rem;
+            gap: 0.4rem;
+            font-size: 0.82rem;
             font-weight: 700;
-            color: #7D602B;
+            color: #5C4419;
             text-decoration: none;
-            padding: 0.35rem 0.85rem;
+            padding: 0.28rem 0.8rem;
             border-radius: 9999px;
-            background: rgba(194, 158, 109, 0.12);
-            border: 1px solid rgba(194, 158, 109, 0.25);
+            background: rgba(255, 255, 255, 0.48);
+            border: 1px solid rgba(194, 158, 109, 0.38);
             transition: all 0.2s ease;
         }
 
         .hl-back-link:hover {
-            color: #211C18;
-            background: rgba(194, 158, 109, 0.24);
+            color: #1E1915;
+            background: rgba(255, 255, 255, 0.82);
             border-color: #C29E6D;
             transform: translateY(-1px);
         }
 
         /* ------------------------------------------------------------
-           Full-Screen Bottom Footer Bar (Hairline Salon & Copyright)
+           Full-Screen Bottom Footer Bar (Pinned so it never causes scroll)
            ------------------------------------------------------------ */
         .hl-screen-footer {
-            width: 100%;
-            max-width: 1200px;
+            position: fixed;
+            bottom: 0.75rem;
+            inset-inline: 1.75rem;
             display: flex;
-            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
-            gap: 0.5rem 1.5rem;
-            padding-top: 0.75rem;
-            font-size: 0.84rem;
+            font-size: 0.8rem;
             font-weight: 500;
             color: rgba(251, 249, 245, 0.92);
-            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
-            position: relative;
-            z-index: 15;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.55);
+            z-index: 10;
+            pointer-events: none;
         }
 
         .hl-screen-footer-brand {
@@ -467,11 +446,9 @@
 
         @media (max-width: 639px) {
             .hl-screen-footer {
-                flex-direction: column;
-                justify-content: center;
-                text-align: center;
-                gap: 0.25rem;
-                font-size: 0.78rem;
+                inset-inline: 1rem;
+                bottom: 0.5rem;
+                font-size: 0.74rem;
             }
         }
     </style>
@@ -482,9 +459,6 @@
         <div class="hl-bg-overlay"></div>
         <div class="hl-bg-glow"></div>
     </div>
-
-    {{-- Top Spacer for vertical centering balance --}}
-    <div class="hl-viewport-top" aria-hidden="true"></div>
 
     {{-- Center Glassmorphic Login Form Card --}}
     <main class="hl-center-stage">
@@ -507,10 +481,7 @@
                 </a>
             </div>
 
-            {{-- Heading & Subheading --}}
-            <h1 class="hl-heading">
-                {{ $this->getHeading() }}
-            </h1>
+            {{-- Single Compact Subtitle (Welcome heading removed as requested) --}}
             <p class="hl-subheading">
                 {{ $this->getSubheading() }}
             </p>
