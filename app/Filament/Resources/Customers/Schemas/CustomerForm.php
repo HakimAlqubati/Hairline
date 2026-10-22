@@ -19,6 +19,7 @@ class CustomerForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.customer_info'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('customer_code')

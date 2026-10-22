@@ -18,6 +18,7 @@ class CancellationPolicyForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         RichEditor::make('policy_text')
                             ->label(__('admin.fields.policy_text'))

@@ -18,6 +18,7 @@ class SpecialistUnavailabilityForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Select::make('specialist_id')
                             ->label(__('admin.fields.specialist'))

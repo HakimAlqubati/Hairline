@@ -20,6 +20,7 @@ class SpecialistForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.specialist_profile'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
@@ -67,6 +68,7 @@ class SpecialistForm
                     ]),
 
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             Toggle::make('is_home_specialist')

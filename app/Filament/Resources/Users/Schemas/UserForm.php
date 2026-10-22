@@ -17,6 +17,7 @@ class UserForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')

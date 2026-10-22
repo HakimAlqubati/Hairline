@@ -20,6 +20,7 @@ class FounderStoryForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('title')

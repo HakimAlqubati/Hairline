@@ -20,6 +20,7 @@ class SalonWorkingHourForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('day_of_week')

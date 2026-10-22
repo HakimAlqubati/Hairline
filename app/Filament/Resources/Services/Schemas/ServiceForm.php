@@ -20,6 +20,7 @@ class ServiceForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.service_details'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
@@ -65,6 +66,7 @@ class ServiceForm
                     ]),
 
                 Section::make(__('admin.sections.pricing_and_duration'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('base_price')
@@ -97,6 +99,7 @@ class ServiceForm
                     ]),
 
                 Section::make(__('admin.sections.media'))
+                    ->columnSpanFull()
                     ->schema([
                         FileUpload::make('image_path')
                             ->label(__('admin.fields.image'))

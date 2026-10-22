@@ -18,6 +18,7 @@ class SpecialistShiftForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.work_schedule'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('specialist_id')

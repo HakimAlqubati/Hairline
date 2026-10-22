@@ -19,6 +19,7 @@ class SalonSettingForm
         return $schema
             ->components([
                 Section::make(__('admin.sections.general_information'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('name')
@@ -57,6 +58,7 @@ class SalonSettingForm
                     ]),
 
                 Section::make(__('admin.sections.contact_and_social'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('phone')
@@ -91,6 +93,7 @@ class SalonSettingForm
                     ]),
 
                 Section::make(__('admin.sections.location_and_tax'))
+                    ->columnSpanFull()
                     ->schema([
                         Grid::make(3)->schema([
                             TextInput::make('latitude')
