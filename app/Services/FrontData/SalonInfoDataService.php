@@ -197,8 +197,8 @@ class SalonInfoDataService
     {
         $setting = SalonSetting::first();
 
-        $address = $setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5';
-        $gmaps = $setting?->google_maps_url ?? 'https://maps.google.com/?q=Al+Maseef+Riyadh+Exit+5';
+        $address = $setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى';
+        $gmaps = $setting?->google_maps_url ?? 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps';
         $lat = (float) ($setting?->latitude ?? 24.7677);
         $lng = (float) ($setting?->longitude ?? 46.6896);
 

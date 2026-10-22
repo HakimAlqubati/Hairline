@@ -36,8 +36,8 @@ class SalonSetupSeeder extends Seeder
                     'en' => 'Delivered by certified specialists with world-class products in a royal ambiance.',
                 ],
                 'address' => [
-                    'ar' => 'الرياض - حي المصيف، مخرج 5',
-                    'en' => 'Riyadh - Al-Masyaf District, Exit 5',
+                    'ar' => 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى',
+                    'en' => 'Riyadh - Al-Masyaf District, Exit 5, Zuhair Bin Abi Sulma St',
                 ],
                 'logo_path' => '/images/logo.png',
                 'phone' => '0548857705',
@@ -48,7 +48,7 @@ class SalonSetupSeeder extends Seeder
                 'email' => 'info@hairlinesalon.sa',
                 'latitude' => 24.7677,
                 'longitude' => 46.6896,
-                'google_maps_url' => 'https://maps.google.com/?q=24.7677,46.6896',
+                'google_maps_url' => 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps',
                 'tax_number' => '300998877660003',
                 'vat_percentage' => 15.00,
                 'stats' => [

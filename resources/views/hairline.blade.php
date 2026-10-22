@@ -485,13 +485,13 @@
                             </div>
 
                             <!-- Clickable Map Frame -->
-                            <a href="{{ $location['google_maps_url'] ?? 'https://maps.google.com/?q=24.7677,46.6896' }}" 
+                            <a href="{{ (!empty($location['google_maps_url']) && !str_contains($location['google_maps_url'], '24.7677')) ? $location['google_maps_url'] : 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps' }}" 
                                target="_blank" 
                                rel="noopener noreferrer"
                                title="انقري لفتح الموقع في تطبيق الخرائط"
                                class="relative block w-full h-44 rounded-xl overflow-hidden border border-gold-soft shadow-xs group cursor-pointer">
                                 <iframe 
-                                    src="https://maps.google.com/maps?q={{ $location['coordinates']['lat'] ?? '24.7677' }},{{ $location['coordinates']['lng'] ?? '46.6896' }}&hl=ar&z=15&output=embed"
+                                    src="https://maps.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&hl=ar&z=16&output=embed"
                                     class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95" 
                                     loading="lazy" 
                                     allowfullscreen="" 
