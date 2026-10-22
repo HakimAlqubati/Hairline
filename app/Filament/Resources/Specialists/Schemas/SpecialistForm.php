@@ -55,10 +55,11 @@ class SpecialistForm
                 Section::make(__('admin.sections.general_information'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(3)->schema([
+                        Grid::make(2)->schema([
                             Toggle::make('is_home_specialist')
                                 ->label(__('admin.fields.is_home_specialist'))
-                                ->default(false),
+                                ->default(false)
+                                ->hidden(),
 
                             Toggle::make('is_active')
                                 ->label(__('admin.fields.is_active'))

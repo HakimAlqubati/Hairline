@@ -83,6 +83,11 @@ class ServiceForm
                             Toggle::make('is_featured')
                                 ->label(__('admin.fields.is_featured'))
                                 ->default(false),
+
+                            Toggle::make('is_home_available')
+                                ->label(__('admin.fields.is_home_available'))
+                                ->default(false)
+                                ->hidden(),
                         ]),
                     ]),
 

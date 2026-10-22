@@ -44,7 +44,8 @@ class SpecialistTable
                 IconColumn::make('is_home_specialist')
                     ->label(__('admin.fields.is_home_specialist'))
                     ->boolean()
-                    ->sortable(),
+                    ->sortable()
+                    ->hidden(),
 
                 IconColumn::make('is_active')
                     ->label(__('admin.fields.is_active'))
@@ -53,7 +54,8 @@ class SpecialistTable
             ])
             ->filters([
                 TernaryFilter::make('is_home_specialist')
-                    ->label(__('admin.fields.is_home_specialist')),
+                    ->label(__('admin.fields.is_home_specialist'))
+                    ->hidden(),
 
                 TernaryFilter::make('is_active')
                     ->label(__('admin.filters.active_status')),

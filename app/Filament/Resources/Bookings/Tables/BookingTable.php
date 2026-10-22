@@ -40,7 +40,8 @@ class BookingTable
                         'salon' => 'info',
                         'home' => 'warning',
                         default => 'gray',
-                    }),
+                    })
+                    ->hidden(),
 
                 TextColumn::make('booking_date')
                     ->label(__('admin.fields.booking_date'))
@@ -98,7 +99,8 @@ class BookingTable
                     ->options([
                         'salon' => __('admin.options.booking_type_salon'),
                         'home' => __('admin.options.booking_type_home'),
-                    ]),
+                    ])
+                    ->hidden(),
             ])
             ->recordActions([
                 ViewAction::make(),

@@ -22,7 +22,7 @@ class BookingForm
                 Section::make(__('admin.sections.booking_info'))
                     ->columnSpanFull()
                     ->schema([
-                        Grid::make(3)->schema([
+                        Grid::make(2)->schema([
                             TextInput::make('booking_number')
                                 ->label(__('admin.fields.booking_number'))
                                 ->default(fn () => 'HL-'.date('Ymd').'-'.strtoupper(bin2hex(random_bytes(2))))
@@ -43,7 +43,8 @@ class BookingForm
                                     'home' => __('admin.options.booking_type_home'),
                                 ])
                                 ->default('salon')
-                                ->required(),
+                                ->required()
+                                ->hidden(),
                         ]),
 
                         Grid::make(3)->schema([
@@ -65,7 +66,8 @@ class BookingForm
                             ->relationship('customerAddress', 'street_name')
                             ->searchable()
                             ->preload()
-                            ->nullable(),
+                            ->nullable()
+                            ->hidden(),
                     ]),
 
                 Section::make(__('admin.sections.financial_summary'))

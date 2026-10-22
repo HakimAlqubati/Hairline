@@ -130,6 +130,7 @@ return [
         'extra_duration_minutes' => 'Extra Duration (Minutes)',
         'custom_label' => 'Custom Label',
         'price_display_override' => 'Price Display Override',
+        'is_home_available' => 'Available for Home Service',
         'inclusions' => 'Inclusions',
         'icon' => 'Icon',
         'container_class' => 'Container CSS Class',

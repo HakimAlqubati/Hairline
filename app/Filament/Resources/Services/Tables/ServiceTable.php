@@ -55,6 +55,11 @@ class ServiceTable
                     ->label(__('admin.fields.is_active'))
                     ->boolean()
                     ->sortable(),
+
+                IconColumn::make('is_home_available')
+                    ->label(__('admin.fields.is_home_available'))
+                    ->boolean()
+                    ->hidden(),
             ])
             ->filters([
                 SelectFilter::make('category_id')
@@ -66,6 +71,10 @@ class ServiceTable
 
                 TernaryFilter::make('is_featured')
                     ->label(__('admin.filters.featured_status')),
+
+                TernaryFilter::make('is_home_available')
+                    ->label(__('admin.fields.is_home_available'))
+                    ->hidden(),
             ])
             ->recordActions([
                 EditAction::make(),
