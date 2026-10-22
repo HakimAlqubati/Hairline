@@ -25,7 +25,7 @@ class MembershipTierResource extends Resource
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.customers_loyalty');
+        return __('admin.nav.loyalty_program');
     }
 
     public static function getModelLabel(): string

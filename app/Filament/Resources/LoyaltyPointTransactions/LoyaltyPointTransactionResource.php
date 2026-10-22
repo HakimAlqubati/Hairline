@@ -20,11 +20,11 @@ class LoyaltyPointTransactionResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-gift';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 2;
 
     public static function getNavigationGroup(): ?string
     {
-        return __('admin.nav.customers_loyalty');
+        return __('admin.nav.loyalty_program');
     }
 
     public static function getModelLabel(): string
