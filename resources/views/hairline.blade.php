@@ -226,22 +226,10 @@
         // Saudi Mobile Regex: accepts 05XXXXXXXX, +9665XXXXXXXX, 009665XXXXXXXX, 9665XXXXXXXX, or 5XXXXXXXX
         const SAUDI_PHONE_REGEX = /^(?:\+966|00966|966|0)?5[0-9]{8}$/;
 
-        // Confirmed bookings backed by Database
+        // Logged-in customer & confirmed bookings backed directly by Database
+        let currentCustomer = {!! json_encode($currentCustomer ?? null, JSON_UNESCAPED_UNICODE) !!};
         const dbInitialBookings = {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!};
-        let confirmedBookings = Array.isArray(dbInitialBookings) && dbInitialBookings.length > 0
-            ? dbInitialBookings
-            : [
-                {
-                    id: "482",
-                    customerName: "سارة العتيبي",
-                    categoryTitle: "المعالجات الحارة",
-                    serviceName: "البروتين بالتمليس الحراري",
-                    specialistName: "الأخصائية نورة العتيبي",
-                    date: "الأحد القادم",
-                    time: "05:30 م",
-                    price: "750 ر.س"
-                }
-            ];
+        let confirmedBookings = Array.isArray(dbInitialBookings) ? dbInitialBookings : [];
 
         /* -------------------------------------------------------------------------- */
         /* HERO SLIDER LOGIC                                                          */
@@ -337,6 +325,7 @@
                 updateUrl('/about');
             }
             if (tabName === 'account') {
+                renderCustomerProfile();
                 renderMyBookings();
                 if (accountView) accountView.classList.remove('hidden');
                 updateUrl('/profile');
@@ -871,7 +860,7 @@
             // STEP 3: شاشة التأكيد النهائية (بعد التحقق من الجوال أو التسجيل عبر Google وحفظ الحجز في الداتابيز)
             else if (bookingState.step === 3 || bookingState.step === 4) {
                 const lastBooking = confirmedBookings[0];
-                const customerName = bookingState.confirmedCustomerName || lastBooking.customerName || "عميلتنا المميزة";
+                const customerName = bookingState.confirmedCustomerName || lastBooking?.customerName || currentCustomer?.name || "";
                 sheetTitle.textContent = "تم تأكيد حجزك بنجاح";
                 sheetSubtitle.textContent = "رقم الحجز: " + lastBooking.id;
                 sheetFooter.classList.add('hidden');
@@ -1299,22 +1288,22 @@
         function finalizeConfirmedBookingFromServer(data) {
             closePhoneVerificationModal();
 
-            const customerName = data.customer?.name || 'عميلتنا المميزة';
+            if (data.customer) {
+                currentCustomer = data.customer;
+            }
+
+            const customerName = data.customer?.name || currentCustomer?.name || '';
             bookingState.confirmedCustomerName = customerName;
             bookingState.confirmedCustomerEmail = data.customer?.email || '';
 
-            const savedBooking = data.booking || {
-                id: String(Math.floor(1000 + Math.random() * 9000)),
-                customerName: customerName,
-                categoryTitle: bookingState.selectedCategory.title,
-                serviceName: bookingState.selectedSubService.name,
-                specialistName: bookingState.selectedSpecialist.name,
-                date: bookingState.selectedDate,
-                time: bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0],
-                price: bookingState.selectedSubService.price
-            };
+            if (Array.isArray(data.customer_bookings)) {
+                confirmedBookings = data.customer_bookings;
+            } else if (data.booking) {
+                confirmedBookings.unshift(data.booking);
+            }
 
-            confirmedBookings.unshift(savedBooking);
+            renderCustomerProfile();
+            renderMyBookings();
             updateBookingBadge();
             bookingState.step = 3;
             renderBookingStep();
@@ -1325,12 +1314,12 @@
             const badge = document.getElementById('bookingCountBadge');
             if (badge) {
                 badge.textContent = confirmedBookings.length;
-                badge.classList.remove('hidden');
+                badge.classList.toggle('hidden', confirmedBookings.length === 0);
             }
             const desktopBadge = document.getElementById('desktopBookingCountBadge');
             if (desktopBadge) {
                 desktopBadge.textContent = confirmedBookings.length;
-                desktopBadge.classList.remove('hidden');
+                desktopBadge.classList.toggle('hidden', confirmedBookings.length === 0);
             }
         }
 
@@ -1340,6 +1329,199 @@
                 closeBottomSheet();
             } else {
                 openBookingFlow();
+            }
+        }
+
+        function renderCustomerProfile() {
+            const container = document.getElementById('customerProfileCardContainer');
+            if (!container) return;
+
+            if (!currentCustomer) {
+                container.innerHTML = `
+                    <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-14 h-14 rounded-full bg-sage-soft border border-gold-soft flex items-center justify-center text-gold-dark text-xl shrink-0">
+                                <i class="fa-regular fa-user"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-extrabold text-base text-sage-dark">ملفي الشخصي</h3>
+                                <p class="text-xs text-gray-500 mt-0.5">يتم تسجيل دخولكِ تلقائياً فور تأكيد أول حجز لكِ</p>
+                            </div>
+                        </div>
+                        <button onclick="openBookingFlow()"
+                                class="px-4 py-2.5 rounded-2xl bg-sage-dark text-white text-xs font-extrabold hover:bg-sage-deeper transition cursor-pointer shrink-0">
+                            احجزي موعدكِ الآن
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const avatarSrc = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name)}&background=211C18&color=C5A373&bold=true`;
+
+            container.innerHTML = `
+                <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 flex flex-wrap items-center justify-between gap-4">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <img src="${avatarSrc}"
+                             alt="${currentCustomer.name}"
+                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name)}&background=211C18&color=C5A373&bold=true';"
+                             class="w-15 h-15 rounded-full object-cover border-2 border-gold shadow-sm shrink-0"
+                             style="width: 60px; height: 60px;" />
+                        <div class="min-w-0">
+                            <h3 class="font-extrabold text-base sm:text-lg text-sage-dark truncate">${currentCustomer.name}</h3>
+                            <p class="text-xs text-gray-500 font-semibold mt-0.5 flex items-center gap-1.5" dir="ltr">
+                                <i class="fa-solid fa-phone text-[10px] text-gold-dark"></i>
+                                <span>${currentCustomer.phone || ''}</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <button type="button"
+                            onclick="openEditProfileModal()"
+                            class="px-4 py-2.5 rounded-2xl bg-surface hover:bg-sage-dark text-sage-dark hover:text-white border border-gold-soft/80 hover:border-sage-dark text-xs font-extrabold transition-all duration-200 flex items-center gap-2 shadow-2xs cursor-pointer shrink-0">
+                        <i class="fa-regular fa-pen-to-square text-gold-dark"></i>
+                        <span>تعديل الملف</span>
+                    </button>
+                </div>
+            `;
+        }
+
+        function openEditProfileModal() {
+            if (!currentCustomer) return;
+
+            const modal = document.getElementById('editProfileModal');
+            const card = document.getElementById('editProfileCard');
+            const nameInput = document.getElementById('editProfileNameInput');
+            const phoneInput = document.getElementById('editProfilePhoneInput');
+            const avatarPreview = document.getElementById('editProfileAvatarPreview');
+            const avatarInput = document.getElementById('editProfileAvatarInput');
+            const errorEl = document.getElementById('editProfileError');
+
+            if (!modal || !card) return;
+
+            if (nameInput) nameInput.value = currentCustomer.name || '';
+            if (phoneInput) phoneInput.value = currentCustomer.phone || '';
+            if (avatarInput) avatarInput.value = '';
+            if (avatarPreview) {
+                avatarPreview.src = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name)}&background=211C18&color=C5A373&bold=true`;
+            }
+            if (errorEl) errorEl.classList.add('hidden');
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            requestAnimationFrame(() => {
+                modal.classList.remove('opacity-0');
+                card.classList.remove('scale-90', 'translate-y-4');
+                card.classList.add('scale-100', 'translate-y-0');
+                if (nameInput) nameInput.focus();
+            });
+        }
+
+        function closeEditProfileModal() {
+            const modal = document.getElementById('editProfileModal');
+            const card = document.getElementById('editProfileCard');
+            if (!modal || !card) return;
+
+            modal.classList.add('opacity-0');
+            card.classList.remove('scale-100', 'translate-y-0');
+            card.classList.add('scale-90', 'translate-y-4');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }, 280);
+        }
+
+        function previewProfileAvatar(inputEl) {
+            if (!inputEl.files || !inputEl.files[0]) return;
+            const file = inputEl.files[0];
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const preview = document.getElementById('editProfileAvatarPreview');
+                if (preview && e.target?.result) {
+                    preview.src = e.target.result;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitEditProfile(event) {
+            if (event) event.preventDefault();
+            if (!currentCustomer) return;
+
+            const nameInput = document.getElementById('editProfileNameInput');
+            const phoneInput = document.getElementById('editProfilePhoneInput');
+            const avatarInput = document.getElementById('editProfileAvatarInput');
+            const errorEl = document.getElementById('editProfileError');
+            const errorText = document.getElementById('editProfileErrorText');
+            const submitBtn = document.getElementById('editProfileSubmitBtn');
+
+            const newName = (nameInput ? nameInput.value : '').trim();
+            const rawPhone = normalizeDigitsJs(phoneInput ? phoneInput.value : '');
+
+            if (newName.length < 2) {
+                if (errorText) errorText.textContent = 'يرجى إدخال الاسم الكامل (حرفين على الأقل).';
+                if (errorEl) errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (!SAUDI_PHONE_REGEX.test(rawPhone)) {
+                if (errorText) errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).';
+                if (errorEl) errorEl.classList.remove('hidden');
+                return;
+            }
+
+            if (errorEl) errorEl.classList.add('hidden');
+
+            const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري الحفظ...</span>`;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                const formData = new FormData();
+                formData.append('customer_id', String(currentCustomer.id));
+                formData.append('name', newName);
+                formData.append('phone', rawPhone);
+                if (avatarInput && avatarInput.files && avatarInput.files[0]) {
+                    formData.append('avatar', avatarInput.files[0]);
+                }
+
+                const response = await fetch("{{ route('profile.update') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (!response.ok || !data.success) {
+                    if (errorText) errorText.textContent = data.message || 'تعذر حفظ التعديلات، يرجى المحاولة مرة أخرى.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    return;
+                }
+
+                currentCustomer = data.customer;
+                if (Array.isArray(data.customer_bookings)) {
+                    confirmedBookings = data.customer_bookings;
+                }
+
+                renderCustomerProfile();
+                renderMyBookings();
+                closeEditProfileModal();
+                openToast('تم تحديث ملفكِ الشخصي بنجاح ✨');
+            } catch (err) {
+                if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                if (errorEl) errorEl.classList.remove('hidden');
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalBtnHtml;
+                }
             }
         }
 
@@ -1577,6 +1759,7 @@
         // Initialize on Window Load
         window.onload = function () {
             startHeroSlider();
+            renderCustomerProfile();
             updateBookingBadge();
             renderMyBookings();
             initServicesSearch();

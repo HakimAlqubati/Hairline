@@ -50,15 +50,6 @@ class SpecialistSeeder extends Seeder
                 'bio' => 'تمتع بخبرة واسعة في العناية بالأظافر والمساج ، حاصلة على شهادات دولية متخصصة في تقنيات المساج.',
                 'is_home' => true,
             ],
-            'sp_najla' => [
-                'name_ar' => 'نجلاء العبيد',
-                'name_en' => 'Najla Alobaid',
-                'role' => 'ميك أب أرتيست',
-                'experience' => 'أكثر من 6 سنوات من الخبرة',
-                'avatar' => 'https://ui-avatars.com/api/?name=Najla+Alobaid&background=211C18&color=C29E6D&bold=true&size=150',
-                'bio' => 'متخصصة في المكياج وتتميز بلمساتها الاحترافية التي تبرز جمال الملامح بأسلوب مناسب لكل مناسبة.',
-                'is_home' => false,
-            ],
         ];
 
         $specialistModels = [];

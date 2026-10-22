@@ -20,3 +20,4 @@ Route::post('/booking/verify-phone', [BookingController::class, 'verifyPhone'])-
 Route::post('/booking/google-register', [BookingController::class, 'registerWithGoogle'])->name('booking.google_register');
 Route::get('/auth/google/redirect', [BookingController::class, 'redirectToGoogle'])->name('booking.google_redirect');
 Route::get('/auth/google/callback', [BookingController::class, 'handleGoogleCallback'])->name('booking.google_callback');
+Route::post('/profile/update', [BookingController::class, 'updateProfile'])->name('profile.update');

@@ -18,6 +18,7 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class BookingController extends Controller
 {
@@ -28,7 +29,7 @@ class BookingController extends Controller
 
     /**
      * Step 1 of verification: Validate Saudi phone number, check if customer exists in DB,
-     * and if found, immediately create the booking in the database.
+     * and if found, log customer in and immediately create the booking in the database.
      */
     public function verifyPhone(Request $request): JsonResponse
     {
@@ -73,6 +74,8 @@ class BookingController extends Controller
             ]);
         }
 
+        session(['logged_in_customer_id' => $customer->id]);
+
         $bookingPayload = $this->createBookingForCustomer(
             customer: $customer,
             serviceCode: (string) $request->input('service_id'),
@@ -86,14 +89,9 @@ class BookingController extends Controller
             'exists' => true,
             'status' => 'confirmed',
             'message' => "تم تأكيد الحجز بنجاح باسم {$customer->name}",
-            'customer' => [
-                'id' => $customer->id,
-                'customer_code' => $customer->customer_code,
-                'name' => $customer->name,
-                'phone' => $customer->phone,
-                'email' => $customer->email,
-            ],
+            'customer' => $this->formatCustomerPayload($customer),
             'booking' => $bookingPayload,
+            'customer_bookings' => $this->getCustomerBookingsPayload($customer),
         ]);
     }
 
@@ -133,7 +131,7 @@ class BookingController extends Controller
     }
 
     /**
-     * Handle Google OAuth 2.0 callback, create customer & booking in DB, and notify the opener window.
+     * Handle Google OAuth 2.0 callback, create customer & booking in DB, log customer in, and notify the opener window.
      */
     public function handleGoogleCallback(Request $request): Response
     {
@@ -168,6 +166,8 @@ class BookingController extends Controller
 
         $customer = $this->findOrCreateGoogleCustomer($normalizedPhone, $email, $ownerName, $avatarUrl);
 
+        session(['logged_in_customer_id' => $customer->id]);
+
         $bookingPayload = $this->createBookingForCustomer(
             customer: $customer,
             serviceCode: (string) ($bookingContext['service_id'] ?? ''),
@@ -184,27 +184,21 @@ class BookingController extends Controller
             'registered_via_google' => true,
             'status' => 'confirmed',
             'message' => "تم التسجيل عبر Google وتأكيد الحجز باسم {$customer->name}",
-            'customer' => [
-                'id' => $customer->id,
-                'customer_code' => $customer->customer_code,
-                'name' => $customer->name,
-                'phone' => $customer->phone,
-                'email' => $customer->email,
-            ],
+            'customer' => $this->formatCustomerPayload($customer),
             'booking' => $bookingPayload,
+            'customer_bookings' => $this->getCustomerBookingsPayload($customer),
         ]);
     }
 
     /**
-     * Step 2 (AJAX): Register new customer via Google (using OAuth code, access_token, or Google profile)
-     * and immediately create the booking in the database.
+     * Step 2 (AJAX): Register new customer via Google (using OAuth code, access_token, or Google profile),
+     * log customer in, and immediately create the booking in the database.
      */
     public function registerWithGoogle(Request $request): JsonResponse
     {
         $rawPhone = $this->sanitizeDigits((string) $request->input('phone', ''));
         $request->merge(['phone' => $rawPhone]);
 
-        // If a Google OAuth authorization code or access_token is sent from Google Identity Services popup
         $oauthCode = trim((string) $request->input('code', ''));
         $accessToken = trim((string) $request->input('access_token', ''));
 
@@ -259,7 +253,6 @@ class BookingController extends Controller
         $providedName = trim((string) $request->input('name', ''));
         $avatarUrl = $request->input('avatar_url');
 
-        // Derive owner name from email if not explicitly provided
         $ownerName = $providedName !== ''
             ? $providedName
             : $this->extractNameFromEmail($email);
@@ -270,6 +263,8 @@ class BookingController extends Controller
             ownerName: $ownerName,
             avatarUrl: is_string($avatarUrl) ? $avatarUrl : null
         );
+
+        session(['logged_in_customer_id' => $customer->id]);
 
         $bookingPayload = $this->createBookingForCustomer(
             customer: $customer,
@@ -285,15 +280,140 @@ class BookingController extends Controller
             'registered_via_google' => true,
             'status' => 'confirmed',
             'message' => "تم التسجيل عبر Google وتأكيد الحجز باسم {$customer->name}",
-            'customer' => [
-                'id' => $customer->id,
-                'customer_code' => $customer->customer_code,
-                'name' => $customer->name,
-                'phone' => $customer->phone,
-                'email' => $customer->email,
-            ],
+            'customer' => $this->formatCustomerPayload($customer),
             'booking' => $bookingPayload,
+            'customer_bookings' => $this->getCustomerBookingsPayload($customer),
         ]);
+    }
+
+    /**
+     * Update the logged-in customer's profile (name, Saudi phone number, and optional avatar image).
+     */
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $customerId = session('logged_in_customer_id') ?? $request->input('customer_id');
+        $customer = $customerId ? Customer::find($customerId) : null;
+
+        if (! $customer) {
+            return response()->json([
+                'success' => false,
+                'status' => 'unauthenticated',
+                'message' => 'يرجى تسجيل الدخول أو إتمام حجز أولاً لتعديل الملف الشخصي.',
+            ], 401);
+        }
+
+        $rawPhone = $this->sanitizeDigits((string) $request->input('phone', ''));
+        $normalizedPhone = $this->normalizeSaudiPhone($rawPhone);
+        $request->merge(['phone' => $normalizedPhone]);
+
+        $validator = Validator::make($request->all(), [
+            'name' => ['required', 'string', 'min:2', 'max:255'],
+            'phone' => [
+                'required',
+                'string',
+                'regex:'.self::SAUDI_PHONE_REGEX,
+                Rule::unique('customers', 'phone')->ignore($customer->id),
+            ],
+            'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:4096'],
+        ], [
+            'name.required' => 'يرجى إدخال الاسم الكامل.',
+            'name.min' => 'يجب أن يتكون الاسم من حرفين على الأقل.',
+            'phone.required' => 'يرجى إدخال رقم الجوال السعودي.',
+            'phone.regex' => 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).',
+            'phone.unique' => 'رقم الجوال هذا مسجل بالفعل لحساب آخر.',
+            'avatar.image' => 'يرجى اختيار ملف صورة صالح.',
+            'avatar.max' => 'حجم الصورة يجب ألا يتجاوز 4 ميجابايت.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $avatarUrl = $customer->avatar_url;
+        if ($request->hasFile('avatar')) {
+            $path = $request->file('avatar')->store('customers', 'public');
+            $avatarUrl = asset('storage/'.$path);
+        }
+
+        $customer->update([
+            'name' => trim((string) $request->input('name')),
+            'phone' => $normalizedPhone,
+            'avatar_url' => $avatarUrl,
+        ]);
+
+        session(['logged_in_customer_id' => $customer->id]);
+
+        return response()->json([
+            'success' => true,
+            'status' => 'updated',
+            'message' => 'تم تحديث بيانات ملفكِ الشخصي بنجاح.',
+            'customer' => $this->formatCustomerPayload($customer->fresh()),
+            'customer_bookings' => $this->getCustomerBookingsPayload($customer->fresh()),
+        ]);
+    }
+
+    /**
+     * Format Customer model into frontend profile array.
+     *
+     * @return array{id: int, customer_code: string, name: string, phone: string, email: ?string, avatar_url: string}
+     */
+    private function formatCustomerPayload(Customer $customer): array
+    {
+        return [
+            'id' => $customer->id,
+            'customer_code' => $customer->customer_code,
+            'name' => $customer->name,
+            'phone' => $customer->phone,
+            'email' => $customer->email,
+            'avatar_url' => $customer->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($customer->name).'&background=211C18&color=C5A373&bold=true',
+        ];
+    }
+
+    /**
+     * Return all bookings belonging to the given customer.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function getCustomerBookingsPayload(Customer $customer): array
+    {
+        return Booking::with(['customer', 'items.service.category', 'items.specialist'])
+            ->where('customer_id', $customer->id)
+            ->whereIn('status', ['confirmed', 'pending', 'in_progress', 'completed'])
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get()
+            ->map(function (Booking $booking) use ($customer): array {
+                $firstItem = $booking->items->first();
+                $service = $firstItem?->service;
+                $specialist = $firstItem?->specialist;
+
+                $startTimeFormatted = '05:30 م';
+                if ($booking->overall_start_time) {
+                    $parsedTime = Carbon::parse($booking->overall_start_time);
+                    $startTimeFormatted = $parsedTime->format('h:i').($parsedTime->format('A') === 'AM' ? ' ص' : ' م');
+                }
+
+                return [
+                    'id' => $booking->booking_number,
+                    'db_id' => $booking->id,
+                    'customerName' => $customer->name,
+                    'customerPhone' => $customer->phone,
+                    'customerEmail' => $customer->email,
+                    'categoryTitle' => $service?->category?->getTranslation('name', 'ar') ?? '',
+                    'serviceName' => $service?->getTranslation('name', 'ar') ?? '',
+                    'specialistName' => $specialist ? $specialist->getTranslation('name', 'ar') : '',
+                    'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : '',
+                    'time' => $startTimeFormatted,
+                    'price' => ((int) $booking->total_amount).' ر.س',
+                ];
+            })
+            ->values()
+            ->all();
     }
 
     /**

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Customer;
 use App\Services\FrontData\AboutUsDataService;
 use App\Services\FrontData\CatalogDataService;
 use App\Services\FrontData\CatalogMenuDataService;
@@ -27,38 +28,56 @@ class HairlineController extends Controller
     {
         $identity = $this->salonInfo->getSalonIdentity();
 
-        $initialBookings = Booking::with(['customer', 'items.service.category', 'items.specialist'])
-            ->whereIn('status', ['confirmed', 'pending', 'in_progress', 'completed'])
-            ->orderByDesc('id')
-            ->limit(20)
-            ->get()
-            ->map(function (Booking $booking): array {
-                $firstItem = $booking->items->first();
-                $service = $firstItem?->service;
-                $specialist = $firstItem?->specialist;
+        $loggedInCustomerId = session('logged_in_customer_id');
+        $customerModel = $loggedInCustomerId ? Customer::find($loggedInCustomerId) : null;
 
-                $startTimeFormatted = '05:30 م';
-                if ($booking->overall_start_time) {
-                    $parsedTime = Carbon::parse($booking->overall_start_time);
-                    $startTimeFormatted = $parsedTime->format('h:i').($parsedTime->format('A') === 'AM' ? ' ص' : ' م');
-                }
+        $currentCustomer = null;
+        $initialBookings = [];
 
-                return [
-                    'id' => $booking->booking_number,
-                    'db_id' => $booking->id,
-                    'customerName' => $booking->customer?->name ?? 'عميلة هيرلاين',
-                    'customerPhone' => $booking->customer?->phone ?? '',
-                    'customerEmail' => $booking->customer?->email,
-                    'categoryTitle' => $service?->category?->getTranslation('name', 'ar') ?? 'المعالجات الحارة',
-                    'serviceName' => $service?->getTranslation('name', 'ar') ?? 'البروتين بالتمليس الحراري',
-                    'specialistName' => $specialist ? $specialist->getTranslation('name', 'ar') : 'الأخصائية نورة العتيبي',
-                    'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : 'الأحد القادم',
-                    'time' => $startTimeFormatted,
-                    'price' => ((int) $booking->total_amount).' ر.س',
-                ];
-            })
-            ->values()
-            ->all();
+        if ($customerModel) {
+            $currentCustomer = [
+                'id' => $customerModel->id,
+                'customer_code' => $customerModel->customer_code,
+                'name' => $customerModel->name,
+                'phone' => $customerModel->phone,
+                'email' => $customerModel->email,
+                'avatar_url' => $customerModel->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($customerModel->name).'&background=211C18&color=C5A373&bold=true',
+            ];
+
+            $initialBookings = Booking::with(['customer', 'items.service.category', 'items.specialist'])
+                ->where('customer_id', $customerModel->id)
+                ->whereIn('status', ['confirmed', 'pending', 'in_progress', 'completed'])
+                ->orderByDesc('id')
+                ->limit(20)
+                ->get()
+                ->map(function (Booking $booking): array {
+                    $firstItem = $booking->items->first();
+                    $service = $firstItem?->service;
+                    $specialist = $firstItem?->specialist;
+
+                    $startTimeFormatted = '05:30 م';
+                    if ($booking->overall_start_time) {
+                        $parsedTime = Carbon::parse($booking->overall_start_time);
+                        $startTimeFormatted = $parsedTime->format('h:i').($parsedTime->format('A') === 'AM' ? ' ص' : ' م');
+                    }
+
+                    return [
+                        'id' => $booking->booking_number,
+                        'db_id' => $booking->id,
+                        'customerName' => $booking->customer?->name ?? '',
+                        'customerPhone' => $booking->customer?->phone ?? '',
+                        'customerEmail' => $booking->customer?->email,
+                        'categoryTitle' => $service?->category?->getTranslation('name', 'ar') ?? '',
+                        'serviceName' => $service?->getTranslation('name', 'ar') ?? '',
+                        'specialistName' => $specialist ? $specialist->getTranslation('name', 'ar') : '',
+                        'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : '',
+                        'time' => $startTimeFormatted,
+                        'price' => ((int) $booking->total_amount).' ر.س',
+                    ];
+                })
+                ->values()
+                ->all();
+        }
 
         return view('hairline', [
             'initialView' => $initialView,
@@ -73,6 +92,7 @@ class HairlineController extends Controller
             'bookableCategories' => $this->catalog->getBookableCategoriesWithSpecialists(),
             'specialistsData' => $this->specialists->getAllSpecialists(),
             'menuPages' => $this->catalogMenu->getMenuPages(),
+            'currentCustomer' => $currentCustomer,
             'initialBookings' => $initialBookings,
         ]);
     }

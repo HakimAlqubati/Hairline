@@ -13,7 +13,9 @@ use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\CustomerAccountDataService;
 use App\Services\FrontData\HomeServiceDataService;
 use App\Services\FrontData\SalonInfoDataService;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 
 describe('Customer-Facing Pages', function () {
     test('home page returns 200 and renders brand identity', function () {
@@ -79,14 +81,63 @@ describe('Customer-Facing Pages', function () {
         $response->assertDontSee('موعدكِ مؤكد يا جميلة!');
     });
 
-    test('profile page returns 200 and shows member profile and bookings', function () {
+    test('profile page returns 200 without fake data and renders edit profile modal', function () {
         $response = $this->get('/profile');
 
         $response->assertStatus(200);
-        $response->assertSee('أهلاً بكِ، عميلتنا المميزة');
-        $response->assertSee('VIP');
-        $response->assertSee('عضوية هيرلاين الذهبية');
+        $response->assertDontSee('عميلتنا المميزة');
+        $response->assertDontSee('عضوية هيرلاين الذهبية');
+        $response->assertDontSee('نقطة ولاء');
         $response->assertSee('حجوزاتي المؤكدة');
+        $response->assertSee('id="editProfileModal"', false);
+    });
+
+    test('booking logs customer in automatically and allows updating name, phone, and avatar in profile popup', function () {
+        Storage::fake('public');
+
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $service = Service::firstOrFail();
+        $specialist = Specialist::firstOrFail();
+
+        $bookingResponse = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
+        ]);
+
+        $bookingResponse->assertStatus(200)
+            ->assertSessionHas('logged_in_customer_id', $customer->id);
+
+        $profilePage = $this->get('/profile');
+        $profilePage->assertStatus(200)
+            ->assertSee('سارة العتيبي')
+            ->assertSee('تعديل الملف');
+
+        $avatarFile = UploadedFile::fake()->image('avatar.jpg', 200, 200);
+
+        $updateResponse = $this->postJson(route('profile.update'), [
+            'customer_id' => $customer->id,
+            'name' => 'سارة آل عتيبي',
+            'phone' => '+966559998887',
+            'avatar' => $avatarFile,
+        ]);
+
+        $updateResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'customer' => [
+                    'id' => $customer->id,
+                    'name' => 'سارة آل عتيبي',
+                    'phone' => '0559998887',
+                ],
+            ]);
+
+        $customer->refresh();
+        expect($customer->name)->toBe('سارة آل عتيبي');
+        expect($customer->phone)->toBe('0559998887');
+        expect($customer->avatar_url)->toContain('storage/customers/');
     });
 
     test('verifying an existing Saudi phone number immediately confirms and saves booking in database', function () {
