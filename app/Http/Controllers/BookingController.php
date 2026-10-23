@@ -10,6 +10,10 @@ use App\Models\Customer;
 use App\Models\MembershipTier;
 use App\Models\Service;
 use App\Models\Specialist;
+use App\Rules\AvailableSpecialistSlot;
+use App\Rules\SaudiPhoneNumber;
+use App\Rules\WithinSpecialistShift;
+use App\Services\Booking\SpecialistAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -23,30 +27,25 @@ use Illuminate\Validation\Rule;
 class BookingController extends Controller
 {
     /**
-     * Regex pattern for valid Saudi mobile numbers (e.g., 05XXXXXXXX, +9665XXXXXXXX, 009665XXXXXXXX, 5XXXXXXXX).
+     * Regex pattern for valid Saudi mobile numbers (kept for reference compatibility).
      */
-    public const SAUDI_PHONE_REGEX = '/^(?:\+966|00966|966|0)?5[0-9]{8}$/';
+    public const SAUDI_PHONE_REGEX = SpecialistAvailabilityService::SAUDI_PHONE_REGEX;
+
+    public function __construct(
+        private readonly SpecialistAvailabilityService $availabilityService
+    ) {}
 
     /**
-     * Step 1 of verification: Validate Saudi phone number, check if customer exists in DB,
-     * and if found, log customer in and immediately create the booking in the database.
+     * Return shift-based time slots and real-time database booking conflicts for a specialist and date.
      */
-    public function verifyPhone(Request $request): JsonResponse
+    public function getAvailability(Request $request): JsonResponse
     {
-        $rawPhone = $this->sanitizeDigits((string) $request->input('phone', ''));
-        $request->merge(['phone' => $rawPhone]);
-
         $validator = Validator::make($request->all(), [
-            'phone' => ['required', 'string', 'regex:'.self::SAUDI_PHONE_REGEX],
-            'service_id' => ['required', 'string'],
             'specialist_id' => ['required', 'string'],
+            'service_id' => ['nullable', 'string'],
             'booking_date' => ['nullable', 'string'],
-            'booking_time' => ['nullable', 'string'],
         ], [
-            'phone.required' => 'يرجى إدخال رقم الجوال للمتابعة.',
-            'phone.regex' => 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).',
-            'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
-            'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'specialist_id.required' => 'يرجى تحديد الأخصائية لعرض الأوقات المتاحة.',
         ]);
 
         if ($validator->fails()) {
@@ -58,7 +57,72 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $normalizedPhone = $this->normalizeSaudiPhone($rawPhone);
+        $specialist = $this->availabilityService->resolveSpecialist((string) $request->query('specialist_id'));
+        if (! $specialist) {
+            return response()->json([
+                'success' => false,
+                'status' => 'not_found',
+                'message' => 'الأخصائية المختارة غير متاحة حالياً.',
+            ], 404);
+        }
+
+        $service = $this->availabilityService->resolveService((string) $request->query('service_id', ''));
+        $durationMinutes = $this->availabilityService->resolveDurationMinutes($specialist, $service);
+        $date = $this->availabilityService->resolveBookingDate((string) $request->query('booking_date', ''));
+
+        $availability = $this->availabilityService->getAvailabilityForSpecialistDate(
+            specialist: $specialist,
+            date: $date,
+            durationMinutes: $durationMinutes
+        );
+
+        return response()->json([
+            'success' => true,
+            ...$availability,
+        ]);
+    }
+
+    /**
+     * Step 1 of verification: Validate Saudi phone number, shift hours, and slot conflict,
+     * check if customer exists in DB, and if found, log customer in and immediately create the booking.
+     */
+    public function verifyPhone(Request $request): JsonResponse
+    {
+        $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
+        $request->merge([
+            'phone' => $rawPhone,
+            'booking_date' => (string) $request->input('booking_date', 'غداً - السبت'),
+            'booking_time' => (string) $request->input('booking_time', '05:30 م'),
+        ]);
+
+        $validator = Validator::make($request->all(), [
+            'phone' => ['required', 'string', new SaudiPhoneNumber($this->availabilityService)],
+            'service_id' => ['required', 'string'],
+            'specialist_id' => ['required', 'string'],
+            'booking_date' => ['nullable', 'string'],
+            'booking_time' => [
+                'required',
+                'string',
+                new WithinSpecialistShift(availabilityService: $this->availabilityService),
+                new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
+            ],
+        ], [
+            'phone.required' => 'يرجى إدخال رقم الجوال للمتابعة.',
+            'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
+            'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
 
         $customer = Customer::where('phone', $normalizedPhone)
             ->orWhere('phone', $rawPhone)
@@ -100,8 +164,8 @@ class BookingController extends Controller
      */
     public function redirectToGoogle(Request $request): RedirectResponse
     {
-        $rawPhone = $this->sanitizeDigits((string) $request->query('phone', ''));
-        $normalizedPhone = $this->normalizeSaudiPhone($rawPhone);
+        $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->query('phone', ''));
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
 
         $bookingContext = [
             'phone' => $normalizedPhone,
@@ -131,7 +195,8 @@ class BookingController extends Controller
     }
 
     /**
-     * Handle Google OAuth 2.0 callback, create customer & booking in DB, log customer in, and notify the opener window.
+     * Handle Google OAuth 2.0 callback, validate shift & slot availability, create customer & booking in DB,
+     * log customer in, and notify the opener window.
      */
     public function handleGoogleCallback(Request $request): Response
     {
@@ -159,7 +224,31 @@ class BookingController extends Controller
             ]);
         }
 
-        $normalizedPhone = $this->normalizeSaudiPhone((string) ($bookingContext['phone'] ?? '0550000000'));
+        $contextData = [
+            'service_id' => (string) ($bookingContext['service_id'] ?? ''),
+            'specialist_id' => (string) ($bookingContext['specialist_id'] ?? ''),
+            'booking_date' => (string) ($bookingContext['booking_date'] ?? 'غداً - السبت'),
+            'booking_time' => (string) ($bookingContext['booking_time'] ?? '05:30 م'),
+        ];
+
+        $slotValidator = Validator::make($contextData, [
+            'booking_time' => [
+                'required',
+                'string',
+                new WithinSpecialistShift(availabilityService: $this->availabilityService),
+                new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
+            ],
+        ]);
+
+        if ($slotValidator->fails()) {
+            return $this->renderPopupCallbackScript([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $slotValidator->errors()->first(),
+            ]);
+        }
+
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone((string) ($bookingContext['phone'] ?? '0550000000'));
         $email = $googleUser['email'];
         $ownerName = $googleUser['name'] !== '' ? $googleUser['name'] : $this->extractNameFromEmail($email);
         $avatarUrl = $googleUser['picture'] ?? null;
@@ -170,10 +259,10 @@ class BookingController extends Controller
 
         $bookingPayload = $this->createBookingForCustomer(
             customer: $customer,
-            serviceCode: (string) ($bookingContext['service_id'] ?? ''),
-            specialistSlug: (string) ($bookingContext['specialist_id'] ?? ''),
-            dateLabel: (string) ($bookingContext['booking_date'] ?? 'غداً - السبت'),
-            timeSlot: (string) ($bookingContext['booking_time'] ?? '05:30 م')
+            serviceCode: $contextData['service_id'],
+            specialistSlug: $contextData['specialist_id'],
+            dateLabel: $contextData['booking_date'],
+            timeSlot: $contextData['booking_time']
         );
 
         session()->forget('pending_google_booking');
@@ -192,12 +281,16 @@ class BookingController extends Controller
 
     /**
      * Step 2 (AJAX): Register new customer via Google (using OAuth code, access_token, or Google profile),
-     * log customer in, and immediately create the booking in the database.
+     * validate shift and slot conflict via Rule classes, log customer in, and create the booking.
      */
     public function registerWithGoogle(Request $request): JsonResponse
     {
-        $rawPhone = $this->sanitizeDigits((string) $request->input('phone', ''));
-        $request->merge(['phone' => $rawPhone]);
+        $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
+        $request->merge([
+            'phone' => $rawPhone,
+            'booking_date' => (string) $request->input('booking_date', 'غداً - السبت'),
+            'booking_time' => (string) $request->input('booking_time', '05:30 م'),
+        ]);
 
         $oauthCode = trim((string) $request->input('code', ''));
         $accessToken = trim((string) $request->input('access_token', ''));
@@ -223,20 +316,25 @@ class BookingController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'phone' => ['required', 'string', 'regex:'.self::SAUDI_PHONE_REGEX],
+            'phone' => ['required', 'string', new SaudiPhoneNumber($this->availabilityService)],
             'email' => ['required', 'string', 'email', 'max:255'],
             'name' => ['nullable', 'string', 'max:255'],
             'service_id' => ['required', 'string'],
             'specialist_id' => ['required', 'string'],
             'booking_date' => ['nullable', 'string'],
-            'booking_time' => ['nullable', 'string'],
+            'booking_time' => [
+                'required',
+                'string',
+                new WithinSpecialistShift(availabilityService: $this->availabilityService),
+                new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
+            ],
         ], [
             'phone.required' => 'يرجى إدخال رقم الجوال السعودي.',
-            'phone.regex' => 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).',
             'email.required' => 'تعذر الحصول على البريد الإلكتروني من حساب Google.',
             'email.email' => 'يرجى التأكد من صحة البريد الإلكتروني لحساب Google.',
             'service_id.required' => 'يرجى اختيار الخدمة المطلوبة.',
             'specialist_id.required' => 'يرجى اختيار الأخصائية.',
+            'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
         ]);
 
         if ($validator->fails()) {
@@ -248,7 +346,7 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $normalizedPhone = $this->normalizeSaudiPhone($rawPhone);
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
         $email = trim((string) $request->input('email'));
         $providedName = trim((string) $request->input('name', ''));
         $avatarUrl = $request->input('avatar_url');
@@ -302,8 +400,8 @@ class BookingController extends Controller
             ], 401);
         }
 
-        $rawPhone = $this->sanitizeDigits((string) $request->input('phone', ''));
-        $normalizedPhone = $this->normalizeSaudiPhone($rawPhone);
+        $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
         $request->merge(['phone' => $normalizedPhone]);
 
         $validator = Validator::make($request->all(), [
@@ -311,7 +409,7 @@ class BookingController extends Controller
             'phone' => [
                 'required',
                 'string',
-                'regex:'.self::SAUDI_PHONE_REGEX,
+                new SaudiPhoneNumber($this->availabilityService),
                 Rule::unique('customers', 'phone')->ignore($customer->id),
             ],
             'avatar' => ['nullable', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:4096'],
@@ -319,7 +417,6 @@ class BookingController extends Controller
             'name.required' => 'يرجى إدخال الاسم الكامل.',
             'name.min' => 'يجب أن يتكون الاسم من حرفين على الأقل.',
             'phone.required' => 'يرجى إدخال رقم الجوال السعودي.',
-            'phone.regex' => 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).',
             'phone.unique' => 'رقم الجوال هذا مسجل بالفعل لحساب آخر.',
             'avatar.image' => 'يرجى اختيار ملف صورة صالح.',
             'avatar.max' => 'حجم الصورة يجب ألا يتجاوز 4 ميجابايت.',
@@ -590,20 +687,16 @@ HTML;
         string $dateLabel,
         string $timeSlot
     ): array {
-        $service = Service::with('category')->where('code', $serviceCode)->first()
-            ?? Service::with('category')->where('id', $serviceCode)->first()
+        $service = $this->availabilityService->resolveService($serviceCode)
             ?? Service::with('category')->firstOrFail();
 
-        $specialist = Specialist::where('slug', $specialistSlug)->first()
-            ?? Specialist::where('id', $specialistSlug)->first()
+        $specialist = $this->availabilityService->resolveSpecialist($specialistSlug)
             ?? Specialist::firstOrFail();
 
-        $bookingDate = $this->resolveBookingDate($dateLabel);
-        $startTime24 = $this->parseTimeSlotTo24Hour($timeSlot);
-        $durationMinutes = max(15, (int) ($service->duration_minutes ?: 60));
-        $endTime24 = Carbon::createFromFormat('H:i:s', $startTime24)
-            ->addMinutes($durationMinutes)
-            ->format('H:i:s');
+        $bookingDate = $this->availabilityService->resolveBookingDate($dateLabel);
+        $startTime24 = $this->availabilityService->parseTimeTo24Hour($timeSlot) ?? '17:30:00';
+        $durationMinutes = $this->availabilityService->resolveDurationMinutes($specialist, $service);
+        $endTime24 = $this->availabilityService->calculateEndTime24($startTime24, $durationMinutes);
 
         $price = (float) $service->base_price;
         $vatAmount = round($price * 15 / 115, 2);
@@ -683,37 +776,6 @@ HTML;
     }
 
     /**
-     * Convert Eastern Arabic numerals and strip whitespace/hyphens.
-     */
-    private function sanitizeDigits(string $input): string
-    {
-        $eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-        $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
-
-        $converted = str_replace($eastern, $western, trim($input));
-
-        return (string) preg_replace('/[\s\-\(\)]+/', '', $converted);
-    }
-
-    /**
-     * Normalize any valid Saudi mobile format (+9665XXXXXXXX, 009665XXXXXXXX, 9665XXXXXXXX, 5XXXXXXXX) to 05XXXXXXXX.
-     */
-    private function normalizeSaudiPhone(string $phone): string
-    {
-        $clean = $this->sanitizeDigits($phone);
-
-        if (preg_match('/^(?:\+966|00966|966)(5[0-9]{8})$/', $clean, $matches)) {
-            return '0'.$matches[1];
-        }
-
-        if (preg_match('/^(5[0-9]{8})$/', $clean, $matches)) {
-            return '0'.$matches[1];
-        }
-
-        return $clean;
-    }
-
-    /**
      * Extract a readable name from an email address if name was not explicitly entered.
      */
     private function extractNameFromEmail(string $email): string
@@ -723,57 +785,5 @@ HTML;
         $cleaned = trim((string) preg_replace('/\d+/', '', $cleaned));
 
         return $cleaned !== '' ? mb_convert_case($cleaned, MB_CASE_TITLE, 'UTF-8') : $localPart;
-    }
-
-    /**
-     * Resolve Arabic date label or ISO date string into a Carbon date instance.
-     */
-    private function resolveBookingDate(string $dateLabel): Carbon
-    {
-        $today = Carbon::today('Asia/Riyadh');
-
-        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', trim($dateLabel))) {
-            return Carbon::parse($dateLabel, 'Asia/Riyadh');
-        }
-
-        if (str_contains($dateLabel, 'اليوم')) {
-            return $today;
-        }
-
-        if (str_contains($dateLabel, 'غداً')) {
-            return $today->copy()->addDay();
-        }
-
-        if (str_contains($dateLabel, 'الأحد')) {
-            return $today->copy()->next(Carbon::SUNDAY);
-        }
-
-        if (str_contains($dateLabel, 'الإثنين') || str_contains($dateLabel, 'الاثنين')) {
-            return $today->copy()->next(Carbon::MONDAY);
-        }
-
-        return $today->copy()->addDay();
-    }
-
-    /**
-     * Convert Arabic time slot string (e.g. "05:30 م" or "11:30 ص") to 24-hour "H:i:s".
-     */
-    private function parseTimeSlotTo24Hour(string $timeSlot): string
-    {
-        $cleaned = trim(str_replace(['ص', 'م'], '', $timeSlot));
-        if (! preg_match('/^(\d{1,2}):(\d{2})/', $cleaned, $matches)) {
-            return '17:30:00';
-        }
-
-        $hours = (int) $matches[1];
-        $minutes = (int) $matches[2];
-
-        if (str_contains($timeSlot, 'م') && $hours < 12) {
-            $hours += 12;
-        } elseif (str_contains($timeSlot, 'ص') && $hours === 12) {
-            $hours = 0;
-        }
-
-        return sprintf('%02d:%02d:00', $hours, $minutes);
     }
 }

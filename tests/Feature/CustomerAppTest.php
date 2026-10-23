@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Specialist;
+use App\Models\SpecialistShift;
 use App\Services\FrontData\BookingCalendarDataService;
 use App\Services\FrontData\CartAndCheckoutDataService;
 use App\Services\FrontData\CatalogDataService;
@@ -13,6 +14,7 @@ use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\CustomerAccountDataService;
 use App\Services\FrontData\HomeServiceDataService;
 use App\Services\FrontData\SalonInfoDataService;
+use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -233,7 +235,7 @@ describe('Customer-Facing Pages', function () {
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
             'booking_date' => 'الأحد القادم',
-            'booking_time' => '08:00 م',
+            'booking_time' => '02:00 م',
         ]);
 
         $response->assertStatus(200)
@@ -314,6 +316,151 @@ describe('Customer-Facing Pages', function () {
             'email' => 'reem.alsaud@gmail.com',
             'name' => 'ريم آل سعود',
         ]);
+    });
+
+    test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = Service::firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(3);
+
+        SpecialistShift::updateOrCreate(
+            [
+                'specialist_id' => $specialist->id,
+                'day_of_week' => (int) $targetDate->dayOfWeek,
+            ],
+            [
+                'start_time' => '15:00:00',
+                'end_time' => '21:00:00',
+                'is_day_off' => false,
+            ]
+        );
+
+        $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '03:00 م',
+        ])->assertStatus(200);
+
+        $response = $this->getJson(route('booking.availability', [
+            'specialist_id' => $specialist->slug,
+            'service_id' => $service->code,
+            'booking_date' => $targetDate->toDateString(),
+        ]));
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'specialist_id' => 'sp_janet',
+                'date_iso' => $targetDate->toDateString(),
+                'is_day_off' => false,
+                'shift_start' => '15:00:00',
+                'shift_end' => '21:00:00',
+            ]);
+
+        $slots = collect($response->json('slots'));
+        $firstSlot = $slots->firstWhere('time', '03:00 م');
+
+        expect($firstSlot)->not->toBeNull()
+            ->and($firstSlot['is_booked'])->toBeTrue()
+            ->and($firstSlot['is_available'])->toBeFalse();
+    });
+
+    test('WithinSpecialistShift rule rejects bookings outside shift hours or on specialist day off', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = Service::firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(4);
+
+        // 1. Outside shift hours (10:00 AM is before 14:00 PM shift start)
+        $outsideResponse = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '10:00 ص',
+        ]);
+
+        $outsideResponse->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+            ]);
+
+        // 2. Specialist day off (is_day_off = true)
+        SpecialistShift::updateOrCreate(
+            [
+                'specialist_id' => $specialist->id,
+                'day_of_week' => (int) $targetDate->dayOfWeek,
+            ],
+            [
+                'start_time' => '14:00:00',
+                'end_time' => '22:00:00',
+                'is_day_off' => true,
+            ]
+        );
+
+        $dayOffResponse = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '05:30 م',
+        ]);
+
+        $dayOffResponse->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'الأخصائية المختارة في يوم إجازة في هذا التاريخ ولا توجد فترات عمل متاحة.',
+            ]);
+    });
+
+    test('AvailableSpecialistSlot rule prevents double-booking an already booked specialist time slot', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $otherSpecialist = Specialist::where('slug', 'sp_karen')->firstOrFail();
+        $service = Service::firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(5)->toDateString();
+
+        // First booking succeeds
+        $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '05:00 م',
+        ])->assertStatus(200);
+
+        // Second overlapping booking for the SAME specialist on the SAME date & time fails with 422
+        $conflictResponse = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '05:00 م',
+        ]);
+
+        $conflictResponse->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'عذراً، هذا الموعد محجوز مسبقاً مع الأخصائية المختارة. يرجى اختيار وقت آخر متاح.',
+            ]);
+
+        // Booking the same time slot with a DIFFERENT specialist succeeds
+        $otherSpecialistResponse = $this->postJson(route('booking.verify_phone'), [
+            'phone' => '0551234567',
+            'service_id' => $service->code,
+            'specialist_id' => $otherSpecialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '05:00 م',
+        ]);
+
+        $otherSpecialistResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+            ]);
     });
 });
 

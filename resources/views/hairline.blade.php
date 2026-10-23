@@ -204,6 +204,7 @@
         const walkInServicesData = {!! json_encode($walkInServices, JSON_UNESCAPED_UNICODE) !!};
         const specialistsData = {!! json_encode($specialistsData, JSON_UNESCAPED_UNICODE) !!};
         const bookableCategories = {!! json_encode($bookableCategories, JSON_UNESCAPED_UNICODE) !!};
+        const bookingDates = {!! json_encode($bookingDates ?? [], JSON_UNESCAPED_UNICODE) !!};
 
         /* -------------------------------------------------------------------------- */
         /* STATE MANAGEMENT                                                           */
@@ -211,13 +212,22 @@
         let currentSlideIndex = 0;
         let slideInterval = null;
 
+        const defaultBookingDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
+
         let bookingState = {
             step: 1, // 1: Services (Main Category + Sub-Services directly underneath), 2: Specialist & Time, 3: Confirmation
             selectedCategory: null,
             selectedSubService: null,
             selectedSpecialist: null,
-            selectedDate: "غداً - السبت",
+            selectedDate: defaultBookingDateObj.display_label,
+            selectedDateIso: defaultBookingDateObj.date_iso,
             selectedTime: null,
+            availability: {
+                loading: false,
+                is_day_off: false,
+                shift_label: "",
+                slots: []
+            },
             verifiedPhone: "",
             confirmedCustomerName: "",
             confirmedCustomerEmail: ""
@@ -597,13 +607,21 @@
         /* -------------------------------------------------------------------------- */
         function openBookingFlow() {
             updateUrl('/booking');
+            const initialDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
             bookingState = {
                 step: 1,
                 selectedCategory: null,
                 selectedSubService: null,
                 selectedSpecialist: null,
-                selectedDate: "غداً - السبت",
+                selectedDate: initialDateObj.display_label,
+                selectedDateIso: initialDateObj.date_iso,
                 selectedTime: null,
+                availability: {
+                    loading: false,
+                    is_day_off: false,
+                    shift_label: "",
+                    slots: []
+                },
                 verifiedPhone: "",
                 confirmedCustomerName: "",
                 confirmedCustomerEmail: ""
@@ -740,7 +758,7 @@
                 `;
             }
 
-            // STEP 2: اختيار الأخصائية وتحديد الوقت (بنفس الطريقة الحالية)
+            // STEP 2: اختيار الأخصائية وتحديد الوقت (مرتبط بشيفتات قاعدة البيانات والتحقق من المواعيد المحجوزة)
             else if (bookingState.step === 2) {
                 const sub = bookingState.selectedSubService;
                 sheetTitle.textContent = "الخطوة 2: اختيار الأخصائية";
@@ -749,10 +767,27 @@
                 const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
                 if (!bookingState.selectedSpecialist && linkedSpecialists.length > 0) {
                     bookingState.selectedSpecialist = linkedSpecialists[0];
-                    bookingState.selectedTime = linkedSpecialists[0].availableSlots[0];
+                    bookingState.selectedTime = linkedSpecialists[0].availableSlots[0] || null;
+                    fetchSpecialistAvailability();
                 }
 
-                const datesList = ["اليوم - الجمعة", "غداً - السبت", "الأحد القادم", "الإثنين القادم"];
+                const datesList = (Array.isArray(bookingDates) && bookingDates.length > 0)
+                    ? bookingDates
+                    : [
+                        { display_label: "اليوم", date_iso: "" },
+                        { display_label: "غداً - السبت", date_iso: "" }
+                    ];
+
+                const shiftSlots = (bookingState.availability && Array.isArray(bookingState.availability.slots) && bookingState.availability.slots.length > 0)
+                    ? bookingState.availability.slots
+                    : (bookingState.selectedSpecialist?.availableSlots || []).map(t => ({
+                        time: t,
+                        is_available: true,
+                        is_booked: false
+                    }));
+
+                const isDayOff = Boolean(bookingState.availability && bookingState.availability.is_day_off);
+                const shiftLabel = bookingState.availability?.shift_label || "";
 
                 sheetBody.innerHTML = `
                     <div class="space-y-4 animate-step">
@@ -814,45 +849,88 @@
                             }).join('')}
                         </div>
 
-                        <!-- Date & Time Picker -->
+                        <!-- Date & Shift-Based Time Picker -->
                         <div class="space-y-3 pt-2 border-t border-gray-100">
-                            <label class="block text-xs font-extrabold text-sage-dark">الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:</label>
+                            <div class="flex items-center justify-between gap-2">
+                                <label class="block text-xs font-extrabold text-sage-dark">
+                                    الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:
+                                </label>
+                                ${shiftLabel ? `
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
+                                        <i class="fa-regular fa-calendar-check text-gold-dark"></i>
+                                        <span>${shiftLabel}</span>
+                                    </span>
+                                ` : ''}
+                            </div>
                             
                             <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                                ${datesList.map(d => `
-                                    <button onclick="selectBookingDate('${d}')" 
-                                            class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
-                                                bookingState.selectedDate === d 
-                                                ? 'bg-sage-dark text-white border-sage-dark' 
-                                                : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
-                                            }">
-                                        ${d}
-                                    </button>
-                                `).join('')}
+                                ${datesList.map(d => {
+                                    const label = d.display_label || d;
+                                    const iso = d.date_iso || '';
+                                    const isActiveDate = bookingState.selectedDate === label || (iso && bookingState.selectedDateIso === iso);
+                                    return `
+                                        <button onclick="selectBookingDate('${label}', '${iso}')" 
+                                                class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
+                                                    isActiveDate 
+                                                    ? 'bg-sage-dark text-white border-sage-dark' 
+                                                    : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
+                                                }">
+                                            ${label}
+                                        </button>
+                                    `;
+                                }).join('')}
                             </div>
 
-                            <div class="grid grid-cols-4 gap-2">
-                                ${bookingState.selectedSpecialist.availableSlots.map(slot => `
-                                    <button onclick="selectBookingTime('${slot}')" 
-                                            class="py-2 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                                                bookingState.selectedTime === slot 
-                                                ? 'bg-gold text-white border-gold shadow-xs' 
-                                                : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
-                                            }">
-                                        ${slot}
-                                    </button>
-                                `).join('')}
-                            </div>
+                            ${isDayOff ? `
+                                <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
+                                    <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
+                                    <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو أخصائية أخرى لإتمام الحجز.</p>
+                                </div>
+                            ` : `
+                                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
+                                    ${shiftSlots.map(slotObj => {
+                                        const slotTime = slotObj.time;
+                                        const isBooked = Boolean(slotObj.is_booked || !slotObj.is_available);
+                                        const isSelectedSlot = !isBooked && bookingState.selectedTime === slotTime;
+
+                                        if (isBooked) {
+                                            return `
+                                                <button type="button"
+                                                        disabled
+                                                        title="هذا الموعد محجوز مسبقاً"
+                                                        class="py-2 px-1.5 rounded-xl text-[11px] font-bold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-75">
+                                                    <span class="line-through">${slotTime}</span>
+                                                    <span class="text-[9px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.2 rounded">محجوز</span>
+                                                </button>
+                                            `;
+                                        }
+
+                                        return `
+                                            <button type="button"
+                                                    onclick="selectBookingTime('${slotTime}')" 
+                                                    class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                                                        isSelectedSlot 
+                                                        ? 'bg-gold text-white border-gold shadow-xs' 
+                                                        : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
+                                                    }">
+                                                ${slotTime}
+                                            </button>
+                                        `;
+                                    }).join('')}
+                                </div>
+                            `}
                         </div>
                     </div>
                 `;
 
+                const canConfirm = Boolean(bookingState.selectedTime) && !isDayOff;
                 sheetFooter.classList.remove('hidden');
                 sheetFooter.innerHTML = `
                     <button onclick="confirmFinalBooking()" 
-                            class="w-full py-4 rounded-2xl bg-sage-dark hover:bg-sage-deeper text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
+                            ${canConfirm ? '' : 'disabled'}
+                            class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-sage-dark hover:bg-sage-deeper cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
                         <i class="fa-solid fa-circle-check text-gold"></i>
-                        <span>تأكيد الحجز مع ${bookingState.selectedSpecialist.name}</span>
+                        <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : 'يرجى اختيار وقت متاح للحجز'}</span>
                     </button>
                 `;
             }
@@ -948,6 +1026,7 @@
             bookingState.selectedSubService = foundSub;
             bookingState.selectedSpecialist = null;
             bookingState.selectedTime = null;
+            bookingState.availability = { loading: true, is_day_off: false, shift_label: "", slots: [] };
             bookingState.step = 2;
             renderBookingStep();
         }
@@ -956,12 +1035,17 @@
             const sp = specialistsData[spId];
             if (!sp) return;
             bookingState.selectedSpecialist = sp;
-            bookingState.selectedTime = sp.availableSlots[0];
+            bookingState.selectedTime = sp.availableSlots[0] || null;
+            fetchSpecialistAvailability();
             renderBookingStep();
         }
 
-        function selectBookingDate(dateStr) {
+        function selectBookingDate(dateStr, dateIso = '') {
             bookingState.selectedDate = dateStr;
+            if (dateIso) {
+                bookingState.selectedDateIso = dateIso;
+            }
+            fetchSpecialistAvailability();
             renderBookingStep();
         }
 
@@ -971,10 +1055,53 @@
         }
 
         /**
+         * Queries the backend SpecialistAvailabilityService via AJAX to load shift-based slots
+         * and real-time database booking conflicts without duplicating logic in the frontend.
+         */
+        async function fetchSpecialistAvailability() {
+            if (!bookingState.selectedSpecialist) return;
+
+            bookingState.availability.loading = true;
+            const params = new URLSearchParams({
+                specialist_id: bookingState.selectedSpecialist.id,
+                service_id: bookingState.selectedSubService?.id || '',
+                booking_date: bookingState.selectedDateIso || bookingState.selectedDate || ''
+            });
+
+            try {
+                const response = await fetch("{{ route('booking.availability') }}?" + params.toString(), {
+                    headers: { 'Accept': 'application/json' }
+                });
+                const data = await response.json();
+                if (response.ok && data.success) {
+                    bookingState.availability = {
+                        loading: false,
+                        is_day_off: Boolean(data.is_day_off),
+                        shift_label: data.shift_label || '',
+                        slots: Array.isArray(data.slots) ? data.slots : []
+                    };
+
+                    const availableList = bookingState.availability.slots.filter(s => s.is_available && !s.is_booked);
+                    const currentStillAvailable = availableList.some(s => s.time === bookingState.selectedTime);
+
+                    if (!currentStillAvailable) {
+                        bookingState.selectedTime = availableList.length > 0 ? availableList[0].time : null;
+                    }
+
+                    if (bookingState.step === 2) {
+                        renderBookingStep();
+                    }
+                }
+            } catch (err) {
+                bookingState.availability.loading = false;
+            }
+        }
+
+        /**
          * Opens the Phone Verification Popup instead of confirming the booking directly.
          */
         function confirmFinalBooking() {
-            if (!bookingState.selectedCategory || !bookingState.selectedSubService || !bookingState.selectedSpecialist) return;
+            if (!bookingState.selectedCategory || !bookingState.selectedSubService || !bookingState.selectedSpecialist || !bookingState.selectedTime) return;
             openPhoneVerificationModal();
         }
 
@@ -1130,7 +1257,7 @@
                         phone: rawPhone,
                         service_id: bookingState.selectedSubService.id,
                         specialist_id: bookingState.selectedSpecialist.id,
-                        booking_date: bookingState.selectedDate,
+                        booking_date: bookingState.selectedDateIso || bookingState.selectedDate,
                         booking_time: timeSlot
                     })
                 });
@@ -1140,6 +1267,7 @@
                 if (!response.ok || data.status === 'validation_error') {
                     if (errorText) errorText.textContent = data.message || 'تأكدي من صحة رقم الجوال المدخل.';
                     if (errorEl) errorEl.classList.remove('hidden');
+                    fetchSpecialistAvailability();
                     return;
                 }
 

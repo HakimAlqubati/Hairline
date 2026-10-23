@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Specialists\Tables;
 
+use App\Models\Specialist;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -22,7 +23,21 @@ class SpecialistTable
             ->columns([
                 ImageColumn::make('avatar_url')
                     ->label(__('admin.fields.avatar'))
-                    ->circular(),
+                    ->circular()
+                    ->state(function (Specialist $record): ?string {
+                        $avatar = $record->avatar_url;
+                        if (! $avatar) {
+                            return null;
+                        }
+                        if (str_starts_with($avatar, 'http') || str_starts_with($avatar, 'data:')) {
+                            return $avatar;
+                        }
+                        if (str_starts_with($avatar, 'images/') || str_starts_with($avatar, '/images/')) {
+                            return asset(ltrim($avatar, '/'));
+                        }
+
+                        return asset('storage/'.ltrim($avatar, '/'));
+                    }),
 
                 TextColumn::make('name')
                     ->label(__('admin.fields.name'))

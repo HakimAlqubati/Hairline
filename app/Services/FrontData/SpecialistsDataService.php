@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Services\FrontData;
 
 use App\Models\Specialist;
+use App\Services\Booking\SpecialistAvailabilityService;
 use App\Services\Cache\HairlineCacheService;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -14,6 +15,10 @@ use Illuminate\Support\Facades\Cache;
  */
 class SpecialistsDataService
 {
+    public function __construct(
+        private readonly SpecialistAvailabilityService $availabilityService
+    ) {}
+
     /**
      * Get the count of active specialists, cached.
      */
@@ -47,8 +52,9 @@ class SpecialistsDataService
      */
     public function getAllSpecialists(): array
     {
-        return Cache::rememberForever(HairlineCacheService::KEY_SPECIALISTS_ALL, function () {
+        return Cache::rememberForever(HairlineCacheService::KEY_SPECIALISTS_ALL, function (): array {
             $specialists = Specialist::with('shifts')->where('is_active', true)->orderBy('sort_order')->get();
+            $defaultDate = Carbon::today('Asia/Riyadh')->addDay();
 
             $result = [];
             foreach ($specialists as $sp) {
@@ -56,19 +62,27 @@ class SpecialistsDataService
                 $nameEn = $sp->getTranslation('name', 'en');
                 $fullName = $nameEn ? "{$nameAr} | {$nameEn}" : $nameAr;
 
-                $slots = [];
-                $firstShift = $sp->shifts->first();
-                if ($firstShift) {
-                    $start = Carbon::parse($firstShift->start_time);
-                    $end = Carbon::parse($firstShift->end_time);
-                    while ($start->copy()->addMinutes(60)->lte($end)) {
-                        $slots[] = $start->format('h:i').($start->format('A') === 'AM' ? ' ص' : ' م');
-                        $start->addHours(2)->addMinutes(30);
-                    }
+                $shiftForDay = $sp->shifts->firstWhere('day_of_week', (int) $defaultDate->dayOfWeek)
+                    ?? $sp->shifts->firstWhere('is_day_off', false);
+
+                $availability = $this->availabilityService->getAvailabilityForSpecialistDate(
+                    specialist: $sp,
+                    date: $defaultDate,
+                    durationMinutes: 60,
+                    preloadedShift: $shiftForDay,
+                    preloadedIntervals: []
+                );
+
+                $slots = $availability['available_times'];
+                if (empty($slots)) {
+                    $slots = ['02:00 م', '03:30 م', '05:00 م', '06:30 م', '08:00 م'];
                 }
 
-                if (empty($slots)) {
-                    $slots = ['11:30 ص', '02:00 م', '05:30 م', '08:00 م'];
+                $avatar = $sp->avatar_url;
+                if ($avatar && ! str_starts_with($avatar, 'http') && ! str_starts_with($avatar, 'data:')) {
+                    $avatar = (str_starts_with($avatar, 'images/') || str_starts_with($avatar, '/images/'))
+                        ? asset(ltrim($avatar, '/'))
+                        : asset('storage/'.ltrim($avatar, '/'));
                 }
 
                 $result[$sp->slug] = [
@@ -76,7 +90,7 @@ class SpecialistsDataService
                     'name' => $fullName,
                     'role' => $sp->getTranslation('role', 'ar'),
                     'experience' => $sp->getTranslation('experience', 'ar'),
-                    'avatar' => $sp->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($nameAr).'&background=211C18&color=C29E6D&bold=true&size=150',
+                    'avatar' => $avatar ?: 'https://ui-avatars.com/api/?name='.urlencode($nameAr).'&background=211C18&color=C29E6D&bold=true&size=150',
                     'bio' => $sp->getTranslation('bio', 'ar') ?: '',
                     'availableSlots' => $slots,
                 ];

@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Customer;
+use App\Services\Booking\SpecialistAvailabilityService;
 use App\Services\FrontData\AboutUsDataService;
 use App\Services\FrontData\CatalogDataService;
 use App\Services\FrontData\CatalogMenuDataService;
@@ -21,7 +22,8 @@ class HairlineController extends Controller
         private readonly CatalogDataService $catalog,
         private readonly SpecialistsDataService $specialists,
         private readonly CatalogMenuDataService $catalogMenu,
-        private readonly AboutUsDataService $aboutUs
+        private readonly AboutUsDataService $aboutUs,
+        private readonly SpecialistAvailabilityService $availabilityService
     ) {}
 
     public function show(string $initialView = 'home'): View
@@ -92,6 +94,7 @@ class HairlineController extends Controller
             'bookableCategories' => $this->catalog->getBookableCategoriesWithSpecialists(),
             'specialistsData' => $this->specialists->getAllSpecialists(),
             'menuPages' => $this->catalogMenu->getMenuPages(),
+            'bookingDates' => $this->availabilityService->getUpcomingDates(7),
             'currentCustomer' => $currentCustomer,
             'initialBookings' => $initialBookings,
         ]);

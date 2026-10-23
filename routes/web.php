@@ -16,6 +16,7 @@ Route::get('/services', [HairlineController::class, 'show'])->defaults('initialV
 Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
 Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');
 
+Route::get('/booking/availability', [BookingController::class, 'getAvailability'])->name('booking.availability');
 Route::post('/booking/verify-phone', [BookingController::class, 'verifyPhone'])->name('booking.verify_phone');
 Route::post('/booking/google-register', [BookingController::class, 'registerWithGoogle'])->name('booking.google_register');
 Route::get('/auth/google/redirect', [BookingController::class, 'redirectToGoogle'])->name('booking.google_redirect');
