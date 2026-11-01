@@ -506,8 +506,6 @@
             const bioEl = document.getElementById('specialistModalBio');
             const servicesEl = document.getElementById('specialistModalServices');
             const servicesWrapper = document.getElementById('specialistModalServicesWrapper');
-            const slotsEl = document.getElementById('specialistModalSlots');
-            const bookBtnText = document.getElementById('specialistModalBookBtnText');
             const animatedBody = document.getElementById('specialistModalAnimatedBody');
 
             if (counterEl) {
@@ -528,11 +526,6 @@
             if (expEl) expEl.textContent = sp.experience || '';
             if (bioEl) bioEl.textContent = sp.bio || '';
 
-            const shortNameAr = (sp.name || '').split('|')[0].trim();
-            if (bookBtnText) {
-                bookBtnText.textContent = `احجزي موعداً مع ${shortNameAr}`;
-            }
-
             if (servicesEl) {
                 const cats = getSpecialistServiceCategories(sp.id);
                 if (cats.length > 0) {
@@ -545,15 +538,6 @@
                 } else if (servicesWrapper) {
                     servicesWrapper.classList.add('hidden');
                 }
-            }
-
-            if (slotsEl) {
-                const slots = Array.isArray(sp.availableSlots) ? sp.availableSlots.slice(0, 6) : [];
-                slotsEl.innerHTML = slots.map(slot => `
-                    <span class="px-3 py-1 rounded-xl bg-surface text-sage-dark border border-primary-soft/75 text-xs font-extrabold">
-                        ${slot}
-                    </span>
-                `).join('');
             }
 
             // Highlight active thumbnail

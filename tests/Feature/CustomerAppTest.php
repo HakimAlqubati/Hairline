@@ -107,7 +107,6 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200);
         $response->assertSee('id="specialistsTabView"', false);
         $response->assertSee('id="specialistsGridContainer"', false);
-        $response->assertSee('الأخصائيات المعتمدات في هيرلاين');
         $response->assertSee('كارين');
         $response->assertSee('Karen');
         $response->assertSee('جانيت');
@@ -121,6 +120,10 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('navigateSpecialistModal(-1, event)', false);
         $response->assertSee('navigateSpecialistModal(1, event)', false);
         $response->assertSee('closeSpecialistModal()', false);
+        $response->assertDontSee('الأخصائيات المعتمدات في هيرلاين');
+        $response->assertDontSee('أبرز الأوقات المتاحة');
+        $response->assertDontSee('احجزي موعداً مع الأخصائية');
+        $response->assertDontSee('أخصائية معتمدة في هيرلاين');
     });
 
     test('booking logs customer in automatically and allows updating name, phone, and avatar in profile popup', function () {

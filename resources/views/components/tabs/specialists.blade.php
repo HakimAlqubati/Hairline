@@ -108,55 +108,6 @@
          aria-label="صفحة الأخصائيات المعتمدات"
          class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 pb-16 space-y-6 md:space-y-8 animate-step">
 
-    <!-- Luxury Page Hero Header -->
-    <div class="relative overflow-hidden rounded-[28px] sm:rounded-[32px] bg-white border border-primary-soft/70 shadow-card p-5 sm:p-7 md:p-9">
-        <!-- Decorative Top Primary Shimmer Bar -->
-        <div class="absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-primary-light via-primary to-primary-light"></div>
-
-        <!-- Subtle Radial Primary Glow -->
-        <div class="absolute -top-24 -left-24 w-64 h-64 rounded-full bg-primary-light/60 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-64 h-64 rounded-full bg-primary-soft/30 blur-3xl pointer-events-none"></div>
-
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-5">
-            <div class="space-y-2.5 max-w-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <button type="button"
-                            onclick="switchTab('home')"
-                            aria-label="العودة للرئيسية"
-                            class="w-9 h-9 rounded-full bg-surface hover:bg-primary text-sage-dark hover:text-white border border-primary-soft/70 flex items-center justify-center transition-all duration-200 cursor-pointer shrink-0 shadow-2xs">
-                        <i class="fa-solid fa-arrow-right text-xs"></i>
-                    </button>
-
-                    <span class="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-primary-light text-primary-dark border border-primary/30 text-[11px] sm:text-xs font-extrabold tracking-wide">
-                        <i class="fa-solid fa-crown text-[10px] text-primary"></i>
-                        <span>نخبة خبيرات التجميل • OUR SPECIALISTS</span>
-                    </span>
-
-                    <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface text-sage-dark border border-primary-soft/60 text-[11px] font-bold">
-                        <span>{{ $totalSpecialists }} أخصائيات معتمدات</span>
-                    </span>
-                </div>
-
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-sage-dark tracking-tight">
-                    الأخصائيات المعتمدات في هيرلاين
-                </h2>
-
-                <p class="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium">
-                    فريق متخصص بخبرات عالمية طويلة في قص ومعالجات وصبغات الشعر والعناية المتكاملة. مرّري المؤشر على صورة الأخصائية أو انقري عليها لعرض الصورة مكبّرة مع كامل التفاصيل.
-                </p>
-            </div>
-
-            <div class="flex items-center gap-3 shrink-0">
-                <button type="button"
-                        onclick="openBookingFlow()"
-                        class="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2.5 cursor-pointer active:scale-95">
-                    <i class="fa-regular fa-calendar-check text-base"></i>
-                    <span>احجزي موعدكِ الآن</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Responsive Specialists Showcase Grid -->
     <div id="specialistsGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6 lg:gap-7">
         @forelse($specialistsList as $index => $sp)
@@ -246,17 +197,7 @@
                         </p>
                     </div>
 
-                    <!-- Card Footer CTA -->
-                    <div class="pt-3 border-t border-primary-soft/40 flex items-center justify-between gap-2">
-                        <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-primary-dark group-hover:text-sage-dark transition-colors">
-                            <i class="fa-regular fa-id-badge text-primary"></i>
-                            <span>عرض البروفايل والصورة مكبّرة</span>
-                        </span>
-
-                        <span class="w-8 h-8 rounded-full bg-primary-light text-primary-dark group-hover:bg-primary group-hover:text-white flex items-center justify-center transition-all duration-300 group-hover:-translate-x-1 shrink-0">
-                            <i class="fa-solid fa-arrow-left text-[11px]"></i>
-                        </span>
-                    </div>
+                
                 </div>
             </article>
         @empty
@@ -355,10 +296,6 @@
                             <i class="fa-solid fa-medal text-primary"></i>
                             <span id="specialistModalExperience"></span>
                         </span>
-                        <span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface text-sage-dark border border-primary-soft/60 text-[11px] font-bold">
-                            <i class="fa-solid fa-circle-check text-primary text-[10px]"></i>
-                            <span>أخصائية معتمدة في هيرلاين</span>
-                        </span>
                     </div>
 
                     <!-- Specialist Full Name & Role -->
@@ -386,21 +323,10 @@
                             <!-- Populated dynamically via JS -->
                         </div>
                     </div>
-
-                    <!-- Available Slots Preview -->
-                    <div class="space-y-2">
-                        <h4 class="text-xs font-extrabold text-sage-dark flex items-center gap-1.5">
-                            <i class="fa-regular fa-clock text-primary text-xs"></i>
-                            <span>أبرز الأوقات المتاحة</span>
-                        </h4>
-                        <div id="specialistModalSlots" class="flex flex-wrap gap-1.5">
-                            <!-- Populated dynamically via JS -->
-                        </div>
-                    </div>
                 </div>
 
-                <!-- Modal Footer: Thumbnails Switcher + Direct Booking Button -->
-                <div class="pt-4 border-t border-primary-soft/50 space-y-4">
+                <!-- Modal Footer: Thumbnails Switcher -->
+                <div class="pt-4 border-t border-primary-soft/50">
                     <!-- Quick Specialist Avatar Thumbnails Bar -->
                     <div class="flex items-center justify-between gap-2">
                         <span class="text-[11px] font-bold text-gray-500">التنقل السريع بين الأخصائيات:</span>
@@ -418,14 +344,6 @@
                             @endforeach
                         </div>
                     </div>
-
-                    <!-- Book Now Action Button -->
-                    <button type="button"
-                            onclick="bookWithSpecialistFromModal()"
-                            class="w-full py-3.5 px-5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-black text-xs sm:text-sm shadow-lg shadow-primary/25 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer active:scale-[0.98]">
-                        <i class="fa-regular fa-calendar-check text-base"></i>
-                        <span id="specialistModalBookBtnText">احجزي موعداً مع الأخصائية</span>
-                    </button>
                 </div>
             </div>
 
