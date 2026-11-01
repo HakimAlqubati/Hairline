@@ -6,17 +6,13 @@
         <!-- Top subtle accent shimmer line -->
         <div class="absolute inset-x-0 top-0 h-[2px] bg-gradient-to-r from-transparent via-primary/30 to-transparent group-hover:via-primary transition-all duration-300"></div>
 
-        <div class="flex flex-col items-center justify-center gap-1.5">
-            <div class="flex items-center justify-center gap-2">
-                <span class="text-base sm:text-lg font-extrabold text-sage-dark group-hover:text-primary transition-colors">
-                    جميع الخدمات
-                </span>
-                <!-- Explanatory Badge: (زيارة فورية) -->
-                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-primary-light text-primary-dark border border-primary/20 badge-pulse">
-                    <i class="fa-solid fa-sparkles text-[10px]"></i>
-                    (زيارة فورية)
-                </span>
-            </div>
+        <div class="flex flex-col items-center justify-center gap-1">
+            <span class="text-base sm:text-lg font-extrabold text-sage-dark group-hover:text-primary transition-colors">
+                جميع الخدمات
+            </span>
+            <span class="text-xs font-medium text-gray-500">
+                (زيارة فورية)
+            </span>
             
             <p class="text-xs text-gray-500 group-hover:text-primary-dark transition-colors font-medium flex items-center justify-center gap-1.5">
                 <span>انقري للاطلاع على القائمة والأسعار</span>

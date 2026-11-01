@@ -101,6 +101,28 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('id="editProfileModal"', false);
     });
 
+    test('specialists page returns 200 and renders standalone specialists grid and interactive detail modal with prev/next navigation', function () {
+        $response = $this->get('/specialists');
+
+        $response->assertStatus(200);
+        $response->assertSee('id="specialistsTabView"', false);
+        $response->assertSee('id="specialistsGridContainer"', false);
+        $response->assertSee('الأخصائيات المعتمدات في هيرلاين');
+        $response->assertSee('كارين');
+        $response->assertSee('Karen');
+        $response->assertSee('جانيت');
+        $response->assertSee('جينكي');
+        $response->assertSee('روث');
+        $response->assertSee('id="specialist-card-0"', false);
+        $response->assertSee('openSpecialistModal(0)', false);
+        $response->assertSee('id="specialistDetailModal"', false);
+        $response->assertSee('id="specialistModalPrevBtn"', false);
+        $response->assertSee('id="specialistModalNextBtn"', false);
+        $response->assertSee('navigateSpecialistModal(-1, event)', false);
+        $response->assertSee('navigateSpecialistModal(1, event)', false);
+        $response->assertSee('closeSpecialistModal()', false);
+    });
+
     test('booking logs customer in automatically and allows updating name, phone, and avatar in profile popup', function () {
         Storage::fake('public');
 

@@ -169,6 +169,7 @@
 
         <!-- 3. DYNAMIC TAB VIEWS -->
         <x-tabs.services :menuPages="$menuPages ?? []" />
+        <x-tabs.specialists :specialists="$specialistsData ?? []" :isActive="($initialView ?? 'home') === 'specialists'" />
         <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" />
         <x-tabs.account />
@@ -207,7 +208,22 @@
             </button>
         </div>
 
-        <!-- 10. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Hidden Until Service Selected) -->
+        <!-- 10. FLOATING WHATSAPP BUTTON (Bottom-Right of Website) -->
+        <div id="floatingWhatsappContainer"
+             class="fixed bottom-24 md:bottom-8 right-4 sm:right-6 md:right-8 z-40 flex items-center transition-all duration-300 ease-out">
+            <a id="floatingWhatsappBtn"
+               href="{{ $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705' }}"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="تواصلي معنا عبر واتساب"
+               title="تواصلي معنا عبر واتساب"
+               class="group relative w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#25D366] hover:bg-[#20BD5A] text-white shadow-fab border-2 border-white/90 flex items-center justify-center hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#25D366] opacity-25 pointer-events-none"></span>
+                <i class="fa-brands fa-whatsapp text-2xl sm:text-[28px] leading-none drop-shadow-sm group-hover:rotate-6 transition-transform"></i>
+            </a>
+        </div>
+
+        <!-- 11. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Hidden Until Service Selected) -->
         <div id="floatingBookingConfirmContainer"
              class="fixed bottom-24 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 hidden opacity-0 translate-y-4 scale-95 pointer-events-none transition-all duration-300 ease-out">
             <button type="button"
@@ -356,6 +372,7 @@
             const aboutView = document.getElementById('aboutTabView');
             const accountView = document.getElementById('accountTabView');
             const servicesView = document.getElementById('servicesTabView');
+            const specialistsView = document.getElementById('specialistsTabView');
             const bookingView = document.getElementById('bookingTabView');
             const desktopFabContainer = document.getElementById('desktopFloatingBookingContainer');
 
@@ -363,6 +380,7 @@
             if (aboutView) aboutView.classList.add('hidden');
             if (accountView) accountView.classList.add('hidden');
             if (servicesView) servicesView.classList.add('hidden');
+            if (specialistsView) specialistsView.classList.add('hidden');
             if (bookingView) bookingView.classList.add('hidden');
 
             if (tabName === 'home') {
@@ -372,6 +390,15 @@
             if (tabName === 'services') {
                 if (servicesView) servicesView.classList.remove('hidden');
                 updateUrl('/services');
+            }
+            if (tabName === 'specialists') {
+                if (specialistsView) {
+                    specialistsView.classList.remove('hidden');
+                    specialistsView.classList.remove('animate-step');
+                    void specialistsView.offsetWidth;
+                    specialistsView.classList.add('animate-step');
+                }
+                updateUrl('/specialists');
             }
             if (tabName === 'booking') {
                 if (bookingView) {
@@ -417,7 +444,8 @@
             });
 
             // Update desktop top navbar active state
-            navIds.forEach(id => {
+            const desktopNavIds = ['home', 'services', 'specialists', 'about', 'account'];
+            desktopNavIds.forEach(id => {
                 const dBtn = document.getElementById(`desktop-nav-${id}`);
                 if (!dBtn) return;
                 const dIndicator = dBtn.querySelector('.desktop-nav-indicator');
@@ -442,10 +470,373 @@
         }
 
         /* -------------------------------------------------------------------------- */
+        /* SPECIALISTS STANDALONE PAGE & INTERACTIVE FLIP/DROP MODAL                  */
+        /* -------------------------------------------------------------------------- */
+        const specialistsListArray = Object.values(specialistsData);
+        let currentSpecialistModalIndex = 0;
+        let isSpecialistModalClosing = false;
+
+        function getSpecialistServiceCategories(specialistId) {
+            if (!Array.isArray(bookableCategories)) return [];
+            const matchedTitles = [];
+            bookableCategories.forEach(cat => {
+                const hasSpec = Array.isArray(cat.subServices) && cat.subServices.some(
+                    sub => Array.isArray(sub.specialists) && sub.specialists.includes(specialistId)
+                );
+                if (hasSpec && cat.title) {
+                    matchedTitles.push(cat.title);
+                }
+            });
+            return matchedTitles;
+        }
+
+        function populateSpecialistModal(index, direction = 0) {
+            const total = specialistsListArray.length;
+            if (total === 0) return;
+
+            currentSpecialistModalIndex = ((index % total) + total) % total;
+            const sp = specialistsListArray[currentSpecialistModalIndex];
+            if (!sp) return;
+
+            const counterEl = document.getElementById('specialistModalCounter');
+            const imgEl = document.getElementById('specialistModalImg');
+            const nameEl = document.getElementById('specialistModalName');
+            const roleEl = document.getElementById('specialistModalRole');
+            const expEl = document.getElementById('specialistModalExperience');
+            const bioEl = document.getElementById('specialistModalBio');
+            const servicesEl = document.getElementById('specialistModalServices');
+            const servicesWrapper = document.getElementById('specialistModalServicesWrapper');
+            const slotsEl = document.getElementById('specialistModalSlots');
+            const bookBtnText = document.getElementById('specialistModalBookBtnText');
+            const animatedBody = document.getElementById('specialistModalAnimatedBody');
+
+            if (counterEl) {
+                counterEl.textContent = `${currentSpecialistModalIndex + 1} / ${total}`;
+            }
+
+            if (imgEl) {
+                imgEl.src = sp.avatar || '';
+                imgEl.alt = sp.name || '';
+                imgEl.onerror = function () {
+                    this.onerror = null;
+                    this.src = 'https://placehold.co/400x500/FAF8F5/C29E6D?text=HL';
+                };
+            }
+
+            if (nameEl) nameEl.textContent = sp.name || '';
+            if (roleEl) roleEl.textContent = sp.role || '';
+            if (expEl) expEl.textContent = sp.experience || '';
+            if (bioEl) bioEl.textContent = sp.bio || '';
+
+            const shortNameAr = (sp.name || '').split('|')[0].trim();
+            if (bookBtnText) {
+                bookBtnText.textContent = `احجزي موعداً مع ${shortNameAr}`;
+            }
+
+            if (servicesEl) {
+                const cats = getSpecialistServiceCategories(sp.id);
+                if (cats.length > 0) {
+                    if (servicesWrapper) servicesWrapper.classList.remove('hidden');
+                    servicesEl.innerHTML = cats.map(title => `
+                        <span class="px-3 py-1 rounded-full bg-primary-light/85 text-primary-dark border border-primary/30 text-xs font-extrabold">
+                            ${title}
+                        </span>
+                    `).join('');
+                } else if (servicesWrapper) {
+                    servicesWrapper.classList.add('hidden');
+                }
+            }
+
+            if (slotsEl) {
+                const slots = Array.isArray(sp.availableSlots) ? sp.availableSlots.slice(0, 6) : [];
+                slotsEl.innerHTML = slots.map(slot => `
+                    <span class="px-3 py-1 rounded-xl bg-surface text-sage-dark border border-primary-soft/75 text-xs font-extrabold">
+                        ${slot}
+                    </span>
+                `).join('');
+            }
+
+            // Highlight active thumbnail
+            for (let i = 0; i < total; i++) {
+                const thumbBtn = document.getElementById(`specialist-modal-thumb-${i}`);
+                if (!thumbBtn) continue;
+                if (i === currentSpecialistModalIndex) {
+                    thumbBtn.className = 'w-10 h-10 rounded-full overflow-hidden border-2 border-primary ring-2 ring-primary/40 scale-110 shadow-sm transition-all duration-200 cursor-pointer bg-surface shrink-0';
+                } else {
+                    thumbBtn.className = 'w-9 h-9 rounded-full overflow-hidden border-2 border-primary-soft opacity-60 hover:opacity-100 hover:border-primary transition-all duration-200 cursor-pointer bg-surface shrink-0';
+                }
+            }
+
+            // Directional slide animation when flipping between specialists
+            if (animatedBody && direction !== 0) {
+                animatedBody.classList.remove('modal-slide-right', 'modal-slide-left');
+                void animatedBody.offsetWidth;
+                animatedBody.classList.add(direction > 0 ? 'modal-slide-left' : 'modal-slide-right');
+            }
+
+            // Keep the active specialist card in view on the underlying page so the close animation drops right onto it
+            const activeCard = document.getElementById(`specialist-card-${currentSpecialistModalIndex}`);
+            if (activeCard && direction !== 0) {
+                activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+
+        function openSpecialistModal(index) {
+            const modal = document.getElementById('specialistDetailModal');
+            const backdrop = document.getElementById('specialistModalBackdrop');
+            const modalCard = document.getElementById('specialistModalCard');
+            const prevBtn = document.getElementById('specialistModalPrevBtn');
+            const nextBtn = document.getElementById('specialistModalNextBtn');
+            if (!modal || !modalCard) return;
+
+            isSpecialistModalClosing = false;
+            populateSpecialistModal(index, 0);
+
+            // Clear any previous landing animation classes on cards
+            document.querySelectorAll('.specialist-card-landed').forEach(el => {
+                el.classList.remove('specialist-card-landed');
+            });
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+
+            if (prevBtn) {
+                prevBtn.style.opacity = '1';
+                prevBtn.style.transform = '';
+            }
+            if (nextBtn) {
+                nextBtn.style.opacity = '1';
+                nextBtn.style.transform = '';
+            }
+
+            const sourceCard = document.getElementById(`specialist-card-${currentSpecialistModalIndex}`);
+            modalCard.style.transition = 'none';
+            modalCard.style.transform = 'translate3d(0, 0, 0) scale(1)';
+            modalCard.style.opacity = '1';
+
+            const modalRect = modalCard.getBoundingClientRect();
+
+            if (sourceCard && modalRect.width > 0) {
+                const sourceRect = sourceCard.getBoundingClientRect();
+                if (sourceRect.width > 0) {
+                    const deltaX = (sourceRect.left + sourceRect.width / 2) - (modalRect.left + modalRect.width / 2);
+                    const deltaY = (sourceRect.top + sourceRect.height / 2) - (modalRect.top + modalRect.height / 2);
+                    const scale = Math.max(0.25, Math.min(0.85, sourceRect.width / modalRect.width));
+
+                    if (typeof modalCard.animate === 'function') {
+                        modalCard.animate([
+                            {
+                                transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${scale})`,
+                                opacity: 0.25
+                            },
+                            {
+                                transform: 'translate3d(0, 0, 0) scale(1)',
+                                opacity: 1
+                            }
+                        ], {
+                            duration: 420,
+                            easing: 'cubic-bezier(0.16, 1, 0.3, 1)',
+                            fill: 'forwards'
+                        });
+                    }
+                }
+            }
+
+            requestAnimationFrame(() => {
+                if (backdrop) backdrop.classList.remove('opacity-0');
+            });
+        }
+
+        function navigateSpecialistModal(step, event) {
+            if (event) event.stopPropagation();
+            if (isSpecialistModalClosing) return;
+            populateSpecialistModal(currentSpecialistModalIndex + step, step);
+        }
+
+        function selectSpecialistInModal(targetIndex) {
+            if (isSpecialistModalClosing || targetIndex === currentSpecialistModalIndex) return;
+            const dir = targetIndex > currentSpecialistModalIndex ? 1 : -1;
+            populateSpecialistModal(targetIndex, dir);
+        }
+
+        function closeSpecialistModal(afterCloseCallback = null) {
+            const modal = document.getElementById('specialistDetailModal');
+            const backdrop = document.getElementById('specialistModalBackdrop');
+            const modalCard = document.getElementById('specialistModalCard');
+            const prevBtn = document.getElementById('specialistModalPrevBtn');
+            const nextBtn = document.getElementById('specialistModalNextBtn');
+
+            if (!modal || !modalCard || modal.classList.contains('hidden') || isSpecialistModalClosing) {
+                if (typeof afterCloseCallback === 'function') afterCloseCallback();
+                return;
+            }
+
+            isSpecialistModalClosing = true;
+
+            const targetIndex = currentSpecialistModalIndex;
+            const targetCard = document.getElementById(`specialist-card-${targetIndex}`);
+
+            // Ensure target specialist card is in the viewport so the modal visibly drops onto it
+            if (targetCard) {
+                const initialRect = targetCard.getBoundingClientRect();
+                if (initialRect.top < 60 || initialRect.bottom > window.innerHeight - 40) {
+                    targetCard.scrollIntoView({ behavior: 'instant', block: 'center' });
+                }
+            }
+
+            if (backdrop) backdrop.classList.add('opacity-0');
+            if (prevBtn) {
+                prevBtn.style.opacity = '0';
+                prevBtn.style.transform = 'translateY(-50%) scale(0.75)';
+            }
+            if (nextBtn) {
+                nextBtn.style.opacity = '0';
+                nextBtn.style.transform = 'translateY(-50%) scale(0.75)';
+            }
+
+            const modalRect = modalCard.getBoundingClientRect();
+            const targetRect = targetCard ? targetCard.getBoundingClientRect() : null;
+
+            let deltaX = 0;
+            let deltaY = 140;
+            let targetScale = 0.35;
+
+            if (targetRect && targetRect.width > 0 && modalRect.width > 0) {
+                const modalCenterX = modalRect.left + modalRect.width / 2;
+                const modalCenterY = modalRect.top + modalRect.height / 2;
+                const targetCenterX = targetRect.left + targetRect.width / 2;
+                const targetCenterY = targetRect.top + targetRect.height / 2;
+
+                deltaX = targetCenterX - modalCenterX;
+                deltaY = targetCenterY - modalCenterY;
+
+                const scaleW = targetRect.width / modalRect.width;
+                const scaleH = targetRect.height / modalRect.height;
+                targetScale = Math.max(0.2, Math.min(0.8, Math.min(scaleW, scaleH)));
+            }
+
+            const finishClose = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                modalCard.style.transform = '';
+                modalCard.style.opacity = '';
+                modalCard.style.transition = '';
+                isSpecialistModalClosing = false;
+
+                if (typeof afterCloseCallback === 'function') {
+                    afterCloseCallback();
+                }
+            };
+
+            // Trigger landing pulse on the active specialist card right as the modal drops onto it
+            if (targetCard) {
+                setTimeout(() => {
+                    targetCard.classList.remove('specialist-card-landed');
+                    void targetCard.offsetWidth;
+                    targetCard.classList.add('specialist-card-landed');
+                }, 280);
+            }
+
+            if (typeof modalCard.animate === 'function') {
+                const dropAnimation = modalCard.animate([
+                    {
+                        transform: 'translate3d(0, 0, 0) scale(1)',
+                        opacity: 1,
+                        offset: 0
+                    },
+                    {
+                        transform: `translate3d(${deltaX * 0.15}px, -14px, 0) scale(0.95)`,
+                        opacity: 0.96,
+                        offset: 0.18
+                    },
+                    {
+                        transform: `translate3d(${deltaX}px, ${deltaY + 10}px, 0) scale(${targetScale * 0.96})`,
+                        opacity: 0.55,
+                        offset: 0.84
+                    },
+                    {
+                        transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${targetScale})`,
+                        opacity: 0,
+                        offset: 1
+                    }
+                ], {
+                    duration: 460,
+                    easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
+                    fill: 'forwards'
+                });
+
+                dropAnimation.onfinish = () => {
+                    dropAnimation.cancel();
+                    finishClose();
+                };
+            } else {
+                modalCard.style.transition = 'transform 0.44s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.4s ease';
+                modalCard.style.transform = `translate3d(${deltaX}px, ${deltaY}px, 0) scale(${targetScale})`;
+                modalCard.style.opacity = '0';
+                setTimeout(finishClose, 450);
+            }
+        }
+
+        function bookWithSpecialistFromModal() {
+            closeSpecialistModal(() => {
+                openBookingFlow();
+            });
+        }
+
+        // Keyboard (Left/Right/Escape) & Touch Swipe Support for Specialist Modal
+        document.addEventListener('keydown', function (e) {
+            const modal = document.getElementById('specialistDetailModal');
+            if (!modal || modal.classList.contains('hidden')) return;
+
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                closeSpecialistModal();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                navigateSpecialistModal(1);
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault();
+                navigateSpecialistModal(-1);
+            }
+        });
+
+        (function initSpecialistModalTouchSwipe() {
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            document.addEventListener('touchstart', function (e) {
+                const modal = document.getElementById('specialistDetailModal');
+                if (!modal || modal.classList.contains('hidden')) return;
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+
+            document.addEventListener('touchend', function (e) {
+                const modal = document.getElementById('specialistDetailModal');
+                if (!modal || modal.classList.contains('hidden')) return;
+                touchEndX = e.changedTouches[0].screenX;
+                const diff = touchEndX - touchStartX;
+                if (Math.abs(diff) > 55) {
+                    if (diff > 0) {
+                        navigateSpecialistModal(1);
+                    } else {
+                        navigateSpecialistModal(-1);
+                    }
+                }
+            }, { passive: true });
+        })();
+
+        /* -------------------------------------------------------------------------- */
         /* SIDEBAR SECTIONS                                                           */
         /* -------------------------------------------------------------------------- */
         function openSidebarSection(sectionType) {
             toggleSidebar(false);
+
+            if (sectionType === 'specialists') {
+                closeBottomSheet();
+                switchTab('specialists');
+                return;
+            }
+
             const sheetTitle = document.getElementById('sheetTitle');
             const sheetSubtitle = document.getElementById('sheetSubtitle');
             const sheetBackBtn = document.getElementById('sheetBackBtn');
@@ -484,34 +875,6 @@
                                 <li>أسعار واضحة ومعتمدة شاملة ضريبة القيمة المضافة 15%.</li>
                             </ul>
                         </div>
-                    </div>
-                `;
-            } else if (sectionType === 'specialists') {
-                sheetTitle.textContent = "الأخصائيات";
-                sheetSubtitle.textContent = "نخبة خبيرات الشعر والمعالجات في هيرلاين";
-                const allSpecs = Object.values(specialistsData);
-                sheetBody.innerHTML = `
-                    <div class="space-y-3 animate-step">
-                        ${allSpecs.map(sp => `
-                            <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex flex-col gap-3">
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-3">
-                                        <img src="${sp.avatar}" 
-                                             alt="${sp.name}"
-                                             onerror="this.src='https://placehold.co/120x120/211C18/F6EFE2?text=HL'"
-                                             class="w-14 h-14 rounded-full object-cover border-2 border-gold">
-                                        <div>
-                                            <h4 class="font-extrabold text-sm text-sage-dark">${sp.name}</h4>
-                                            <p class="text-xs text-gold-dark font-bold">${sp.role}</p>
-                                            <span class="inline-block mt-1 text-[11px] text-gray-500 bg-white px-2 py-0.5 rounded-full border border-gray-200">
-                                                ${sp.experience}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p class="text-xs text-gray-600 leading-relaxed">${sp.bio}</p>
-                            </div>
-                        `).join('')}
                     </div>
                 `;
             } else if (sectionType === 'contact') {
@@ -840,6 +1203,7 @@
         function syncFloatingConfirmButton() {
             const container = document.getElementById('floatingBookingConfirmContainer');
             const labelEl = document.getElementById('floatingSelectedServiceText');
+            const whatsappContainer = document.getElementById('floatingWhatsappContainer');
             if (!container) return;
 
             const shouldShow = (
@@ -851,6 +1215,10 @@
             if (floatingConfirmHideTimeout) {
                 clearTimeout(floatingConfirmHideTimeout);
                 floatingConfirmHideTimeout = null;
+            }
+
+            if (whatsappContainer) {
+                whatsappContainer.classList.toggle('-translate-y-16', shouldShow);
             }
 
             if (shouldShow) {
@@ -2210,6 +2578,8 @@
                 switchTab('account');
             } else if (initial === 'services') {
                 switchTab('services');
+            } else if (initial === 'specialists') {
+                switchTab('specialists');
             } else if (initial === 'booking') {
                 openBookingFlow();
             } else {
