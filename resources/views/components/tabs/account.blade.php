@@ -11,7 +11,7 @@
                 <i class="fa-regular fa-calendar-check text-gold-dark"></i>
                 <span>حجوزاتي المؤكدة</span>
             </h4>
-            <button onclick="openBookingFlow()" class="text-xs font-bold text-sage-dark bg-sage-soft px-3.5 py-1.5 rounded-full hover:bg-sage-dark hover:text-white transition cursor-pointer">
+            <button onclick="openBookingFlow()" class="text-xs font-bold text-primary-dark bg-primary-light px-3.5 py-1.5 rounded-full hover:bg-primary hover:text-white transition cursor-pointer">
                 + حجز جديد
             </button>
         </div>
@@ -30,7 +30,7 @@
          class="relative w-full max-w-[390px] rounded-[28px] bg-white shadow-2xl border border-gold-soft/70 overflow-hidden transform scale-90 translate-y-4 transition-all duration-300 ease-out">
         
         <!-- Top Gold Accent Line -->
-        <div class="h-1.5 w-full bg-gradient-to-r from-sage-dark via-gold to-sage-dark"></div>
+        <div class="h-1.5 w-full bg-gradient-to-r from-primary-light via-primary to-primary-light"></div>
 
         <!-- Close Button -->
         <button type="button"
@@ -53,7 +53,7 @@
                          src="https://ui-avatars.com/api/?name=HL&background=211C18&color=C5A373&bold=true"
                          alt="الصورة الشخصية"
                          class="w-20 h-20 rounded-full object-cover border-2 border-gold shadow-md group-hover:opacity-90 transition" />
-                    <span class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-sage-dark text-gold border-2 border-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
+                    <span class="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-primary text-white border-2 border-white flex items-center justify-center shadow-sm group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-camera text-[11px]"></i>
                     </span>
                 </label>
@@ -110,8 +110,8 @@
             <div class="flex items-center gap-2.5 pt-1">
                 <button type="submit"
                         id="editProfileSubmitBtn"
-                        class="flex-1 py-3.5 rounded-2xl bg-sage-dark hover:bg-sage-deeper text-white font-extrabold text-xs sm:text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-check text-gold"></i>
+                        class="flex-1 py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm shadow-lg shadow-primary/25 transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-check text-white"></i>
                     <span>حفظ التعديلات</span>
                 </button>
                 <button type="button"

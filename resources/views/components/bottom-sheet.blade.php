@@ -16,7 +16,7 @@
             <div class="flex items-center gap-2.5">
                 <button id="sheetBackBtn" 
                         onclick="handleSheetBack()" 
-                        class="hidden w-9 h-9 rounded-full bg-white text-sage-dark shadow-xs flex items-center justify-center hover:bg-sage-dark hover:text-white transition cursor-pointer">
+                        class="hidden w-9 h-9 rounded-full bg-white text-primary-dark shadow-xs flex items-center justify-center hover:bg-primary hover:text-white transition cursor-pointer">
                     <i class="fa-solid fa-arrow-right text-sm"></i>
                 </button>
                 <div>
@@ -52,7 +52,7 @@
          class="relative w-full max-w-[410px] rounded-[28px] bg-white shadow-2xl border border-gold-soft/70 overflow-hidden transform scale-95 transition-all duration-300">
         
         <!-- Top Gold Shimmer Bar -->
-        <div class="h-1.5 w-full bg-gradient-to-r from-sage-dark via-gold to-sage-dark"></div>
+        <div class="h-1.5 w-full bg-gradient-to-r from-primary-light via-primary to-primary-light"></div>
 
         <!-- Close Popup Button -->
         <button type="button"
@@ -109,8 +109,8 @@
 
                 <button type="submit"
                         id="phoneVerifySubmitBtn"
-                        class="w-full py-3.5 rounded-2xl bg-sage-dark hover:bg-sage-deeper text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-shield-check text-gold"></i>
+                        class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm shadow-lg shadow-primary/25 transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-shield-check text-white"></i>
                     <span>تحقق وتأكيد الحجز</span>
                 </button>
             </form>
@@ -149,7 +149,7 @@
                 <button type="button"
                         id="googleOAuthBtn"
                         onclick="startGoogleSignInProcess()"
-                        class="w-full p-4 rounded-2xl bg-gradient-to-l from-sage-dark via-sage-deeper to-sage-dark hover:from-sage-deeper hover:to-black text-white shadow-xl hover:shadow-2xl border-2 border-gold/50 hover:border-gold active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
+                        class="w-full p-4 rounded-2xl bg-primary hover:bg-primary-dark text-white shadow-xl hover:shadow-2xl border-2 border-white/60 active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
                     <div class="flex items-center gap-3.5 text-right">
                         <div class="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                             <svg class="w-6 h-6" viewBox="0 0 48 48" aria-hidden="true">
@@ -163,13 +163,13 @@
                             <span id="googleOAuthBtnTitle" class="block font-extrabold text-sm sm:text-base text-white">
                                 المتابعة باستخدام حساب Google
                             </span>
-                            <span class="block text-[11px] text-gold-light/85 font-medium mt-0.5">
+                            <span class="block text-[11px] text-white/90 font-medium mt-0.5">
                                 تسجيل بضغطة واحدة وتأكيد الحجز باسم صاحبة الإيميل
                             </span>
                         </div>
                     </div>
 
-                    <div class="w-8 h-8 rounded-full bg-white/10 border border-gold/40 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-sage-dark transition-all shrink-0">
+                    <div class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary-dark transition-all shrink-0">
                         <span class="text-base font-bold leading-none -mt-0.5">‹</span>
                     </div>
                 </button>

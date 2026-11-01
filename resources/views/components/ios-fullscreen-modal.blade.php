@@ -21,11 +21,11 @@
         <!-- 2 Simple Steps -->
         <div class="p-4 rounded-2xl bg-sage-soft border border-sage-light text-right space-y-3.5 text-xs text-sage-dark font-medium">
             <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-full bg-sage-dark text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
+                <span class="w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold flex items-center justify-center shrink-0">1</span>
                 <span>اضغطي زر المشاركة أسفل شاشة سفاري (<i class="fa-solid fa-arrow-up-from-bracket text-gold-dark mx-1 text-sm"></i>)</span>
             </div>
             <div class="flex items-center gap-3">
-                <span class="w-6 h-6 rounded-full bg-sage-dark text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
+                <span class="w-6 h-6 rounded-full bg-primary text-white text-[11px] font-bold flex items-center justify-center shrink-0">2</span>
                 <span>اختاري <strong class="text-gold-dark">"إضافة إلى الصفحة الرئيسية"</strong> (Add to Home Screen)</span>
             </div>
         </div>
@@ -43,7 +43,7 @@
 
         <div class="pt-2">
             <button onclick="closeIosFullscreenModal()" 
-                    class="w-full py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-sm hover:bg-sage-deeper transition active:scale-95 shadow-md">
+                    class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm transition active:scale-95 shadow-md">
                 حسناً، فهمت
             </button>
         </div>

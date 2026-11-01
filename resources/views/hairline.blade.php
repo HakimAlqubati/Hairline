@@ -195,15 +195,15 @@
                     onclick="toggleDesktopBooking()"
                     aria-label="للحجز"
                     title="للحجز"
-                    class="group flex items-center gap-2.5 px-5 py-3 rounded-full bg-sage-dark text-white shadow-fab border-2 border-gold/50 hover:border-gold hover:bg-sage-deeper hover:shadow-2xl active:scale-95 transition-all duration-300 cursor-pointer">
+                    class="group flex items-center gap-2.5 px-5 py-3 rounded-full bg-primary hover:bg-primary-dark text-white shadow-fab border-2 border-white/80 hover:border-white hover:shadow-2xl active:scale-95 transition-all duration-300 cursor-pointer">
                 
                 <!-- Glowing Pulse Indicator -->
                 <span class="relative flex h-3 w-3">
-                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-gold opacity-75"></span>
-                    <span class="relative inline-flex rounded-full h-3 w-3 bg-gold shadow-xs"></span>
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-white shadow-xs"></span>
                 </span>
 
-                <i class="fa-regular fa-calendar-check text-lg text-gold group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
+                <i class="fa-regular fa-calendar-check text-lg text-white group-hover:rotate-12 group-hover:scale-110 transition-transform"></i>
                 <span class="text-sm font-black tracking-wide">للحجز</span>
             </button>
         </div>
@@ -230,18 +230,18 @@
                     id="floatingBookingConfirmBtn"
                     onclick="proceedToSpecialistStep()"
                     aria-label="تأكيد الحجز والانتقال لاختيار الأخصائية"
-                    class="group flex items-center gap-3 px-5 py-3.5 rounded-full bg-sage-dark hover:bg-sage-deeper text-white shadow-fab border-2 border-gold/60 hover:border-gold active:scale-95 transition-all duration-300 cursor-pointer">
-                <span class="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold shrink-0 group-hover:bg-gold group-hover:text-sage-dark transition-colors">
+                    class="group flex items-center gap-3 px-5 py-3.5 rounded-full bg-primary hover:bg-primary-dark text-white shadow-fab border-2 border-white/85 hover:border-white active:scale-95 transition-all duration-300 cursor-pointer">
+                <span class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white shrink-0 group-hover:bg-white group-hover:text-primary-dark transition-colors">
                     <i class="fa-solid fa-check text-xs"></i>
                 </span>
                 <div class="text-right">
                     <span class="block text-xs sm:text-sm font-black tracking-wide leading-tight">
                         تأكيد الحجز واختيار الأخصائية
                     </span>
-                    <span id="floatingSelectedServiceText" class="block text-[11px] font-bold text-gold-light/90 truncate max-w-[190px] sm:max-w-[260px]">
+                    <span id="floatingSelectedServiceText" class="block text-[11px] font-bold text-white/90 truncate max-w-[190px] sm:max-w-[260px]">
                     </span>
                 </div>
-                <i class="fa-solid fa-arrow-left text-xs text-gold group-hover:-translate-x-1 transition-transform mr-1"></i>
+                <i class="fa-solid fa-arrow-left text-xs text-white group-hover:-translate-x-1 transition-transform mr-1"></i>
             </button>
         </div>
 
@@ -1269,13 +1269,13 @@
                 const label = el.children[1];
 
                 if (i < step) {
-                    bar.className = "w-full h-1.5 rounded-full bg-gold mb-1.5 transition-colors duration-300";
-                    label.className = "text-xs font-bold text-gold-dark";
+                    bar.className = "w-full h-1.5 rounded-full bg-primary mb-1.5 transition-colors duration-300";
+                    label.className = "text-xs font-bold text-primary-dark";
                 } else if (i === step) {
-                    bar.className = "w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors duration-300";
-                    label.className = "text-xs font-extrabold text-sage-dark";
+                    bar.className = "w-full h-1.5 rounded-full bg-primary mb-1.5 transition-colors duration-300";
+                    label.className = "text-xs font-extrabold text-primary-dark";
                 } else {
-                    bar.className = "w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors duration-300";
+                    bar.className = "w-full h-1.5 rounded-full bg-primary-soft/40 mb-1.5 transition-colors duration-300";
                     label.className = "text-xs font-medium text-gray-400";
                 }
             }
@@ -1371,15 +1371,15 @@
                                             <div onclick="chooseSpecialist('${sp.id}')" 
                                                  class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
                                                      isSelected 
-                                                     ? 'bg-sage-soft/90 border-sage-dark shadow-xs ring-1 ring-sage-dark/20' 
-                                                     : 'bg-white border-gray-200/80 hover:border-gold-soft hover:bg-surface'
+                                                     ? 'bg-primary-light/70 border-primary shadow-xs ring-1 ring-primary/20' 
+                                                     : 'bg-white border-gray-200/80 hover:border-primary-soft hover:bg-surface'
                                                  }">
                                                 <div class="flex items-center gap-3 min-w-0">
                                                     <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
                                                         <img src="${sp.avatar}" 
                                                              alt="${sp.name}"
                                                              onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=211C18&color=C29E6D&bold=true&size=96';"
-                                                             class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-sage-dark ring-2 ring-sage-dark/15' : 'border-gold/30'} shrink-0 shadow-2xs"
+                                                             class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gold/30'} shrink-0 shadow-2xs"
                                                              style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
                                                     </div>
                                                     <div class="min-w-0">
@@ -1396,7 +1396,7 @@
 
                                                 <div class="w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
                                                     isSelected 
-                                                    ? 'border-sage-dark bg-sage-dark text-white shadow-xs' 
+                                                    ? 'border-primary bg-primary text-white shadow-xs' 
                                                     : 'border-gray-300 bg-white'
                                                 }">
                                                     ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
@@ -1430,8 +1430,8 @@
                                             <button onclick="selectBookingDate('${label}', '${iso}')" 
                                                     class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
                                                         isActiveDate 
-                                                        ? 'bg-sage-dark text-white border-sage-dark' 
-                                                        : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
+                                                        ? 'bg-primary text-white border-primary shadow-xs' 
+                                                        : 'bg-surface text-gray-600 border-gray-200 hover:border-primary'
                                                     }">
                                                 ${label}
                                             </button>
@@ -1468,8 +1468,8 @@
                                                         onclick="selectBookingTime('${slotTime}')" 
                                                         class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
                                                             isSelectedSlot 
-                                                            ? 'bg-gold text-white border-gold shadow-xs' 
-                                                            : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
+                                                            ? 'bg-primary text-white border-primary shadow-xs' 
+                                                            : 'bg-white text-sage-dark border-gray-200 hover:border-primary'
                                                         }">
                                                     ${slotTime}
                                                 </button>
@@ -1487,8 +1487,8 @@
                     step2Footer.innerHTML = `
                         <button onclick="confirmFinalBooking()" 
                                 ${canConfirm ? '' : 'disabled'}
-                                class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-sage-dark hover:bg-sage-deeper cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-circle-check text-gold"></i>
+                                class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check text-white"></i>
                             <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : 'يرجى اختيار وقت متاح للحجز'}</span>
                         </button>
                     `;
@@ -1541,7 +1541,7 @@
 
                             <div class="flex gap-2.5 pt-2">
                                 <button onclick="switchTab('account');" 
-                                        class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition cursor-pointer">
+                                        class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
                                       حجوزاتي
                                 </button>
                                 <button onclick="switchTab('home');" 
@@ -2073,7 +2073,7 @@
                             <button type="button"
                                     id="profileGoogleOAuthBtn"
                                     onclick="startGoogleSignInProcess()"
-                                    class="w-full p-4 rounded-2xl bg-gradient-to-l from-sage-dark via-sage-deeper to-sage-dark hover:from-sage-deeper hover:to-black text-white shadow-xl hover:shadow-2xl border-2 border-gold/50 hover:border-gold active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
+                                    class="w-full p-4 rounded-2xl bg-primary hover:bg-primary-dark text-white shadow-xl shadow-primary/25 hover:shadow-2xl border-2 border-white/80 hover:border-white active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
                                 <div class="flex items-center gap-3.5 text-right">
                                     <div class="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                                         <svg class="w-6 h-6" viewBox="0 0 48 48" aria-hidden="true">
@@ -2087,13 +2087,13 @@
                                         <span id="profileGoogleOAuthBtnTitle" class="block font-extrabold text-sm sm:text-base text-white">
                                             المتابعة باستخدام حساب Google
                                         </span>
-                                        <span class="block text-[11px] text-gold-light/85 font-medium mt-0.5">
+                                        <span class="block text-[11px] text-white/90 font-medium mt-0.5">
                                             تسجيل بضغطة واحدة بحساب Google
                                         </span>
                                     </div>
                                 </div>
 
-                                <div class="w-8 h-8 rounded-full bg-white/10 border border-gold/40 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-sage-dark transition-all shrink-0">
+                                <div class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white group-hover:bg-white group-hover:text-primary-dark transition-all shrink-0">
                                     <span class="text-base font-bold leading-none -mt-0.5">‹</span>
                                 </div>
                             </button>
@@ -2131,7 +2131,7 @@
 
                     <button type="button"
                             onclick="openEditProfileModal()"
-                            class="px-4 py-2.5 rounded-2xl bg-surface hover:bg-sage-dark text-sage-dark hover:text-white border border-gold-soft/80 hover:border-sage-dark text-xs font-extrabold transition-all duration-200 flex items-center gap-2 shadow-2xs cursor-pointer shrink-0">
+                            class="px-4 py-2.5 rounded-2xl bg-surface hover:bg-primary text-sage-dark hover:text-white border border-gold-soft/80 hover:border-primary text-xs font-extrabold transition-all duration-200 flex items-center gap-2 shadow-2xs cursor-pointer shrink-0">
                         <i class="fa-regular fa-pen-to-square text-gold-dark"></i>
                         <span>تعديل الملف</span>
                     </button>

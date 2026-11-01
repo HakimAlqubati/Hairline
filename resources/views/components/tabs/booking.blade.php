@@ -13,7 +13,7 @@
                         id="bookingPageBackBtn"
                         onclick="handleBookingBack()"
                         aria-label="العودة للخطوة السابقة"
-                        class="hidden w-10 h-10 rounded-full bg-white text-sage-dark border border-gold-soft/70 shadow-2xs flex items-center justify-center hover:bg-sage-dark hover:text-white transition cursor-pointer shrink-0">
+                        class="hidden w-10 h-10 rounded-full bg-white text-primary-dark border border-primary-soft/70 shadow-2xs flex items-center justify-center hover:bg-primary hover:text-white transition cursor-pointer shrink-0">
                     <i class="fa-solid fa-arrow-right text-sm"></i>
                 </button>
                 <div>
@@ -26,7 +26,7 @@
             <button type="button"
                     id="toggleAllTreeBtn"
                     onclick="toggleAllBookingCategories()"
-                    class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold text-sage-dark bg-white/80 hover:bg-gold-light/60 border border-gold-soft/60 transition cursor-pointer shrink-0">
+                    class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold text-primary-dark bg-white/90 hover:bg-primary hover:text-white border border-primary-soft/70 transition cursor-pointer shrink-0">
                 <span id="toggleAllTreeText">طي الكل</span>
             </button>
         </div>
@@ -35,11 +35,11 @@
         <div id="bookingStepper" class="pt-2">
             <div class="grid grid-cols-2 gap-3 text-center">
                 <div id="stepIndicator1" class="flex flex-col items-center">
-                    <div class="w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors duration-300"></div>
-                    <span class="text-xs font-extrabold text-sage-dark">1. اختيار الخدمة</span>
+                    <div class="w-full h-1.5 rounded-full bg-primary mb-1.5 transition-colors duration-300"></div>
+                    <span class="text-xs font-extrabold text-primary-dark">1. اختيار الخدمة</span>
                 </div>
                 <div id="stepIndicator2" class="flex flex-col items-center">
-                    <div class="w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors duration-300"></div>
+                    <div class="w-full h-1.5 rounded-full bg-primary-soft/40 mb-1.5 transition-colors duration-300"></div>
                     <span class="text-xs font-medium text-gray-400">2. اختيار الأخصائية</span>
                 </div>
             </div>
@@ -59,18 +59,18 @@
                         onclick="toggleBookingTreeCategory('{{ $cat['id'] }}')"
                         aria-expanded="true"
                         aria-controls="tree-panel-{{ $cat['id'] }}"
-                        class="w-full py-2.5 px-1 flex items-center justify-between gap-3 text-right group cursor-pointer select-none border-b border-gold-soft/50 hover:border-gold transition-colors">
+                        class="w-full py-2.5 px-3 rounded-xl bg-primary-light/50 hover:bg-primary-light/85 flex items-center justify-between gap-3 text-right group cursor-pointer select-none border border-primary-soft/60 hover:border-primary transition-colors">
                     <div class="flex items-center gap-2 min-w-0">
                         <span id="tree-chevron-{{ $cat['id'] }}"
-                              class="w-5 h-5 rounded-full flex items-center justify-center text-gold-dark transition-transform duration-300">
+                              class="w-5 h-5 rounded-full flex items-center justify-center text-primary-dark transition-transform duration-300">
                             <i class="fa-solid fa-chevron-down text-[11px]"></i>
                         </span>
-                        <h3 class="font-extrabold text-base sm:text-lg text-sage-dark group-hover:text-black transition-colors truncate">
+                        <h3 class="font-extrabold text-base sm:text-lg text-sage-dark group-hover:text-primary-dark transition-colors truncate">
                             {{ $cat['title'] }}
                         </h3>
                     </div>
 
-                    <span class="text-xs font-bold text-gold-dark shrink-0">
+                    <span class="text-xs font-bold text-primary-dark shrink-0">
                         {{ count($cat['subServices'] ?? []) }} خدمات
                     </span>
                 </button>
@@ -98,14 +98,14 @@
                                                        data-category-id="{{ $cat['id'] }}"
                                                        onchange="handleServiceCheckboxChange(this, '{{ $sub['id'] }}', '{{ $cat['id'] }}')"
                                                        class="peer sr-only booking-service-checkbox" />
-                                                <span class="w-5 h-5 rounded-md border border-gray-400 bg-transparent flex items-center justify-center transition-all duration-200 peer-checked:border-sage-dark peer-checked:bg-sage-dark peer-checked:[&>i]:scale-100 group-hover/item:border-sage-dark">
-                                                    <i class="fa-solid fa-check text-[11px] text-gold scale-0 transition-transform duration-150"></i>
+                                                <span class="w-5 h-5 rounded-md border border-primary-soft bg-white flex items-center justify-center transition-all duration-200 peer-checked:border-primary peer-checked:bg-primary peer-checked:[&>i]:scale-100 group-hover/item:border-primary">
+                                                    <i class="fa-solid fa-check text-[11px] text-white scale-0 transition-transform duration-150"></i>
                                                 </span>
                                             </div>
 
                                             <!-- Sub-Service Text Info (No Borders / No Boxes / No Description / No Icons) -->
                                             <div class="min-w-0">
-                                                <span class="block font-bold text-sm sm:text-[15px] text-sage-dark group-hover/item:text-black transition-colors leading-snug">
+                                                <span class="block font-bold text-sm sm:text-[15px] text-sage-dark group-hover/item:text-primary-dark transition-colors leading-snug">
                                                     {{ $sub['name'] }}
                                                 </span>
                                                 <div class="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-gray-400 font-medium">
