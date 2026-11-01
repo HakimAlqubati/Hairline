@@ -22,3 +22,4 @@ Route::post('/booking/google-register', [BookingController::class, 'registerWith
 Route::get('/auth/google/redirect', [BookingController::class, 'redirectToGoogle'])->name('booking.google_redirect');
 Route::get('/auth/google/callback', [BookingController::class, 'handleGoogleCallback'])->name('booking.google_callback');
 Route::post('/profile/update', [BookingController::class, 'updateProfile'])->name('profile.update');
+Route::post('/profile/logout', [BookingController::class, 'logout'])->name('profile.logout');

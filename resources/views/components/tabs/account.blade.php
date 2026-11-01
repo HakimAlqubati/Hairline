@@ -120,6 +120,17 @@
                     إلغاء
                 </button>
             </div>
+
+            <!-- Logout Button -->
+            <div class="pt-2 border-t border-gray-100">
+                <button type="button"
+                        id="editProfileLogoutBtn"
+                        onclick="handleCustomerLogout()"
+                        class="w-full py-3 rounded-2xl bg-red-50 hover:bg-red-100 text-red-600 hover:text-red-700 text-xs sm:text-sm font-extrabold transition flex items-center justify-center gap-2 cursor-pointer border border-red-200/70">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                    <span>تسجيل الخروج</span>
+                </button>
+            </div>
         </form>
     </div>
 </div>

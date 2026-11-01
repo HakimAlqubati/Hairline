@@ -493,6 +493,21 @@ class BookingController extends Controller
     }
 
     /**
+     * Log out the currently authenticated customer from the session.
+     */
+    public function logout(Request $request): JsonResponse
+    {
+        session()->forget('logged_in_customer_id');
+        session()->forget('pending_google_booking');
+
+        return response()->json([
+            'success' => true,
+            'status' => 'logged_out',
+            'message' => 'تم تسجيل الخروج بنجاح.',
+        ]);
+    }
+
+    /**
      * Format Customer model into frontend profile array.
      *
      * @return array{id: int, customer_code: string, name: string, phone: string, email: ?string, avatar_url: string}

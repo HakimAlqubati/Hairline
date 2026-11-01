@@ -770,14 +770,8 @@
         function syncToggleAllTreeButton() {
             const buttons = Array.from(document.querySelectorAll('[id^="tree-btn-"]'));
             const anyExpanded = buttons.some(btn => btn.getAttribute('aria-expanded') === 'true');
-            const icon = document.getElementById('toggleAllTreeIcon');
             const text = document.getElementById('toggleAllTreeText');
 
-            if (icon) {
-                icon.className = anyExpanded
-                    ? 'fa-solid fa-angles-up text-[10px] text-gold-dark'
-                    : 'fa-solid fa-angles-down text-[10px] text-gold-dark';
-            }
             if (text) {
                 text.textContent = anyExpanded ? 'طي الكل' : 'فتح الكل';
             }
@@ -954,7 +948,10 @@
             // STEP 1: عرض الشجرة المبسطة للخدمات المتاحة للحجز (مفتوحة افتراضياً مع Checkbox)
             if (bookingState.step === 1) {
                 if (pageTitle) pageTitle.textContent = "الخدمات المتاحة للحجز";
-                if (pageSubtitle) pageSubtitle.textContent = "اختاري الخدمة المطلوبة من القائمة الشجرية أدناه للمتابعة لاختيار الأخصائية";
+                if (pageSubtitle) {
+                    pageSubtitle.textContent = "";
+                    pageSubtitle.classList.add('hidden');
+                }
                 if (step1Container) step1Container.classList.remove('hidden');
             }
 
@@ -964,7 +961,10 @@
                 if (!sub) return;
 
                 if (pageTitle) pageTitle.textContent = "الخطوة 2: اختيار الأخصائية";
-                if (pageSubtitle) pageSubtitle.textContent = "الأخصائيات المؤهلات لتقديم هذه الخدمة تحديداً";
+                if (pageSubtitle) {
+                    pageSubtitle.textContent = "";
+                    pageSubtitle.classList.add('hidden');
+                }
                 if (step2Container) step2Container.classList.remove('hidden');
 
                 const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
@@ -1769,18 +1769,6 @@
                                 <span id="profileGoogleRegisterErrorText">تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.</span>
                             </p>
 
-                            <!-- Security & Speed Reassurance Badges -->
-                            <div class="grid grid-cols-2 gap-2 pt-1">
-                                <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
-                                    <i class="fa-solid fa-lock text-gold-dark text-xs"></i>
-                                    <span>ربط آمن ومشفر 100%</span>
-                                </div>
-                                <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
-                                    <i class="fa-solid fa-bolt text-gold-dark text-xs"></i>
-                                    <span>دخول وتأكيد فوري</span>
-                                </div>
-                            </div>
-
                             <div class="pt-2">
                                 <button type="button"
                                         onclick="openBookingFlow()"
@@ -1961,6 +1949,47 @@
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = originalBtnHtml;
                 }
+            }
+        }
+
+        async function handleCustomerLogout() {
+            const logoutBtn = document.getElementById('editProfileLogoutBtn');
+            const originalHtml = logoutBtn ? logoutBtn.innerHTML : '';
+            if (logoutBtn) {
+                logoutBtn.disabled = true;
+                logoutBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i><span>جاري تسجيل الخروج...</span>`;
+            }
+
+            try {
+                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+                await fetch("{{ route('profile.logout') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrfToken
+                    }
+                });
+            } catch (err) {
+                // Ignore network errors on logout to ensure local logout always succeeds
+            } finally {
+                currentCustomer = null;
+                confirmedBookings = [];
+                bookingState.verifiedPhone = "";
+                bookingState.confirmedCustomerName = "";
+                bookingState.confirmedCustomerEmail = "";
+
+                closeEditProfileModal();
+                renderCustomerProfile();
+                renderMyBookings();
+                updateBookingBadge();
+
+                if (logoutBtn) {
+                    logoutBtn.disabled = false;
+                    logoutBtn.innerHTML = originalHtml;
+                }
+
+                openToast('تم تسجيل الخروج بنجاح ✨');
             }
         }
 
