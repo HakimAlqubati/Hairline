@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\Bookings\Pages\EditBooking;
 use App\Filament\Resources\ServiceCategories\Pages\EditServiceCategory;
 use App\Models\Booking;
@@ -173,7 +174,7 @@ test('user can authenticate via custom filament login page', function () {
         'password' => bcrypt('password123'),
     ]);
 
-    Livewire::test(\App\Filament\Pages\Auth\Login::class)
+    Livewire::test(Login::class)
         ->fillForm([
             'email' => 'admin@hairline.test',
             'password' => 'password123',
@@ -186,7 +187,7 @@ test('user can authenticate via custom filament login page', function () {
 });
 
 test('invalid credentials show validation error on custom filament login page', function () {
-    Livewire::test(\App\Filament\Pages\Auth\Login::class)
+    Livewire::test(Login::class)
         ->fillForm([
             'email' => 'wrong@email.com',
             'password' => 'wrongpassword',

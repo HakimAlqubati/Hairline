@@ -64,10 +64,17 @@ describe('Customer-Facing Pages', function () {
         $response->assertDontSee('الانتقال إلى الخدمات المتاحة للحجز');
     });
 
-    test('booking page returns 200 and shows all steps including confirmation details', function () {
+    test('booking page returns 200 and shows standalone collapsible tree view with checkboxes and floating confirm button', function () {
         $response = $this->get('/booking');
 
         $response->assertStatus(200);
+        $response->assertSee('id="bookingTabView"', false);
+        $response->assertSee('id="bookingStep1Container"', false);
+        $response->assertSee('aria-expanded="true"', false);
+        $response->assertSee('booking-service-checkbox', false);
+        $response->assertSee('id="floatingBookingConfirmContainer"', false);
+        $response->assertSee('id="floatingBookingConfirmBtn"', false);
+        $response->assertSee('تأكيد الحجز واختيار الأخصائية');
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('خدمات الشعر');
         $response->assertSee('معالجات الشعر');

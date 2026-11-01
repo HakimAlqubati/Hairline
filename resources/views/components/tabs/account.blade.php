@@ -5,7 +5,7 @@
     </div>
 
     <!-- My Bookings List -->
-    <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 space-y-3">
+    <div id="myBookingsSectionCard" class="hidden bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 space-y-3">
         <div class="flex items-center justify-between">
             <h4 class="font-extrabold text-sm text-sage-dark flex items-center gap-2">
                 <i class="fa-regular fa-calendar-check text-gold-dark"></i>

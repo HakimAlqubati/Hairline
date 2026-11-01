@@ -31,20 +31,6 @@
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </div>
-
-        <!-- 2-Step Progress Bar (Shown only during Booking Flow) -->
-        <div id="bookingStepper" class="mt-4 pt-3 border-t border-white/60 hidden">
-            <div class="grid grid-cols-2 gap-3 text-center">
-                <div id="stepIndicator1" class="flex flex-col items-center">
-                    <div class="w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors"></div>
-                    <span class="text-[11px] font-bold text-sage-dark">1. اختيار الخدمة</span>
-                </div>
-                <div id="stepIndicator2" class="flex flex-col items-center">
-                    <div class="w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors"></div>
-                    <span class="text-[11px] font-medium text-gray-400">2. اختيار الأخصائية</span>
-                </div>
-            </div>
-        </div>
     </div>
 
     <!-- Dynamic Scrollable Body Inside Bottom Sheet -->

@@ -127,6 +127,19 @@
         .animate-step {
             animation: fadeSlideUp 0.3s ease-out forwards;
         }
+        @keyframes bookingPageReveal {
+            0% {
+                opacity: 0;
+                transform: translateY(18px) scale(0.99);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .animate-booking-page {
+            animation: bookingPageReveal 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
         body.simulated-fullscreen {
             background-color: #FAF8F5 !important;
         }
@@ -146,7 +159,7 @@
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
 
         <!-- 2. MAIN HOME VIEW (Contained in luxury max-w-7xl centered container) -->
-        <main id="mainHomeView" class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
+        <main id="mainHomeView" class="{{ ($initialView ?? 'home') === 'home' ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
             <!-- Main Service Rows (Strictly 2 Wide Rows) -->
             <x-service-rows />
 
@@ -156,6 +169,7 @@
 
         <!-- 3. DYNAMIC TAB VIEWS -->
         <x-tabs.services :menuPages="$menuPages ?? []" />
+        <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" />
         <x-tabs.account />
 
@@ -193,6 +207,28 @@
             </button>
         </div>
 
+        <!-- 10. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Hidden Until Service Selected) -->
+        <div id="floatingBookingConfirmContainer"
+             class="fixed bottom-24 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 hidden opacity-0 translate-y-4 scale-95 pointer-events-none transition-all duration-300 ease-out">
+            <button type="button"
+                    id="floatingBookingConfirmBtn"
+                    onclick="proceedToSpecialistStep()"
+                    aria-label="تأكيد الحجز والانتقال لاختيار الأخصائية"
+                    class="group flex items-center gap-3 px-5 py-3.5 rounded-full bg-sage-dark hover:bg-sage-deeper text-white shadow-fab border-2 border-gold/60 hover:border-gold active:scale-95 transition-all duration-300 cursor-pointer">
+                <span class="w-8 h-8 rounded-full bg-gold/20 border border-gold/40 flex items-center justify-center text-gold shrink-0 group-hover:bg-gold group-hover:text-sage-dark transition-colors">
+                    <i class="fa-solid fa-check text-xs"></i>
+                </span>
+                <div class="text-right">
+                    <span class="block text-xs sm:text-sm font-black tracking-wide leading-tight">
+                        تأكيد الحجز واختيار الأخصائية
+                    </span>
+                    <span id="floatingSelectedServiceText" class="block text-[11px] font-bold text-gold-light/90 truncate max-w-[190px] sm:max-w-[260px]">
+                    </span>
+                </div>
+                <i class="fa-solid fa-arrow-left text-xs text-gold group-hover:-translate-x-1 transition-transform mr-1"></i>
+            </button>
+        </div>
+
     </div>
 
     <!-- ==================== JAVASCRIPT DATA & LOGIC ==================== -->
@@ -211,6 +247,8 @@
         /* -------------------------------------------------------------------------- */
         let currentSlideIndex = 0;
         let slideInterval = null;
+        let currentActiveTab = "{{ $initialView ?? 'home' }}";
+        let floatingConfirmHideTimeout = null;
 
         const defaultBookingDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
 
@@ -312,15 +350,20 @@
         }
 
         function switchTab(tabName) {
+            currentActiveTab = tabName;
+
             const homeView = document.getElementById('mainHomeView');
             const aboutView = document.getElementById('aboutTabView');
             const accountView = document.getElementById('accountTabView');
             const servicesView = document.getElementById('servicesTabView');
+            const bookingView = document.getElementById('bookingTabView');
+            const desktopFabContainer = document.getElementById('desktopFloatingBookingContainer');
 
             if (homeView) homeView.classList.add('hidden');
             if (aboutView) aboutView.classList.add('hidden');
             if (accountView) accountView.classList.add('hidden');
             if (servicesView) servicesView.classList.add('hidden');
+            if (bookingView) bookingView.classList.add('hidden');
 
             if (tabName === 'home') {
                 if (homeView) homeView.classList.remove('hidden');
@@ -329,6 +372,15 @@
             if (tabName === 'services') {
                 if (servicesView) servicesView.classList.remove('hidden');
                 updateUrl('/services');
+            }
+            if (tabName === 'booking') {
+                if (bookingView) {
+                    bookingView.classList.remove('hidden');
+                    bookingView.classList.remove('animate-booking-page');
+                    void bookingView.offsetWidth;
+                    bookingView.classList.add('animate-booking-page');
+                }
+                updateUrl('/booking');
             }
             if (tabName === 'about') {
                 if (aboutView) aboutView.classList.remove('hidden');
@@ -340,6 +392,12 @@
                 if (accountView) accountView.classList.remove('hidden');
                 updateUrl('/profile');
             }
+
+            if (desktopFabContainer) {
+                desktopFabContainer.classList.toggle('md:hidden', tabName === 'booking');
+            }
+
+            syncFloatingConfirmButton();
 
             // Update bottom nav active state (Mobile)
             const navIds = ['home', 'services', 'about', 'account'];
@@ -391,13 +449,11 @@
             const sheetTitle = document.getElementById('sheetTitle');
             const sheetSubtitle = document.getElementById('sheetSubtitle');
             const sheetBackBtn = document.getElementById('sheetBackBtn');
-            const bookingStepper = document.getElementById('bookingStepper');
             const sheetBody = document.getElementById('sheetBody');
             const sheetFooter = document.getElementById('sheetFooter');
 
-            sheetBackBtn.classList.add('hidden');
-            bookingStepper.classList.add('hidden');
-            sheetFooter.classList.add('hidden');
+            if (sheetBackBtn) sheetBackBtn.classList.add('hidden');
+            if (sheetFooter) sheetFooter.classList.add('hidden');
 
             if (sectionType === 'about') {
                 sheetTitle.textContent = "التعريف بالصالون (من نحن)";
@@ -606,7 +662,6 @@
         /* 2-STEP BOOKING FLOW + PHONE REGEX POPUP & GOOGLE REGISTRATION (DB-BACKED)  */
         /* -------------------------------------------------------------------------- */
         function openBookingFlow() {
-            updateUrl('/booking');
             const initialDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
             bookingState = {
                 step: 1,
@@ -626,12 +681,14 @@
                 confirmedCustomerName: "",
                 confirmedCustomerEmail: ""
             };
+
+            clearAllServiceCheckboxes();
+            expandAllBookingCategories();
+            switchTab('booking');
             renderBookingStep();
-            showBottomSheet();
         }
 
         function openBookingFlowWithCategory(categoryId) {
-            updateUrl('/booking');
             const aliasMap = {
                 'hair_treatments': 'hot_treatments',
                 'hair_services': 'color_services',
@@ -648,7 +705,7 @@
             }, 250);
         }
 
-        function handleSheetBack() {
+        function handleBookingBack() {
             if (bookingState.step === 2) {
                 bookingState.step = 1;
                 bookingState.selectedSpecialist = null;
@@ -657,20 +714,206 @@
             }
         }
 
-        function updateStepperUI(step) {
-            const bookingStepper = document.getElementById('bookingStepper');
-            const sheetBackBtn = document.getElementById('sheetBackBtn');
+        function handleSheetBack() {
+            handleBookingBack();
+        }
 
-            if (step === 1 || step === 2) {
-                bookingStepper.classList.remove('hidden');
+        function toggleBookingTreeCategory(catId) {
+            const btn = document.getElementById(`tree-btn-${catId}`);
+            const panel = document.getElementById(`tree-panel-${catId}`);
+            const chevron = document.getElementById(`tree-chevron-${catId}`);
+            if (!btn || !panel) return;
+
+            const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+            setCategoryExpandedState(catId, !isExpanded);
+            syncToggleAllTreeButton();
+        }
+
+        function setCategoryExpandedState(catId, expand) {
+            const btn = document.getElementById(`tree-btn-${catId}`);
+            const panel = document.getElementById(`tree-panel-${catId}`);
+            const chevron = document.getElementById(`tree-chevron-${catId}`);
+            if (!btn || !panel) return;
+
+            btn.setAttribute('aria-expanded', expand ? 'true' : 'false');
+            if (expand) {
+                panel.classList.remove('grid-rows-[0fr]', 'opacity-0');
+                panel.classList.add('grid-rows-[1fr]', 'opacity-100');
+                if (chevron) chevron.classList.remove('rotate-90');
             } else {
-                bookingStepper.classList.add('hidden');
+                panel.classList.remove('grid-rows-[1fr]', 'opacity-100');
+                panel.classList.add('grid-rows-[0fr]', 'opacity-0');
+                if (chevron) chevron.classList.add('rotate-90');
+            }
+        }
+
+        function expandAllBookingCategories() {
+            document.querySelectorAll('[data-category-tree]').forEach(el => {
+                const catId = el.getAttribute('data-category-tree');
+                if (catId) setCategoryExpandedState(catId, true);
+            });
+            syncToggleAllTreeButton();
+        }
+
+        function toggleAllBookingCategories() {
+            const buttons = Array.from(document.querySelectorAll('[id^="tree-btn-"]'));
+            const anyExpanded = buttons.some(btn => btn.getAttribute('aria-expanded') === 'true');
+            const targetState = !anyExpanded;
+
+            document.querySelectorAll('[data-category-tree]').forEach(el => {
+                const catId = el.getAttribute('data-category-tree');
+                if (catId) setCategoryExpandedState(catId, targetState);
+            });
+            syncToggleAllTreeButton();
+        }
+
+        function syncToggleAllTreeButton() {
+            const buttons = Array.from(document.querySelectorAll('[id^="tree-btn-"]'));
+            const anyExpanded = buttons.some(btn => btn.getAttribute('aria-expanded') === 'true');
+            const icon = document.getElementById('toggleAllTreeIcon');
+            const text = document.getElementById('toggleAllTreeText');
+
+            if (icon) {
+                icon.className = anyExpanded
+                    ? 'fa-solid fa-angles-up text-[10px] text-gold-dark'
+                    : 'fa-solid fa-angles-down text-[10px] text-gold-dark';
+            }
+            if (text) {
+                text.textContent = anyExpanded ? 'طي الكل' : 'فتح الكل';
+            }
+        }
+
+        function clearAllServiceCheckboxes() {
+            document.querySelectorAll('.booking-service-checkbox').forEach(cb => {
+                cb.checked = false;
+            });
+            document.querySelectorAll('.booking-tree-row').forEach(row => {
+                row.classList.remove('bg-gold-light/40');
+            });
+        }
+
+        function findCategoryAndSubService(subId, catId = null) {
+            let foundCategory = catId ? bookableCategories.find(c => c.id === catId) : bookingState.selectedCategory;
+            let foundSub = foundCategory ? foundCategory.subServices.find(s => s.id === subId) : null;
+
+            if (!foundSub) {
+                for (const cat of bookableCategories) {
+                    const candidate = cat.subServices.find(s => s.id === subId);
+                    if (candidate) {
+                        foundCategory = cat;
+                        foundSub = candidate;
+                        break;
+                    }
+                }
             }
 
-            if (step === 2) {
-                sheetBackBtn.classList.remove('hidden');
+            return { foundCategory, foundSub };
+        }
+
+        function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
+            if (!checkboxEl) return;
+
+            if (checkboxEl.checked) {
+                document.querySelectorAll('.booking-service-checkbox').forEach(cb => {
+                    if (cb !== checkboxEl) {
+                        cb.checked = false;
+                    }
+                });
+                document.querySelectorAll('.booking-tree-row').forEach(row => {
+                    row.classList.remove('bg-gold-light/40');
+                });
+
+                const activeRow = document.getElementById(`srv-row-${subId}`);
+                if (activeRow) {
+                    activeRow.classList.add('bg-gold-light/40');
+                }
+
+                const { foundCategory, foundSub } = findCategoryAndSubService(subId, catId);
+                bookingState.selectedCategory = foundCategory || null;
+                bookingState.selectedSubService = foundSub || null;
             } else {
-                sheetBackBtn.classList.add('hidden');
+                const activeRow = document.getElementById(`srv-row-${subId}`);
+                if (activeRow) {
+                    activeRow.classList.remove('bg-gold-light/40');
+                }
+                bookingState.selectedCategory = null;
+                bookingState.selectedSubService = null;
+            }
+
+            syncFloatingConfirmButton();
+        }
+
+        function syncFloatingConfirmButton() {
+            const container = document.getElementById('floatingBookingConfirmContainer');
+            const labelEl = document.getElementById('floatingSelectedServiceText');
+            if (!container) return;
+
+            const shouldShow = (
+                currentActiveTab === 'booking' &&
+                bookingState.step === 1 &&
+                Boolean(bookingState.selectedSubService)
+            );
+
+            if (floatingConfirmHideTimeout) {
+                clearTimeout(floatingConfirmHideTimeout);
+                floatingConfirmHideTimeout = null;
+            }
+
+            if (shouldShow) {
+                if (labelEl && bookingState.selectedSubService) {
+                    labelEl.textContent = `${bookingState.selectedSubService.name} • ${bookingState.selectedSubService.price}`;
+                }
+                container.classList.remove('hidden');
+                requestAnimationFrame(() => {
+                    container.classList.remove('opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
+                    container.classList.add('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
+                });
+            } else {
+                container.classList.remove('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
+                container.classList.add('opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
+                floatingConfirmHideTimeout = setTimeout(() => {
+                    container.classList.add('hidden');
+                }, 280);
+            }
+        }
+
+        function proceedToSpecialistStep() {
+            if (!bookingState.selectedCategory || !bookingState.selectedSubService) return;
+            bookingState.selectedSpecialist = null;
+            bookingState.selectedTime = null;
+            bookingState.availability = { loading: true, is_day_off: false, shift_label: "", slots: [] };
+            bookingState.step = 2;
+            renderBookingStep();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function updateStepperUI(step) {
+            const bookingStepper = document.getElementById('bookingStepper');
+            const backBtn = document.getElementById('bookingPageBackBtn');
+            const toggleAllBtn = document.getElementById('toggleAllTreeBtn');
+
+            if (bookingStepper) {
+                if (step === 1 || step === 2) {
+                    bookingStepper.classList.remove('hidden');
+                } else {
+                    bookingStepper.classList.add('hidden');
+                }
+            }
+
+            if (backBtn) {
+                if (step === 2) {
+                    backBtn.classList.remove('hidden');
+                } else {
+                    backBtn.classList.add('hidden');
+                }
+            }
+
+            if (toggleAllBtn) {
+                if (step === 1) {
+                    toggleAllBtn.classList.remove('hidden');
+                } else {
+                    toggleAllBtn.classList.add('hidden');
+                }
             }
 
             for (let i = 1; i <= 2; i++) {
@@ -680,89 +923,49 @@
                 const label = el.children[1];
 
                 if (i < step) {
-                    bar.className = "w-full h-1.5 rounded-full bg-gold mb-1.5 transition-colors";
-                    label.className = "text-[11px] font-bold text-gold-dark";
+                    bar.className = "w-full h-1.5 rounded-full bg-gold mb-1.5 transition-colors duration-300";
+                    label.className = "text-xs font-bold text-gold-dark";
                 } else if (i === step) {
-                    bar.className = "w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors";
-                    label.className = "text-[11px] font-extrabold text-sage-dark";
+                    bar.className = "w-full h-1.5 rounded-full bg-sage-dark mb-1.5 transition-colors duration-300";
+                    label.className = "text-xs font-extrabold text-sage-dark";
                 } else {
-                    bar.className = "w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors";
-                    label.className = "text-[11px] font-medium text-gray-400";
+                    bar.className = "w-full h-1.5 rounded-full bg-gray-200 mb-1.5 transition-colors duration-300";
+                    label.className = "text-xs font-medium text-gray-400";
                 }
             }
         }
 
         function renderBookingStep() {
-            const sheetTitle = document.getElementById('sheetTitle');
-            const sheetSubtitle = document.getElementById('sheetSubtitle');
-            const sheetBody = document.getElementById('sheetBody');
-            const sheetFooter = document.getElementById('sheetFooter');
+            const pageTitle = document.getElementById('bookingPageTitle');
+            const pageSubtitle = document.getElementById('bookingPageSubtitle');
+            const step1Container = document.getElementById('bookingStep1Container');
+            const step2Container = document.getElementById('bookingStep2Container');
+            const step2Body = document.getElementById('bookingStep2Body');
+            const step2Footer = document.getElementById('bookingStep2Footer');
+            const step3Container = document.getElementById('bookingStep3Container');
 
             updateStepperUI(bookingState.step);
+            syncFloatingConfirmButton();
 
-            // STEP 1: عرض الخدمة الرئيسية مع الخدمات الفرعية تحتها مباشرة وقابلة للاختيار فوراً
+            if (step1Container) step1Container.classList.add('hidden');
+            if (step2Container) step2Container.classList.add('hidden');
+            if (step3Container) step3Container.classList.add('hidden');
+
+            // STEP 1: عرض الشجرة المبسطة للخدمات المتاحة للحجز (مفتوحة افتراضياً مع Checkbox)
             if (bookingState.step === 1) {
-                sheetTitle.textContent = "الخدمات المتاحة للحجز";
-                sheetSubtitle.textContent = "اختاري الخدمة المطلوبة مباشرة للانتقال لاختيار الأخصائية";
-                sheetFooter.classList.add('hidden');
-
-                sheetBody.innerHTML = `
-                    <div class="space-y-6 animate-step">
-                        ${bookableCategories.map(cat => `
-                            <div id="booking-cat-${cat.id}" class="space-y-2.5">
-                                <!-- Main Category Header (الخدمة الرئيسية) -->
-                                <div class="sticky top-0 z-10 px-4 py-3 rounded-2xl bg-sage-dark text-white shadow-sm flex items-center justify-between border border-gold/40">
-                                    <div class="flex items-center gap-2.5 min-w-0">
-                                        <span class="w-8 h-8 rounded-xl bg-white/10 text-gold flex items-center justify-center shrink-0 border border-gold/30">
-                                            <i class="fa-solid ${cat.icon || 'fa-scissors'} text-xs"></i>
-                                        </span>
-                                        <div class="min-w-0">
-                                            <h4 class="font-extrabold text-sm sm:text-base text-white truncate">${cat.title}</h4>
-                                            ${cat.description ? `<p class="text-[11px] text-gold-light/85 truncate">${cat.description}</p>` : ''}
-                                        </div>
-                                    </div>
-                                    <span class="px-2.5 py-1 rounded-full bg-gold/20 text-gold-light text-[10px] font-extrabold border border-gold/40 shrink-0">
-                                        ${cat.subServices.length} خدمات
-                                    </span>
-                                </div>
-
-                                <!-- Sub-Services Directly Underneath (الخدمات الفرعية) -->
-                                <div class="space-y-2.5 pr-1">
-                                    ${cat.subServices.map(sub => `
-                                        <button onclick="selectSubService('${sub.id}', '${cat.id}')" 
-                                                class="w-full p-4 rounded-2xl bg-surface hover:bg-gold-light/40 border border-gray-200/90 hover:border-gold transition-all text-right flex flex-col gap-2 group cursor-pointer shadow-2xs">
-                                            <div class="flex items-start justify-between gap-2 w-full">
-                                                <h5 class="font-extrabold text-sm sm:text-base text-sage-dark group-hover:text-sage-deeper">
-                                                    ${sub.name}
-                                                </h5>
-                                                <span class="px-3 py-1 rounded-xl bg-sage-dark text-gold-light font-extrabold text-xs shrink-0">
-                                                    ${sub.price}
-                                                </span>
-                                            </div>
-                                            ${sub.desc ? `<p class="text-xs text-gray-500 leading-relaxed">${sub.desc}</p>` : ''}
-                                            <div class="pt-2 border-t border-gray-200/70 flex items-center justify-between w-full text-[11px]">
-                                                <span class="text-gray-500 font-medium">
-                                                    <i class="fa-regular fa-clock ml-1 text-gold-dark"></i>المدة: ${sub.duration}
-                                                </span>
-                                                <span class="font-extrabold text-sage-dark group-hover:text-gold-dark flex items-center gap-1 transition-colors">
-                                                    <span>اختيار الأخصائية (${sub.specialists.length} متاحات)</span>
-                                                    <span class="text-base leading-none">‹</span>
-                                                </span>
-                                            </div>
-                                        </button>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
+                if (pageTitle) pageTitle.textContent = "الخدمات المتاحة للحجز";
+                if (pageSubtitle) pageSubtitle.textContent = "اختاري الخدمة المطلوبة من القائمة الشجرية أدناه للمتابعة لاختيار الأخصائية";
+                if (step1Container) step1Container.classList.remove('hidden');
             }
 
             // STEP 2: اختيار الأخصائية وتحديد الوقت (مرتبط بشيفتات قاعدة البيانات والتحقق من المواعيد المحجوزة)
             else if (bookingState.step === 2) {
                 const sub = bookingState.selectedSubService;
-                sheetTitle.textContent = "الخطوة 2: اختيار الأخصائية";
-                sheetSubtitle.textContent = "الأخصائيات المؤهلات لتقديم هذه الخدمة تحديداً";
+                if (!sub) return;
+
+                if (pageTitle) pageTitle.textContent = "الخطوة 2: اختيار الأخصائية";
+                if (pageSubtitle) pageSubtitle.textContent = "الأخصائيات المؤهلات لتقديم هذه الخدمة تحديداً";
+                if (step2Container) step2Container.classList.remove('hidden');
 
                 const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
                 if (!bookingState.selectedSpecialist && linkedSpecialists.length > 0) {
@@ -789,212 +992,214 @@
                 const isDayOff = Boolean(bookingState.availability && bookingState.availability.is_day_off);
                 const shiftLabel = bookingState.availability?.shift_label || "";
 
-                sheetBody.innerHTML = `
-                    <div class="space-y-4 animate-step">
-                        <!-- Summary Card -->
-                        <div class="p-3.5 rounded-2xl bg-gold-light/70 border border-gold/40 flex items-center justify-between">
-                            <div>
-                                <span class="text-[11px] font-bold text-gold-dark block">${bookingState.selectedCategory.title}</span>
-                                <h4 class="font-extrabold text-xs sm:text-sm text-sage-dark mt-0.5">${sub.name}</h4>
+                if (step2Body) {
+                    step2Body.innerHTML = `
+                        <div class="space-y-4 animate-step">
+                            <!-- Summary Card -->
+                            <div class="p-4 rounded-2xl bg-gold-light/70 border border-gold/40 flex items-center justify-between">
+                                <div>
+                                    <span class="text-[11px] font-bold text-gold-dark block">${bookingState.selectedCategory.title}</span>
+                                    <h4 class="font-extrabold text-sm sm:text-base text-sage-dark mt-0.5">${sub.name}</h4>
+                                </div>
+                                <div class="text-left shrink-0">
+                                    <span class="font-black text-sm sm:text-base text-sage-dark block">${sub.price}</span>
+                                    <span class="text-[11px] text-gray-500">${sub.duration}</span>
+                                </div>
                             </div>
-                            <div class="text-left shrink-0">
-                                <span class="font-black text-sm text-sage-dark block">${sub.price}</span>
-                                <span class="text-[10px] text-gray-500">${sub.duration}</span>
-                            </div>
-                        </div>
 
-                        <!-- Specialists List -->
-                        <div class="space-y-2.5">
-                            <label class="block text-xs font-extrabold text-sage-dark">
-                                اختاري الأخصائية (${linkedSpecialists.length} أخصائيات معتمدات):
-                            </label>
-                            ${linkedSpecialists.map(sp => {
-                                const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
-                                return `
-                                    <div onclick="chooseSpecialist('${sp.id}')" 
-                                         class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
-                                             isSelected 
-                                             ? 'bg-sage-soft/90 border-sage-dark shadow-xs ring-1 ring-sage-dark/20' 
-                                             : 'bg-white border-gray-200/80 hover:border-gold-soft hover:bg-surface'
-                                         }">
-                                        <div class="flex items-center gap-3 min-w-0">
-                                            <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
-                                                <img src="${sp.avatar}" 
-                                                     alt="${sp.name}"
-                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=211C18&color=C29E6D&bold=true&size=96';"
-                                                     class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-sage-dark ring-2 ring-sage-dark/15' : 'border-gold/30'} shrink-0 shadow-2xs"
-                                                     style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
-                                            </div>
-                                            <div class="min-w-0">
-                                                <h5 class="font-extrabold text-sm text-sage-dark truncate leading-tight">${sp.name}</h5>
-                                                <p class="text-[11px] text-gray-500 truncate mt-0.5 font-medium">${sp.role}</p>
-                                                <div class="flex items-center gap-1.5 mt-1">
-                                                    <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-gold-dark bg-gold-light/60 px-2 py-0.5 rounded-md border border-gold/25">
-                                                        <i class="fa-regular fa-clock text-[9px]"></i>
-                                                        ${sp.experience}
-                                                    </span>
+                            <!-- Specialists List -->
+                            <div class="space-y-2.5">
+                                <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
+                                    اختاري الأخصائية (${linkedSpecialists.length} أخصائيات معتمدات):
+                                </label>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    ${linkedSpecialists.map(sp => {
+                                        const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
+                                        return `
+                                            <div onclick="chooseSpecialist('${sp.id}')" 
+                                                 class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
+                                                     isSelected 
+                                                     ? 'bg-sage-soft/90 border-sage-dark shadow-xs ring-1 ring-sage-dark/20' 
+                                                     : 'bg-white border-gray-200/80 hover:border-gold-soft hover:bg-surface'
+                                                 }">
+                                                <div class="flex items-center gap-3 min-w-0">
+                                                    <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
+                                                        <img src="${sp.avatar}" 
+                                                             alt="${sp.name}"
+                                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=211C18&color=C29E6D&bold=true&size=96';"
+                                                             class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-sage-dark ring-2 ring-sage-dark/15' : 'border-gold/30'} shrink-0 shadow-2xs"
+                                                             style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
+                                                    </div>
+                                                    <div class="min-w-0">
+                                                        <h5 class="font-extrabold text-sm text-sage-dark truncate leading-tight">${sp.name}</h5>
+                                                        <p class="text-[11px] text-gray-500 truncate mt-0.5 font-medium">${sp.role}</p>
+                                                        <div class="flex items-center gap-1.5 mt-1">
+                                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-gold-dark bg-gold-light/60 px-2 py-0.5 rounded-md border border-gold/25">
+                                                                <i class="fa-regular fa-clock text-[9px]"></i>
+                                                                ${sp.experience}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
+                                                    isSelected 
+                                                    ? 'border-sage-dark bg-sage-dark text-white shadow-xs' 
+                                                    : 'border-gray-300 bg-white'
+                                                }">
+                                                    ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
                                                 </div>
                                             </div>
-                                        </div>
-
-                                        <div class="w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
-                                            isSelected 
-                                            ? 'border-sage-dark bg-sage-dark text-white shadow-xs' 
-                                            : 'border-gray-300 bg-white'
-                                        }">
-                                            ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
-                                        </div>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-
-                        <!-- Date & Shift-Based Time Picker -->
-                        <div class="space-y-3 pt-2 border-t border-gray-100">
-                            <div class="flex items-center justify-between gap-2">
-                                <label class="block text-xs font-extrabold text-sage-dark">
-                                    الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:
-                                </label>
-                                ${shiftLabel ? `
-                                    <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
-                                        <i class="fa-regular fa-calendar-check text-gold-dark"></i>
-                                        <span>${shiftLabel}</span>
-                                    </span>
-                                ` : ''}
-                            </div>
-                            
-                            <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-                                ${datesList.map(d => {
-                                    const label = d.display_label || d;
-                                    const iso = d.date_iso || '';
-                                    const isActiveDate = bookingState.selectedDate === label || (iso && bookingState.selectedDateIso === iso);
-                                    return `
-                                        <button onclick="selectBookingDate('${label}', '${iso}')" 
-                                                class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
-                                                    isActiveDate 
-                                                    ? 'bg-sage-dark text-white border-sage-dark' 
-                                                    : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
-                                                }">
-                                            ${label}
-                                        </button>
-                                    `;
-                                }).join('')}
-                            </div>
-
-                            ${isDayOff ? `
-                                <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
-                                    <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
-                                    <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو أخصائية أخرى لإتمام الحجز.</p>
+                                        `;
+                                    }).join('')}
                                 </div>
-                            ` : `
-                                <div class="grid grid-cols-3 sm:grid-cols-4 gap-2">
-                                    ${shiftSlots.map(slotObj => {
-                                        const slotTime = slotObj.time;
-                                        const isBooked = Boolean(slotObj.is_booked || !slotObj.is_available);
-                                        const isSelectedSlot = !isBooked && bookingState.selectedTime === slotTime;
+                            </div>
 
-                                        if (isBooked) {
-                                            return `
-                                                <button type="button"
-                                                        disabled
-                                                        title="هذا الموعد محجوز مسبقاً"
-                                                        class="py-2 px-1.5 rounded-xl text-[11px] font-bold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-75">
-                                                    <span class="line-through">${slotTime}</span>
-                                                    <span class="text-[9px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.2 rounded">محجوز</span>
-                                                </button>
-                                            `;
-                                        }
-
+                            <!-- Date & Shift-Based Time Picker -->
+                            <div class="space-y-3 pt-3 border-t border-gray-200/70">
+                                <div class="flex items-center justify-between gap-2">
+                                    <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
+                                        الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:
+                                    </label>
+                                    ${shiftLabel ? `
+                                        <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
+                                            <i class="fa-regular fa-calendar-check text-gold-dark"></i>
+                                            <span>${shiftLabel}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                                
+                                <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                                    ${datesList.map(d => {
+                                        const label = d.display_label || d;
+                                        const iso = d.date_iso || '';
+                                        const isActiveDate = bookingState.selectedDate === label || (iso && bookingState.selectedDateIso === iso);
                                         return `
-                                            <button type="button"
-                                                    onclick="selectBookingTime('${slotTime}')" 
-                                                    class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                                                        isSelectedSlot 
-                                                        ? 'bg-gold text-white border-gold shadow-xs' 
-                                                        : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
+                                            <button onclick="selectBookingDate('${label}', '${iso}')" 
+                                                    class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
+                                                        isActiveDate 
+                                                        ? 'bg-sage-dark text-white border-sage-dark' 
+                                                        : 'bg-surface text-gray-600 border-gray-200 hover:border-gold'
                                                     }">
-                                                ${slotTime}
+                                                ${label}
                                             </button>
                                         `;
                                     }).join('')}
                                 </div>
-                            `}
+
+                                ${isDayOff ? `
+                                    <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
+                                        <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
+                                        <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو أخصائية أخرى لإتمام الحجز.</p>
+                                    </div>
+                                ` : `
+                                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                                        ${shiftSlots.map(slotObj => {
+                                            const slotTime = slotObj.time;
+                                            const isBooked = Boolean(slotObj.is_booked || !slotObj.is_available);
+                                            const isSelectedSlot = !isBooked && bookingState.selectedTime === slotTime;
+
+                                            if (isBooked) {
+                                                return `
+                                                    <button type="button"
+                                                            disabled
+                                                            title="هذا الموعد محجوز مسبقاً"
+                                                            class="py-2 px-1.5 rounded-xl text-[11px] font-bold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-75">
+                                                        <span class="line-through">${slotTime}</span>
+                                                        <span class="text-[9px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.2 rounded">محجوز</span>
+                                                    </button>
+                                                `;
+                                            }
+
+                                            return `
+                                                <button type="button"
+                                                        onclick="selectBookingTime('${slotTime}')" 
+                                                        class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                                                            isSelectedSlot 
+                                                            ? 'bg-gold text-white border-gold shadow-xs' 
+                                                            : 'bg-white text-sage-dark border-gray-200 hover:border-sage-dark'
+                                                        }">
+                                                    ${slotTime}
+                                                </button>
+                                            `;
+                                        }).join('')}
+                                    </div>
+                                `}
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
 
                 const canConfirm = Boolean(bookingState.selectedTime) && !isDayOff;
-                sheetFooter.classList.remove('hidden');
-                sheetFooter.innerHTML = `
-                    <button onclick="confirmFinalBooking()" 
-                            ${canConfirm ? '' : 'disabled'}
-                            class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-sage-dark hover:bg-sage-deeper cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-circle-check text-gold"></i>
-                        <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : 'يرجى اختيار وقت متاح للحجز'}</span>
-                    </button>
-                `;
+                if (step2Footer) {
+                    step2Footer.innerHTML = `
+                        <button onclick="confirmFinalBooking()" 
+                                ${canConfirm ? '' : 'disabled'}
+                                class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-sage-dark hover:bg-sage-deeper cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm shadow-lg transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-circle-check text-gold"></i>
+                            <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : 'يرجى اختيار وقت متاح للحجز'}</span>
+                        </button>
+                    `;
+                }
             }
 
             // STEP 3: شاشة التأكيد النهائية (بعد التحقق من الجوال أو التسجيل عبر Google وحفظ الحجز في الداتابيز)
             else if (bookingState.step === 3 || bookingState.step === 4) {
                 const lastBooking = confirmedBookings[0];
                 const customerName = bookingState.confirmedCustomerName || lastBooking?.customerName || currentCustomer?.name || "";
-                sheetTitle.textContent = "تم تأكيد حجزك بنجاح";
-                sheetSubtitle.textContent = "رقم الحجز: " + lastBooking.id;
-                sheetFooter.classList.add('hidden');
+                if (pageTitle) pageTitle.textContent = "تم تأكيد حجزك بنجاح";
+                if (pageSubtitle) pageSubtitle.textContent = "رقم الحجز: " + (lastBooking?.id || '');
+                if (step3Container) {
+                    step3Container.classList.remove('hidden');
+                    step3Container.innerHTML = `
+                        <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
+                            <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
 
-                sheetBody.innerHTML = `
-                    <div class="text-center py-4 space-y-4 animate-step">
-                        <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
-                            <i class="fa-solid fa-check"></i>
-                        </div>
+                            <div>
+                                <h3 class="text-xl font-black text-sage-dark">تم تأكيد حجزك بنجاح</h3>
+                                <p class="text-sm font-extrabold text-primary-dark mt-1">
+                                    باسم: <span class="text-sage-dark">${customerName}</span>
+                                </p>
+                                <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
+                                    رقم الحجز: ${lastBooking.id}
+                                </div>
+                            </div>
 
-                        <div>
-                            <h3 class="text-xl font-black text-sage-dark">تم تأكيد حجزك بنجاح</h3>
-                            <p class="text-sm font-extrabold text-primary-dark mt-1">
-                                باسم: <span class="text-sage-dark">${customerName}</span>
-                            </p>
-                            <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
-                                رقم الحجز: ${lastBooking.id}
+                            <!-- Receipt Card -->
+                            <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
+                                <div class="pb-2.5 border-b border-gray-200/60">
+                                    <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
+                                    <span class="text-sm font-extrabold text-sage-dark">${customerName}</span>
+                                </div>
+                                <div class="pb-2.5 border-b border-gray-200/60">
+                                    <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
+                                    <span class="text-sm font-extrabold text-sage-dark">${lastBooking.serviceName}</span>
+                                </div>
+                                <div class="pb-2.5 border-b border-gray-200/60">
+                                    <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
+                                    <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
+                                </div>
+                                <div class="pt-0.5">
+                                    <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
+                                    <span class="text-sm font-extrabold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-2.5 pt-2">
+                                <button onclick="switchTab('account');" 
+                                        class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition cursor-pointer">
+                                      حجوزاتي
+                                </button>
+                                <button onclick="switchTab('home');" 
+                                        class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition cursor-pointer">
+                                    العودة للرئيسية
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Receipt Card -->
-                        <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
-                            <div class="pb-2.5 border-b border-gray-200/60">
-                                <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
-                                <span class="text-sm font-extrabold text-sage-dark">${customerName}</span>
-                            </div>
-                            <div class="pb-2.5 border-b border-gray-200/60">
-                                <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
-                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.serviceName}</span>
-                            </div>
-                            <div class="pb-2.5 border-b border-gray-200/60">
-                                <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
-                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
-                            </div>
-                            <div class="pt-0.5">
-                                <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
-                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
-                            </div>
-                        </div>
-
-                        <div class="flex gap-2.5 pt-2">
-                            <button onclick="closeBottomSheet(); switchTab('account');" 
-                                    class="flex-1 py-3.5 rounded-2xl bg-sage-dark text-white font-extrabold text-xs hover:bg-sage-deeper transition cursor-pointer">
-                                  حجوزاتي
-                            </button>
-                            <button onclick="closeBottomSheet()" 
-                                    class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition cursor-pointer">
-                                العودة للرئيسية
-                            </button>
-                        </div>
-                    </div>
-                `;
-            }
-
-            if (sheetBody) {
-                sheetBody.scrollTop = 0;
+                    `;
+                }
             }
         }
 
@@ -1007,28 +1212,17 @@
         }
 
         function selectSubService(subId, catId = null) {
-            let foundCategory = catId ? bookableCategories.find(c => c.id === catId) : bookingState.selectedCategory;
-            let foundSub = foundCategory ? foundCategory.subServices.find(s => s.id === subId) : null;
-
-            if (!foundSub) {
-                for (const cat of bookableCategories) {
-                    const candidate = cat.subServices.find(s => s.id === subId);
-                    if (candidate) {
-                        foundCategory = cat;
-                        foundSub = candidate;
-                        break;
-                    }
-                }
+            const cb = document.getElementById(`srv-check-${subId}`);
+            if (cb) {
+                cb.checked = true;
+                handleServiceCheckboxChange(cb, subId, catId);
+            } else {
+                const { foundCategory, foundSub } = findCategoryAndSubService(subId, catId);
+                if (!foundCategory || !foundSub) return;
+                bookingState.selectedCategory = foundCategory;
+                bookingState.selectedSubService = foundSub;
+                syncFloatingConfirmButton();
             }
-
-            if (!foundCategory || !foundSub) return;
-            bookingState.selectedCategory = foundCategory;
-            bookingState.selectedSubService = foundSub;
-            bookingState.selectedSpecialist = null;
-            bookingState.selectedTime = null;
-            bookingState.availability = { loading: true, is_day_off: false, shift_label: "", slots: [] };
-            bookingState.step = 2;
-            renderBookingStep();
         }
 
         function chooseSpecialist(spId) {
@@ -1200,18 +1394,27 @@
             if (!event.data || event.data.type !== 'HAIRLINE_GOOGLE_AUTH_RESULT') return;
             const payload = event.data.payload;
             const btn = document.getElementById('googleOAuthBtn');
+            const profileBtn = document.getElementById('profileGoogleOAuthBtn');
             const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const profileBtnTitle = document.getElementById('profileGoogleOAuthBtnTitle');
             const errorEl = document.getElementById('googleRegisterError');
+            const profileErrorEl = document.getElementById('profileGoogleRegisterError');
             const errorText = document.getElementById('googleRegisterErrorText');
+            const profileErrorText = document.getElementById('profileGoogleRegisterErrorText');
 
             if (btn) btn.disabled = false;
+            if (profileBtn) profileBtn.disabled = false;
             if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+            if (profileBtnTitle) profileBtnTitle.textContent = 'المتابعة باستخدام حساب Google';
 
             if (payload && payload.status === 'confirmed') {
                 finalizeConfirmedBookingFromServer(payload);
             } else {
-                if (errorText) errorText.textContent = payload?.message || 'تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.';
+                const msg = payload?.message || 'تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.';
+                if (errorText) errorText.textContent = msg;
                 if (errorEl) errorEl.classList.remove('hidden');
+                if (profileErrorText) profileErrorText.textContent = msg;
+                if (profileErrorEl) profileErrorEl.classList.remove('hidden');
             }
         });
 
@@ -1293,12 +1496,29 @@
 
         function startGoogleSignInProcess() {
             const btn = document.getElementById('googleOAuthBtn');
+            const profileBtn = document.getElementById('profileGoogleOAuthBtn');
             const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const profileBtnTitle = document.getElementById('profileGoogleOAuthBtnTitle');
             const errorEl = document.getElementById('googleRegisterError');
+            const profileErrorEl = document.getElementById('profileGoogleRegisterError');
             const errorText = document.getElementById('googleRegisterErrorText');
+            const profileErrorText = document.getElementById('profileGoogleRegisterErrorText');
 
             if (errorEl) errorEl.classList.add('hidden');
+            if (profileErrorEl) profileErrorEl.classList.add('hidden');
             if (btnTitle) btnTitle.textContent = 'جاري الاتصال بحساب Google...';
+            if (profileBtnTitle) profileBtnTitle.textContent = 'جاري الاتصال بحساب Google...';
+
+            const resetBtnState = (errorMsg) => {
+                if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                if (profileBtnTitle) profileBtnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                if (errorMsg) {
+                    if (errorText) errorText.textContent = errorMsg;
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    if (profileErrorText) profileErrorText.textContent = errorMsg;
+                    if (profileErrorEl) profileErrorEl.classList.remove('hidden');
+                }
+            };
 
             // 1. If Google Identity Services (OAuth2 Code Client) is loaded, launch the official Google Popup
             if (window.google && window.google.accounts && window.google.accounts.oauth2 && googleOAuthClientId) {
@@ -1311,9 +1531,7 @@
                             if (response && response.code) {
                                 completeGoogleBookingWithOAuth({ code: response.code });
                             } else {
-                                if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
-                                if (errorText) errorText.textContent = 'تم إلغاء عملية تسجيل الدخول عبر Google.';
-                                if (errorEl) errorEl.classList.remove('hidden');
+                                resetBtnState('تم إلغاء عملية تسجيل الدخول عبر Google.');
                             }
                         },
                         error_callback: function () {
@@ -1333,12 +1551,12 @@
         }
 
         function openGoogleOAuthRedirectPopup() {
-            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0] || '';
             const params = new URLSearchParams({
-                phone: bookingState.verifiedPhone,
-                service_id: bookingState.selectedSubService.id,
-                specialist_id: bookingState.selectedSpecialist.id,
-                booking_date: bookingState.selectedDate,
+                phone: bookingState.verifiedPhone || '',
+                service_id: bookingState.selectedSubService?.id || '',
+                specialist_id: bookingState.selectedSpecialist?.id || '',
+                booking_date: bookingState.selectedDate || '',
                 booking_time: timeSlot
             });
 
@@ -1354,28 +1572,42 @@
             );
 
             if (!popup) {
+                const msg = 'يرجى السماح بالنوافذ المنبثقة (Popups) لإتمام تسجيل الدخول عبر Google.';
                 const btnTitle = document.getElementById('googleOAuthBtnTitle');
+                const profileBtnTitle = document.getElementById('profileGoogleOAuthBtnTitle');
                 const errorEl = document.getElementById('googleRegisterError');
+                const profileErrorEl = document.getElementById('profileGoogleRegisterError');
                 const errorText = document.getElementById('googleRegisterErrorText');
+                const profileErrorText = document.getElementById('profileGoogleRegisterErrorText');
                 if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
-                if (errorText) errorText.textContent = 'يرجى السماح بالنوافذ المنبثقة (Popups) لإتمام تسجيل الدخول عبر Google.';
+                if (profileBtnTitle) profileBtnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                if (errorText) errorText.textContent = msg;
                 if (errorEl) errorEl.classList.remove('hidden');
+                if (profileErrorText) profileErrorText.textContent = msg;
+                if (profileErrorEl) profileErrorEl.classList.remove('hidden');
             }
         }
 
         async function completeGoogleBookingWithOAuth(oauthPayload) {
             const btn = document.getElementById('googleOAuthBtn');
+            const profileBtn = document.getElementById('profileGoogleOAuthBtn');
             const btnTitle = document.getElementById('googleOAuthBtnTitle');
+            const profileBtnTitle = document.getElementById('profileGoogleOAuthBtnTitle');
             const errorEl = document.getElementById('googleRegisterError');
+            const profileErrorEl = document.getElementById('profileGoogleRegisterError');
             const errorText = document.getElementById('googleRegisterErrorText');
+            const profileErrorText = document.getElementById('profileGoogleRegisterErrorText');
 
             if (errorEl) errorEl.classList.add('hidden');
+            if (profileErrorEl) profileErrorEl.classList.add('hidden');
             if (btn) btn.disabled = true;
-            if (btnTitle) btnTitle.textContent = 'جاري تأكيد الحجز...';
+            if (profileBtn) profileBtn.disabled = true;
+            if (btnTitle) btnTitle.textContent = 'جاري التحقق...';
+            if (profileBtnTitle) profileBtnTitle.textContent = 'جاري التحقق...';
 
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0] || '';
 
                 const response = await fetch("{{ route('booking.google_register') }}", {
                     method: 'POST',
@@ -1385,10 +1617,10 @@
                         'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify(Object.assign({
-                        phone: bookingState.verifiedPhone,
-                        service_id: bookingState.selectedSubService.id,
-                        specialist_id: bookingState.selectedSpecialist.id,
-                        booking_date: bookingState.selectedDate,
+                        phone: bookingState.verifiedPhone || '',
+                        service_id: bookingState.selectedSubService?.id || '',
+                        specialist_id: bookingState.selectedSpecialist?.id || '',
+                        booking_date: bookingState.selectedDate || '',
                         booking_time: timeSlot
                     }, oauthPayload))
                 });
@@ -1396,8 +1628,11 @@
                 const data = await response.json();
 
                 if (!response.ok || data.status === 'validation_error') {
-                    if (errorText) errorText.textContent = data.message || 'تعذر التحقق من حساب Google.';
+                    const msg = data.message || 'تعذر التحقق من حساب Google.';
+                    if (errorText) errorText.textContent = msg;
                     if (errorEl) errorEl.classList.remove('hidden');
+                    if (profileErrorText) profileErrorText.textContent = msg;
+                    if (profileErrorEl) profileErrorEl.classList.remove('hidden');
                     return;
                 }
 
@@ -1405,11 +1640,16 @@
                     finalizeConfirmedBookingFromServer(data);
                 }
             } catch (err) {
-                if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                const msg = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                if (errorText) errorText.textContent = msg;
                 if (errorEl) errorEl.classList.remove('hidden');
+                if (profileErrorText) profileErrorText.textContent = msg;
+                if (profileErrorEl) profileErrorEl.classList.remove('hidden');
             } finally {
                 if (btn) btn.disabled = false;
+                if (profileBtn) profileBtn.disabled = false;
                 if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
+                if (profileBtnTitle) profileBtnTitle.textContent = 'المتابعة باستخدام حساب Google';
             }
         }
 
@@ -1433,9 +1673,14 @@
             renderCustomerProfile();
             renderMyBookings();
             updateBookingBadge();
-            bookingState.step = 3;
-            renderBookingStep();
-            openToast(`تم تأكيد الحجز بنجاح باسم ${customerName} ✨`);
+
+            if (data.booking) {
+                bookingState.step = 3;
+                renderBookingStep();
+                openToast(`تم تأكيد الحجز بنجاح باسم ${customerName} ✨`);
+            } else {
+                openToast(`مرحباً بكِ ${customerName}، تم تسجيل دخولكِ بنجاح ✨`);
+            }
         }
 
         function updateBookingBadge() {
@@ -1452,38 +1697,104 @@
         }
 
         function toggleDesktopBooking() {
-            const sheet = document.getElementById('bottomSheet');
-            if (sheet && sheet.classList.contains('md:scale-100')) {
-                closeBottomSheet();
-            } else {
-                openBookingFlow();
-            }
+            openBookingFlow();
         }
 
         function renderCustomerProfile() {
             const container = document.getElementById('customerProfileCardContainer');
+            const bookingsCard = document.getElementById('myBookingsSectionCard');
             if (!container) return;
 
             if (!currentCustomer) {
+                if (bookingsCard) bookingsCard.classList.add('hidden');
                 container.innerHTML = `
-                    <div class="bg-white rounded-3xl p-5 shadow-card border border-gold-soft/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div class="flex items-center gap-3.5">
-                            <div class="w-14 h-14 rounded-full bg-sage-soft border border-gold-soft flex items-center justify-center text-gold-dark text-xl shrink-0">
-                                <i class="fa-regular fa-user"></i>
+                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-card border border-gold-soft/40 text-center space-y-6">
+                        <div class="flex flex-col items-center space-y-3">
+                            <!-- Luxury Google Emblem Container -->
+                            <div class="relative">
+                                <div class="w-16 h-16 sm:w-18 sm:h-18 p-3.5 sm:p-4 rounded-3xl bg-gradient-to-b from-white to-surface border-2 border-gold-soft shadow-md flex items-center justify-center">
+                                    <svg class="w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 48 48" aria-hidden="true">
+                                        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                    </svg>
+                                </div>
+                                <span class="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-gold text-white text-[11px] flex items-center justify-center shadow-xs border-2 border-white">
+                                    <i class="fa-solid fa-sparkles"></i>
+                                </span>
                             </div>
-                            <div>
-                                <h3 class="font-extrabold text-base text-sage-dark">ملفي الشخصي</h3>
-                                <p class="text-xs text-gray-500 mt-0.5">يتم تسجيل دخولكِ تلقائياً فور تأكيد أول حجز لكِ</p>
+
+                            <span class="px-3.5 py-1 rounded-full bg-gold-light text-gold-dark text-[11px] sm:text-xs font-extrabold border border-gold/30">
+                                الملف الشخصي
+                            </span>
+                            <h3 class="text-lg sm:text-xl font-black text-sage-dark">لا يوجد لديكِ ملف شخصي حالياً</h3>
+                            <p class="text-xs sm:text-sm text-gray-500 leading-relaxed max-w-md mx-auto">
+                                لم يتم تسجيل الدخول بعد. يمكنكِ التسجيل السريع والمتابعة عبر حساب Google للوصول إلى بياناتكِ ومتابعة حجوزاتكِ بكل سهولة
+                            </p>
+                        </div>
+
+                        <!-- Luxury Google OAuth Button (Same style and function as booking confirmation) -->
+                        <div class="max-w-md mx-auto space-y-3">
+                            <button type="button"
+                                    id="profileGoogleOAuthBtn"
+                                    onclick="startGoogleSignInProcess()"
+                                    class="w-full p-4 rounded-2xl bg-gradient-to-l from-sage-dark via-sage-deeper to-sage-dark hover:from-sage-deeper hover:to-black text-white shadow-xl hover:shadow-2xl border-2 border-gold/50 hover:border-gold active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
+                                <div class="flex items-center gap-3.5 text-right">
+                                    <div class="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                                        <svg class="w-6 h-6" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <span id="profileGoogleOAuthBtnTitle" class="block font-extrabold text-sm sm:text-base text-white">
+                                            المتابعة باستخدام حساب Google
+                                        </span>
+                                        <span class="block text-[11px] text-gold-light/85 font-medium mt-0.5">
+                                            تسجيل بضغطة واحدة بحساب Google
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="w-8 h-8 rounded-full bg-white/10 border border-gold/40 flex items-center justify-center text-gold group-hover:bg-gold group-hover:text-sage-dark transition-all shrink-0">
+                                    <span class="text-base font-bold leading-none -mt-0.5">‹</span>
+                                </div>
+                            </button>
+
+                            <p id="profileGoogleRegisterError" class="hidden text-[11px] font-bold text-red-600 text-center flex items-center justify-center gap-1">
+                                <i class="fa-solid fa-circle-exclamation"></i>
+                                <span id="profileGoogleRegisterErrorText">تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.</span>
+                            </p>
+
+                            <!-- Security & Speed Reassurance Badges -->
+                            <div class="grid grid-cols-2 gap-2 pt-1">
+                                <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
+                                    <i class="fa-solid fa-lock text-gold-dark text-xs"></i>
+                                    <span>ربط آمن ومشفر 100%</span>
+                                </div>
+                                <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
+                                    <i class="fa-solid fa-bolt text-gold-dark text-xs"></i>
+                                    <span>دخول وتأكيد فوري</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-2">
+                                <button type="button"
+                                        onclick="openBookingFlow()"
+                                        class="text-xs font-bold text-gold-dark hover:text-sage-dark hover:underline transition cursor-pointer">
+                                    أو احجزي موعدكِ الآن مباشرة
+                                </button>
                             </div>
                         </div>
-                        <button onclick="openBookingFlow()"
-                                class="px-4 py-2.5 rounded-2xl bg-sage-dark text-white text-xs font-extrabold hover:bg-sage-deeper transition cursor-pointer shrink-0">
-                            احجزي موعدكِ الآن
-                        </button>
                     </div>
                 `;
                 return;
             }
+
+            if (bookingsCard) bookingsCard.classList.remove('hidden');
 
             const avatarSrc = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name)}&background=211C18&color=C5A373&bold=true`;
 
@@ -1682,34 +1993,25 @@
         function showBottomSheet() {
             const overlay = document.getElementById('sheetOverlay');
             const sheet = document.getElementById('bottomSheet');
-            const fabBtn = document.getElementById('desktopFloatingBookingBtn');
             overlay.classList.remove('hidden');
             requestAnimationFrame(() => {
                 overlay.classList.remove('opacity-0');
                 sheet.classList.remove('translate-y-full');
                 sheet.classList.remove('md:scale-75', 'md:opacity-0', 'md:pointer-events-none');
                 sheet.classList.add('md:scale-100', 'md:opacity-100', 'md:pointer-events-auto');
-                if (fabBtn) {
-                    fabBtn.classList.add('ring-4', 'ring-gold/60', 'scale-95');
-                }
             });
         }
 
         function closeBottomSheet() {
             const overlay = document.getElementById('sheetOverlay');
             const sheet = document.getElementById('bottomSheet');
-            const fabBtn = document.getElementById('desktopFloatingBookingBtn');
             overlay.classList.add('opacity-0');
             sheet.classList.add('translate-y-full');
             sheet.classList.remove('md:scale-100', 'md:opacity-100', 'md:pointer-events-auto');
             sheet.classList.add('md:scale-75', 'md:opacity-0', 'md:pointer-events-none');
-            if (fabBtn) {
-                fabBtn.classList.remove('ring-4', 'ring-gold/60', 'scale-95');
-            }
             setTimeout(() => {
                 overlay.classList.add('hidden');
             }, 350);
-            updateUrl('/');
         }
 
         function openToast(msg) {
