@@ -45,12 +45,12 @@ class AboutUsDataService
                 $paragraphs = [
                     'من يوم تأسيس هيرلاين، كان طموحي أقدم أكثر من مجرد خدمات صالون، كنت أبغى أصنع مساحة خاصة لكل سيدة تحس فيها بالاهتمام بنفسها والراحة.',
                     'أؤمن بأن الجمال يتجاوز المظهر، هو انعكاس للشعور بالثقة بالنفس والرضا الداخلي، وكل امرأه تستحق وقت لنفسها يعزز إحساسها بجمالها وقوتها وتميزها.',
-                    'ومن هنا جاء هير لاين عشان يكون جزء من رحلتي ورحلتكم بالاهتمام بالجمال والمظهر وتعزيز الثقة الداخلية وتقديم خدمة تستحقها كل امرأه بمختلف الأعمار.',
+                    'ومن هنا جاء هيرلاين عشان يكون جزء من رحلتي ورحلتكم بالاهتمام بالجمال والمظهر وتعزيز الثقة الداخلية وتقديم خدمة تستحقها كل امرأه بمختلف الأعمار.',
                 ];
             }
 
             $founderNameAr = $story?->getTranslation('founder_name', 'ar') ?: 'سارة السيف';
-            $founderTitleAr = $story?->getTranslation('founder_title', 'ar') ?: 'مؤسسة هير لاين';
+            $founderTitleAr = $story?->getTranslation('founder_title', 'ar') ?: 'مؤسسة هيرلاين';
             $founderTitleEn = $story?->getTranslation('founder_title', 'en') ?: 'Founder of Hairline';
 
             return [
@@ -60,8 +60,8 @@ class AboutUsDataService
                 'founder_name_en' => $story?->getTranslation('founder_name', 'en') ?: 'Sara Al-Saif',
                 'founder_title_ar' => $founderTitleAr,
                 'founder_title_en' => $founderTitleEn,
-                'intro_paragraph' => $story?->getTranslation('intro_text', 'ar') ?: 'تأسس هير لاين عام 2020 برؤية وشغف من مؤسسته سارة السيف، ليكون وجهتكِ المفضلة للجمال والعناية.',
-                'description_paragraph' => $story?->getTranslation('description_text', 'ar') ?: 'هير لاين هو مساحتكِ الخاصة للدلال والتجدد، نهتم بأدق التفاصيل ونقدم لكِ خدمات مميزة في عالم العناية بالشعر والبشرة والأظافر، هدفنا أن تعيشي أحلى تجربة من أول زيارة.',
+                'intro_paragraph' => $story?->getTranslation('intro_text', 'ar') ?: 'تأسس هيرلاين عام 2020 برؤية وشغف من مؤسسته سارة السيف، ليكون وجهتكِ المفضلة للجمال والعناية.',
+                'description_paragraph' => $story?->getTranslation('description_text', 'ar') ?: 'هيرلاين هو مساحتكِ الخاصة للدلال والتجدد، نهتم بأدق التفاصيل ونقدم لكِ خدمات مميزة في عالم العناية بالشعر والبشرة والأظافر، هدفنا أن تعيشي أحلى تجربة من أول زيارة.',
                 'belief_paragraph' => $story?->getTranslation('belief_text', 'ar') ?: 'نؤمن إن الجمال الحقيقي يبدأ من إحساسكِ الجيد بنفسكِ وأن الاهتمام بذاتكِ ليس مجرد رفاهية، بل جزء من حياة كل سيدة، ومن هنا، نحرص على تقديم تجربة عناية متكاملة تمنحكِ لحظات تستحقينها.',
                 'founder_message_title' => $story?->getTranslation('founder_message_title', 'ar') ?: 'كلمة المؤسسة',
                 'founder_message_paragraphs' => $paragraphs,

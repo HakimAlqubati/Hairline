@@ -69,7 +69,7 @@ class SalonInfoDataService
                     [
                         'img' => '/images/salon/reception-desk.jpg',
                         'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
-                        'title' => 'هير لاين لأن الجمال إحساس',
+                        'title' => 'هيرلاين لأن الجمال إحساس',
                         'subtitle' => 'اهتمامك يستحق عناية احترافية على يد أخصائيات خبيرات.',
                     ],
                 ],

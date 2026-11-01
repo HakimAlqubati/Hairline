@@ -63,7 +63,7 @@ class SalonSetupSeeder extends Seeder
             [
                 'img' => '/images/salon/reception-desk.jpg',
                 'fallback' => 'https://images.unsplash.com/photo-1560066984-138dadb4c035?auto=format&fit=crop&w=1000&q=80',
-                'title' => 'هير لاين لأن الجمال إحساس',
+                'title' => 'هيرلاين لأن الجمال إحساس',
                 'subtitle' => 'اهتمامك يستحق عناية احترافية على يد أخصائيات خبيرات.',
             ],
             [
@@ -76,7 +76,7 @@ class SalonSetupSeeder extends Seeder
                 'img' => '/images/salon/salon-stations-tv.jpg',
                 'fallback' => 'https://images.unsplash.com/photo-1595476108010-b4d1f102b1b1?auto=format&fit=crop&w=1000&q=80',
                 'title' => 'استثمري في جمال شعرك',
-                'subtitle' => 'مع اشتراكات هير لاين الدورية التي تجمع لك الجلسات والباقات المصممة لك.',
+                'subtitle' => 'مع اشتراكات هيرلاين الدورية التي تجمع لك الجلسات والباقات المصممة لك.',
             ],
             [
                 'img' => '/images/salon/salon-screen-display.jpg',
@@ -190,15 +190,15 @@ class SalonSetupSeeder extends Seeder
                     'en' => 'Sara Al-Saif',
                 ],
                 'founder_title' => [
-                    'ar' => 'مؤسسة هير لاين',
+                    'ar' => 'مؤسسة هيرلاين',
                     'en' => 'Founder of Hairline',
                 ],
                 'intro_text' => [
-                    'ar' => 'تأسس هير لاين عام 2020 برؤية وشغف من مؤسسته سارة السيف، ليكون وجهتكِ المفضلة للجمال والعناية.',
+                    'ar' => 'تأسس هيرلاين عام 2020 برؤية وشغف من مؤسسته سارة السيف، ليكون وجهتكِ المفضلة للجمال والعناية.',
                     'en' => 'Founded in 2020 with passion and vision to be your sanctuary of beauty and wellness.',
                 ],
                 'description_text' => [
-                    'ar' => 'هير لاين هو مساحتكِ الخاصة للدلال والتجدد، نهتم بأدق التفاصيل ونقدم لكِ خدمات مميزة في عالم العناية بالشعر والبشرة والأظافر، هدفنا أن تعيشي أحلى تجربة من أول زيارة.',
+                    'ar' => 'هيرلاين هو مساحتكِ الخاصة للدلال والتجدد، نهتم بأدق التفاصيل ونقدم لكِ خدمات مميزة في عالم العناية بالشعر والبشرة والأظافر، هدفنا أن تعيشي أحلى تجربة من أول زيارة.',
                     'en' => 'Hairline is your personal space for pampering and renewal with meticulous attention to detail.',
                 ],
                 'belief_text' => [
@@ -213,7 +213,7 @@ class SalonSetupSeeder extends Seeder
                     'ar' => json_encode([
                         'من يوم تأسيس هيرلاين، كان طموحي أقدم أكثر من مجرد خدمات صالون، كنت أبغى أصنع مساحة خاصة لكل سيدة تحس فيها بالاهتمام بنفسها والراحة.',
                         'أؤمن بأن الجمال يتجاوز المظهر، هو انعكاس للشعور بالثقة بالنفس والرضا الداخلي، وكل امرأه تستحق وقت لنفسها يعزز إحساسها بجمالها وقوتها وتميزها.',
-                        'ومن هنا جاء هير لاين عشان يكون جزء من رحلتي ورحلتكم بالاهتمام بالجمال والمظهر وتعزيز الثقة الداخلية وتقديم خدمة تستحقها كل امرأه بمختلف الأعمار.',
+                        'ومن هنا جاء هيرلاين عشان يكون جزء من رحلتي ورحلتكم بالاهتمام بالجمال والمظهر وتعزيز الثقة الداخلية وتقديم خدمة تستحقها كل امرأه بمختلف الأعمار.',
                     ], JSON_UNESCAPED_UNICODE),
                     'en' => json_encode([
                         'From the founding day of Hairline, our ambition was to create more than just salon services.',

@@ -29,15 +29,6 @@
             {{ $aboutUs['belief_paragraph'] ?? '' }}
         </p>
 
-        {{-- Stats Grid (Dynamic & Cached) --}}
-        <div class="grid grid-cols-2 gap-3 pt-2 text-center">
-            @foreach($stats as $st)
-                <div class="p-3.5 rounded-2xl {{ $st['bg'] ?? 'bg-sage-soft' }}">
-                    <span class="block text-lg font-black {{ $st['text'] ?? 'text-sage-dark' }}">{{ $st['value'] }}</span>
-                    <span class="text-xs text-gray-600 font-medium">{{ $st['label'] }}</span>
-                </div>
-            @endforeach
-        </div>
     </div>
 
     {{-- Founder's Message Card --}}
