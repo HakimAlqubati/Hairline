@@ -171,7 +171,7 @@
         <x-tabs.services :menuPages="$menuPages ?? []" />
         <x-tabs.specialists :specialists="$specialistsData ?? []" :isActive="($initialView ?? 'home') === 'specialists'" />
         <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
-        <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" />
+        <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" :workingHours="$workingHours ?? []" :location="$location ?? []" :contactLinks="$contactLinks ?? []" :isActive="($initialView ?? 'home') === 'about'" />
         <x-tabs.account />
 
         <!-- 4. BOTTOM NAVIGATION BAR -->
@@ -877,12 +877,12 @@
                                 <p class="text-xs text-gray-500 dir-ltr text-right mt-0.5">0548857705</p>
                             </div>
                             <div class="flex items-center gap-2">
-                                <a href="https://wa.me/966548857705" target="_blank" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
-                                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                                <a href="https://wa.me/966548857705" target="_blank" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-[#25D366]/25">
+                                    <i class="fa-brands fa-whatsapp text-sm text-white"></i>
                                     <span>واتساب</span>
                                 </a>
-                                <a href="tel:0548857705" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-sage-dark hover:bg-sage-deeper text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-2xs">
-                                    <i class="fa-solid fa-phone text-xs"></i>
+                                <a href="tel:0548857705" class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-primary/25">
+                                    <i class="fa-solid fa-phone text-xs text-white"></i>
                                     <span>اتصال</span>
                                 </a>
                             </div>

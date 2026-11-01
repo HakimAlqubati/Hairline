@@ -46,6 +46,12 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('من نحن');
         $response->assertSee('أوقات العمل الرسمية');
         $response->assertSee('التعريف بالصالون');
+        $response->assertSee('id="aboutContactSection"', false);
+        $response->assertSee('الهاتف والحجوزات');
+        $response->assertSee('حسابات وروابط التواصل');
+        $response->assertSee('العنوان وموقع الصالون');
+        $response->assertDontSee('تعرفي على الأخصائيات');
+        $response->assertDontSee('معلومات التواصل');
     });
 
     test('services catalog page returns 200 and renders official 8-page catalog without booking transition button', function () {
