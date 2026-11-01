@@ -33,21 +33,11 @@
             </div>
         </div>
 
-        <!-- Strictly the 3 Required Navigation Items -->
+        <!-- Sidebar Navigation Items -->
         <div class="p-4 space-y-2.5 mt-2">
             <p class="px-3 text-[11px] font-bold text-gray-400 uppercase">القائمة التعريفية</p>
 
-            <!-- Item 1: التعريف بالصالون (من نحن) -->
-            <button onclick="openSidebarSection('about')" 
-                    class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
-                <div>
-                    <span class="block text-sm font-extrabold text-sage-dark">التعريف بالصالون</span>
-                    <span class="text-[11px] text-gray-500">(من نحن)</span>
-                </div>
-                <span class="text-lg text-gold-dark font-bold">‹</span>
-            </button>
-
-            <!-- Item 2: الأخصائيات -->
+            <!-- Item 1: الأخصائيات -->
             <button onclick="openSidebarSection('specialists')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
                 <div>
@@ -57,7 +47,7 @@
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>
 
-            <!-- Item 3: للتواصل والاستفسار -->
+            <!-- Item 2: للتواصل والاستفسار -->
             <button onclick="openSidebarSection('contact')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
                 <div>
@@ -67,7 +57,7 @@
                 <span class="text-lg text-gold-dark font-bold">‹</span>
             </button>
 
-            <!-- Item 4: سياسة الخصوصية -->
+            <!-- Item 3: سياسة الخصوصية -->
             <button onclick="openSidebarSection('privacy')" 
                     class="w-full p-3.5 rounded-2xl bg-surface hover:bg-sage-light/60 border border-transparent hover:border-gold/40 flex items-center justify-between transition group text-right">
                 <div>

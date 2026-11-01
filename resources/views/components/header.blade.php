@@ -205,12 +205,13 @@
                             <span class="font-medium text-white/90">{{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}</span>
                         </div>
 
-                        <!-- 1. Fullscreen Toggle Button (Mobile Only) -->
+                        <!-- 1. Fullscreen Toggle Button (Permanently Hidden on All Screens) -->
                         <button id="fullscreenBtn" 
                                 onclick="toggleFullscreen()" 
                                 title="ملء الشاشة"
                                 aria-label="ملء الشاشة"
-                                class="header-action-btn md:hidden bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">
+                                style="display: none !important;"
+                                class="!hidden hidden header-action-btn bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">
                             <i id="fullscreenIcon" class="fa-solid fa-expand text-[13px] sm:text-sm"></i>
                         </button>
 
