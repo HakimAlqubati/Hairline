@@ -118,25 +118,60 @@ class CatalogDataService
     }
 
     /**
-     * Search services by Arabic/English name, group or description.
+     * Normalize Arabic/English text and Eastern numerals for unified search matching.
+     */
+    public function normalizeSearchText(string $text): string
+    {
+        $eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+        $western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+
+        $normalized = str_replace($eastern, $western, mb_strtolower($text));
+        $normalized = (string) preg_replace('/[\x{064B}-\x{065F}\x{0670}\x{0640}]/u', '', $normalized);
+        $normalized = str_replace(
+            ['أ', 'إ', 'آ', 'ٱ', 'ة', 'ى', 'ؤ', 'ئ'],
+            ['ا', 'ا', 'ا', 'ا', 'ه', 'ي', 'و', 'ي'],
+            $normalized
+        );
+
+        return trim((string) preg_replace('/\s+/u', ' ', $normalized));
+    }
+
+    /**
+     * Search services by Arabic/English name, category, group, price, or description using unified token matching.
      */
     public function searchServices(string $query): array
     {
-        $clean = trim(mb_strtolower($query));
+        $clean = $this->normalizeSearchText($query);
         if ($clean === '') {
             return [];
         }
 
+        $tokens = array_values(array_filter(explode(' ', $clean), fn (string $t): bool => $t !== ''));
         $results = [];
         $all = $this->getAllCategories();
+
         foreach ($all as $cat) {
             foreach ($cat['services'] as $srv) {
-                if (
-                    str_contains(mb_strtolower($srv['name']), $clean) ||
-                    str_contains(mb_strtolower($srv['name_en']), $clean) ||
-                    str_contains(mb_strtolower($srv['description']), $clean) ||
-                    str_contains(mb_strtolower($srv['group']), $clean)
-                ) {
+                $haystack = $this->normalizeSearchText(implode(' ', [
+                    $cat['title'] ?? '',
+                    $cat['title_en'] ?? '',
+                    $srv['name'] ?? '',
+                    $srv['name_en'] ?? '',
+                    $srv['description'] ?? '',
+                    $srv['group'] ?? '',
+                    (string) ($srv['price'] ?? ''),
+                    (string) ($srv['price_display'] ?? ''),
+                ]));
+
+                $allMatched = true;
+                foreach ($tokens as $token) {
+                    if (! str_contains($haystack, $token)) {
+                        $allMatched = false;
+                        break;
+                    }
+                }
+
+                if ($allMatched) {
                     $results[] = $srv;
                 }
             }

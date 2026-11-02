@@ -1034,6 +1034,7 @@
             };
 
             clearAllServiceCheckboxes();
+            clearUnifiedServiceSearch('booking', false);
             expandAllBookingCategories();
             switchTab('booking');
             renderBookingStep();
@@ -1116,11 +1117,15 @@
         }
 
         function toggleAllBookingCategories() {
-            const buttons = Array.from(document.querySelectorAll('[id^="tree-btn-"]'));
-            const anyExpanded = buttons.some(btn => btn.getAttribute('aria-expanded') === 'true');
+            const visibleCategories = Array.from(document.querySelectorAll('[data-category-tree]:not(.hidden)'));
+            const anyExpanded = visibleCategories.some(el => {
+                const catId = el.getAttribute('data-category-tree');
+                const btn = catId ? document.getElementById(`tree-btn-${catId}`) : null;
+                return btn && btn.getAttribute('aria-expanded') === 'true';
+            });
             const targetState = !anyExpanded;
 
-            document.querySelectorAll('[data-category-tree]').forEach(el => {
+            visibleCategories.forEach(el => {
                 const catId = el.getAttribute('data-category-tree');
                 if (catId) setCategoryExpandedState(catId, targetState);
             });
@@ -1128,8 +1133,12 @@
         }
 
         function syncToggleAllTreeButton() {
-            const buttons = Array.from(document.querySelectorAll('[id^="tree-btn-"]'));
-            const anyExpanded = buttons.some(btn => btn.getAttribute('aria-expanded') === 'true');
+            const visibleCategories = Array.from(document.querySelectorAll('[data-category-tree]:not(.hidden)'));
+            const anyExpanded = visibleCategories.some(el => {
+                const catId = el.getAttribute('data-category-tree');
+                const btn = catId ? document.getElementById(`tree-btn-${catId}`) : null;
+                return btn && btn.getAttribute('aria-expanded') === 'true';
+            });
             const text = document.getElementById('toggleAllTreeText');
 
             if (text) {
@@ -2660,39 +2669,324 @@
             }, 300);
         }
 
-        // Instant Search & Highlight across all services in servicesTabView
-        function initServicesSearch() {
-            const searchInput = document.getElementById('serviceSearch');
-            const clearBtn = document.getElementById('clearSearchBtn');
-            if (!searchInput) return;
+        /* -------------------------------------------------------------------------- */
+        /* UNIFIED SERVICE SEARCH ENGINE (SERVICES CATALOG + BOOKING TREE VIEW)       */
+        /* -------------------------------------------------------------------------- */
+        const unifiedSearchConfig = {
+            services: {
+                inputId: 'serviceSearch',
+                clearBtnId: 'clearSearchBtn',
+                statusId: 'servicesSearchStatus',
+                countId: 'servicesSearchCount',
+                queryTextId: 'servicesSearchQuery',
+                emptyStateId: 'servicesSearchEmptyState',
+                emptyQueryId: 'servicesEmptyQueryText'
+            },
+            booking: {
+                inputId: 'bookingServiceSearch',
+                clearBtnId: 'clearBookingSearchBtn',
+                statusId: 'bookingSearchStatus',
+                countId: 'bookingSearchCount',
+                queryTextId: 'bookingSearchQuery',
+                emptyStateId: 'bookingSearchEmptyState',
+                emptyQueryId: 'bookingEmptyQueryText'
+            }
+        };
 
-            searchInput.addEventListener('input', () => {
-                const query = searchInput.value.trim().toLowerCase();
-                if (clearBtn) clearBtn.classList.toggle('hidden', query.length === 0);
+        function normalizeSearchText(str) {
+            if (!str) return '';
+            const eastern = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩', '۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+            const western = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+            let out = String(str).toLowerCase();
+            for (let i = 0; i < eastern.length; i++) {
+                out = out.split(eastern[i]).join(western[i]);
+            }
+            return out
+                .replace(/[\u064B-\u065F\u0670\u0640]/g, '')
+                .replace(/[أإآٱ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/ؤ/g, 'و')
+                .replace(/ئ/g, 'ي')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
 
-                const rows = document.querySelectorAll('#servicesTabView .service-row');
-                let firstMatch = null;
+        function matchesSearchTokens(haystackText, normalizedQuery) {
+            if (!normalizedQuery) return true;
+            const normalizedHaystack = normalizeSearchText(haystackText);
+            const tokens = normalizedQuery.split(' ').filter(Boolean);
+            return tokens.every(token => normalizedHaystack.includes(token));
+        }
 
-                rows.forEach(row => {
+        function handleUnifiedSearchInput(context) {
+            const cfg = unifiedSearchConfig[context];
+            if (!cfg) return;
+
+            const inputEl = document.getElementById(cfg.inputId);
+            const clearBtn = document.getElementById(cfg.clearBtnId);
+            if (!inputEl) return;
+
+            const hasText = inputEl.value.trim().length > 0;
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', !hasText);
+            }
+
+            // Automatically restore full list when user empties the search input
+            if (!hasText) {
+                executeUnifiedServiceSearch(context);
+            }
+        }
+
+        function executeUnifiedServiceSearch(context, event = null) {
+            if (event) {
+                event.preventDefault();
+            }
+
+            const cfg = unifiedSearchConfig[context];
+            if (!cfg) return;
+
+            const inputEl = document.getElementById(cfg.inputId);
+            const clearBtn = document.getElementById(cfg.clearBtnId);
+            if (!inputEl) return;
+
+            const rawQuery = inputEl.value.trim();
+            const normalizedQuery = normalizeSearchText(rawQuery);
+
+            if (clearBtn) {
+                clearBtn.classList.toggle('hidden', rawQuery.length === 0);
+            }
+
+            if (event && document.activeElement === inputEl) {
+                inputEl.blur();
+            }
+
+            if (context === 'services') {
+                filterServicesCatalogView(rawQuery, normalizedQuery);
+            } else if (context === 'booking') {
+                filterBookingTreeView(rawQuery, normalizedQuery);
+            }
+        }
+
+        function clearUnifiedServiceSearch(context, focusInput = false) {
+            const cfg = unifiedSearchConfig[context];
+            if (!cfg) return;
+
+            const inputEl = document.getElementById(cfg.inputId);
+            const clearBtn = document.getElementById(cfg.clearBtnId);
+
+            if (inputEl) {
+                inputEl.value = '';
+                if (focusInput) inputEl.focus();
+            }
+            if (clearBtn) {
+                clearBtn.classList.add('hidden');
+            }
+
+            if (context === 'services') {
+                filterServicesCatalogView('', '');
+            } else if (context === 'booking') {
+                filterBookingTreeView('', '');
+            }
+        }
+
+        function updateSearchFeedbackUI(context, rawQuery, normalizedQuery, matchedCount) {
+            const cfg = unifiedSearchConfig[context];
+            if (!cfg) return;
+
+            const statusEl = document.getElementById(cfg.statusId);
+            const countEl = document.getElementById(cfg.countId);
+            const queryTextEl = document.getElementById(cfg.queryTextId);
+            const emptyStateEl = document.getElementById(cfg.emptyStateId);
+            const emptyQueryEl = document.getElementById(cfg.emptyQueryId);
+
+            if (!normalizedQuery) {
+                if (statusEl) {
+                    statusEl.classList.add('hidden');
+                    statusEl.classList.remove('flex');
+                }
+                if (emptyStateEl) {
+                    emptyStateEl.classList.add('hidden');
+                }
+                return;
+            }
+
+            if (queryTextEl) queryTextEl.textContent = rawQuery;
+            if (countEl) countEl.textContent = String(matchedCount);
+            if (statusEl) {
+                statusEl.classList.remove('hidden');
+                statusEl.classList.add('flex');
+            }
+
+            if (emptyQueryEl) emptyQueryEl.textContent = rawQuery;
+            if (emptyStateEl) {
+                emptyStateEl.classList.toggle('hidden', matchedCount > 0);
+            }
+        }
+
+        function filterServicesCatalogView(rawQuery, normalizedQuery) {
+            const pages = document.querySelectorAll('#servicesTabView .menu-page');
+
+            if (!normalizedQuery) {
+                pages.forEach(page => {
+                    page.classList.remove('hidden', 'search-filtered-page');
+                });
+                document.querySelectorAll('#servicesTabView .service-section-block, #servicesTabView .service-subsection-group, #servicesTabView .category-group, #servicesTabView .multi-length-block, #servicesTabView .service-row').forEach(el => {
+                    el.classList.remove('hidden', 'search-highlight');
+                });
+                updateSearchFeedbackUI('services', '', '', 0);
+                return;
+            }
+
+            let totalMatchedServices = 0;
+
+            pages.forEach(page => {
+                const pageNum = page.getAttribute('data-page');
+
+                // Page 8 is the visual Hair Lengths Diagram (no individual service rows)
+                if (pageNum === '8') {
+                    const diagramMatches = matchesSearchTokens(page.textContent, normalizedQuery);
+                    page.classList.toggle('hidden', !diagramMatches);
+                    page.classList.toggle('search-filtered-page', diagramMatches);
+                    if (diagramMatches) {
+                        totalMatchedServices++;
+                    }
+                    return;
+                }
+
+                const mainTitleEl = page.querySelector(':scope > .page-content > .section-main-title');
+                const pageTitleText = mainTitleEl ? mainTitleEl.textContent : '';
+                let pageMatches = 0;
+
+                // 1. Filter multi-length service blocks
+                page.querySelectorAll('.multi-length-block').forEach(block => {
+                    const subGroup = block.closest('.service-subsection-group');
+                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent || '';
+                    const blockTitleText = block.querySelector('.multi-length-title')?.textContent || '';
+                    let blockMatches = 0;
+
+                    block.querySelectorAll('.length-row-item.service-row').forEach(row => {
+                        row.classList.remove('search-highlight');
+                        const combinedText = `${pageTitleText} ${subTitleText} ${blockTitleText} ${row.textContent}`;
+                        if (matchesSearchTokens(combinedText, normalizedQuery)) {
+                            row.classList.remove('hidden');
+                            blockMatches++;
+                            pageMatches++;
+                            totalMatchedServices++;
+                        } else {
+                            row.classList.add('hidden');
+                        }
+                    });
+
+                    block.classList.toggle('hidden', blockMatches === 0);
+                });
+
+                // 2. Filter standard service rows (outside multi-length blocks)
+                page.querySelectorAll('.service-row:not(.length-row-item)').forEach(row => {
                     row.classList.remove('search-highlight');
-                    if (query.length >= 2 && row.textContent.toLowerCase().includes(query)) {
-                        row.classList.add('search-highlight');
-                        if (!firstMatch) firstMatch = row;
+                    const catGroup = row.closest('.category-group');
+                    const catLabelText = catGroup?.querySelector('.category-side-label')?.textContent || '';
+                    const subGroup = row.closest('.service-subsection-group');
+                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent || '';
+                    const secBlock = row.closest('.service-section-block');
+                    const secTitleText = secBlock?.querySelector('.section-main-title')?.textContent || '';
+
+                    const combinedText = `${pageTitleText} ${secTitleText} ${catLabelText} ${subTitleText} ${row.textContent}`;
+                    if (matchesSearchTokens(combinedText, normalizedQuery)) {
+                        row.classList.remove('hidden');
+                        pageMatches++;
+                        totalMatchedServices++;
+                    } else {
+                        row.classList.add('hidden');
                     }
                 });
 
-                if (firstMatch) {
-                    firstMatch.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                // 3. Hide empty category groups, subsections, and section blocks
+                page.querySelectorAll('.category-group').forEach(group => {
+                    const hasVisible = group.querySelector('.service-row:not(.hidden)') !== null;
+                    group.classList.toggle('hidden', !hasVisible);
+                });
+
+                page.querySelectorAll('.service-subsection-group').forEach(subGroup => {
+                    const hasVisible = subGroup.querySelector('.service-row:not(.hidden)') !== null;
+                    subGroup.classList.toggle('hidden', !hasVisible);
+                });
+
+                page.querySelectorAll('.service-section-block').forEach(secBlock => {
+                    const hasVisible = secBlock.querySelector('.service-row:not(.hidden)') !== null;
+                    secBlock.classList.toggle('hidden', !hasVisible);
+                });
+
+                // 4. Show only pages that contain matching services in compact mode
+                if (pageMatches > 0) {
+                    page.classList.remove('hidden');
+                    page.classList.add('search-filtered-page');
+                } else {
+                    page.classList.add('hidden');
+                    page.classList.remove('search-filtered-page');
                 }
             });
 
-            if (clearBtn) {
-                clearBtn.addEventListener('click', () => {
-                    searchInput.value = '';
-                    clearBtn.classList.add('hidden');
-                    document.querySelectorAll('#servicesTabView .service-row').forEach(r => r.classList.remove('search-highlight'));
+            updateSearchFeedbackUI('services', rawQuery, normalizedQuery, totalMatchedServices);
+        }
+
+        function filterBookingTreeView(rawQuery, normalizedQuery) {
+            const categories = document.querySelectorAll('#bookingStep1Container .booking-tree-category');
+
+            if (!normalizedQuery) {
+                categories.forEach(catEl => {
+                    catEl.classList.remove('hidden');
+                    const countBadge = catEl.querySelector('.booking-cat-count');
+                    if (countBadge) {
+                        const total = countBadge.getAttribute('data-total-count') || '0';
+                        countBadge.textContent = `${total} خدمات`;
+                    }
                 });
+                document.querySelectorAll('#bookingStep1Container .booking-service-item').forEach(li => {
+                    li.classList.remove('hidden');
+                });
+                updateSearchFeedbackUI('booking', '', '', 0);
+                expandAllBookingCategories();
+                return;
             }
+
+            let totalMatchedBookingServices = 0;
+
+            categories.forEach(catEl => {
+                const catId = catEl.getAttribute('data-category-tree');
+                const catTitle = catEl.getAttribute('data-category-title') || '';
+                const items = catEl.querySelectorAll('.booking-service-item');
+                let catMatches = 0;
+
+                items.forEach(li => {
+                    const combinedText = `${catTitle} ${li.textContent}`;
+                    if (matchesSearchTokens(combinedText, normalizedQuery)) {
+                        li.classList.remove('hidden');
+                        catMatches++;
+                        totalMatchedBookingServices++;
+                    } else {
+                        li.classList.add('hidden');
+                    }
+                });
+
+                const countBadge = catEl.querySelector('.booking-cat-count');
+                if (catMatches > 0) {
+                    catEl.classList.remove('hidden');
+                    if (catId) setCategoryExpandedState(catId, true);
+                    if (countBadge) {
+                        countBadge.textContent = `${catMatches} خدمات`;
+                    }
+                } else {
+                    catEl.classList.add('hidden');
+                }
+            });
+
+            updateSearchFeedbackUI('booking', rawQuery, normalizedQuery, totalMatchedBookingServices);
+            syncToggleAllTreeButton();
+        }
+
+        function initServicesSearch() {
+            // Initialized via declarative form onsubmit and oninput handlers for both 'services' and 'booking' contexts
         }
 
         // Initialize on Window Load

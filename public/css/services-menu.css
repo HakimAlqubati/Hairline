@@ -280,6 +280,18 @@
     transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Compact menu page layout when active search filter is applied */
+.menu-page.search-filtered-page {
+    min-height: auto !important;
+    margin-bottom: 1.25rem !important;
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+.menu-page.search-filtered-page .page-footer {
+    display: none !important;
+}
+
 /* Page Footer */
 .page-footer {
     margin-top: auto;

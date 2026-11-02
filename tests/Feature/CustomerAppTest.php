@@ -87,7 +87,11 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('أطــــوال الشــــعر');
         $response->assertSee('services-menu.css');
         $response->assertSee('servicesTabView');
-        $response->assertSee('serviceSearch');
+        $response->assertSee('id="serviceSearch"', false);
+        $response->assertSee('id="submitSearchBtn"', false);
+        $response->assertSee('id="servicesSearchStatus"', false);
+        $response->assertSee('id="servicesSearchEmptyState"', false);
+        $response->assertSee("executeUnifiedServiceSearch('services', event)", false);
         $response->assertDontSee('الانتقال إلى الخدمات المتاحة للحجز');
     });
 
@@ -97,6 +101,11 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200);
         $response->assertSee('id="bookingTabView"', false);
         $response->assertSee('id="bookingStep1Container"', false);
+        $response->assertSee('id="bookingServiceSearch"', false);
+        $response->assertSee('id="submitBookingSearchBtn"', false);
+        $response->assertSee('id="bookingSearchStatus"', false);
+        $response->assertSee('id="bookingSearchEmptyState"', false);
+        $response->assertSee("executeUnifiedServiceSearch('booking', event)", false);
         $response->assertSee('aria-expanded="true"', false);
         $response->assertSee('booking-service-checkbox', false);
         $response->assertSee('id="floatingBookingConfirmContainer"', false);
@@ -914,6 +923,16 @@ describe('Static Data Services', function () {
 
         $searchResults = $service->searchServices('بروتين');
         expect($searchResults)->not->toBeEmpty();
+
+        // Unified Arabic & numeral normalization (hamza, teh marbuta, multi-word tokens, Eastern digits)
+        $normalizedResults = $service->searchServices('إستشوار قصير');
+        expect($normalizedResults)->not->toBeEmpty();
+
+        $tehMarbutaResults = $service->searchServices('صبغه جذور');
+        expect($tehMarbutaResults)->not->toBeEmpty();
+
+        $numeralResults = $service->searchServices('١١٠');
+        expect($numeralResults)->not->toBeEmpty();
 
         $totals = $service->calculateTotals(['hs_full_cut', 'nl_manicure']);
         expect($totals['total_price'])->toBe(150);

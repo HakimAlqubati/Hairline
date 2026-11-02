@@ -48,9 +48,43 @@
 
     <!-- STEP 1: Simplified Collapsible Tree View (Server-Rendered from Cache, Open by Default) -->
     <div id="bookingStep1Container" class="space-y-5">
+
+        <!-- Unified Search Bar for Booking Services -->
+        <x-services.search-header
+            context="booking"
+            inputId="bookingServiceSearch"
+            clearBtnId="clearBookingSearchBtn"
+            submitBtnId="submitBookingSearchBtn"
+            statusId="bookingSearchStatus"
+            countId="bookingSearchCount"
+            queryTextId="bookingSearchQuery"
+            placeholder="ابحثي عن خدمة متاحة للحجز أو قسم أو سعر..."
+            :sticky="false"
+        />
+
+        <!-- Empty State When No Booking Services Match Search -->
+        <div id="bookingSearchEmptyState" class="hidden bg-white rounded-3xl p-8 text-center border border-primary-soft/60 shadow-2xs space-y-3">
+            <div class="w-12 h-12 rounded-full bg-primary-light/70 text-primary-dark mx-auto flex items-center justify-center">
+                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">لا توجد خدمات مطابقة لبحثكِ</h4>
+                <p class="text-xs text-gray-500">
+                    لم نتمكن من العثور على خدمات متاحة للحجز تطابق «<span id="bookingEmptyQueryText" class="font-bold text-primary-dark"></span>».
+                </p>
+            </div>
+            <button type="button"
+                    onclick="clearUnifiedServiceSearch('booking')"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-extrabold transition cursor-pointer">
+                <i class="fa-solid fa-rotate-right text-[11px]"></i>
+                <span>عرض جميع الخدمات</span>
+            </button>
+        </div>
+
         @forelse($bookableCategories as $cat)
             <div id="booking-cat-{{ $cat['id'] }}"
                  data-category-tree="{{ $cat['id'] }}"
+                 data-category-title="{{ $cat['title'] }}"
                  class="booking-tree-category">
 
                 <!-- Main Service Category Node (Parent Node - Collapsible, Open by Default) -->
@@ -70,7 +104,8 @@
                         </h3>
                     </div>
 
-                    <span class="text-xs font-bold text-primary-dark shrink-0">
+                    <span class="booking-cat-count text-xs font-bold text-primary-dark shrink-0"
+                          data-total-count="{{ count($cat['subServices'] ?? []) }}">
                         {{ count($cat['subServices'] ?? []) }} خدمات
                     </span>
                 </button>
@@ -81,7 +116,7 @@
                     <div class="overflow-hidden">
                         <ul class="relative mr-3 sm:mr-3.5 pr-4 sm:pr-6 pt-1.5 pb-1 border-r border-gold-soft/80 space-y-0.5">
                             @foreach($cat['subServices'] ?? [] as $sub)
-                                <li class="relative group/item">
+                                <li class="booking-service-item relative group/item">
                                     <!-- Horizontal Tree Branch Connector -->
                                     <span class="absolute -right-4 sm:-right-6 top-1/2 -translate-y-1/2 w-3 sm:w-4 h-px bg-gold-soft/80 group-hover/item:bg-gold transition-colors"></span>
 

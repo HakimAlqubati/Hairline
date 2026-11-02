@@ -41,6 +41,25 @@
     <!-- Main Pages Container -->
     <main id="pagesContainer" class="py-4 px-1.5 sm:px-3 max-w-7xl mx-auto">
 
+        <!-- Empty State When No Services Match Search -->
+        <div id="servicesSearchEmptyState" class="hidden max-w-lg mx-auto my-8 bg-white rounded-3xl p-8 text-center border border-[#d5c7ad] shadow-sm space-y-3">
+            <div class="w-12 h-12 rounded-full bg-primary-light/70 text-primary-dark mx-auto flex items-center justify-center">
+                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+            </div>
+            <div class="space-y-1">
+                <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">لا توجد خدمات مطابقة لبحثكِ</h4>
+                <p class="text-xs text-gray-500">
+                    لم نتمكن من العثور على خدمات تطابق «<span id="servicesEmptyQueryText" class="font-bold text-primary-dark"></span>».
+                </p>
+            </div>
+            <button type="button"
+                    onclick="clearUnifiedServiceSearch('services')"
+                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-extrabold transition cursor-pointer">
+                <i class="fa-solid fa-rotate-right text-[11px]"></i>
+                <span>عرض جميع الخدمات</span>
+            </button>
+        </div>
+
         <!-- ==========================================
              PAGE 1: خدمات الشعر | HAIR SERVICES
              ========================================== -->
@@ -74,22 +93,24 @@
                 </div>
 
                 @foreach($p2['subsections'] ?? [] as $sub)
-                    <div class="subsection-title">
-                        <span class="ar">{{ $sub['title_ar'] ?? '' }}</span>
-                        <span class="en">{{ $sub['title_en'] ?? '' }}</span>
-                    </div>
-
-                    @if(($sub['type'] ?? '') === 'simple_rows')
-                        <div class="{{ $sub['container_class'] ?? 'mb-4' }}">
-                            @foreach($sub['items'] ?? [] as $item)
-                                <x-services.service-row :item="$item" />
-                            @endforeach
+                    <div class="service-subsection-group">
+                        <div class="subsection-title">
+                            <span class="ar">{{ $sub['title_ar'] ?? '' }}</span>
+                            <span class="en">{{ $sub['title_en'] ?? '' }}</span>
                         </div>
-                    @elseif(($sub['type'] ?? '') === 'multi_length')
-                        @foreach($sub['blocks'] ?? [] as $block)
-                            <x-services.multi-length-block :block="$block" />
-                        @endforeach
-                    @endif
+
+                        @if(($sub['type'] ?? '') === 'simple_rows')
+                            <div class="{{ $sub['container_class'] ?? 'mb-4' }}">
+                                @foreach($sub['items'] ?? [] as $item)
+                                    <x-services.service-row :item="$item" />
+                                @endforeach
+                            </div>
+                        @elseif(($sub['type'] ?? '') === 'multi_length')
+                            @foreach($sub['blocks'] ?? [] as $block)
+                                <x-services.multi-length-block :block="$block" />
+                            @endforeach
+                        @endif
+                    </div>
                 @endforeach
             </div>
 
@@ -183,15 +204,17 @@
 
             <div class="page-content">
                 @foreach($p6['sections'] ?? [] as $sec)
-                    <div class="section-main-title {{ $sec['title_classes'] ?? '' }}">
-                        <h2 class="ar-title">{{ $sec['title_ar'] ?? '' }}</h2>
-                        <p class="en-title">{{ $sec['title_en'] ?? '' }}</p>
-                    </div>
+                    <div class="service-section-block">
+                        <div class="section-main-title {{ $sec['title_classes'] ?? '' }}">
+                            <h2 class="ar-title">{{ $sec['title_ar'] ?? '' }}</h2>
+                            <p class="en-title">{{ $sec['title_en'] ?? '' }}</p>
+                        </div>
 
-                    <div class="{{ $sec['container_class'] ?? '' }}">
-                        @foreach($sec['items'] ?? [] as $item)
-                            <x-services.service-row :item="$item" />
-                        @endforeach
+                        <div class="{{ $sec['container_class'] ?? '' }}">
+                            @foreach($sec['items'] ?? [] as $item)
+                                <x-services.service-row :item="$item" />
+                            @endforeach
+                        </div>
                     </div>
                 @endforeach
             </div>
@@ -207,15 +230,17 @@
 
             <div class="page-content">
                 @foreach($p7['sections'] ?? [] as $sec)
-                    <div class="section-main-title {{ $sec['title_classes'] ?? '' }}">
-                        <h2 class="ar-title">{{ $sec['title_ar'] ?? '' }}</h2>
-                        <p class="en-title">{{ $sec['title_en'] ?? '' }}</p>
-                    </div>
+                    <div class="service-section-block">
+                        <div class="section-main-title {{ $sec['title_classes'] ?? '' }}">
+                            <h2 class="ar-title">{{ $sec['title_ar'] ?? '' }}</h2>
+                            <p class="en-title">{{ $sec['title_en'] ?? '' }}</p>
+                        </div>
 
-                    <div class="{{ $sec['container_class'] ?? '' }}">
-                        @foreach($sec['items'] ?? [] as $item)
-                            <x-services.service-row :item="$item" />
-                        @endforeach
+                        <div class="{{ $sec['container_class'] ?? '' }}">
+                            @foreach($sec['items'] ?? [] as $item)
+                                <x-services.service-row :item="$item" />
+                            @endforeach
+                        </div>
                     </div>
                 @endforeach
             </div>
