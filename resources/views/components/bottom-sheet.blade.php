@@ -76,10 +76,7 @@
                             <i class="fa-solid fa-check text-[9px]"></i>
                         </span>
                     </div>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-light/60 border border-gold/30 text-gold-dark text-[11px] font-extrabold mb-1">
-                        <i class="fa-regular fa-sparkles text-[10px]"></i>
-                        <span>مرحباً بكِ مجدداً</span>
-                    </div>
+                    
                     <h4 id="loggedInCustomerNameDisplay" class="text-xl font-black text-sage-dark tracking-tight"></h4>
                 </div>
 
