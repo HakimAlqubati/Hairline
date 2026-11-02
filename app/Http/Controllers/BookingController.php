@@ -415,9 +415,12 @@ class BookingController extends Controller
 
         $hasBooking = $request->filled('service_id') && $request->filled('specialist_id');
 
-        $rules = [
-            'phone' => ['required', 'string', new SaudiPhoneNumber($this->availabilityService)],
-        ];
+        $rules = [];
+        if ($hasBooking || $request->filled('phone')) {
+            $rules['phone'] = ['required', 'string', new SaudiPhoneNumber($this->availabilityService)];
+        } else {
+            $rules['phone'] = ['nullable', 'string', new SaudiPhoneNumber($this->availabilityService)];
+        }
 
         if ($hasBooking) {
             $rules['service_id'] = ['required', 'string'];
@@ -456,7 +459,7 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : '';
 
         // Prevent cross-account contamination when already authenticated
         $loggedInCustomerId = session('logged_in_customer_id');
@@ -625,13 +628,20 @@ class BookingController extends Controller
      */
     private function formatCustomerPayload(Customer $customer): array
     {
+        $avatar = $customer->avatar_url;
+        if ($avatar && ! str_starts_with($avatar, 'http://') && ! str_starts_with($avatar, 'https://') && ! str_starts_with($avatar, 'data:')) {
+            $avatar = (str_starts_with($avatar, 'images/') || str_starts_with($avatar, '/images/'))
+                ? asset(ltrim($avatar, '/'))
+                : asset('storage/'.ltrim($avatar, '/'));
+        }
+
         return [
             'id' => $customer->id,
             'customer_code' => $customer->customer_code,
             'name' => $customer->name,
             'phone' => $customer->phone,
             'email' => $customer->email,
-            'avatar_url' => $customer->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($customer->name).'&background=211C18&color=C5A373&bold=true',
+            'avatar_url' => $avatar ?: 'https://ui-avatars.com/api/?name='.urlencode($customer->name).'&background=211C18&color=C5A373&bold=true',
         ];
     }
 
@@ -688,31 +698,43 @@ class BookingController extends Controller
         string $ownerName,
         ?string $avatarUrl = null
     ): Customer {
-        if ($normalizedPhone === '') {
-            throw new InvalidArgumentException('رقم الجوال مطلوب لإتمام التسجيل.');
-        }
-
         $emailTrimmed = strtolower(trim($email));
         if ($emailTrimmed === '') {
             throw new InvalidArgumentException('البريد الإلكتروني لحساب Google غير متوفر.');
         }
 
         return DB::transaction(function () use ($normalizedPhone, $emailTrimmed, $ownerName, $avatarUrl): Customer {
-            $customerByPhone = Customer::where('phone', $normalizedPhone)->first();
+            $customerByPhone = $normalizedPhone !== '' ? Customer::where('phone', $normalizedPhone)->first() : null;
             $customerByEmail = Customer::where('email', $emailTrimmed)->first();
 
+            // 1. Existing customer found by Google email
+            if ($customerByEmail) {
+                if ($normalizedPhone !== '') {
+                    if (empty($customerByEmail->phone)) {
+                        $customerByEmail->update(['phone' => $normalizedPhone]);
+                    } elseif ($customerByEmail->phone !== $normalizedPhone) {
+                        throw new InvalidArgumentException('حساب Google لا يطابق البريد الإلكتروني المسجل لهذا الرقم.');
+                    }
+                }
+
+                if ($avatarUrl && empty($customerByEmail->avatar_url)) {
+                    $customerByEmail->update(['avatar_url' => $avatarUrl]);
+                }
+
+                return $customerByEmail;
+            }
+
+            // 2. Existing customer found by phone number
             if ($customerByPhone) {
-                // If customer has an email registered, it must match Google's verified email
                 if (! empty($customerByPhone->email)) {
                     if (strtolower(trim((string) $customerByPhone->email)) !== $emailTrimmed) {
                         throw new InvalidArgumentException('حساب Google لا يطابق البريد الإلكتروني المسجل لهذا الرقم.');
                     }
                 } else {
-                    // Customer exists by phone but has no email linked
-                    throw new InvalidArgumentException('رقم الجوال مسجل مسبقاً ولكن غير مرتبط ببريد إلكتروني، يرجى التواصل مع إدارة الصالون لربط البريد بحسابكِ.');
+                    // Customer exists by phone only (e.g. added offline); link their Google email now
+                    $customerByPhone->update(['email' => $emailTrimmed]);
                 }
 
-                // If phone and email match, update avatar if currently null
                 if ($avatarUrl && empty($customerByPhone->avatar_url)) {
                     $customerByPhone->update(['avatar_url' => $avatarUrl]);
                 }
@@ -720,13 +742,7 @@ class BookingController extends Controller
                 return $customerByPhone;
             }
 
-            // Phone is NOT registered yet.
-            // Check if the Google email is already linked to another customer record with a different phone:
-            if ($customerByEmail) {
-                throw new InvalidArgumentException('البريد الإلكتروني لحساب Google مرتبط بالفعل برقم جوال آخر في صالون هيرلاين.');
-            }
-
-            // Neither phone nor email exists -> Register new verified customer
+            // 3. New customer (neither phone nor email exists in system)
             $defaultTierId = MembershipTier::where('slug', 'silver')->value('id')
                 ?? MembershipTier::orderBy('min_points_required')->value('id');
 
@@ -738,7 +754,7 @@ class BookingController extends Controller
                 'membership_tier_id' => $defaultTierId,
                 'customer_code' => $customerCode,
                 'name' => $ownerName !== '' ? $ownerName : $this->extractNameFromEmail($emailTrimmed),
-                'phone' => $normalizedPhone,
+                'phone' => $normalizedPhone !== '' ? $normalizedPhone : null,
                 'email' => $emailTrimmed,
                 'avatar_url' => $avatarUrl ?: 'https://ui-avatars.com/api/?name='.urlencode($ownerName).'&background=211C18&color=C5A373&bold=true',
                 'total_points' => 0,

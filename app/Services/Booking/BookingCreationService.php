@@ -133,8 +133,8 @@ class BookingCreationService
             }
 
             do {
-                $bookingNumber = (string) random_int(10000, 99999);
-            } while (Booking::where('booking_number', $bookingNumber)->exists());
+                $bookingNumber = (string) random_int(1000, 9999);
+            } while (Booking::where('booking_date', $bookingDate->toDateString())->where('booking_number', $bookingNumber)->exists());
 
             $booking = Booking::create([
                 'booking_number' => $bookingNumber,

@@ -37,13 +37,20 @@ class HairlineController extends Controller
         $initialBookings = [];
 
         if ($customerModel) {
+            $avatar = $customerModel->avatar_url;
+            if ($avatar && ! str_starts_with($avatar, 'http://') && ! str_starts_with($avatar, 'https://') && ! str_starts_with($avatar, 'data:')) {
+                $avatar = (str_starts_with($avatar, 'images/') || str_starts_with($avatar, '/images/'))
+                    ? asset(ltrim($avatar, '/'))
+                    : asset('storage/'.ltrim($avatar, '/'));
+            }
+
             $currentCustomer = [
                 'id' => $customerModel->id,
                 'customer_code' => $customerModel->customer_code,
                 'name' => $customerModel->name,
                 'phone' => $customerModel->phone,
                 'email' => $customerModel->email,
-                'avatar_url' => $customerModel->avatar_url ?: 'https://ui-avatars.com/api/?name='.urlencode($customerModel->name).'&background=211C18&color=C5A373&bold=true',
+                'avatar_url' => $avatar ?: 'https://ui-avatars.com/api/?name='.urlencode($customerModel->name).'&background=211C18&color=C5A373&bold=true',
             ];
 
             $initialBookings = Booking::with(['customer', 'items.service.category', 'items.specialist'])

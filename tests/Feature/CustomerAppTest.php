@@ -39,6 +39,25 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('سياسة الخصوصية');
     });
 
+    test('home page renders logged-in customer avatar and verification bottom-sheet elements', function () {
+        $customer = Customer::create([
+            'customer_code' => 'CUST-TEST-AVATAR-'.uniqid(),
+            'name' => 'Hakim Ahmed',
+            'phone' => '0554545450',
+            'email' => 'hakim_test_avatar@example.com',
+            'avatar_url' => 'https://example.com/avatar.jpg',
+            'is_active' => true,
+        ]);
+
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('id="loggedInCustomerAvatarDisplay"', false);
+        $response->assertSee('id="loggedInCustomerAvatarFallback"', false);
+        $response->assertSee('https://example.com/avatar.jpg', false);
+    });
+
     test('about page returns 200 and renders bio, hours, and location', function () {
         $response = $this->get('/about');
 
@@ -589,6 +608,72 @@ describe('Customer-Facing Pages', function () {
             ]);
     });
 
+    test('direct Google sign in from profile logs in existing customer without phone number', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'sara.otb@example.com',
+                'email_verified' => true,
+                'name' => 'سارة العتيبي',
+            ], 200),
+        ]);
+
+        $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'valid-oauth-code',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'registered_via_google' => true,
+                'customer' => [
+                    'name' => 'سارة العتيبي',
+                    'email' => 'sara.otb@example.com',
+                    'phone' => '0551234567',
+                ],
+            ]);
+
+        $sara = Customer::where('email', 'sara.otb@example.com')->firstOrFail();
+        expect(session('logged_in_customer_id'))->toBe($sara->id);
+    });
+
+    test('direct Google sign in from profile registers new customer without phone number', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'direct.profile.user@gmail.com',
+                'email_verified' => true,
+                'name' => 'هدى الحربي',
+                'picture' => 'https://example.com/huda.jpg',
+            ], 200),
+        ]);
+
+        $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'valid-oauth-code',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'registered_via_google' => true,
+                'customer' => [
+                    'name' => 'هدى الحربي',
+                    'email' => 'direct.profile.user@gmail.com',
+                    'phone' => null,
+                ],
+            ]);
+
+        $newCustomer = Customer::where('email', 'direct.profile.user@gmail.com')->firstOrFail();
+        expect($newCustomer->phone)->toBeNull();
+        expect(session('logged_in_customer_id'))->toBe($newCustomer->id);
+    });
+
     test('profile update requires authenticated session and rejects customer_id tampering', function () {
         $customer = Customer::where('phone', '0551234567')->firstOrFail();
 
@@ -615,13 +700,15 @@ describe('Customer-Facing Pages', function () {
         $targetDate = Carbon::today('Asia/Riyadh')->addDays(6)->toDateString();
 
         $creationService = app(BookingCreationService::class);
-        $creationService->createBookingForCustomer(
+        $createdBooking = $creationService->createBookingForCustomer(
             customer: $customer,
             serviceCode: $service->code,
             specialistSlug: $specialist->slug,
             dateLabel: $targetDate,
             timeSlot: '04:00 م'
         );
+
+        expect($createdBooking['id'])->toMatch('/^\d{4}$/');
 
         expect(fn () => $creationService->createBookingForCustomer(
             customer: $customer,

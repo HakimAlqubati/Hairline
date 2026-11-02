@@ -69,8 +69,15 @@
                 <div class="flex flex-col items-center text-center pt-1">
                     <!-- Luxury Avatar with Verified Badge -->
                     <div class="relative mb-2.5">
-                        <div class="w-16 h-16 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm">
-                            <i class="fa-solid fa-user-check text-2xl"></i>
+                        <div class="w-16 h-16 rounded-full overflow-hidden bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm">
+                            <img id="loggedInCustomerAvatarDisplay"
+                                 src=""
+                                 alt="صورة الحساب"
+                                 class="w-full h-full object-cover hidden"
+                                 onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=' + encodeURIComponent(document.getElementById('loggedInCustomerNameDisplay')?.textContent || 'HL') + '&background=211C18&color=C5A373&bold=true';" />
+                            <div id="loggedInCustomerAvatarFallback" class="w-full h-full flex items-center justify-center">
+                                <i class="fa-solid fa-user-check text-2xl"></i>
+                            </div>
                         </div>
                         <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center shadow-xs border-2 border-white" title="حساب موثق">
                             <i class="fa-solid fa-check text-[9px]"></i>

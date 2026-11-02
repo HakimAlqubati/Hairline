@@ -292,7 +292,7 @@
         const SAUDI_PHONE_REGEX = /^(?:\+966|00966|966|0)?5[0-9]{8}$/;
 
         // Logged-in customer & confirmed bookings backed directly by Database
-        let currentCustomer = {!! json_encode($currentCustomer ?? null, JSON_UNESCAPED_UNICODE) !!};
+        let currentCustomer = {!! json_encode($currentCustomer ?? null, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!};
         const dbInitialBookings = {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!};
         let confirmedBookings = Array.isArray(dbInitialBookings) ? dbInitialBookings : [];
 
@@ -1753,6 +1753,8 @@
             const guestContainer = document.getElementById('guestPhoneInputContainer');
             const loggedInName = document.getElementById('loggedInCustomerNameDisplay');
             const loggedInPhone = document.getElementById('loggedInPhoneDisplay');
+            const loggedInAvatar = document.getElementById('loggedInCustomerAvatarDisplay');
+            const loggedInAvatarFallback = document.getElementById('loggedInCustomerAvatarFallback');
             const btnText = document.getElementById('phoneVerifySubmitBtnText');
             const btnIcon = document.getElementById('phoneVerifySubmitBtnIcon');
 
@@ -1771,7 +1773,15 @@
                     <div class="border-t border-dashed border-gray-200/80"></div>
                     <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
                         <div class="flex items-center gap-1.5 min-w-0">
-                            <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0"></i>
+                            ${bookingState.selectedSpecialist?.avatar ? `
+                                <img src="${bookingState.selectedSpecialist.avatar}"
+                                     alt="${bookingState.selectedSpecialist.name}"
+                                     onerror="this.onerror=null; this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');"
+                                     class="w-4 h-4 rounded-full object-cover shrink-0 border border-gold/40 shadow-2xs" />
+                                <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0 hidden"></i>
+                            ` : `
+                                <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0"></i>
+                            `}
                             <span class="truncate">${bookingState.selectedSpecialist.name}</span>
                         </div>
                         <div class="flex items-center gap-1.5 justify-end text-left min-w-0">
@@ -1788,11 +1798,29 @@
                 if (guestContainer) guestContainer.classList.add('hidden');
                 if (loggedInName) loggedInName.textContent = currentCustomer.name || 'عميلتنا العزيزة';
                 if (loggedInPhone) loggedInPhone.value = currentCustomer.phone || '';
+
+                const customerAvatarSrc = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name || 'HL')}&background=211C18&color=C5A373&bold=true`;
+                if (loggedInAvatar) {
+                    loggedInAvatar.src = customerAvatarSrc;
+                    loggedInAvatar.alt = currentCustomer.name || 'صورة الحساب';
+                    loggedInAvatar.classList.remove('hidden');
+                }
+                if (loggedInAvatarFallback) {
+                    loggedInAvatarFallback.classList.add('hidden');
+                }
+
                 if (btnText) btnText.textContent = 'تأكيد الحجز';
                 if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
             } else {
                 if (loggedInNotice) loggedInNotice.classList.add('hidden');
                 if (guestContainer) guestContainer.classList.remove('hidden');
+                if (loggedInAvatar) {
+                    loggedInAvatar.src = '';
+                    loggedInAvatar.classList.add('hidden');
+                }
+                if (loggedInAvatarFallback) {
+                    loggedInAvatarFallback.classList.remove('hidden');
+                }
                 if (btnText) btnText.textContent = 'تحقق وتأكيد الحجز';
                 if (btnIcon) btnIcon.className = 'fa-solid fa-shield-check text-white';
             }
@@ -2155,7 +2183,7 @@
             if (data.booking) {
                 bookingState.step = 3;
                 renderBookingStep();
-                openToast(`تم تأكيد الحجز بنجاح باسم ${customerName} ✨`);
+                openToast( 'تم تأكيد الحجز بنجاح');
             } else {
                 openToast(`مرحباً بكِ ${customerName}، تم تسجيل دخولكِ بنجاح ✨`);
             }
