@@ -51,6 +51,7 @@ test('authenticated user can access filament resource index pages without action
     '/admin/payment-methods',
     '/admin/districts',
     '/admin/salon-settings',
+    '/admin/settings',
     '/admin/users',
 ]);
 
