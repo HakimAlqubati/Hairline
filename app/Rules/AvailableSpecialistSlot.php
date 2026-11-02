@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Rules;
 
 use App\Services\Booking\SpecialistAvailabilityService;
+use Carbon\Carbon;
 use Closure;
 use Illuminate\Contracts\Validation\DataAwareRule;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -71,6 +72,22 @@ class AvailableSpecialistSlot implements DataAwareRule, ValidationRule
 
         $dateInput = $this->bookingDateInput ?? (string) ($this->data['booking_date'] ?? '');
         $date = $availability->resolveBookingDate($dateInput);
+
+        $today = Carbon::today('Asia/Riyadh');
+        if ($date->isBefore($today)) {
+            return;
+        }
+
+        $now = Carbon::now('Asia/Riyadh');
+        if ($date->isSameDay($today)) {
+            $slotMinutes = $availability->timeToMinutes($startTime24);
+            $currentMinutes = ($now->hour * 60) + $now->minute;
+            if ($slotMinutes < ($currentMinutes + 15)) {
+                $fail('عذراً، هذا الموعد قد مضى وقته لليوم. يرجى اختيار موعد قادم.');
+
+                return;
+            }
+        }
 
         $serviceKey = $this->serviceIdentifier ?? (string) ($this->data['service_id'] ?? '');
         $service = $availability->resolveService($serviceKey);

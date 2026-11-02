@@ -117,6 +117,14 @@ class SpecialistAvailabilityService
     }
 
     /**
+     * Check if the specialist actually offers and is qualified to perform the service.
+     */
+    public function specialistOffersService(Specialist $specialist, Service $service): bool
+    {
+        return $specialist->services()->where('services.id', $service->id)->exists();
+    }
+
+    /**
      * Resolve effective duration in minutes for a specialist and service (checks custom pivot duration first).
      */
     public function resolveDurationMinutes(Specialist $specialist, ?Service $service = null): int
@@ -367,7 +375,7 @@ class SpecialistAvailabilityService
         $shiftStartMinutes = $this->timeToMinutes($resolvedShift->start_time);
         $shiftEndMinutes = $this->timeToMinutes($resolvedShift->end_time);
         $slotStartMinutes = $this->timeToMinutes($startTime24);
-        $requiredShiftWindow = min(max(15, $durationMinutes), 60);
+        $effectiveDuration = max(15, $durationMinutes);
 
         if ($slotStartMinutes < $shiftStartMinutes || $slotStartMinutes >= $shiftEndMinutes) {
             $startAr = $this->format24HourToArabic($resolvedShift->start_time);
@@ -380,7 +388,7 @@ class SpecialistAvailabilityService
             ];
         }
 
-        if (($slotStartMinutes + $requiredShiftWindow) > $shiftEndMinutes) {
+        if (($slotStartMinutes + $effectiveDuration) > $shiftEndMinutes) {
             $endAr = $this->format24HourToArabic($resolvedShift->end_time);
 
             return [
@@ -486,6 +494,23 @@ class SpecialistAvailabilityService
     ): array {
         $shift = $preloadedShift ?? $this->getShiftForDate($specialist->id, $date);
         $effectiveDuration = max(15, $durationMinutes);
+        $today = Carbon::today('Asia/Riyadh');
+
+        // Prevent availability on past dates
+        if ($date->isBefore($today)) {
+            return [
+                'specialist_id' => $specialist->slug,
+                'date_iso' => $date->toDateString(),
+                'day_of_week' => (int) $date->dayOfWeek,
+                'is_day_off' => true,
+                'shift_start' => null,
+                'shift_end' => null,
+                'shift_label' => 'لا يمكن حجز مواعيد في تواريخ سابقة',
+                'duration_minutes' => $effectiveDuration,
+                'slots' => [],
+                'available_times' => [],
+            ];
+        }
 
         if (! $shift || $shift->is_day_off) {
             return [
@@ -507,13 +532,16 @@ class SpecialistAvailabilityService
         $shiftStartMinutes = $this->timeToMinutes($shift->start_time);
         $shiftEndMinutes = $this->timeToMinutes($shift->end_time);
         $stepMinutes = self::DEFAULT_SLOT_STEP_MINUTES;
-        $requiredShiftWindow = min($effectiveDuration, 60);
+
+        $now = Carbon::now('Asia/Riyadh');
+        $isToday = $date->isSameDay($today);
+        $currentMinutesToday = ($now->hour * 60) + $now->minute;
 
         $slots = [];
         $availableTimes = [];
 
         $cursorMinutes = $shiftStartMinutes;
-        while (($cursorMinutes + $requiredShiftWindow) <= $shiftEndMinutes) {
+        while (($cursorMinutes + $effectiveDuration) <= $shiftEndMinutes) {
             $slotStart24 = $this->minutesToTime($cursorMinutes);
             $slotEndMinutes = $cursorMinutes + $effectiveDuration;
             $slotEnd24 = $this->minutesToTime($slotEndMinutes);
@@ -527,15 +555,20 @@ class SpecialistAvailabilityService
                 }
             }
 
+            // A slot is past if the date is today and its starting time has already elapsed or starts in <15 mins
+            $isPast = $isToday && ($cursorMinutes < ($currentMinutesToday + 15));
+            $isAvailable = ! $isBooked && ! $isPast;
+
             $slots[] = [
                 'time' => $arabicTime,
                 'time_24' => $slotStart24,
                 'end_time_24' => $slotEnd24,
-                'is_available' => ! $isBooked,
+                'is_available' => $isAvailable,
                 'is_booked' => $isBooked,
+                'is_past' => $isPast,
             ];
 
-            if (! $isBooked) {
+            if ($isAvailable) {
                 $availableTimes[] = $arabicTime;
             }
 
@@ -575,7 +608,7 @@ class SpecialistAvailabilityService
     /**
      * Convert 'H:i:s' or 'H:i' into minutes since midnight.
      */
-    private function timeToMinutes(string $time): int
+    public function timeToMinutes(string $time): int
     {
         $parts = explode(':', $this->normalizeTimeFormat($time));
         $hours = (int) ($parts[0] ?? 0);
@@ -587,7 +620,7 @@ class SpecialistAvailabilityService
     /**
      * Convert minutes since midnight into 'H:i:s'.
      */
-    private function minutesToTime(int $totalMinutes): string
+    public function minutesToTime(int $totalMinutes): string
     {
         $clamped = max(0, min(23 * 60 + 59, $totalMinutes));
         $hours = intdiv($clamped, 60);

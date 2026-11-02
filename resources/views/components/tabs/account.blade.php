@@ -88,7 +88,7 @@
             <!-- Phone Field -->
             <div>
                 <label for="editProfilePhoneInput" class="block text-xs font-extrabold text-sage-dark mb-1">
-                    رقم الجوال السعودي <span class="text-red-500">*</span>
+                    رقم الجوال <span class="text-red-500">*</span>
                 </label>
                 <div class="relative flex items-center">
                     <input id="editProfilePhoneInput"

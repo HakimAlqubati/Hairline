@@ -64,25 +64,52 @@
 
         <!-- VIEW 1: SAUDI PHONE NUMBER INPUT & VERIFICATION -->
         <div id="phoneVerifyStep" class="p-6 space-y-4">
-            <div class="flex flex-col items-center text-center space-y-2">
-                <div class="w-14 h-14 rounded-2xl bg-sage-soft border border-gold-soft flex items-center justify-center text-sage-dark shadow-xs">
-                    <i class="fa-solid fa-mobile-screen-button text-2xl text-gold-dark"></i>
+            <!-- LOGGED-IN CUSTOMER NOTICE VIEW -->
+            <div id="loggedInCustomerNotice" class="hidden space-y-3.5">
+                <div class="flex flex-col items-center text-center space-y-2">
+                    <div class="w-14 h-14 rounded-2xl bg-sage-light border border-primary/30 flex items-center justify-center text-primary text-2xl shadow-xs">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold text-gold-dark block">مرحباً بكِ مجدداً</span>
+                        <h4 id="loggedInCustomerNameDisplay" class="text-lg font-black text-sage-dark mt-0.5"></h4>
+                    </div>
                 </div>
-                <h4 class="text-lg font-black text-sage-dark">تأكيد رقم الجوال</h4>
-                <p class="text-xs text-gray-500 leading-relaxed max-w-[290px]">
-                    أدخلي رقم جوالكِ السعودي للتحقق من حسابكِ وإتمام حجز الموعد مباشرة
-                </p>
+ 
+
+                <div>
+                    <label class="block text-xs font-extrabold text-sage-dark mb-1.5">
+                        رقم الجوال المسجل بحسابكِ:
+                    </label>
+                    <div class="relative flex items-center">
+                        <input id="loggedInPhoneDisplay"
+                               type="text"
+                               dir="ltr"
+                               readonly
+                               disabled
+                               class="w-full py-3.5 pr-4 pl-24 rounded-2xl bg-gray-100/90 border border-gray-200 text-left font-bold text-sm text-gray-700 tracking-wider cursor-not-allowed select-none" />
+                        <span class="absolute left-3 px-2.5 py-1 rounded-xl bg-white text-sage-dark font-extrabold text-[11px] border border-gray-200 select-none shadow-2xs" dir="ltr">
+                            🔒 مسجل
+                        </span>
+                    </div>
+                </div>
             </div>
 
-            <!-- Selected Service & Specialist Mini Summary -->
-            <div id="popupBookingSummary" class="p-3 rounded-2xl bg-surface border border-gold-soft/60 text-xs space-y-1">
-                <!-- Populated dynamically -->
-            </div>
+            <!-- GUEST PHONE INPUT VIEW -->
+            <div id="guestPhoneInputContainer" class="space-y-4">
+                <div class="flex flex-col items-center text-center space-y-2">
+                    <div class="w-14 h-14 rounded-2xl bg-sage-soft border border-gold-soft flex items-center justify-center text-sage-dark shadow-xs">
+                        <i class="fa-solid fa-mobile-screen-button text-2xl text-gold-dark"></i>
+                    </div>
+                    <h4 class="text-lg font-black text-sage-dark">تأكيد رقم الجوال</h4>
+                    <p class="text-xs text-gray-500 leading-relaxed max-w-[290px]">
+                        أدخلي رقم جوالكِ للتحقق من حسابكِ وإتمام حجز الموعد مباشرة
+                    </p>
+                </div>
 
-            <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3.5" novalidate>
                 <div>
                     <label for="bookingPhoneInput" class="block text-xs font-extrabold text-sage-dark mb-1.5">
-                        رقم الجوال السعودي <span class="text-red-500">*</span>
+                        رقم الجوال <span class="text-red-500">*</span>
                     </label>
                     <div class="relative flex items-center">
                         <input id="bookingPhoneInput"
@@ -98,20 +125,28 @@
                             🇸🇦 +966
                         </span>
                     </div>
-                    <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1.5 flex items-center gap-1">
-                        <i class="fa-solid fa-circle-exclamation"></i>
-                        <span id="phoneVerifyErrorText">يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).</span>
-                    </p>
                     <p class="text-[11px] text-gray-400 mt-1">
                         يقبل الصيغة المحلية <span dir="ltr" class="font-semibold">05XXXXXXXX</span> أو الدولية <span dir="ltr" class="font-semibold">+9665XXXXXXXX</span>
                     </p>
                 </div>
+            </div>
+
+            <!-- Selected Service & Specialist Mini Summary -->
+            <div id="popupBookingSummary" class="p-3 rounded-2xl bg-surface border border-gold-soft/60 text-xs space-y-1">
+                <!-- Populated dynamically -->
+            </div>
+
+            <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3.5" novalidate>
+                <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1.5 flex items-center gap-1">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="phoneVerifyErrorText">يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).</span>
+                </p>
 
                 <button type="submit"
                         id="phoneVerifySubmitBtn"
                         class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm shadow-lg shadow-primary/25 transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-shield-check text-white"></i>
-                    <span>تحقق وتأكيد الحجز</span>
+                    <i id="phoneVerifySubmitBtnIcon" class="fa-solid fa-shield-check text-white"></i>
+                    <span id="phoneVerifySubmitBtnText">تحقق وتأكيد الحجز</span>
                 </button>
             </form>
         </div>
@@ -136,11 +171,11 @@
                 </div>
 
                 <span class="px-3 py-0.5 rounded-full bg-gold-light text-gold-dark text-[11px] font-extrabold border border-gold/30">
-                    عميلة جديدة في هيرلاين
+                    التحقق عبر Google
                 </span>
-                <h4 class="text-lg font-black text-sage-dark">التسجيل السريع عبر Google</h4>
+                <h4 class="text-lg font-black text-sage-dark">التحقق وتأكيد الحجز عبر Google</h4>
                 <p class="text-xs text-gray-500 leading-relaxed max-w-[310px]">
-                    رقم الجوال <span id="googleStepPhoneBadge" dir="ltr" class="font-extrabold text-sage-dark bg-sage-soft px-2 py-0.5 rounded-md border border-gold-soft/50"></span> غير مسجل لدينا مسبقاً، انقري على الزر أدناه للتسجيل المباشر عبر حساب Google وتأكيد حجزكِ فوراً
+                    رقم الجوال <span id="googleStepPhoneBadge" dir="ltr" class="font-extrabold text-sage-dark bg-sage-soft px-2 py-0.5 rounded-md border border-gold-soft/50"></span>، انقري على الزر أدناه للمتابعة بحساب Google المرتبط وتأكيد حجزكِ فوراً
                 </p>
             </div>
 
@@ -179,17 +214,7 @@
                     <span id="googleRegisterErrorText">تعذر إتمام التسجيل عبر Google، يرجى المحاولة مرة أخرى.</span>
                 </p>
 
-                <!-- Security & Speed Reassurance Badges -->
-                <div class="grid grid-cols-2 gap-2 pt-1">
-                    <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
-                        <i class="fa-solid fa-lock text-gold-dark text-xs"></i>
-                        <span>ربط آمن ومشفر 100%</span>
-                    </div>
-                    <div class="p-2.5 rounded-xl bg-surface border border-gold-soft/50 flex items-center justify-center gap-1.5 text-[11px] font-bold text-sage-dark">
-                        <i class="fa-solid fa-bolt text-gold-dark text-xs"></i>
-                        <span>تأكيد فوري للموعد</span>
-                    </div>
-                </div>
+              
 
                 <button type="button"
                         onclick="switchPopupToPhoneStep()"

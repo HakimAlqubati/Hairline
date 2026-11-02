@@ -4,15 +4,16 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\SlotUnavailableException;
 use App\Models\Booking;
-use App\Models\BookingItem;
 use App\Models\Customer;
 use App\Models\MembershipTier;
-use App\Models\Service;
-use App\Models\Specialist;
 use App\Rules\AvailableSpecialistSlot;
+use App\Rules\NotPastDate;
 use App\Rules\SaudiPhoneNumber;
+use App\Rules\SpecialistOffersService;
 use App\Rules\WithinSpecialistShift;
+use App\Services\Booking\BookingCreationService;
 use App\Services\Booking\SpecialistAvailabilityService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -23,6 +24,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use InvalidArgumentException;
 
 class BookingController extends Controller
 {
@@ -32,7 +34,8 @@ class BookingController extends Controller
     public const SAUDI_PHONE_REGEX = SpecialistAvailabilityService::SAUDI_PHONE_REGEX;
 
     public function __construct(
-        private readonly SpecialistAvailabilityService $availabilityService
+        private readonly SpecialistAvailabilityService $availabilityService,
+        private readonly BookingCreationService $bookingCreationService
     ) {}
 
     /**
@@ -67,6 +70,14 @@ class BookingController extends Controller
         }
 
         $service = $this->availabilityService->resolveService((string) $request->query('service_id', ''));
+        if ($service && ! $this->availabilityService->specialistOffersService($specialist, $service)) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'عذراً، الأخصائية المختارة لا تقدم هذه الخدمة.',
+            ], 422);
+        }
+
         $durationMinutes = $this->availabilityService->resolveDurationMinutes($specialist, $service);
         $date = $this->availabilityService->resolveBookingDate((string) $request->query('booking_date', ''));
 
@@ -83,17 +94,14 @@ class BookingController extends Controller
     }
 
     /**
-     * Step 1 of verification: Validate Saudi phone number, shift hours, and slot conflict,
-     * check if customer exists in DB, and if found, log customer in and immediately create the booking.
+     * Step 1 of verification: Validate Saudi phone number and booking parameters.
+     * If the customer already has an active authenticated session, create the booking immediately.
+     * Otherwise, return a uniform response requiring Google verification without leaking customer existence or data.
      */
     public function verifyPhone(Request $request): JsonResponse
     {
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
-        $request->merge([
-            'phone' => $rawPhone,
-            'booking_date' => (string) $request->input('booking_date', 'غداً - السبت'),
-            'booking_time' => (string) $request->input('booking_time', '05:30 م'),
-        ]);
+        $request->merge(['phone' => $rawPhone]);
 
         $hasBooking = $request->filled('service_id') && $request->filled('specialist_id');
 
@@ -103,8 +111,16 @@ class BookingController extends Controller
 
         if ($hasBooking) {
             $rules['service_id'] = ['required', 'string'];
-            $rules['specialist_id'] = ['required', 'string'];
-            $rules['booking_date'] = ['nullable', 'string'];
+            $rules['specialist_id'] = [
+                'required',
+                'string',
+                new SpecialistOffersService($this->availabilityService),
+            ];
+            $rules['booking_date'] = [
+                'required',
+                'string',
+                new NotPastDate($this->availabilityService),
+            ];
             $rules['booking_time'] = [
                 'required',
                 'string',
@@ -117,6 +133,7 @@ class BookingController extends Controller
             'phone.required' => 'يرجى إدخال رقم الجوال للمتابعة.',
             'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
             'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
             'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
         ]);
 
@@ -130,51 +147,71 @@ class BookingController extends Controller
         }
 
         $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $loggedInCustomerId = session('logged_in_customer_id');
+        $loggedInCustomer = $loggedInCustomerId ? Customer::find($loggedInCustomerId) : null;
 
-        $customer = Customer::where('phone', $normalizedPhone)
-            ->orWhere('phone', $rawPhone)
-            ->first();
+        // If the customer is already authenticated in this session, verify phone matches their account
+        if ($loggedInCustomer) {
+            if ($rawPhone !== '' && $normalizedPhone !== $loggedInCustomer->phone && $rawPhone !== $loggedInCustomer->phone) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => 'رقم الجوال المدخل لا يطابق رقم حسابكِ المسجل حالياً.',
+                    'errors' => [
+                        'phone' => ['رقم الجوال المدخل لا يطابق رقم حسابكِ المسجل حالياً.'],
+                    ],
+                ], 422);
+            }
+            $bookingPayload = null;
+            if ($hasBooking) {
+                try {
+                    $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
+                        customer: $loggedInCustomer,
+                        serviceCode: (string) $request->input('service_id'),
+                        specialistSlug: (string) $request->input('specialist_id'),
+                        dateLabel: (string) $request->input('booking_date'),
+                        timeSlot: (string) $request->input('booking_time')
+                    );
+                } catch (SlotUnavailableException $e) {
+                    return response()->json([
+                        'success' => false,
+                        'status' => 'slot_unavailable',
+                        'message' => $e->getMessage(),
+                    ], 409);
+                } catch (InvalidArgumentException $e) {
+                    return response()->json([
+                        'success' => false,
+                        'status' => 'validation_error',
+                        'message' => $e->getMessage(),
+                    ], 422);
+                }
+            }
 
-        if (! $customer) {
             return response()->json([
                 'success' => true,
-                'exists' => false,
-                'status' => 'needs_registration',
-                'phone' => $normalizedPhone,
+                'exists' => true,
+                'status' => 'confirmed',
                 'message' => $hasBooking
-                    ? 'رقم الجوال غير مسجل مسبقاً. يرجى إكمال التسجيل عبر حساب Google لتأكيد حجزكِ.'
-                    : 'رقم الجوال غير مسجل مسبقاً. يرجى إكمال التسجيل عبر حساب Google لإنشاء ملفكِ الشخصي.',
+                    ? "تم تأكيد الحجز بنجاح باسم {$loggedInCustomer->name}"
+                    : "تم تسجيل الدخول بنجاح باسم {$loggedInCustomer->name}",
+                'customer' => $this->formatCustomerPayload($loggedInCustomer),
+                'booking' => $bookingPayload,
+                'customer_bookings' => $this->getCustomerBookingsPayload($loggedInCustomer),
             ]);
         }
 
-        session(['logged_in_customer_id' => $customer->id]);
-
-        $bookingPayload = null;
-        if ($hasBooking) {
-            $bookingPayload = $this->createBookingForCustomer(
-                customer: $customer,
-                serviceCode: (string) $request->input('service_id'),
-                specialistSlug: (string) $request->input('specialist_id'),
-                dateLabel: (string) $request->input('booking_date', 'غداً - السبت'),
-                timeSlot: (string) $request->input('booking_time', '05:30 م')
-            );
-        }
-
+        // Return a uniform response to avoid phone enumeration and identity spoofing
         return response()->json([
             'success' => true,
-            'exists' => true,
-            'status' => 'confirmed',
-            'message' => $hasBooking
-                ? "تم تأكيد الحجز بنجاح باسم {$customer->name}"
-                : "تم تسجيل الدخول بنجاح باسم {$customer->name}",
-            'customer' => $this->formatCustomerPayload($customer),
-            'booking' => $bookingPayload,
-            'customer_bookings' => $this->getCustomerBookingsPayload($customer),
+            'exists' => false,
+            'status' => 'needs_google_verification',
+            'phone' => $normalizedPhone,
+            'message' => 'يرجى المتابعة بحساب Google لإثبات هويتكِ وتأكيد الحجز.',
         ]);
     }
 
     /**
-     * Redirect to Google OAuth 2.0 consent screen with booking state.
+     * Redirect to Google OAuth 2.0 consent screen with state token and booking context preserved in session.
      */
     public function redirectToGoogle(Request $request): RedirectResponse
     {
@@ -185,15 +222,18 @@ class BookingController extends Controller
             'phone' => $normalizedPhone,
             'service_id' => (string) $request->query('service_id', ''),
             'specialist_id' => (string) $request->query('specialist_id', ''),
-            'booking_date' => (string) $request->query('booking_date', 'غداً - السبت'),
-            'booking_time' => (string) $request->query('booking_time', '05:30 م'),
+            'booking_date' => (string) $request->query('booking_date', ''),
+            'booking_time' => (string) $request->query('booking_time', ''),
         ];
 
-        session(['pending_google_booking' => $bookingContext]);
+        $stateToken = bin2hex(random_bytes(16));
+        session([
+            'google_oauth_state' => $stateToken,
+            'pending_google_booking' => $bookingContext,
+        ]);
 
         $clientId = (string) config('services.google.client_id');
         $redirectUri = $this->resolveGoogleRedirectUri($request);
-        $state = base64_encode((string) json_encode($bookingContext, JSON_UNESCAPED_UNICODE));
 
         $query = http_build_query([
             'client_id' => $clientId,
@@ -202,22 +242,34 @@ class BookingController extends Controller
             'scope' => 'openid email profile',
             'access_type' => 'online',
             'prompt' => 'select_account',
-            'state' => $state,
+            'state' => $stateToken,
         ]);
 
         return redirect()->away('https://accounts.google.com/o/oauth2/v2/auth?'.$query);
     }
 
     /**
-     * Handle Google OAuth 2.0 callback, validate shift & slot availability, create customer & booking in DB,
-     * log customer in, and notify the opener window.
+     * Handle Google OAuth 2.0 callback with state verification, validate shift & slot availability,
+     * create or bind customer strictly, log customer in, and notify the opener window.
      */
     public function handleGoogleCallback(Request $request): Response
     {
         $code = (string) $request->query('code', '');
-        $stateRaw = (string) $request->query('state', '');
-        $decodedState = $stateRaw !== '' ? json_decode((string) base64_decode($stateRaw), true) : null;
-        $bookingContext = is_array($decodedState) ? $decodedState : (array) session('pending_google_booking', []);
+        $state = (string) $request->query('state', '');
+        $sessionState = (string) session('google_oauth_state', '');
+
+        // State verification to prevent CSRF and state tampering
+        if ($state === '' || $sessionState === '' || ! hash_equals($sessionState, $state)) {
+            return $this->renderPopupCallbackScript([
+                'success' => false,
+                'status' => 'oauth_error',
+                'message' => 'جلسة التحقق غير صالحة أو انتهت مدتها، يرجى المحاولة مرة أخرى.',
+            ]);
+        }
+
+        // Retrieve booking context strictly from server session
+        $bookingContext = (array) session('pending_google_booking', []);
+        session()->forget(['google_oauth_state', 'pending_google_booking']);
 
         if ($code === '') {
             return $this->renderPopupCallbackScript([
@@ -244,17 +296,33 @@ class BookingController extends Controller
             $contextData = [
                 'service_id' => (string) ($bookingContext['service_id'] ?? ''),
                 'specialist_id' => (string) ($bookingContext['specialist_id'] ?? ''),
-                'booking_date' => (string) ($bookingContext['booking_date'] ?? 'غداً - السبت'),
-                'booking_time' => (string) ($bookingContext['booking_time'] ?? '05:30 م'),
+                'booking_date' => (string) ($bookingContext['booking_date'] ?? ''),
+                'booking_time' => (string) ($bookingContext['booking_time'] ?? ''),
             ];
 
             $slotValidator = Validator::make($contextData, [
+                'service_id' => ['required', 'string'],
+                'specialist_id' => [
+                    'required',
+                    'string',
+                    new SpecialistOffersService($this->availabilityService),
+                ],
+                'booking_date' => [
+                    'required',
+                    'string',
+                    new NotPastDate($this->availabilityService),
+                ],
                 'booking_time' => [
                     'required',
                     'string',
                     new WithinSpecialistShift(availabilityService: $this->availabilityService),
                     new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
                 ],
+            ], [
+                'service_id.required' => 'يرجى اختيار الخدمة المطلوبة.',
+                'specialist_id.required' => 'يرجى اختيار الأخصائية.',
+                'booking_date.required' => 'يرجى اختيار تاريخ الموعد.',
+                'booking_time.required' => 'يرجى اختيار وقت الموعد.',
             ]);
 
             if ($slotValidator->fails()) {
@@ -272,22 +340,37 @@ class BookingController extends Controller
         $ownerName = $googleUser['name'] !== '' ? $googleUser['name'] : $this->extractNameFromEmail($email);
         $avatarUrl = $googleUser['picture'] ?? null;
 
-        $customer = $this->findOrCreateGoogleCustomer($normalizedPhone, $email, $ownerName, $avatarUrl);
+        try {
+            $customer = $this->findOrCreateGoogleCustomer($normalizedPhone, $email, $ownerName, $avatarUrl);
+        } catch (InvalidArgumentException $e) {
+            return $this->renderPopupCallbackScript([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $e->getMessage(),
+            ]);
+        }
 
+        $request->session()->regenerate();
         session(['logged_in_customer_id' => $customer->id]);
 
         $bookingPayload = null;
         if ($hasBooking) {
-            $bookingPayload = $this->createBookingForCustomer(
-                customer: $customer,
-                serviceCode: $contextData['service_id'],
-                specialistSlug: $contextData['specialist_id'],
-                dateLabel: $contextData['booking_date'],
-                timeSlot: $contextData['booking_time']
-            );
+            try {
+                $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
+                    customer: $customer,
+                    serviceCode: $contextData['service_id'],
+                    specialistSlug: $contextData['specialist_id'],
+                    dateLabel: $contextData['booking_date'],
+                    timeSlot: $contextData['booking_time']
+                );
+            } catch (SlotUnavailableException|InvalidArgumentException $e) {
+                return $this->renderPopupCallbackScript([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => $e->getMessage(),
+                ]);
+            }
         }
-
-        session()->forget('pending_google_booking');
 
         return $this->renderPopupCallbackScript([
             'success' => true,
@@ -304,69 +387,63 @@ class BookingController extends Controller
     }
 
     /**
-     * Step 2 (AJAX): Register new customer via Google (using OAuth code, access_token, or Google profile),
-     * validate shift and slot conflict via Rule classes, log customer in, and create the booking.
+     * Step 2 (AJAX): Register or authenticate customer strictly via Google OAuth code.
+     * Identity data (email, name, picture) is obtained exclusively from Google, never from request payload.
      */
     public function registerWithGoogle(Request $request): JsonResponse
     {
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
-        $request->merge([
-            'phone' => $rawPhone,
-            'booking_date' => (string) $request->input('booking_date', 'غداً - السبت'),
-            'booking_time' => (string) $request->input('booking_time', '05:30 م'),
-        ]);
+        $request->merge(['phone' => $rawPhone]);
 
         $oauthCode = trim((string) $request->input('code', ''));
-        $accessToken = trim((string) $request->input('access_token', ''));
+        if ($oauthCode === '') {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'رمز التحقق من حساب Google مطلوب لإتمام العملية.',
+            ], 422);
+        }
 
-        if ($oauthCode !== '') {
-            $googleUser = $this->exchangeGoogleCodeForUser($oauthCode, 'postmessage');
-            if ($googleUser) {
-                $request->merge([
-                    'email' => $googleUser['email'],
-                    'name' => $googleUser['name'],
-                    'avatar_url' => $googleUser['picture'] ?? null,
-                ]);
-            }
-        } elseif ($accessToken !== '') {
-            $googleUser = $this->fetchGoogleUserFromAccessToken($accessToken);
-            if ($googleUser) {
-                $request->merge([
-                    'email' => $googleUser['email'],
-                    'name' => $googleUser['name'],
-                    'avatar_url' => $googleUser['picture'] ?? null,
-                ]);
-            }
+        $googleUser = $this->exchangeGoogleCodeForUser($oauthCode, 'postmessage');
+        if (! $googleUser) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'تعذر التحقق من حساب Google، يرجى المحاولة مرة أخرى.',
+            ], 422);
         }
 
         $hasBooking = $request->filled('service_id') && $request->filled('specialist_id');
 
         $rules = [
-            'email' => ['required', 'string', 'email', 'max:255'],
-            'name' => ['nullable', 'string', 'max:255'],
+            'phone' => ['required', 'string', new SaudiPhoneNumber($this->availabilityService)],
         ];
 
         if ($hasBooking) {
-            $rules['phone'] = ['required', 'string', new SaudiPhoneNumber($this->availabilityService)];
             $rules['service_id'] = ['required', 'string'];
-            $rules['specialist_id'] = ['required', 'string'];
-            $rules['booking_date'] = ['nullable', 'string'];
+            $rules['specialist_id'] = [
+                'required',
+                'string',
+                new SpecialistOffersService($this->availabilityService),
+            ];
+            $rules['booking_date'] = [
+                'required',
+                'string',
+                new NotPastDate($this->availabilityService),
+            ];
             $rules['booking_time'] = [
                 'required',
                 'string',
                 new WithinSpecialistShift(availabilityService: $this->availabilityService),
                 new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
             ];
-        } else {
-            $rules['phone'] = ['nullable', 'string', new SaudiPhoneNumber($this->availabilityService)];
         }
 
         $validator = Validator::make($request->all(), $rules, [
-            'phone.required' => 'يرجى إدخال رقم الجوال السعودي.',
-            'email.required' => 'تعذر الحصول على البريد الإلكتروني من حساب Google.',
-            'email.email' => 'يرجى التأكد من صحة البريد الإلكتروني لحساب Google.',
-            'service_id.required' => 'يرجى اختيار الخدمة المطلوبة.',
-            'specialist_id.required' => 'يرجى اختيار الأخصائية.',
+            'phone.required' => 'يرجى إدخال رقم الجوال.',
+            'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
+            'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
             'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
         ]);
 
@@ -379,33 +456,65 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : '';
-        $email = trim((string) $request->input('email'));
-        $providedName = trim((string) $request->input('name', ''));
-        $avatarUrl = $request->input('avatar_url');
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
 
-        $ownerName = $providedName !== ''
-            ? $providedName
-            : $this->extractNameFromEmail($email);
+        // Prevent cross-account contamination when already authenticated
+        $loggedInCustomerId = session('logged_in_customer_id');
+        if ($loggedInCustomerId) {
+            $loggedInCustomer = Customer::find($loggedInCustomerId);
+            if ($loggedInCustomer && $normalizedPhone !== '' && $normalizedPhone !== $loggedInCustomer->phone) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => 'أنتِ مسجلة دخولكِ بالفعل بحساب آخر. يرجى تسجيل الخروج أولاً لتسجيل حساب جديد.',
+                ], 422);
+            }
+        }
+        $email = $googleUser['email'];
+        $ownerName = $googleUser['name'];
+        $avatarUrl = $googleUser['picture'] ?? null;
 
-        $customer = $this->findOrCreateGoogleCustomer(
-            normalizedPhone: $normalizedPhone,
-            email: $email,
-            ownerName: $ownerName,
-            avatarUrl: is_string($avatarUrl) ? $avatarUrl : null
-        );
+        try {
+            $customer = $this->findOrCreateGoogleCustomer(
+                normalizedPhone: $normalizedPhone,
+                email: $email,
+                ownerName: $ownerName,
+                avatarUrl: $avatarUrl
+            );
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
+        $request->session()->regenerate();
         session(['logged_in_customer_id' => $customer->id]);
 
         $bookingPayload = null;
         if ($hasBooking) {
-            $bookingPayload = $this->createBookingForCustomer(
-                customer: $customer,
-                serviceCode: (string) $request->input('service_id'),
-                specialistSlug: (string) $request->input('specialist_id'),
-                dateLabel: (string) $request->input('booking_date', 'غداً - السبت'),
-                timeSlot: (string) $request->input('booking_time', '05:30 م')
-            );
+            try {
+                $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
+                    customer: $customer,
+                    serviceCode: (string) $request->input('service_id'),
+                    specialistSlug: (string) $request->input('specialist_id'),
+                    dateLabel: (string) $request->input('booking_date'),
+                    timeSlot: (string) $request->input('booking_time')
+                );
+            } catch (SlotUnavailableException $e) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'slot_unavailable',
+                    'message' => $e->getMessage(),
+                ], 409);
+            } catch (InvalidArgumentException $e) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
         }
 
         return response()->json([
@@ -424,10 +533,11 @@ class BookingController extends Controller
 
     /**
      * Update the logged-in customer's profile (name, Saudi phone number, and optional avatar image).
+     * Protected strictly by active session to prevent modifying other customers' records.
      */
     public function updateProfile(Request $request): JsonResponse
     {
-        $customerId = session('logged_in_customer_id') ?? $request->input('customer_id');
+        $customerId = session('logged_in_customer_id');
         $customer = $customerId ? Customer::find($customerId) : null;
 
         if (! $customer) {
@@ -454,7 +564,7 @@ class BookingController extends Controller
         ], [
             'name.required' => 'يرجى إدخال الاسم الكامل.',
             'name.min' => 'يجب أن يتكون الاسم من حرفين على الأقل.',
-            'phone.required' => 'يرجى إدخال رقم الجوال السعودي.',
+            'phone.required' => 'يرجى إدخال رقم الجوال.',
             'phone.unique' => 'رقم الجوال هذا مسجل بالفعل لحساب آخر.',
             'avatar.image' => 'يرجى اختيار ملف صورة صالح.',
             'avatar.max' => 'حجم الصورة يجب ألا يتجاوز 4 ميجابايت.',
@@ -499,6 +609,7 @@ class BookingController extends Controller
     {
         session()->forget('logged_in_customer_id');
         session()->forget('pending_google_booking');
+        session()->forget('google_oauth_state');
 
         return response()->json([
             'success' => true,
@@ -567,7 +678,9 @@ class BookingController extends Controller
     }
 
     /**
-     * Find or create the customer in the database after Google sign-in.
+     * Find or create the customer in the database after Google verification with strict account binding.
+     *
+     * @throws InvalidArgumentException
      */
     private function findOrCreateGoogleCustomer(
         string $normalizedPhone,
@@ -575,25 +688,45 @@ class BookingController extends Controller
         string $ownerName,
         ?string $avatarUrl = null
     ): Customer {
-        return DB::transaction(function () use ($normalizedPhone, $email, $ownerName, $avatarUrl): Customer {
-            $existing = null;
-            if ($normalizedPhone !== '') {
-                $existing = Customer::where('phone', $normalizedPhone)->first();
-            }
-            if (! $existing && $email !== '') {
-                $existing = Customer::where('email', $email)->first();
+        if ($normalizedPhone === '') {
+            throw new InvalidArgumentException('رقم الجوال السعودي مطلوب لإتمام التسجيل.');
+        }
+
+        $emailTrimmed = strtolower(trim($email));
+        if ($emailTrimmed === '') {
+            throw new InvalidArgumentException('البريد الإلكتروني لحساب Google غير متوفر.');
+        }
+
+        return DB::transaction(function () use ($normalizedPhone, $emailTrimmed, $ownerName, $avatarUrl): Customer {
+            $customerByPhone = Customer::where('phone', $normalizedPhone)->first();
+            $customerByEmail = Customer::where('email', $emailTrimmed)->first();
+
+            if ($customerByPhone) {
+                // If customer has an email registered, it must match Google's verified email
+                if (! empty($customerByPhone->email)) {
+                    if (strtolower(trim((string) $customerByPhone->email)) !== $emailTrimmed) {
+                        throw new InvalidArgumentException('حساب Google لا يطابق البريد الإلكتروني المسجل لهذا الرقم.');
+                    }
+                } else {
+                    // Customer exists by phone but has no email linked
+                    throw new InvalidArgumentException('رقم الجوال مسجل مسبقاً ولكن غير مرتبط ببريد إلكتروني، يرجى التواصل مع إدارة الصالون لربط البريد بحسابكِ.');
+                }
+
+                // If phone and email match, update avatar if currently null
+                if ($avatarUrl && empty($customerByPhone->avatar_url)) {
+                    $customerByPhone->update(['avatar_url' => $avatarUrl]);
+                }
+
+                return $customerByPhone;
             }
 
-            if ($existing) {
-                $existing->update([
-                    'name' => $ownerName ?: $existing->name,
-                    'email' => $email ?: $existing->email,
-                    'avatar_url' => $avatarUrl ?: $existing->avatar_url,
-                ]);
-
-                return $existing;
+            // Phone is NOT registered yet.
+            // Check if the Google email is already linked to another customer record with a different phone:
+            if ($customerByEmail) {
+                throw new InvalidArgumentException('البريد الإلكتروني لحساب Google مرتبط بالفعل برقم جوال آخر في صالون هيرلاين.');
             }
 
+            // Neither phone nor email exists -> Register new verified customer
             $defaultTierId = MembershipTier::where('slug', 'silver')->value('id')
                 ?? MembershipTier::orderBy('min_points_required')->value('id');
 
@@ -601,19 +734,12 @@ class BookingController extends Controller
                 $customerCode = 'HL-'.random_int(1000, 9999);
             } while (Customer::where('customer_code', $customerCode)->exists());
 
-            $phoneToUse = $normalizedPhone;
-            if ($phoneToUse === '') {
-                do {
-                    $phoneToUse = '05'.random_int(10000000, 99999999);
-                } while (Customer::where('phone', $phoneToUse)->exists());
-            }
-
             return Customer::create([
                 'membership_tier_id' => $defaultTierId,
                 'customer_code' => $customerCode,
-                'name' => $ownerName,
-                'phone' => $phoneToUse,
-                'email' => $email,
+                'name' => $ownerName !== '' ? $ownerName : $this->extractNameFromEmail($emailTrimmed),
+                'phone' => $normalizedPhone,
+                'email' => $emailTrimmed,
                 'avatar_url' => $avatarUrl ?: 'https://ui-avatars.com/api/?name='.urlencode($ownerName).'&background=211C18&color=C5A373&bold=true',
                 'total_points' => 0,
                 'is_active' => true,
@@ -649,7 +775,7 @@ class BookingController extends Controller
     }
 
     /**
-     * Fetch Google user profile from access token.
+     * Fetch Google user profile from access token and verify that email is verified.
      *
      * @return ?array{email: string, name: string, picture: ?string}
      */
@@ -661,7 +787,8 @@ class BookingController extends Controller
         }
 
         $email = trim((string) $userResponse->json('email', ''));
-        if ($email === '') {
+        $emailVerified = (bool) $userResponse->json('email_verified', false);
+        if ($email === '' || ! $emailVerified) {
             return null;
         }
 
@@ -715,7 +842,7 @@ class BookingController extends Controller
                 window.opener.postMessage({
                     type: 'HAIRLINE_GOOGLE_AUTH_RESULT',
                     payload: payload
-                }, '*');
+                }, window.location.origin);
                 window.close();
             } else {
                 window.location.href = '/booking';
@@ -727,119 +854,6 @@ class BookingController extends Controller
 HTML;
 
         return response($html, 200)->header('Content-Type', 'text/html; charset=UTF-8');
-    }
-
-    /**
-     * Persist Booking and BookingItem records directly in the database and return formatted payload.
-     *
-     * @return array{
-     *     id: string,
-     *     db_id: int,
-     *     customerName: string,
-     *     customerPhone: string,
-     *     customerEmail: ?string,
-     *     categoryTitle: string,
-     *     serviceName: string,
-     *     specialistName: string,
-     *     date: string,
-     *     bookingDateIso: string,
-     *     time: string,
-     *     price: string
-     * }
-     */
-    private function createBookingForCustomer(
-        Customer $customer,
-        string $serviceCode,
-        string $specialistSlug,
-        string $dateLabel,
-        string $timeSlot
-    ): array {
-        $service = $this->availabilityService->resolveService($serviceCode)
-            ?? Service::with('category')->firstOrFail();
-
-        $specialist = $this->availabilityService->resolveSpecialist($specialistSlug)
-            ?? Specialist::firstOrFail();
-
-        $bookingDate = $this->availabilityService->resolveBookingDate($dateLabel);
-        $startTime24 = $this->availabilityService->parseTimeTo24Hour($timeSlot) ?? '17:30:00';
-        $durationMinutes = $this->availabilityService->resolveDurationMinutes($specialist, $service);
-        $endTime24 = $this->availabilityService->calculateEndTime24($startTime24, $durationMinutes);
-
-        $price = (float) $service->base_price;
-        $vatAmount = round($price * 15 / 115, 2);
-        $depositRequired = round(max($price * 0.30, min(50.0, $price)), 2);
-
-        $booking = DB::transaction(function () use (
-            $customer,
-            $service,
-            $specialist,
-            $bookingDate,
-            $startTime24,
-            $endTime24,
-            $price,
-            $vatAmount,
-            $depositRequired,
-            $durationMinutes
-        ): Booking {
-            do {
-                $bookingNumber = (string) random_int(1000, 9999);
-            } while (Booking::where('booking_number', $bookingNumber)->exists());
-
-            $booking = Booking::create([
-                'booking_number' => $bookingNumber,
-                'customer_id' => $customer->id,
-                'customer_address_id' => null,
-                'booking_type' => 'salon',
-                'booking_date' => $bookingDate->toDateString(),
-                'overall_start_time' => $startTime24,
-                'overall_end_time' => $endTime24,
-                'status' => 'confirmed',
-                'subtotal_amount' => $price,
-                'discount_amount' => 0.00,
-                'vat_amount' => $vatAmount,
-                'total_amount' => $price,
-                'deposit_required' => $depositRequired,
-                'deposit_paid' => 0.00,
-                'payment_status' => 'unpaid',
-                'admin_notes' => [
-                    'ar' => 'حجز إلكتروني مباشر من صفحة الحجز',
-                    'en' => 'Direct online booking from booking page',
-                ],
-            ]);
-
-            BookingItem::create([
-                'booking_id' => $booking->id,
-                'service_id' => $service->id,
-                'specialist_id' => $specialist->id,
-                'hair_length_id' => null,
-                'unit_price' => $price,
-                'duration_minutes' => $durationMinutes,
-                'scheduled_start_time' => $startTime24,
-                'scheduled_end_time' => $endTime24,
-                'status' => 'confirmed',
-            ]);
-
-            return $booking;
-        });
-
-        $nameAr = $specialist->getTranslation('name', 'ar');
-        $nameEn = $specialist->getTranslation('name', 'en');
-        $specialistFullName = $nameEn ? "{$nameAr} | {$nameEn}" : $nameAr;
-
-        return [
-            'id' => $booking->booking_number,
-            'db_id' => $booking->id,
-            'customerName' => $customer->name,
-            'customerPhone' => $customer->phone,
-            'customerEmail' => $customer->email,
-            'categoryTitle' => $service->category?->getTranslation('name', 'ar') ?? 'خدمات الصالون',
-            'serviceName' => $service->getTranslation('name', 'ar'),
-            'specialistName' => $specialistFullName,
-            'date' => $dateLabel !== '' ? $dateLabel : $bookingDate->toDateString(),
-            'bookingDateIso' => $bookingDate->toDateString(),
-            'time' => $timeSlot !== '' ? $timeSlot : '05:30 م',
-            'price' => ((int) $price).' ر.س',
-        ];
     }
 
     /**

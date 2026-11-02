@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Exceptions\SlotUnavailableException;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Specialist;
 use App\Models\SpecialistShift;
+use App\Services\Booking\BookingCreationService;
 use App\Services\FrontData\BookingCalendarDataService;
 use App\Services\FrontData\CartAndCheckoutDataService;
 use App\Services\FrontData\CatalogDataService;
@@ -132,37 +134,24 @@ describe('Customer-Facing Pages', function () {
         $response->assertDontSee('أخصائية معتمدة في هيرلاين');
     });
 
-    test('booking logs customer in automatically and allows updating name, phone, and avatar in profile popup', function () {
+    test('authenticated customer can update name, phone, and avatar in profile popup', function () {
         Storage::fake('public');
 
         $customer = Customer::where('phone', '0551234567')->firstOrFail();
-        $service = Service::firstOrFail();
-        $specialist = Specialist::firstOrFail();
 
-        $bookingResponse = $this->postJson(route('booking.verify_phone'), [
-            'phone' => '0551234567',
-            'service_id' => $service->code,
-            'specialist_id' => $specialist->slug,
-            'booking_date' => 'غداً - السبت',
-            'booking_time' => '05:30 م',
-        ]);
-
-        $bookingResponse->assertStatus(200)
-            ->assertSessionHas('logged_in_customer_id', $customer->id);
-
-        $profilePage = $this->get('/profile');
+        $profilePage = $this->withSession(['logged_in_customer_id' => $customer->id])->get('/profile');
         $profilePage->assertStatus(200)
             ->assertSee('سارة العتيبي')
             ->assertSee('تعديل الملف');
 
         $avatarFile = UploadedFile::fake()->image('avatar.jpg', 200, 200);
 
-        $updateResponse = $this->postJson(route('profile.update'), [
-            'customer_id' => $customer->id,
-            'name' => 'سارة آل عتيبي',
-            'phone' => '+966559998887',
-            'avatar' => $avatarFile,
-        ]);
+        $updateResponse = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('profile.update'), [
+                'name' => 'سارة آل عتيبي',
+                'phone' => '+966559998887',
+                'avatar' => $avatarFile,
+            ]);
 
         $updateResponse->assertStatus(200)
             ->assertJson([
@@ -180,10 +169,10 @@ describe('Customer-Facing Pages', function () {
         expect($customer->avatar_url)->toContain('storage/customers/');
     });
 
-    test('verifying an existing Saudi phone number immediately confirms and saves booking in database', function () {
+    test('verifying a Saudi phone number without active session returns uniform needs_google_verification without creating booking or leaking data', function () {
         $customer = Customer::where('phone', '0551234567')->firstOrFail();
-        $service = Service::firstOrFail();
         $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
         $initialBookingCount = Booking::count();
 
         $response = $this->postJson(route('booking.verify_phone'), [
@@ -197,33 +186,51 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
+                'exists' => false,
+                'status' => 'needs_google_verification',
+                'phone' => '0551234567',
+            ]);
+
+        $response->assertJsonMissing(['customer']);
+        $response->assertJsonMissing(['booking']);
+        $response->assertJsonMissing(['customer_bookings']);
+
+        expect(Booking::count())->toBe($initialBookingCount);
+        $this->assertNull(session('logged_in_customer_id'));
+    });
+
+    test('active authenticated customer can confirm booking immediately via verify_phone', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $initialBookingCount = Booking::count();
+
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => 'غداً - السبت',
+                'booking_time' => '05:30 م',
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
                 'exists' => true,
                 'status' => 'confirmed',
                 'customer' => [
                     'id' => $customer->id,
                     'name' => 'سارة العتيبي',
-                    'phone' => '0551234567',
-                ],
-                'booking' => [
-                    'customerName' => 'سارة العتيبي',
-                    'serviceName' => $service->getTranslation('name', 'ar'),
                 ],
             ]);
 
         expect(Booking::count())->toBe($initialBookingCount + 1);
-        $this->assertDatabaseHas('bookings', [
-            'customer_id' => $customer->id,
-            'status' => 'confirmed',
-        ]);
-        $this->assertDatabaseHas('booking_items', [
-            'service_id' => $service->id,
-            'specialist_id' => $specialist->id,
-        ]);
     });
 
-    test('verifying a non-existing Saudi phone number returns needs_registration for Google sign-up', function () {
-        $service = Service::firstOrFail();
+    test('verifying a non-existing Saudi phone number returns uniform needs_google_verification identical to existing numbers', function () {
         $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
         $initialBookingCount = Booking::count();
 
         $response = $this->postJson(route('booking.verify_phone'), [
@@ -238,7 +245,7 @@ describe('Customer-Facing Pages', function () {
             ->assertJson([
                 'success' => true,
                 'exists' => false,
-                'status' => 'needs_registration',
+                'status' => 'needs_google_verification',
                 'phone' => '0509988776',
             ]);
 
@@ -246,13 +253,15 @@ describe('Customer-Facing Pages', function () {
     });
 
     test('rejects invalid non-Saudi phone number with 422 validation error', function () {
-        $service = Service::firstOrFail();
         $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
 
         $response = $this->postJson(route('booking.verify_phone'), [
             'phone' => '01234567',
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
+            'booking_date' => 'غداً - السبت',
+            'booking_time' => '05:30 م',
         ]);
 
         $response->assertStatus(422)
@@ -262,14 +271,25 @@ describe('Customer-Facing Pages', function () {
             ]);
     });
 
-    test('registering a new customer via Google saves customer and booking in database with email owner name', function () {
-        $service = Service::firstOrFail();
+    test('registering a new customer via Google requires oauth code and binds verified email', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-access-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'maha.alqhtani@gmail.com',
+                'email_verified' => true,
+                'name' => 'مها القحطاني',
+                'picture' => 'https://example.com/maha.jpg',
+            ], 200),
+        ]);
+
         $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
 
         $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'valid-mock-code',
             'phone' => '0509988776',
-            'email' => 'maha.alqhtani@gmail.com',
-            'name' => 'مها القحطاني',
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
             'booking_date' => 'الأحد القادم',
@@ -313,13 +333,14 @@ describe('Customer-Facing Pages', function () {
             ], 200),
             'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
                 'email' => 'reem.alsaud@gmail.com',
+                'email_verified' => true,
                 'name' => 'ريم آل سعود',
                 'picture' => 'https://example.com/avatar.jpg',
             ], 200),
         ]);
 
-        $service = Service::firstOrFail();
         $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
 
         $redirectResponse = $this->get(route('booking.google_redirect', [
             'phone' => '0554433221',
@@ -332,13 +353,7 @@ describe('Customer-Facing Pages', function () {
         $redirectResponse->assertRedirect();
         expect($redirectResponse->headers->get('Location'))->toContain('https://accounts.google.com/o/oauth2/v2/auth');
 
-        $state = base64_encode((string) json_encode([
-            'phone' => '0554433221',
-            'service_id' => $service->code,
-            'specialist_id' => $specialist->slug,
-            'booking_date' => 'غداً - السبت',
-            'booking_time' => '05:30 م',
-        ], JSON_UNESCAPED_UNICODE));
+        $state = session('google_oauth_state');
 
         $callbackResponse = $this->get(route('booking.google_callback', [
             'code' => 'mock-auth-code',
@@ -358,7 +373,7 @@ describe('Customer-Facing Pages', function () {
 
     test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {
         $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
-        $service = Service::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
         $targetDate = Carbon::today('Asia/Riyadh')->addDays(3);
 
         SpecialistShift::updateOrCreate(
@@ -373,13 +388,15 @@ describe('Customer-Facing Pages', function () {
             ]
         );
 
-        $this->postJson(route('booking.verify_phone'), [
-            'phone' => '0551234567',
-            'service_id' => $service->code,
-            'specialist_id' => $specialist->slug,
-            'booking_date' => $targetDate->toDateString(),
-            'booking_time' => '03:00 م',
-        ])->assertStatus(200);
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate->toDateString(),
+                'booking_time' => '03:00 م',
+            ])->assertStatus(200);
 
         $response = $this->getJson(route('booking.availability', [
             'specialist_id' => $specialist->slug,
@@ -407,7 +424,7 @@ describe('Customer-Facing Pages', function () {
 
     test('WithinSpecialistShift rule rejects bookings outside shift hours or on specialist day off', function () {
         $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
-        $service = Service::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
         $targetDate = Carbon::today('Asia/Riyadh')->addDays(4);
 
         // 1. Outside shift hours (10:00 AM is before 14:00 PM shift start)
@@ -457,26 +474,31 @@ describe('Customer-Facing Pages', function () {
     test('AvailableSpecialistSlot rule prevents double-booking an already booked specialist time slot', function () {
         $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $otherSpecialist = Specialist::where('slug', 'sp_karen')->firstOrFail();
-        $service = Service::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $otherSpecialist->services()->syncWithoutDetaching([$service->id]);
         $targetDate = Carbon::today('Asia/Riyadh')->addDays(5)->toDateString();
 
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+
         // First booking succeeds
-        $this->postJson(route('booking.verify_phone'), [
-            'phone' => '0551234567',
-            'service_id' => $service->code,
-            'specialist_id' => $specialist->slug,
-            'booking_date' => $targetDate,
-            'booking_time' => '05:00 م',
-        ])->assertStatus(200);
+        $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate,
+                'booking_time' => '05:00 م',
+            ])->assertStatus(200);
 
         // Second overlapping booking for the SAME specialist on the SAME date & time fails with 422
-        $conflictResponse = $this->postJson(route('booking.verify_phone'), [
-            'phone' => '0551234567',
-            'service_id' => $service->code,
-            'specialist_id' => $specialist->slug,
-            'booking_date' => $targetDate,
-            'booking_time' => '05:00 م',
-        ]);
+        $conflictResponse = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate,
+                'booking_time' => '05:00 م',
+            ]);
 
         $conflictResponse->assertStatus(422)
             ->assertJson([
@@ -486,19 +508,293 @@ describe('Customer-Facing Pages', function () {
             ]);
 
         // Booking the same time slot with a DIFFERENT specialist succeeds
-        $otherSpecialistResponse = $this->postJson(route('booking.verify_phone'), [
-            'phone' => '0551234567',
-            'service_id' => $service->code,
-            'specialist_id' => $otherSpecialist->slug,
-            'booking_date' => $targetDate,
-            'booking_time' => '05:00 م',
-        ]);
+        $otherSpecialistResponse = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $otherSpecialist->slug,
+                'booking_date' => $targetDate,
+                'booking_time' => '05:00 م',
+            ]);
 
         $otherSpecialistResponse->assertStatus(200)
             ->assertJson([
                 'success' => true,
                 'status' => 'confirmed',
             ]);
+    });
+
+    test('google registration fails when google email does not match registered customer phone email', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'attacker@gmail.com',
+                'email_verified' => true,
+                'name' => 'Attacker',
+            ], 200),
+        ]);
+
+        // Phone 0551234567 belongs to sara.otb@example.com
+        $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'mock-code',
+            'phone' => '0551234567',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'حساب Google لا يطابق البريد الإلكتروني المسجل لهذا الرقم.',
+            ]);
+    });
+
+    test('registerWithGoogle rejects requests missing oauth code and refuses spoofed request emails', function () {
+        $response = $this->postJson(route('booking.google_register'), [
+            'phone' => '0501122334',
+            'email' => 'spoofed@example.com',
+            'name' => 'Spoofed User',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => 'رمز التحقق من حساب Google مطلوب لإتمام العملية.',
+            ]);
+    });
+
+    test('registerWithGoogle rejects unverified google email addresses', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'unverified@gmail.com',
+                'email_verified' => false,
+                'name' => 'Unverified User',
+            ], 200),
+        ]);
+
+        $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'mock-code',
+            'phone' => '0501122334',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'status' => 'validation_error',
+            ]);
+    });
+
+    test('profile update requires authenticated session and rejects customer_id tampering', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+
+        $response = $this->postJson(route('profile.update'), [
+            'customer_id' => $customer->id,
+            'name' => 'مخترق',
+            'phone' => '0559999999',
+        ]);
+
+        $response->assertStatus(401)
+            ->assertJson([
+                'success' => false,
+                'status' => 'unauthenticated',
+            ]);
+
+        $customer->refresh();
+        expect($customer->name)->toBe('سارة العتيبي');
+    });
+
+    test('booking creation handles concurrency race condition and throws SlotUnavailableException', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(6)->toDateString();
+
+        $creationService = app(BookingCreationService::class);
+        $creationService->createBookingForCustomer(
+            customer: $customer,
+            serviceCode: $service->code,
+            specialistSlug: $specialist->slug,
+            dateLabel: $targetDate,
+            timeSlot: '04:00 م'
+        );
+
+        expect(fn () => $creationService->createBookingForCustomer(
+            customer: $customer,
+            serviceCode: $service->code,
+            specialistSlug: $specialist->slug,
+            dateLabel: $targetDate,
+            timeSlot: '04:00 م'
+        ))->toThrow(SlotUnavailableException::class);
+    });
+
+    test('booking rejects missing booking date or time without applying hidden defaults', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+
+        // Missing booking_date
+        $responseNoDate = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_time' => '05:30 م',
+            ]);
+
+        $responseNoDate->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_date']);
+
+        // Missing booking_time
+        $responseNoTime = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => 'غداً - السبت',
+            ]);
+
+        $responseNoTime->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_time']);
+    });
+
+    test('booking rejects mismatched phone number when customer is already logged in', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(5)->toDateString();
+
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0598765432',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate,
+                'booking_time' => '05:00 م',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['phone'])
+            ->assertJsonFragment([
+                'phone' => ['رقم الجوال المدخل لا يطابق رقم حسابكِ المسجل حالياً.'],
+            ]);
+    });
+
+    test('booking rejects specialist when specialist does not offer the selected service', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $unofferedService = Service::whereDoesntHave('specialists', function ($query) use ($specialist): void {
+            $query->where('specialists.id', $specialist->id);
+        })->firstOrFail();
+
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(5)->toDateString();
+
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $unofferedService->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate,
+                'booking_time' => '05:00 م',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['specialist_id'])
+            ->assertJsonFragment([
+                'specialist_id' => ['عذراً، الأخصائية المختارة لا تقدم هذه الخدمة.'],
+            ]);
+    });
+
+    test('booking rejects booking dates in the past', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $yesterday = Carbon::yesterday('Asia/Riyadh')->toDateString();
+
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $yesterday,
+                'booking_time' => '05:00 م',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_date'])
+            ->assertJsonFragment([
+                'booking_date' => ['لا يمكن حجز موعد في تاريخ سابق.'],
+            ]);
+    });
+
+    test('booking rejects past time slots for today', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+
+        // Freeze time at 17:00 (5:00 PM) Riyadh time on a Monday
+        Carbon::setTestNow(Carbon::parse('2026-11-02 17:00:00', 'Asia/Riyadh'));
+
+        // Attempting to book 02:00 PM (14:00) which has already passed today
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => '2026-11-02',
+                'booking_time' => '02:00 م',
+            ]);
+
+        Carbon::setTestNow(); // Reset test clock
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_time'])
+            ->assertJsonFragment([
+                'booking_time' => ['عذراً، هذا الموعد قد مضى وقته لليوم. يرجى اختيار موعد قادم.'],
+            ]);
+    });
+
+    test('booking rejects time slot when service duration exceeds specialist shift end time', function () {
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(3);
+
+        // Ensure specialist shift ends at 22:00:00 on this day
+        SpecialistShift::updateOrCreate(
+            [
+                'specialist_id' => $specialist->id,
+                'day_of_week' => (int) $targetDate->dayOfWeek,
+            ],
+            [
+                'start_time' => '14:00:00',
+                'end_time' => '22:00:00',
+                'is_day_off' => false,
+            ]
+        );
+
+        // Set service duration to 90 minutes
+        $service->update(['duration_minutes' => 90]);
+
+        // Attempt to book at 21:30 (09:30 PM), which ends at 23:00 (exceeds 22:00 shift end)
+        $response = $this->withSession(['logged_in_customer_id' => $customer->id])
+            ->postJson(route('booking.verify_phone'), [
+                'phone' => '0551234567',
+                'service_id' => $service->code,
+                'specialist_id' => $specialist->slug,
+                'booking_date' => $targetDate->toDateString(),
+                'booking_time' => '09:30 م',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_time']);
+
+        $errorText = collect($response->json('errors.booking_time'))->first();
+        expect($errorText)->toContain('مدة الخدمة تتجاوز وقت انتهاء شيفت الأخصائية');
     });
 });
 

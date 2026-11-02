@@ -1667,10 +1667,16 @@
             const summaryEl = document.getElementById('popupBookingSummary');
             const phoneInput = document.getElementById('bookingPhoneInput');
             const errorEl = document.getElementById('phoneVerifyError');
+            const loggedInNotice = document.getElementById('loggedInCustomerNotice');
+            const guestContainer = document.getElementById('guestPhoneInputContainer');
+            const loggedInName = document.getElementById('loggedInCustomerNameDisplay');
+            const loggedInPhone = document.getElementById('loggedInPhoneDisplay');
+            const btnText = document.getElementById('phoneVerifySubmitBtnText');
+            const btnIcon = document.getElementById('phoneVerifySubmitBtnIcon');
 
             if (!modal || !card) return;
 
-            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0];
             if (summaryEl) {
                 summaryEl.innerHTML = `
                     <div class="flex items-center justify-between font-extrabold text-sage-dark">
@@ -1684,6 +1690,21 @@
                 `;
             }
 
+            // Check if customer is already logged in
+            if (currentCustomer && currentCustomer.id) {
+                if (loggedInNotice) loggedInNotice.classList.remove('hidden');
+                if (guestContainer) guestContainer.classList.add('hidden');
+                if (loggedInName) loggedInName.textContent = currentCustomer.name || 'عميلتنا العزيزة';
+                if (loggedInPhone) loggedInPhone.value = currentCustomer.phone || '';
+                if (btnText) btnText.textContent = `تأكيد الحجز فوراً باسم ${currentCustomer.name}`;
+                if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
+            } else {
+                if (loggedInNotice) loggedInNotice.classList.add('hidden');
+                if (guestContainer) guestContainer.classList.remove('hidden');
+                if (btnText) btnText.textContent = 'تحقق وتأكيد الحجز';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-shield-check text-white';
+            }
+
             switchPopupToPhoneStep();
             if (errorEl) errorEl.classList.add('hidden');
 
@@ -1693,7 +1714,7 @@
                 modal.classList.remove('opacity-0');
                 card.classList.remove('scale-95');
                 card.classList.add('scale-100');
-                if (phoneInput) phoneInput.focus();
+                if (phoneInput && (!currentCustomer || !currentCustomer.id)) phoneInput.focus();
             });
         }
 
@@ -1777,9 +1798,12 @@
             const errorText = document.getElementById('phoneVerifyErrorText');
             const submitBtn = document.getElementById('phoneVerifySubmitBtn');
 
-            const rawPhone = normalizeDigitsJs(phoneInput ? phoneInput.value : '');
+            const isCustomerLoggedIn = Boolean(currentCustomer && currentCustomer.id && currentCustomer.phone);
+            const rawPhone = isCustomerLoggedIn
+                ? normalizeDigitsJs(currentCustomer.phone)
+                : normalizeDigitsJs(phoneInput ? phoneInput.value : '');
 
-            if (!SAUDI_PHONE_REGEX.test(rawPhone)) {
+            if (!isCustomerLoggedIn && !SAUDI_PHONE_REGEX.test(rawPhone)) {
                 if (errorText) {
                     errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).';
                 }
@@ -1794,12 +1818,20 @@
             const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري التحقق من الرقم...</span>`;
+                submitBtn.innerHTML = isCustomerLoggedIn
+                    ? `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري تأكيد حجزكِ باسم ${currentCustomer.name}...</span>`
+                    : `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري التحقق من الرقم...</span>`;
             }
 
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist.availableSlots[0];
+                const timeSlot = bookingState.selectedTime;
+                if (!timeSlot) {
+                    if (errorText) errorText.textContent = 'يرجى اختيار وقت متاح للحجز أولاً.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                    return;
+                }
+                const bookingDateVal = bookingState.selectedDateIso || bookingState.selectedDate;
 
                 const response = await fetch("{{ route('booking.verify_phone') }}", {
                     method: 'POST',
@@ -1812,25 +1844,25 @@
                         phone: rawPhone,
                         service_id: bookingState.selectedSubService.id,
                         specialist_id: bookingState.selectedSpecialist.id,
-                        booking_date: bookingState.selectedDateIso || bookingState.selectedDate,
+                        booking_date: bookingDateVal,
                         booking_time: timeSlot
                     })
                 });
 
                 const data = await response.json();
 
-                if (!response.ok || data.status === 'validation_error') {
-                    if (errorText) errorText.textContent = data.message || 'تأكدي من صحة رقم الجوال المدخل.';
+                if (!response.ok || data.status === 'validation_error' || data.status === 'slot_unavailable') {
+                    if (errorText) errorText.textContent = data.message || 'تأكدي من صحة البيانات المدخلة.';
                     if (errorEl) errorEl.classList.remove('hidden');
                     fetchSpecialistAvailability();
                     return;
                 }
 
-                // Case 1: Phone exists in customers table -> Booking created in DB, show confirmation with customer's name
-                if (data.exists && data.status === 'confirmed') {
+                // Case 1: Active authenticated customer session -> Confirmed directly
+                if (data.status === 'confirmed') {
                     finalizeConfirmedBookingFromServer(data);
                 }
-                // Case 2: Phone does NOT exist in customers table -> Show Google Registration Screen
+                // Case 2: Requires Google Identity Verification
                 else {
                     bookingState.verifiedPhone = data.phone || rawPhone;
                     switchPopupToGoogleStep(bookingState.verifiedPhone);
@@ -1903,12 +1935,13 @@
         }
 
         function openGoogleOAuthRedirectPopup() {
-            const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0] || '';
+            const timeSlot = bookingState.selectedTime || '';
+            const bookingDateVal = bookingState.selectedDateIso || bookingState.selectedDate || '';
             const params = new URLSearchParams({
                 phone: bookingState.verifiedPhone || '',
                 service_id: bookingState.selectedSubService?.id || '',
                 specialist_id: bookingState.selectedSpecialist?.id || '',
-                booking_date: bookingState.selectedDate || '',
+                booking_date: bookingDateVal,
                 booking_time: timeSlot
             });
 
@@ -1959,7 +1992,8 @@
 
             try {
                 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0] || '';
+                const timeSlot = bookingState.selectedTime || '';
+                const bookingDateVal = bookingState.selectedDateIso || bookingState.selectedDate || '';
 
                 const response = await fetch("{{ route('booking.google_register') }}", {
                     method: 'POST',
@@ -1972,14 +2006,14 @@
                         phone: bookingState.verifiedPhone || '',
                         service_id: bookingState.selectedSubService?.id || '',
                         specialist_id: bookingState.selectedSpecialist?.id || '',
-                        booking_date: bookingState.selectedDate || '',
+                        booking_date: bookingDateVal,
                         booking_time: timeSlot
                     }, oauthPayload))
                 });
 
                 const data = await response.json();
 
-                if (!response.ok || data.status === 'validation_error') {
+                if (!response.ok || data.status === 'validation_error' || data.status === 'slot_unavailable') {
                     const msg = data.message || 'تعذر التحقق من حساب Google.';
                     if (errorText) errorText.textContent = msg;
                     if (errorEl) errorEl.classList.remove('hidden');
