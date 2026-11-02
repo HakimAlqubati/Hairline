@@ -10,7 +10,9 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServiceGroup;
 use App\Models\ServicePricingTier;
+use App\Models\Specialist;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class CatalogSeeder extends Seeder
@@ -25,6 +27,11 @@ class CatalogSeeder extends Seeder
         $seedData = json_decode((string) file_get_contents($dataFile), true);
         $menuPages = $seedData['menu_pages'] ?? [];
         $allCategories = $seedData['categories'] ?? [];
+        $bookableServices = $seedData['bookable_services'] ?? [];
+
+        if (Schema::hasColumn('services', 'is_bookable')) {
+            Service::query()->update(['is_bookable' => false]);
+        }
 
         // 1. Seed 5 Hair Lengths
         $lengths = [
@@ -159,6 +166,7 @@ class CatalogSeeder extends Seeder
                             'buffer_minutes' => 10,
                             'has_length_pricing' => $hasLengthPricing,
                             'is_popular' => (bool) ($srv['is_popular'] ?? false),
+                            'is_bookable' => (bool) ($srv['is_bookable'] ?? ($bookableServices[$srvCode]['is_bookable'] ?? false)),
                             'is_home_available' => (bool) ($srv['is_home_available'] ?? false),
                             'sort_order' => $srvIndex + 1,
                             'is_active' => true,
@@ -189,7 +197,107 @@ class CatalogSeeder extends Seeder
         }
 
         // 4. Enrich multi-length blocks
-        $this->enrichMultiLengthBlocks($lengthModels, ServiceCategory::all()->keyBy('slug'), $menuPages);
+        $categoriesBySlug = ServiceCategory::all()->keyBy('slug');
+        $this->enrichMultiLengthBlocks($lengthModels, $categoriesBySlug, $menuPages);
+
+        // 5. Sync explicit bookable_services and their specialists from catalog_seed_data.json
+        $this->seedBookableServices($bookableServices, $categoriesBySlug);
+    }
+
+    /**
+     * Ensure all entries in bookable_services exist in services table with is_bookable = true
+     * and are linked to their designated specialists.
+     *
+     * @param  array<string, array<string, mixed>>  $bookableServices
+     */
+    private function seedBookableServices(array $bookableServices, $categories): void
+    {
+        $categorySlugMap = [
+            'color_services' => 'hair_services',
+            'hairstyles' => 'hair_services',
+            'hot_treatments' => 'hair_treatments',
+            'cold_treatments' => 'hair_treatments',
+            'makeup' => 'skin_eyebrows',
+        ];
+
+        $groupNameMap = [
+            'hs_full_color' => 'الصبغات',
+            'hs_highlights' => 'الصبغات',
+            'hs_all_hairstyles' => 'التساريح',
+            'ht_protein_machine' => 'المعالجات الحارة',
+            'ht_protein_no_machine' => 'المعالجات الحارة',
+            'ht_roots_protein' => 'المعالجات الحارة',
+            'ht_morphsis_filler' => 'فيلر المورفوسيس',
+            'ht_trendy_session' => 'جلسة الترندي',
+            'sk_makeup_lashes' => 'المكياج',
+        ];
+
+        $order = 100;
+        foreach ($bookableServices as $srvCode => $bData) {
+            $order++;
+            $isBookable = (bool) ($bData['is_bookable'] ?? true);
+            $catSlug = $categorySlugMap[$bData['category_id'] ?? ''] ?? 'hair_services';
+            $category = $categories->get($catSlug) ?? ServiceCategory::first();
+
+            if (! $category) {
+                continue;
+            }
+
+            $groupName = $groupNameMap[$srvCode] ?? ($bData['category_title'] ?? 'الخدمات العامة');
+            $group = ServiceGroup::where('category_id', $category->id)
+                ->where('name->ar', $groupName)
+                ->first();
+
+            $durationMinutes = (int) preg_replace('/[^0-9]/', '', (string) ($bData['duration'] ?? '60')) ?: 60;
+            $basePrice = (float) preg_replace('/[^0-9.]/', '', (string) ($bData['price'] ?? '0'));
+
+            $serviceModel = Service::where('code', $srvCode)->first();
+            if ($serviceModel) {
+                $serviceModel->update([
+                    'is_bookable' => $isBookable,
+                    'is_active' => true,
+                ]);
+            } else {
+                $serviceModel = Service::create([
+                    'category_id' => $category->id,
+                    'group_id' => $group?->id,
+                    'code' => $srvCode,
+                    'name' => [
+                        'ar' => $bData['name'] ?? $srvCode,
+                        'en' => $bData['category_title_en'] ?? strtoupper(Str::slug($srvCode, ' ')),
+                    ],
+                    'description' => [
+                        'ar' => $bData['desc'] ?? '',
+                        'en' => 'High quality treatment with certified premium products.',
+                    ],
+                    'price_display_override' => [
+                        'ar' => $basePrice.' SR',
+                        'en' => $basePrice.' SR',
+                    ],
+                    'base_price' => $basePrice,
+                    'duration_minutes' => $durationMinutes,
+                    'buffer_minutes' => 10,
+                    'has_length_pricing' => false,
+                    'is_popular' => false,
+                    'is_bookable' => $isBookable,
+                    'is_home_available' => false,
+                    'sort_order' => $order,
+                    'is_active' => true,
+                ]);
+            }
+
+            $specialistSlugs = $bData['specialists'] ?? [];
+            if (! empty($specialistSlugs)) {
+                $specialistIds = Specialist::whereIn('slug', $specialistSlugs)->pluck('id');
+                if ($specialistIds->isNotEmpty()) {
+                    $syncData = [];
+                    foreach ($specialistIds as $spId) {
+                        $syncData[$spId] = ['custom_duration_minutes' => $serviceModel->duration_minutes];
+                    }
+                    $serviceModel->specialists()->sync($syncData);
+                }
+            }
+        }
     }
 
     private function enrichMultiLengthBlocks(array $lengthModels, $categories, array $menuPages): void

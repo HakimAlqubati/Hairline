@@ -130,6 +130,7 @@ return [
         'extra_duration_minutes' => 'مدة إضافية',
         'custom_label' => 'المسمى المخصص',
         'price_display_override' => 'نص السعر البديل (مثال: يبدأ من)',
+        'is_bookable' => 'متاحة للحجز الإلكتروني',
         'is_home_available' => 'متاحة للخدمة المنزلية',
         'inclusions' => 'المشتملات والمزايا',
         'icon' => 'الأيقونة',

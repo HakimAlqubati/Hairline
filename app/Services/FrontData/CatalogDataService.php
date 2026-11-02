@@ -39,6 +39,7 @@ class CatalogDataService
      *         price_display: ?string,
      *         currency: string,
      *         is_popular: bool,
+     *         is_bookable: bool,
      *         is_home_available: bool,
      *         inclusions?: ?string
      *     }>
@@ -81,6 +82,7 @@ class CatalogDataService
                         'price_display' => $priceDisplay,
                         'currency' => 'SAR',
                         'is_popular' => (bool) $srv->is_popular,
+                        'is_bookable' => (bool) $srv->is_bookable,
                         'is_home_available' => (bool) $srv->is_home_available,
                         'inclusions' => $srv->getTranslation('inclusions', 'ar'),
                     ];
@@ -236,6 +238,7 @@ class CatalogDataService
      *         duration: string,
      *         price: string,
      *         is_bookable: bool,
+     *         is_home_available: bool,
      *         specialists: array<int, string>
      *     }>
      * }>
@@ -245,7 +248,10 @@ class CatalogDataService
         return Cache::rememberForever(HairlineCacheService::KEY_BOOKABLE_CATEGORIES, function () {
             $categories = ServiceCategory::with([
                 'services' => function ($q) {
-                    $q->where('is_active', true)->whereHas('specialists');
+                    $q->where('is_active', true)
+                        ->where('is_bookable', true)
+                        ->whereHas('specialists')
+                        ->orderBy('sort_order');
                 },
                 'services.specialists',
             ])->where('is_active', true)->orderBy('sort_order')->get();
@@ -264,7 +270,8 @@ class CatalogDataService
                         'desc' => $srv->getTranslation('description', 'ar') ?? '',
                         'duration' => "{$srv->duration_minutes} دقيقة",
                         'price' => "{$srv->base_price} ر.س",
-                        'is_bookable' => true,
+                        'is_bookable' => (bool) $srv->is_bookable,
+                        'is_home_available' => (bool) $srv->is_home_available,
                         'specialists' => $srv->specialists->pluck('slug')->toArray(),
                     ];
                 }

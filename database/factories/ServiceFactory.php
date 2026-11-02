@@ -40,6 +40,7 @@ class ServiceFactory extends Factory
             'buffer_minutes' => 10,
             'has_length_pricing' => false,
             'is_popular' => fake()->boolean(25),
+            'is_bookable' => fake()->boolean(50),
             'is_home_available' => fake()->boolean(50),
             'sort_order' => fake()->numberBetween(1, 50),
             'is_active' => true,

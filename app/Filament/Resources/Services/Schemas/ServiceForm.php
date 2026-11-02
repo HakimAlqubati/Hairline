@@ -75,10 +75,14 @@ class ServiceForm
                                 ->default(0),
                         ]),
 
-                        Grid::make(2)->schema([
+                        Grid::make(3)->schema([
                             Toggle::make('is_active')
                                 ->label(__('admin.fields.is_active'))
                                 ->default(true),
+
+                            Toggle::make('is_bookable')
+                                ->label(__('admin.fields.is_bookable'))
+                                ->default(false),
 
                             Toggle::make('is_featured')
                                 ->label(__('admin.fields.is_featured'))

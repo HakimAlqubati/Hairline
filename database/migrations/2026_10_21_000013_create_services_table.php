@@ -24,6 +24,7 @@ return new class extends Migration
             $table->unsignedSmallInteger('buffer_minutes')->default(10);
             $table->boolean('has_length_pricing')->default(false);
             $table->boolean('is_popular')->default(false);
+            $table->boolean('is_bookable')->default(false);
             $table->boolean('is_home_available')->default(false);
             $table->unsignedInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);

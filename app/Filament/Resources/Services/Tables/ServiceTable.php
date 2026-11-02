@@ -46,6 +46,11 @@ class ServiceTable
                     ->suffix(' '.__('admin.units.minutes'))
                     ->sortable(),
 
+                IconColumn::make('is_bookable')
+                    ->label(__('admin.fields.is_bookable'))
+                    ->boolean()
+                    ->sortable(),
+
                 IconColumn::make('is_featured')
                     ->label(__('admin.fields.is_featured'))
                     ->boolean()
@@ -68,6 +73,9 @@ class ServiceTable
 
                 TernaryFilter::make('is_active')
                     ->label(__('admin.filters.active_status')),
+
+                TernaryFilter::make('is_bookable')
+                    ->label(__('admin.fields.is_bookable')),
 
                 TernaryFilter::make('is_featured')
                     ->label(__('admin.filters.featured_status')),

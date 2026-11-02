@@ -9,6 +9,7 @@ use App\Models\Service;
 use App\Models\Specialist;
 use App\Models\SpecialistShift;
 use App\Services\Booking\BookingCreationService;
+use App\Services\Cache\HairlineCacheService;
 use App\Services\FrontData\BookingCalendarDataService;
 use App\Services\FrontData\CartAndCheckoutDataService;
 use App\Services\FrontData\CatalogDataService;
@@ -96,6 +97,8 @@ describe('Customer-Facing Pages', function () {
     });
 
     test('booking page returns 200 and shows standalone collapsible tree view with checkboxes and floating confirm button', function () {
+        HairlineCacheService::clearCatalog();
+
         $response = $this->get('/booking');
 
         $response->assertStatus(200);
@@ -114,9 +117,12 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('خدمات الشعر');
         $response->assertSee('معالجات الشعر');
-        $response->assertSee('جلسات العناية بالشعر');
-        $response->assertSee('الاستشوار والتصفيف');
-        $response->assertSee('المناكير والبادكير');
+        $response->assertSee('البروتين بالتمليس الحراري');
+        $response->assertSee('المكياج ( مع الرموش)');
+        $response->assertSee('data-category-tree="hair_services"', false);
+        $response->assertSee('data-category-tree="hair_treatments"', false);
+        $response->assertSee('data-category-tree="skin_eyebrows"', false);
+        $response->assertDontSee('data-category-tree="nails"', false);
         $response->assertSee('تم تأكيد حجزك بنجاح');
         $response->assertSee('الخدمة المختارة:');
         $response->assertSee('الأخصائية:');
@@ -937,6 +943,18 @@ describe('Static Data Services', function () {
         $totals = $service->calculateTotals(['hs_full_cut', 'nl_manicure']);
         expect($totals['total_price'])->toBe(150);
         expect($totals['count'])->toBe(2);
+
+        // Bookable services depend on explicit is_bookable = true from catalog_seed_data.json
+        HairlineCacheService::clearCatalog();
+        $bookableCategories = $service->getBookableCategoriesWithSpecialists();
+        expect($bookableCategories)->toHaveCount(3);
+
+        expect($service->isServiceBookable('hs_full_color'))->toBeTrue();
+        expect($service->isServiceBookable('ht_protein_machine'))->toBeTrue();
+        expect($service->isServiceBookable('ht_morphsis_filler'))->toBeTrue();
+        expect($service->isServiceBookable('hs_all_hairstyles'))->toBeTrue();
+        expect($service->isServiceBookable('sk_makeup_lashes'))->toBeTrue();
+        expect($service->isServiceBookable('hs_full_cut'))->toBeFalse();
     });
 
     test('CatalogMenuDataService returns all 8 official menu pages', function () {
