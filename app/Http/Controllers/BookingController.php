@@ -689,7 +689,7 @@ class BookingController extends Controller
         ?string $avatarUrl = null
     ): Customer {
         if ($normalizedPhone === '') {
-            throw new InvalidArgumentException('رقم الجوال السعودي مطلوب لإتمام التسجيل.');
+            throw new InvalidArgumentException('رقم الجوال مطلوب لإتمام التسجيل.');
         }
 
         $emailTrimmed = strtolower(trim($email));

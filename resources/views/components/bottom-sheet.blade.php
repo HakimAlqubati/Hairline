@@ -49,7 +49,7 @@
      class="fixed inset-0 z-[60] hidden items-center justify-center p-4 bg-black/65 backdrop-blur-xs transition-opacity duration-300 opacity-0">
     
     <div id="bookingVerificationCard"
-         class="relative w-full max-w-[410px] rounded-[28px] bg-white shadow-2xl border border-gold-soft/70 overflow-hidden transform scale-95 transition-all duration-300">
+         class="relative w-full max-w-[420px] rounded-[30px] bg-white shadow-2xl border border-gold-soft/80 overflow-hidden transform scale-95 transition-all duration-300">
         
         <!-- Top Gold Shimmer Bar -->
         <div class="h-1.5 w-full bg-gradient-to-r from-primary-light via-primary to-primary-light"></div>
@@ -58,50 +58,62 @@
         <button type="button"
                 onclick="closePhoneVerificationModal()"
                 aria-label="إغلاق نافذة التحقق"
-                class="absolute top-4 left-4 w-8 h-8 rounded-full bg-surface text-gray-500 hover:bg-red-50 hover:text-red-500 flex items-center justify-center border border-gray-200/70 transition cursor-pointer z-10">
-            <i class="fa-solid fa-xmark text-xs"></i>
+                class="absolute top-4 left-4 w-9 h-9 rounded-full bg-surface text-gray-400 hover:text-sage-dark hover:bg-gray-100 flex items-center justify-center border border-gray-200/80 transition cursor-pointer z-10 shadow-2xs">
+            <i class="fa-solid fa-xmark text-sm"></i>
         </button>
 
         <!-- VIEW 1: SAUDI PHONE NUMBER INPUT & VERIFICATION -->
-        <div id="phoneVerifyStep" class="p-6 space-y-4">
+        <div id="phoneVerifyStep" class="p-6 sm:p-7 space-y-4">
             <!-- LOGGED-IN CUSTOMER NOTICE VIEW -->
             <div id="loggedInCustomerNotice" class="hidden space-y-3.5">
-                <div class="flex flex-col items-center text-center space-y-2">
-                    <div class="w-14 h-14 rounded-2xl bg-sage-light border border-primary/30 flex items-center justify-center text-primary text-2xl shadow-xs">
-                        <i class="fa-solid fa-user-check"></i>
-                    </div>
-                    <div>
-                        <span class="text-[11px] font-bold text-gold-dark block">مرحباً بكِ مجدداً</span>
-                        <h4 id="loggedInCustomerNameDisplay" class="text-lg font-black text-sage-dark mt-0.5"></h4>
-                    </div>
-                </div>
- 
-
-                <div>
-                    <label class="block text-xs font-extrabold text-sage-dark mb-1.5">
-                        رقم الجوال المسجل بحسابكِ:
-                    </label>
-                    <div class="relative flex items-center">
-                        <input id="loggedInPhoneDisplay"
-                               type="text"
-                               dir="ltr"
-                               readonly
-                               disabled
-                               class="w-full py-3.5 pr-4 pl-24 rounded-2xl bg-gray-100/90 border border-gray-200 text-left font-bold text-sm text-gray-700 tracking-wider cursor-not-allowed select-none" />
-                        <span class="absolute left-3 px-2.5 py-1 rounded-xl bg-white text-sage-dark font-extrabold text-[11px] border border-gray-200 select-none shadow-2xs" dir="ltr">
-                            🔒 مسجل
+                <div class="flex flex-col items-center text-center pt-1">
+                    <!-- Luxury Avatar with Verified Badge -->
+                    <div class="relative mb-2.5">
+                        <div class="w-16 h-16 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm">
+                            <i class="fa-solid fa-user-check text-2xl"></i>
+                        </div>
+                        <span class="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] flex items-center justify-center shadow-xs border-2 border-white" title="حساب موثق">
+                            <i class="fa-solid fa-check text-[9px]"></i>
                         </span>
                     </div>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-light/60 border border-gold/30 text-gold-dark text-[11px] font-extrabold mb-1">
+                        <i class="fa-regular fa-sparkles text-[10px]"></i>
+                        <span>مرحباً بكِ مجدداً</span>
+                    </div>
+                    <h4 id="loggedInCustomerNameDisplay" class="text-xl font-black text-sage-dark tracking-tight"></h4>
+                </div>
+
+                <!-- Verified Phone Display Card -->
+                <div class="p-3.5 rounded-2xl bg-surface border border-gray-200/80 flex items-center justify-between gap-3 shadow-2xs">
+                    <div class="flex items-center gap-3 min-w-0">
+                        <div class="w-10 h-10 rounded-xl bg-primary-light/70 border border-primary-soft/60 flex items-center justify-center text-primary-dark shrink-0">
+                            <i class="fa-solid fa-mobile-screen-button text-sm"></i>
+                        </div>
+                        <div class="min-w-0 text-right">
+                            <span class="block text-[11px] text-gray-500 font-bold leading-tight">رقم الجوال:</span>
+                            <input id="loggedInPhoneDisplay"
+                                   type="text"
+                                   dir="ltr"
+                                   readonly
+                                   tabindex="-1"
+                                   class="bg-transparent border-0 p-0 text-left font-black text-sm sm:text-base text-sage-dark tracking-wider cursor-default select-all focus:outline-none w-auto max-w-[150px]" />
+                        </div>
+                    </div>
+                  
                 </div>
             </div>
 
             <!-- GUEST PHONE INPUT VIEW -->
             <div id="guestPhoneInputContainer" class="space-y-4">
-                <div class="flex flex-col items-center text-center space-y-2">
-                    <div class="w-14 h-14 rounded-2xl bg-sage-soft border border-gold-soft flex items-center justify-center text-sage-dark shadow-xs">
-                        <i class="fa-solid fa-mobile-screen-button text-2xl text-gold-dark"></i>
+                <div class="flex flex-col items-center text-center space-y-2 pt-1">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-1">
+                        <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
                     </div>
-                    <h4 class="text-lg font-black text-sage-dark">تأكيد رقم الجوال</h4>
+                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-light/60 border border-gold/30 text-gold-dark text-[11px] font-extrabold">
+                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
+                        <span>تأكيد رقم الجوال</span>
+                    </div>
+                    <h4 class="text-xl font-black text-sage-dark tracking-tight">أدخلي رقم جوالكِ للحجز</h4>
                     <p class="text-xs text-gray-500 leading-relaxed max-w-[290px]">
                         أدخلي رقم جوالكِ للتحقق من حسابكِ وإتمام حجز الموعد مباشرة
                     </p>
@@ -120,34 +132,35 @@
                                placeholder="05XXXXXXXX"
                                autocomplete="tel"
                                oninput="handlePhoneInputValidation(this)"
-                               class="w-full py-3.5 pr-4 pl-20 rounded-2xl bg-surface border border-gray-200 focus:border-sage-dark focus:bg-white focus:outline-none text-left font-bold text-sm text-sage-dark tracking-wider transition" />
-                        <span class="absolute left-3 px-2.5 py-1 rounded-xl bg-sage-light/80 text-sage-dark font-extrabold text-[11px] border border-gold-soft/50 select-none" dir="ltr">
+                               class="w-full py-3.5 pr-4 pl-22 rounded-2xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none text-left font-bold text-sm text-sage-dark tracking-wider transition" />
+                        <span class="absolute left-2.5 px-2.5 py-1 rounded-xl bg-white text-sage-dark font-extrabold text-[11px] border border-gray-200 select-none shadow-2xs" dir="ltr">
                             🇸🇦 +966
                         </span>
                     </div>
                     <p class="text-[11px] text-gray-400 mt-1">
-                        يقبل الصيغة المحلية <span dir="ltr" class="font-semibold">05XXXXXXXX</span> أو الدولية <span dir="ltr" class="font-semibold">+9665XXXXXXXX</span>
+                        يقبل الصيغة المحلية <span dir="ltr" class="font-semibold text-gray-500">05XXXXXXXX</span> أو الدولية <span dir="ltr" class="font-semibold text-gray-500">+9665XXXXXXXX</span>
                     </p>
                 </div>
             </div>
 
             <!-- Selected Service & Specialist Mini Summary -->
-            <div id="popupBookingSummary" class="p-3 rounded-2xl bg-surface border border-gold-soft/60 text-xs space-y-1">
+            <div id="popupBookingSummary" class="rounded-2xl bg-gradient-to-b from-surface to-white border border-gold-soft/80 p-3.5 shadow-2xs space-y-2.5">
                 <!-- Populated dynamically -->
             </div>
 
-            <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3.5" novalidate>
-                <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1.5 flex items-center gap-1">
+            <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3" novalidate>
+                <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-exclamation"></i>
                     <span id="phoneVerifyErrorText">يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).</span>
                 </p>
 
                 <button type="submit"
                         id="phoneVerifySubmitBtn"
-                        class="w-full py-3.5 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm shadow-lg shadow-primary/25 transition flex items-center justify-center gap-2 cursor-pointer">
-                    <i id="phoneVerifySubmitBtnIcon" class="fa-solid fa-shield-check text-white"></i>
+                        class="w-full py-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm sm:text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.985] transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer">
+                    <i id="phoneVerifySubmitBtnIcon" class="fa-solid fa-circle-check text-white text-base"></i>
                     <span id="phoneVerifySubmitBtnText">تحقق وتأكيد الحجز</span>
                 </button>
+                
             </form>
         </div>
 

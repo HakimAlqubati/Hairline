@@ -1761,13 +1761,23 @@
             const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0];
             if (summaryEl) {
                 summaryEl.innerHTML = `
-                    <div class="flex items-center justify-between font-extrabold text-sage-dark">
-                        <span>${bookingState.selectedSubService.name}</span>
-                        <span class="text-gold-dark">${bookingState.selectedSubService.price}</span>
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
+                            <span class="font-extrabold text-sm text-sage-dark truncate">${bookingState.selectedSubService.name}</span>
+                        </div>
+                        <span class="font-black text-sm text-primary-dark shrink-0">${bookingState.selectedSubService.price}</span>
                     </div>
-                    <div class="flex items-center justify-between text-[11px] text-gray-500">
-                        <span>${bookingState.selectedSpecialist.name}</span>
-                        <span>${bookingState.selectedDate} • ${timeSlot}</span>
+                    <div class="border-t border-dashed border-gray-200/80"></div>
+                    <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0"></i>
+                            <span class="truncate">${bookingState.selectedSpecialist.name}</span>
+                        </div>
+                        <div class="flex items-center gap-1.5 justify-end text-left min-w-0">
+                            <i class="fa-regular fa-calendar-check text-gold-dark text-[11px] shrink-0"></i>
+                            <span class="truncate font-semibold text-sage-dark">${bookingState.selectedDate} • ${timeSlot}</span>
+                        </div>
                     </div>
                 `;
             }
@@ -1778,7 +1788,7 @@
                 if (guestContainer) guestContainer.classList.add('hidden');
                 if (loggedInName) loggedInName.textContent = currentCustomer.name || 'عميلتنا العزيزة';
                 if (loggedInPhone) loggedInPhone.value = currentCustomer.phone || '';
-                if (btnText) btnText.textContent = `تأكيد الحجز فوراً باسم ${currentCustomer.name}`;
+                if (btnText) btnText.textContent = 'تأكيد الحجز';
                 if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
             } else {
                 if (loggedInNotice) loggedInNotice.classList.add('hidden');
