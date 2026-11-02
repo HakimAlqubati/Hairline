@@ -265,6 +265,7 @@
         let slideInterval = null;
         let currentActiveTab = "{{ $initialView ?? 'home' }}";
         let floatingConfirmHideTimeout = null;
+        let availabilityAbortController = null;
 
         const defaultBookingDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
 
@@ -1009,6 +1010,9 @@
         /* 2-STEP BOOKING FLOW + PHONE REGEX POPUP & GOOGLE REGISTRATION (DB-BACKED)  */
         /* -------------------------------------------------------------------------- */
         function openBookingFlow() {
+            if (availabilityAbortController) {
+                availabilityAbortController.abort();
+            }
             const initialDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
             bookingState = {
                 step: 1,
@@ -1054,9 +1058,18 @@
 
         function handleBookingBack() {
             if (bookingState.step === 2) {
+                if (availabilityAbortController) {
+                    availabilityAbortController.abort();
+                }
                 bookingState.step = 1;
                 bookingState.selectedSpecialist = null;
                 bookingState.selectedTime = null;
+                bookingState.availability = {
+                    loading: false,
+                    is_day_off: false,
+                    shift_label: "",
+                    slots: []
+                };
                 renderBookingStep();
             }
         }
@@ -1322,7 +1335,13 @@
                 const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
                 if (!bookingState.selectedSpecialist && linkedSpecialists.length > 0) {
                     bookingState.selectedSpecialist = linkedSpecialists[0];
-                    bookingState.selectedTime = linkedSpecialists[0].availableSlots[0] || null;
+                    bookingState.selectedTime = null;
+                    bookingState.availability = {
+                        loading: true,
+                        is_day_off: false,
+                        shift_label: "",
+                        slots: []
+                    };
                     fetchSpecialistAvailability();
                 }
 
@@ -1333,20 +1352,14 @@
                         { display_label: "غداً - السبت", date_iso: "" }
                     ];
 
-                const shiftSlots = (bookingState.availability && Array.isArray(bookingState.availability.slots) && bookingState.availability.slots.length > 0)
-                    ? bookingState.availability.slots
-                    : (bookingState.selectedSpecialist?.availableSlots || []).map(t => ({
-                        time: t,
-                        is_available: true,
-                        is_booked: false
-                    }));
-
+                const isLoadingSlots = Boolean(bookingState.availability?.loading);
+                const shiftSlots = Array.isArray(bookingState.availability?.slots) ? bookingState.availability.slots : [];
                 const isDayOff = Boolean(bookingState.availability && bookingState.availability.is_day_off);
                 const shiftLabel = bookingState.availability?.shift_label || "";
 
                 if (step2Body) {
                     step2Body.innerHTML = `
-                        <div class="space-y-4 animate-step">
+                        <div class="space-y-4">
                             <!-- Summary Card -->
                             <div class="p-4 rounded-2xl bg-gold-light/70 border border-gold/40 flex items-center justify-between">
                                 <div>
@@ -1413,12 +1426,17 @@
                                     <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
                                         الوقت واليوم المتاح مع ${bookingState.selectedSpecialist.name}:
                                     </label>
-                                    ${shiftLabel ? `
+                                    ${isLoadingSlots ? `
+                                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-light/50 text-gold-dark text-[10px] font-bold border border-gold-soft/50 animate-pulse">
+                                            <i class="fa-solid fa-spinner fa-spin text-[10px]"></i>
+                                            <span>جاري تحديث الأوقات...</span>
+                                        </span>
+                                    ` : (shiftLabel ? `
                                         <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
                                             <i class="fa-regular fa-calendar-check text-gold-dark"></i>
                                             <span>${shiftLabel}</span>
                                         </span>
-                                    ` : ''}
+                                    ` : '')}
                                 </div>
                                 
                                 <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -1427,7 +1445,8 @@
                                         const iso = d.date_iso || '';
                                         const isActiveDate = bookingState.selectedDate === label || (iso && bookingState.selectedDateIso === iso);
                                         return `
-                                            <button onclick="selectBookingDate('${label}', '${iso}')" 
+                                            <button type="button"
+                                                    onclick="selectBookingDate('${label}', '${iso}')" 
                                                     class="px-3.5 py-2 rounded-xl text-xs font-bold shrink-0 border transition cursor-pointer ${
                                                         isActiveDate 
                                                         ? 'bg-primary text-white border-primary shadow-xs' 
@@ -1439,10 +1458,22 @@
                                     }).join('')}
                                 </div>
 
-                                ${isDayOff ? `
+                                ${isLoadingSlots ? `
+                                    <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 animate-pulse" aria-label="جاري تحميل الأوقات">
+                                        ${Array.from({ length: 8 }).map(() => `
+                                            <div class="py-2.5 px-2 rounded-xl bg-gray-100 border border-gray-200/60 flex items-center justify-center">
+                                                <div class="h-3.5 w-12 bg-gray-200/90 rounded"></div>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                ` : (isDayOff ? `
                                     <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
                                         <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
                                         <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو أخصائية أخرى لإتمام الحجز.</p>
+                                    </div>
+                                ` : (shiftSlots.length === 0 ? `
+                                    <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
+                                        <p class="text-xs font-bold text-gray-500">لا توجد مواعيد متاحة في هذا التاريخ.</p>
                                     </div>
                                 ` : `
                                     <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
@@ -1476,20 +1507,25 @@
                                             `;
                                         }).join('')}
                                     </div>
-                                `}
+                                `))}
                             </div>
                         </div>
                     `;
                 }
 
-                const canConfirm = Boolean(bookingState.selectedTime) && !isDayOff;
+                const canConfirm = !isLoadingSlots && Boolean(bookingState.selectedTime) && !isDayOff;
                 if (step2Footer) {
                     step2Footer.innerHTML = `
                         <button onclick="confirmFinalBooking()" 
                                 ${canConfirm ? '' : 'disabled'}
                                 class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-circle-check text-white"></i>
-                            <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : 'يرجى اختيار وقت متاح للحجز'}</span>
+                            ${isLoadingSlots ? `
+                                <i class="fa-solid fa-spinner fa-spin text-white"></i>
+                                <span>جاري جلب الأوقات المتاحة...</span>
+                            ` : `
+                                <i class="fa-solid fa-circle-check text-white"></i>
+                                <span>${canConfirm ? `تأكيد الحجز مع ${bookingState.selectedSpecialist.name}` : (isDayOff ? 'يرجى اختيار أخصائية أو يوم آخر' : 'يرجى اختيار وقت متاح للحجز')}</span>
+                            `}
                         </button>
                     `;
                 }
@@ -1580,17 +1616,36 @@
         function chooseSpecialist(spId) {
             const sp = specialistsData[spId];
             if (!sp) return;
+            if (bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id && !bookingState.availability.loading) {
+                return;
+            }
             bookingState.selectedSpecialist = sp;
-            bookingState.selectedTime = sp.availableSlots[0] || null;
+            bookingState.selectedTime = null;
+            bookingState.availability = {
+                loading: true,
+                is_day_off: false,
+                shift_label: "",
+                slots: []
+            };
             fetchSpecialistAvailability();
             renderBookingStep();
         }
 
         function selectBookingDate(dateStr, dateIso = '') {
+            if (bookingState.selectedDate === dateStr && (!dateIso || bookingState.selectedDateIso === dateIso) && !bookingState.availability.loading) {
+                return;
+            }
             bookingState.selectedDate = dateStr;
             if (dateIso) {
                 bookingState.selectedDateIso = dateIso;
             }
+            bookingState.selectedTime = null;
+            bookingState.availability = {
+                loading: true,
+                is_day_off: false,
+                shift_label: "",
+                slots: []
+            };
             fetchSpecialistAvailability();
             renderBookingStep();
         }
@@ -1607,18 +1662,34 @@
         async function fetchSpecialistAvailability() {
             if (!bookingState.selectedSpecialist) return;
 
+            if (availabilityAbortController) {
+                availabilityAbortController.abort();
+            }
+            availabilityAbortController = new AbortController();
+            const currentSignal = availabilityAbortController.signal;
+
             bookingState.availability.loading = true;
+            const requestedSpecialistId = bookingState.selectedSpecialist.id;
+            const requestedDate = bookingState.selectedDateIso || bookingState.selectedDate || '';
+
             const params = new URLSearchParams({
-                specialist_id: bookingState.selectedSpecialist.id,
+                specialist_id: requestedSpecialistId,
                 service_id: bookingState.selectedSubService?.id || '',
-                booking_date: bookingState.selectedDateIso || bookingState.selectedDate || ''
+                booking_date: requestedDate
             });
 
             try {
                 const response = await fetch("{{ route('booking.availability') }}?" + params.toString(), {
-                    headers: { 'Accept': 'application/json' }
+                    headers: { 'Accept': 'application/json' },
+                    signal: currentSignal
                 });
                 const data = await response.json();
+
+                // If user switched specialist or date while fetch was in-flight, discard this response
+                if (bookingState.selectedSpecialist?.id !== requestedSpecialistId) {
+                    return;
+                }
+
                 if (response.ok && data.success) {
                     bookingState.availability = {
                         loading: false,
@@ -1637,9 +1708,20 @@
                     if (bookingState.step === 2) {
                         renderBookingStep();
                     }
+                } else {
+                    bookingState.availability.loading = false;
+                    if (bookingState.step === 2) {
+                        renderBookingStep();
+                    }
                 }
             } catch (err) {
+                if (err.name === 'AbortError') {
+                    return; // Request intentionally aborted due to a newer selection
+                }
                 bookingState.availability.loading = false;
+                if (bookingState.step === 2) {
+                    renderBookingStep();
+                }
             }
         }
 
