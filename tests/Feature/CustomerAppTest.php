@@ -92,8 +92,39 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('id="submitSearchBtn"', false);
         $response->assertSee('id="servicesSearchStatus"', false);
         $response->assertSee('id="servicesSearchEmptyState"', false);
+        $response->assertSee('id="servicesSuggestionsDropdown"', false);
+        $response->assertSee('id="servicesSuggestionsList"', false);
         $response->assertSee("executeUnifiedServiceSearch('services', event)", false);
         $response->assertDontSee('الانتقال إلى الخدمات المتاحة للحجز');
+    });
+
+    test('ajax suggestions endpoint returns up to 10 services ranked character-by-character', function () {
+        // 1. Empty query returns empty suggestions
+        $emptyResponse = $this->getJson(route('services.suggestions', ['q' => '']));
+        $emptyResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'count' => 0,
+                'suggestions' => [],
+            ]);
+
+        // 2. Character-by-character query (e.g. 'ب') returns at most 10 suggestions
+        $singleCharResponse = $this->getJson(route('services.suggestions', ['q' => 'ب']));
+        $singleCharResponse->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+            ]);
+        $singleCharSuggestions = $singleCharResponse->json('suggestions');
+        expect(count($singleCharSuggestions))->toBeLessThanOrEqual(10);
+        expect(count($singleCharSuggestions))->toBeGreaterThan(0);
+
+        // 3. Multi-character query (e.g. 'برو') returns matching services
+        $multiCharResponse = $this->getJson(route('services.suggestions', ['q' => 'برو']));
+        $multiCharResponse->assertStatus(200);
+        $multiCharSuggestions = $multiCharResponse->json('suggestions');
+        expect(count($multiCharSuggestions))->toBeLessThanOrEqual(10);
+        expect(count($multiCharSuggestions))->toBeGreaterThan(0);
+        expect($multiCharSuggestions[0])->toHaveKeys(['id', 'name', 'category', 'price', 'price_display']);
     });
 
     test('booking page returns 200 and shows standalone collapsible tree view with checkboxes and floating confirm button', function () {

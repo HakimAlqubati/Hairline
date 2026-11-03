@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [HairlineController::class, 'show'])->defaults('initialView', 'home')->name('home');
 Route::get('/about', [HairlineController::class, 'show'])->defaults('initialView', 'about')->name('about');
 Route::get('/services', [HairlineController::class, 'show'])->defaults('initialView', 'services')->name('services');
+Route::get('/services/suggestions', [HairlineController::class, 'searchSuggestions'])->name('services.suggestions');
 Route::get('/specialists', [HairlineController::class, 'show'])->defaults('initialView', 'specialists')->name('specialists');
 Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
 Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');

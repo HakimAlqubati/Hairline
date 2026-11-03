@@ -13,6 +13,8 @@ use App\Services\FrontData\CatalogMenuDataService;
 use App\Services\FrontData\SalonInfoDataService;
 use App\Services\FrontData\SpecialistsDataService;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class HairlineController extends Controller
@@ -104,6 +106,24 @@ class HairlineController extends Controller
             'bookingDates' => $this->availabilityService->getUpcomingDates(7),
             'currentCustomer' => $currentCustomer,
             'initialBookings' => $initialBookings,
+        ]);
+    }
+
+    /**
+     * AJAX endpoint returning up to 10 live service suggestions ranked character-by-character.
+     */
+    public function searchSuggestions(Request $request): JsonResponse
+    {
+        $query = trim((string) $request->query('q', ''));
+        $limit = max(1, min(20, (int) $request->query('limit', 10)));
+
+        $suggestions = $this->catalog->getServiceSuggestions($query, $limit);
+
+        return response()->json([
+            'success' => true,
+            'query' => $query,
+            'count' => count($suggestions),
+            'suggestions' => $suggestions,
         ]);
     }
 }

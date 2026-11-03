@@ -27,6 +27,7 @@
                     autocomplete="off"
                     placeholder="{{ $placeholder }}"
                     oninput="handleUnifiedSearchInput('{{ $context }}')"
+                    onfocus="handleSearchFocus('{{ $context }}')"
                     class="w-full bg-white border border-primary-soft/90 focus:border-primary rounded-full py-2.5 pr-9 pl-9 text-xs sm:text-sm font-bold text-sage-dark placeholder-[#b39d76] focus:outline-none focus:ring-2 focus:ring-primary/15 shadow-xs transition"
                 />
 
@@ -39,6 +40,21 @@
                     aria-label="مسح البحث">
                     ✕
                 </button>
+
+                @if($context === 'services')
+                    {{-- AJAX Live Suggestions Dropdown (Up to 10 Services) --}}
+                    <div id="servicesSuggestionsDropdown"
+                         class="hidden absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-md rounded-2xl shadow-xl border border-primary-soft/80 overflow-hidden z-50 transition-all max-h-96 overflow-y-auto">
+                        <div class="px-3 py-2 bg-primary-light/50 border-b border-primary-soft/50 flex items-center justify-between text-[11px] font-bold text-sage-dark">
+                            <span class="flex items-center gap-1.5 text-primary-dark">
+                                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+                                <span>مقترحات الخدمات السريعة (10 خدمات)</span>
+                            </span>
+                            <span class="text-gray-400 text-[10px]">اختاري الخدمة لعرضها</span>
+                        </div>
+                        <div id="servicesSuggestionsList" class="p-1.5 space-y-1"></div>
+                    </div>
+                @endif
             </div>
 
             <button

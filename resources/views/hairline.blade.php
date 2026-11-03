@@ -2882,6 +2882,18 @@
             return tokens.every(token => normalizedHaystack.includes(token));
         }
 
+        let serviceSuggestionsAbortController = null;
+        let serviceSuggestionsDebounceTimer = null;
+
+        function handleSearchFocus(context) {
+            if (context === 'services') {
+                const inputEl = document.getElementById('serviceSearch');
+                if (inputEl && inputEl.value.trim().length > 0) {
+                    fetchServiceAjaxSuggestions(inputEl.value.trim());
+                }
+            }
+        }
+
         function handleUnifiedSearchInput(context) {
             const cfg = unifiedSearchConfig[context];
             if (!cfg) return;
@@ -2890,9 +2902,21 @@
             const clearBtn = document.getElementById(cfg.clearBtnId);
             if (!inputEl) return;
 
-            const hasText = inputEl.value.trim().length > 0;
+            const trimmedVal = inputEl.value.trim();
+            const hasText = trimmedVal.length > 0;
             if (clearBtn) {
                 clearBtn.classList.toggle('hidden', !hasText);
+            }
+
+            if (context === 'services') {
+                if (hasText) {
+                    fetchServiceAjaxSuggestions(trimmedVal);
+                } else {
+                    const dropdown = document.getElementById('servicesSuggestionsDropdown');
+                    if (dropdown) dropdown.classList.add('hidden');
+                    executeUnifiedServiceSearch(context);
+                }
+                return;
             }
 
             // Automatically restore full list when user empties the search input
@@ -2901,9 +2925,120 @@
             }
         }
 
+        function fetchServiceAjaxSuggestions(query) {
+            const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const listEl = document.getElementById('servicesSuggestionsList');
+            if (!dropdown || !listEl) return;
+
+            if (serviceSuggestionsDebounceTimer) {
+                clearTimeout(serviceSuggestionsDebounceTimer);
+            }
+
+            const cleanQuery = (query || '').trim();
+            if (cleanQuery.length === 0) {
+                dropdown.classList.add('hidden');
+                listEl.innerHTML = '';
+                return;
+            }
+
+            serviceSuggestionsDebounceTimer = setTimeout(() => {
+                if (serviceSuggestionsAbortController) {
+                    serviceSuggestionsAbortController.abort();
+                }
+                serviceSuggestionsAbortController = new AbortController();
+
+                fetch(`/services/suggestions?q=${encodeURIComponent(cleanQuery)}&limit=10`, {
+                    signal: serviceSuggestionsAbortController.signal,
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.success || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
+                        dropdown.classList.add('hidden');
+                        listEl.innerHTML = '';
+                        return;
+                    }
+
+                    renderServiceSuggestions(data.suggestions, cleanQuery);
+                })
+                .catch(err => {
+                    if (err.name !== 'AbortError') {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            }, 100);
+        }
+
+        function renderServiceSuggestions(suggestions, query) {
+            const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const listEl = document.getElementById('servicesSuggestionsList');
+            if (!dropdown || !listEl) return;
+
+            listEl.innerHTML = suggestions.map((item, index) => {
+                const highlightedName = highlightSearchMatch(item.name, query);
+                const safeName = (item.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+                return `
+                    <button type="button"
+                            onmousedown="selectServiceSuggestion('${safeName}')"
+                            class="service-suggestion-item w-full text-right p-2.5 rounded-xl hover:bg-primary-light/60 focus:bg-primary-light/60 flex items-center justify-between gap-3 transition-colors cursor-pointer group outline-none"
+                            data-index="${index}">
+                        <div class="min-w-0">
+                            ${item.category ? `<span class="text-[10px] font-bold text-gold-dark block truncate mb-0.5">${item.category}</span>` : ''}
+                            <div class="font-extrabold text-xs sm:text-[13px] text-sage-dark group-hover:text-primary-dark transition-colors truncate">
+                                ${highlightedName}
+                            </div>
+                            ${item.name_en ? `<span class="text-[10px] font-serif tracking-wider text-gray-400 block uppercase truncate">${item.name_en}</span>` : ''}
+                        </div>
+                        ${item.price_display ? `
+                            <span class="shrink-0 px-2.5 py-0.5 rounded-full bg-gold-light/60 text-gold-dark font-extrabold text-[11px] border border-gold/25 shadow-2xs">
+                                ${item.price_display}
+                            </span>
+                        ` : ''}
+                    </button>
+                `;
+            }).join('');
+
+            dropdown.classList.remove('hidden');
+        }
+
+        function highlightSearchMatch(text, query) {
+            if (!query) return text;
+            const normalizedText = normalizeSearchText(text);
+            const normalizedQuery = normalizeSearchText(query);
+            const idx = normalizedText.indexOf(normalizedQuery);
+            if (idx === -1) return text;
+
+            const before = text.substring(0, idx);
+            const match = text.substring(idx, idx + query.length);
+            const after = text.substring(idx + query.length);
+            return `${before}<mark class="bg-primary-light text-primary-dark font-black rounded px-0.5">${match}</mark>${after}`;
+        }
+
+        function selectServiceSuggestion(serviceName) {
+            const cfg = unifiedSearchConfig['services'];
+            const inputEl = document.getElementById(cfg.inputId);
+            const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            if (dropdown) dropdown.classList.add('hidden');
+
+            if (inputEl) {
+                inputEl.value = serviceName;
+            }
+
+            // Immediately execute search based on the selected service
+            executeUnifiedServiceSearch('services');
+        }
+
         function executeUnifiedServiceSearch(context, event = null) {
             if (event) {
                 event.preventDefault();
+            }
+
+            if (context === 'services') {
+                const dropdown = document.getElementById('servicesSuggestionsDropdown');
+                if (dropdown) dropdown.classList.add('hidden');
             }
 
             const cfg = unifiedSearchConfig[context];
@@ -2934,6 +3069,11 @@
         function clearUnifiedServiceSearch(context, focusInput = false) {
             const cfg = unifiedSearchConfig[context];
             if (!cfg) return;
+
+            if (context === 'services') {
+                const dropdown = document.getElementById('servicesSuggestionsDropdown');
+                if (dropdown) dropdown.classList.add('hidden');
+            }
 
             const inputEl = document.getElementById(cfg.inputId);
             const clearBtn = document.getElementById(cfg.clearBtnId);
@@ -3144,7 +3284,26 @@
         }
 
         function initServicesSearch() {
-            // Initialized via declarative form onsubmit and oninput handlers for both 'services' and 'booking' contexts
+            // Close suggestions dropdown when clicking outside
+            document.addEventListener('click', function (e) {
+                const dropdown = document.getElementById('servicesSuggestionsDropdown');
+                const searchForm = document.getElementById('serviceSearch')?.closest('form');
+                if (dropdown && !dropdown.classList.contains('hidden')) {
+                    if (!searchForm || !searchForm.contains(e.target)) {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+            });
+
+            // Close suggestions dropdown when pressing Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    const dropdown = document.getElementById('servicesSuggestionsDropdown');
+                    if (dropdown && !dropdown.classList.contains('hidden')) {
+                        dropdown.classList.add('hidden');
+                    }
+                }
+            });
         }
 
         // Initialize on Window Load

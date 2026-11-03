@@ -183,6 +183,115 @@ class CatalogDataService
     }
 
     /**
+     * Get up to $limit service suggestions ranked by character-by-character prefix relevance.
+     *
+     * @return array<int, array{
+     *     id: string,
+     *     name: string,
+     *     name_en: ?string,
+     *     category: string,
+     *     price: int,
+     *     price_display: string
+     * }>
+     */
+    public function getServiceSuggestions(string $query, int $limit = 10): array
+    {
+        $normalizedQuery = $this->normalizeSearchText($query);
+        if ($normalizedQuery === '') {
+            return [];
+        }
+
+        $allCategories = $this->getAllCategories();
+        $scored = [];
+
+        foreach ($allCategories as $cat) {
+            $catTitle = $cat['title'] ?? '';
+            $normalizedCat = $this->normalizeSearchText($catTitle);
+
+            foreach ($cat['services'] as $srv) {
+                $name = $srv['name'] ?? '';
+                $nameEn = $srv['name_en'] ?? '';
+                $normalizedName = $this->normalizeSearchText($name);
+                $normalizedNameEn = mb_strtolower((string) $nameEn);
+
+                $score = 0;
+
+                // 1. Exact name match
+                if ($normalizedName === $normalizedQuery) {
+                    $score = 1000;
+                }
+                // 2. Starts with query (prefix match starting from character 1, 2, 3...)
+                elseif (str_starts_with($normalizedName, $normalizedQuery)) {
+                    $score = 800 - mb_strlen($normalizedName);
+                }
+                // 3. Any individual word starts with the query
+                elseif (preg_match('/(^|\s)'.preg_quote($normalizedQuery, '/').'/u', $normalizedName)) {
+                    $score = 600 - mb_strlen($normalizedName);
+                }
+                // 4. Substring anywhere in the service name
+                elseif (str_contains($normalizedName, $normalizedQuery)) {
+                    $pos = mb_strpos($normalizedName, $normalizedQuery);
+                    $score = 400 - ($pos !== false ? $pos * 10 : 0);
+                }
+                // 5. English name starts with query
+                elseif ($nameEn !== '' && str_starts_with($normalizedNameEn, mb_strtolower($query))) {
+                    $score = 300 - mb_strlen($normalizedNameEn);
+                }
+                // 6. English name contains query
+                elseif ($nameEn !== '' && str_contains($normalizedNameEn, mb_strtolower($query))) {
+                    $score = 200;
+                }
+                // 7. Category starts with query
+                elseif (str_starts_with($normalizedCat, $normalizedQuery)) {
+                    $score = 150;
+                }
+                // 8. Category contains query
+                elseif (str_contains($normalizedCat, $normalizedQuery)) {
+                    $score = 100;
+                }
+
+                if ($score > 0) {
+                    $priceDisplay = $srv['price_display'] ?? '';
+                    if (! $priceDisplay && ($srv['price'] ?? 0) > 0) {
+                        $priceDisplay = ((int) $srv['price']).' ر.س';
+                    }
+
+                    $scored[] = [
+                        'score' => $score,
+                        'service' => [
+                            'id' => (string) $srv['id'],
+                            'name' => $name,
+                            'name_en' => $nameEn ?: null,
+                            'category' => $catTitle,
+                            'price' => (int) ($srv['price'] ?? 0),
+                            'price_display' => $priceDisplay ?: 'حسب الطول والكثافة',
+                        ],
+                    ];
+                }
+            }
+        }
+
+        // Sort descending by relevance score
+        usort($scored, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
+
+        // Deduplicate services by name to avoid repeating identical services with length tiers
+        $unique = [];
+        $result = [];
+        foreach ($scored as $item) {
+            $key = $item['service']['name'];
+            if (! isset($unique[$key])) {
+                $unique[$key] = true;
+                $result[] = $item['service'];
+                if (count($result) >= $limit) {
+                    break;
+                }
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * Calculate total price and count for selected service IDs.
      */
     public function calculateTotals(array $serviceIds): array
