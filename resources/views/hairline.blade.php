@@ -166,6 +166,36 @@
             scrollbar-width: thin;
             scrollbar-color: #C29E6D #FAF8F5;
         }
+        .specialist-card {
+            transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                        border-color 0.35s ease;
+            will-change: transform;
+        }
+        .specialist-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -12px rgba(194, 158, 109, 0.28), 0 8px 20px -6px rgba(33, 28, 24, 0.08);
+        }
+        .specialist-portrait-img {
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                        filter 0.45s ease;
+            transform-origin: center bottom;
+            will-change: transform;
+        }
+        .specialist-card:hover .specialist-portrait-img {
+            transform: scale(1.07) translateY(-3px);
+            filter: drop-shadow(0 12px 20px rgba(33, 28, 24, 0.12));
+        }
+        .specialist-arch-bg {
+            transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                        border-color 0.4s ease,
+                        background-color 0.4s ease;
+        }
+        .specialist-card:hover .specialist-arch-bg {
+            transform: scale(1.03);
+            border-color: rgba(194, 158, 109, 0.45);
+            background-color: rgba(255, 255, 255, 0.92);
+        }
     </style>
 </head>
 
@@ -1450,46 +1480,111 @@
                                 </h4>
                             </div>
 
-                            <!-- Specialists List (Label hidden per client request) -->
-                            <div class="space-y-2.5">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <!-- Specialists List (Large Luxury Cards Styled Like Specialists Page) -->
+                            <div class="space-y-3">
+                                <div class="${linkedSpecialists.length === 1 ? 'w-full max-w-sm sm:max-w-md mx-auto' : (linkedSpecialists.length === 2 ? 'grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5')}">
                                     ${linkedSpecialists.map(sp => {
+                                        const nameParts = (sp.name || '').split('|').map(s => s.trim());
+                                        const nameAr = nameParts[0] || (sp.name || '');
+                                        const nameEn = nameParts[1] || '';
                                         const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
                                         return `
-                                            <div onclick="chooseSpecialist('${sp.id}')" 
-                                                 class="p-3.5 rounded-2xl border transition-all duration-200 cursor-pointer flex items-center justify-between gap-3 ${
-                                                     isSelected 
-                                                     ? 'bg-primary-light/70 border-primary shadow-xs ring-1 ring-primary/20' 
-                                                     : 'bg-white border-gray-200/80 hover:border-primary-soft hover:bg-surface'
-                                                 }">
-                                                <div class="flex items-center gap-3 min-w-0">
-                                                    <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
-                                                        <img src="${sp.avatar}" 
-                                                             alt="${sp.name}"
-                                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=FFFFFF&color=C29E6D&bold=true&size=96';"
-                                                             class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gold/30'} shrink-0 shadow-2xs"
-                                                             style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
-                                                    </div>
-                                                    <div class="min-w-0">
-                                                        <h5 class="font-extrabold text-sm text-sage-dark truncate leading-tight">${sp.name}</h5>
-                                                        <p class="text-[11px] text-gray-500 truncate mt-0.5 font-medium">${sp.role}</p>
-                                                        <div class="flex items-center gap-1.5 mt-1">
-                                                            <span class="inline-flex items-center gap-1 text-[10px] font-semibold text-gold-dark bg-gold-light/60 px-2 py-0.5 rounded-md border border-gold/25">
-                                                                <i class="fa-regular fa-clock text-[9px]"></i>
-                                                                ${sp.experience}
+                                            <article onclick="chooseSpecialist('${sp.id}')" 
+                                                     role="button"
+                                                     tabindex="0"
+                                                     onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseSpecialist('${sp.id}'); }"
+                                                     aria-label="اختيار الأخصائية ${nameAr}"
+                                                     class="specialist-card group relative rounded-[28px] bg-white border-2 transition-all duration-300 cursor-pointer select-none overflow-hidden flex flex-col shadow-card ${
+                                                         isSelected 
+                                                         ? 'border-primary ring-4 ring-primary/20 shadow-xl' 
+                                                         : 'border-primary-soft/60 hover:border-primary hover:shadow-lg'
+                                                     }">
+
+                                                <!-- Top Portrait Showcase Area (Large Image with Arch Background) -->
+                                                <div class="relative w-full h-[280px] sm:h-[310px] bg-gradient-to-b from-[#FAF8F5] via-[#F6EFE2]/75 to-[#E6D5B8]/50 pt-5 px-4 flex items-end justify-center overflow-hidden">
+                                                    <!-- Decorative Luxury Studio Arch Behind Specialist -->
+                                                    <div class="specialist-arch-bg absolute inset-x-5 top-6 bottom-0 rounded-t-[140px] bg-white/80 border border-primary/20 shadow-inner pointer-events-none"></div>
+
+                                                    <!-- Experience Badge (Top Right) -->
+                                                    ${sp.experience ? `
+                                                        <div class="absolute top-3.5 right-3.5 z-20">
+                                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary/35 text-primary-dark text-[11px] font-extrabold shadow-xs">
+                                                                <i class="fa-solid fa-medal text-primary text-[10px]"></i>
+                                                                <span>${sp.experience}</span>
                                                             </span>
                                                         </div>
+                                                    ` : ''}
+
+                                                    <!-- Selection Status Badge (Top Left) -->
+                                                    <div class="absolute top-3.5 left-3.5 z-20">
+                                                        ${isSelected ? `
+                                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-black shadow-md">
+                                                                <i class="fa-solid fa-check text-[11px]"></i>
+                                                              
+                                                            </span>
+                                                        ` : `
+                                                            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary-soft/80 text-gray-600 text-[11px] font-bold shadow-2xs group-hover:border-primary group-hover:text-primary transition-colors">
+                                                                <i class="fa-regular fa-circle text-[10px]"></i>
+                                                                <span>اختيار</span>
+                                                            </span>
+                                                        `}
                                                     </div>
+
+                                                    <!-- Large Specialist Portrait Image -->
+                                                    <img src="${sp.avatar}" 
+                                                         alt="${sp.name}"
+                                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=512';"
+                                                         class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom ${isSelected ? 'scale-[1.04]' : ''}" />
+
+                                                    <!-- Bottom Primary Accent Line -->
+                                                    <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'} transition-opacity"></div>
                                                 </div>
 
-                                                <div class="w-6 h-6 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
-                                                    isSelected 
-                                                    ? 'border-primary bg-primary text-white shadow-xs' 
-                                                    : 'border-gray-300 bg-white'
-                                                }">
-                                                    ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                                                <!-- Card Body: Name, Role, Bio & Selection State -->
+                                                <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between bg-white space-y-3.5 text-right">
+                                                    <div class="space-y-2.5">
+                                                        <!-- Specialist Name (AR + EN) -->
+                                                        <div class="flex items-baseline justify-between gap-2">
+                                                            <h4 class="text-lg sm:text-xl font-black ${isSelected ? 'text-primary-dark' : 'text-sage-dark group-hover:text-primary-dark'} transition-colors leading-tight">
+                                                                ${nameAr}
+                                                            </h4>
+                                                            ${nameEn ? `
+                                                                <span class="text-xs sm:text-sm font-serif font-bold tracking-wider text-primary-dark uppercase shrink-0">
+                                                                    ${nameEn}
+                                                                </span>
+                                                            ` : ''}
+                                                        </div>
+
+                                                        <!-- Role / Specialty -->
+                                                        <p class="text-xs sm:text-[13px] font-extrabold text-primary-dark leading-relaxed">
+                                                            ${sp.role || ''}
+                                                        </p>
+
+                                                        <!-- Subtle Divider -->
+                                                        <div class="h-px w-full bg-gradient-to-l from-primary-soft/70 via-primary-soft/30 to-transparent"></div>
+
+                                                        <!-- Bio Description -->
+                                                        ${sp.bio ? `
+                                                            <p class="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                                                                ${sp.bio}
+                                                            </p>
+                                                        ` : ''}
+                                                    </div>
+
+                                                    ${linkedSpecialists.length > 1 ? `
+                                                        <div class="pt-1">
+                                                            <div class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                                                                isSelected 
+                                                                ? 'bg-primary text-white shadow-xs' 
+                                                                : 'bg-primary-light/50 text-primary-dark group-hover:bg-primary group-hover:text-white'
+                                                            }">
+                                                                <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-hand-pointer'} text-[11px]"></i>
+                                                                <span>${isSelected ? 'الأخصائية المحددة للحجز' : 'اختيار هذه الأخصائية'}</span>
+                                                            </div>
+                                                        </div>
+                                                    ` : ''}
                                                 </div>
-                                            </div>
+                                            </article>
                                         `;
                                     }).join('')}
                                 </div>
@@ -1642,7 +1737,15 @@
                                 </div>
                                 <div class="pb-2.5 border-b border-gray-200/60">
                                     <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
-                                    <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
+                                    <div class="flex items-center gap-2">
+                                        ${bookingState.selectedSpecialist?.avatar ? `
+                                            <img src="${bookingState.selectedSpecialist.avatar}" 
+                                                 alt="${lastBooking.specialistName}" 
+                                                 class="w-7 h-7 rounded-full object-cover border border-primary/40 shrink-0 shadow-2xs" 
+                                                 onerror="this.classList.add('hidden')" />
+                                        ` : ''}
+                                        <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
+                                    </div>
                                 </div>
                                 <div class="pt-0.5">
                                     <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
@@ -1857,17 +1960,17 @@
                     </div>
                     <div class="border-t border-dashed border-gray-200/80"></div>
                     <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
-                        <div class="flex items-center gap-1.5 min-w-0">
+                        <div class="flex items-center gap-2 min-w-0">
                             ${bookingState.selectedSpecialist?.avatar ? `
                                 <img src="${bookingState.selectedSpecialist.avatar}"
                                      alt="${bookingState.selectedSpecialist.name}"
                                      onerror="this.onerror=null; this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');"
-                                     class="w-4 h-4 rounded-full object-cover shrink-0 border border-gold/40 shadow-2xs" />
-                                <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0 hidden"></i>
+                                     class="w-6 h-6 rounded-full object-cover shrink-0 border border-primary/40 shadow-2xs" />
+                                <i class="fa-regular fa-user text-primary-dark text-xs shrink-0 hidden"></i>
                             ` : `
-                                <i class="fa-regular fa-user text-gold-dark text-[11px] shrink-0"></i>
+                                <i class="fa-regular fa-user text-primary-dark text-xs shrink-0"></i>
                             `}
-                            <span class="truncate">${bookingState.selectedSpecialist.name}</span>
+                            <span class="truncate font-bold text-sage-dark">${bookingState.selectedSpecialist.name}</span>
                         </div>
                         <div class="flex items-center gap-1.5 justify-end text-left min-w-0">
                             <i class="fa-regular fa-calendar-check text-gold-dark text-[11px] shrink-0"></i>
