@@ -12,11 +12,12 @@
 
 {{-- Unified Search Bar (Used in both Services Menu and Booking Step 1) --}}
 <div class="no-print {{ $sticky ? 'sticky top-0 z-20 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-[#e5dec9] py-3 px-4' : 'w-full' }}">
-    <div class="{{ $sticky ? 'max-w-xl mx-auto' : 'w-full' }} space-y-2">
+    <div class="{{ $sticky ? 'max-w-xl mx-auto' : 'w-full' }} space-y-2 relative">
         <form onsubmit="executeUnifiedServiceSearch('{{ $context }}', event)" class="relative flex items-center gap-2" role="search" novalidate>
             <div class="relative flex-1">
                 <span class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#b39d76] flex items-center">
-                    <i class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                    <i id="{{ $context }}SearchIcon" class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                    <i id="{{ $context }}SearchSpinner" class="hidden fa-solid fa-circle-notch fa-spin text-xs sm:text-sm text-primary"></i>
                 </span>
 
                 <input
@@ -40,21 +41,6 @@
                     aria-label="مسح البحث">
                     ✕
                 </button>
-
-                @if($context === 'services')
-                    {{-- AJAX Live Suggestions Dropdown (Up to 10 Services) --}}
-                    <div id="servicesSuggestionsDropdown"
-                         class="hidden absolute top-full left-0 right-0 mt-2 bg-white/98 backdrop-blur-md rounded-2xl shadow-xl border border-primary-soft/80 overflow-hidden z-50 transition-all max-h-96 overflow-y-auto">
-                        <div class="px-3 py-2 bg-primary-light/50 border-b border-primary-soft/50 flex items-center justify-between text-[11px] font-bold text-sage-dark">
-                            <span class="flex items-center gap-1.5 text-primary-dark">
-                                <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
-                                <span>مقترحات الخدمات السريعة (10 خدمات)</span>
-                            </span>
-                            <span class="text-gray-400 text-[10px]">اختاري الخدمة لعرضها</span>
-                        </div>
-                        <div id="servicesSuggestionsList" class="p-1.5 space-y-1"></div>
-                    </div>
-                @endif
             </div>
 
             <button
@@ -65,6 +51,20 @@
                 <span>بحث</span>
             </button>
         </form>
+
+        @if($context === 'services')
+            {{-- Background Backdrop Dimmer --}}
+            <div id="servicesSuggestionsBackdrop"
+                 onclick="hideServicesSuggestions()"
+                 class="hidden fixed inset-0 z-30 bg-black/25 backdrop-blur-[1px] transition-opacity"></div>
+
+            {{-- AJAX Live Suggestions Dropdown (Up to 10 Services) --}}
+            <div id="servicesSuggestionsDropdown"
+                 style="background-color: #FFFFFF !important; opacity: 1 !important; box-shadow: 0 20px 45px -10px rgba(33, 28, 24, 0.22), 0 0 0 1px rgba(194, 158, 109, 0.3) !important;"
+                 class="hidden absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl border border-gold-soft/90 overflow-hidden z-50 transition-all">
+                <div id="servicesSuggestionsList" class="p-1.5 space-y-1 max-h-[380px] overflow-y-auto hairline-custom-scroll pl-3"></div>
+            </div>
+        @endif
 
         {{-- Active Filter Status Pill --}}
         <div id="{{ $statusId }}" class="hidden items-center justify-between gap-2 px-3.5 py-1.5 rounded-xl bg-primary-light/65 border border-primary-soft/80 text-xs">

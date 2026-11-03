@@ -147,6 +147,25 @@
             max-width: 100% !important;
             box-shadow: none !important;
         }
+        .hairline-custom-scroll::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .hairline-custom-scroll::-webkit-scrollbar-track {
+            background: #FAF8F5;
+            border-radius: 9999px;
+        }
+        .hairline-custom-scroll::-webkit-scrollbar-thumb {
+            background: #C29E6D;
+            border-radius: 9999px;
+        }
+        .hairline-custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: #A3803B;
+        }
+        .hairline-custom-scroll {
+            scrollbar-width: thin;
+            scrollbar-color: #C29E6D #FAF8F5;
+        }
     </style>
 </head>
 
@@ -2885,6 +2904,23 @@
         let serviceSuggestionsAbortController = null;
         let serviceSuggestionsDebounceTimer = null;
 
+        function setServicesSearchLoading(isLoading) {
+            const spinner = document.getElementById('servicesSearchSpinner');
+            const icon = document.getElementById('servicesSearchIcon');
+            if (spinner && icon) {
+                spinner.classList.toggle('hidden', !isLoading);
+                icon.classList.toggle('hidden', isLoading);
+            }
+        }
+
+        function hideServicesSuggestions() {
+            setServicesSearchLoading(false);
+            const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const backdrop = document.getElementById('servicesSuggestionsBackdrop');
+            if (dropdown) dropdown.classList.add('hidden');
+            if (backdrop) backdrop.classList.add('hidden');
+        }
+
         function handleSearchFocus(context) {
             if (context === 'services') {
                 const inputEl = document.getElementById('serviceSearch');
@@ -2912,8 +2948,7 @@
                 if (hasText) {
                     fetchServiceAjaxSuggestions(trimmedVal);
                 } else {
-                    const dropdown = document.getElementById('servicesSuggestionsDropdown');
-                    if (dropdown) dropdown.classList.add('hidden');
+                    hideServicesSuggestions();
                     executeUnifiedServiceSearch(context);
                 }
                 return;
@@ -2927,6 +2962,7 @@
 
         function fetchServiceAjaxSuggestions(query) {
             const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const backdrop = document.getElementById('servicesSuggestionsBackdrop');
             const listEl = document.getElementById('servicesSuggestionsList');
             if (!dropdown || !listEl) return;
 
@@ -2936,10 +2972,21 @@
 
             const cleanQuery = (query || '').trim();
             if (cleanQuery.length === 0) {
-                dropdown.classList.add('hidden');
+                hideServicesSuggestions();
                 listEl.innerHTML = '';
                 return;
             }
+
+            // Show active loader inside search input and dropdown
+            setServicesSearchLoading(true);
+            listEl.innerHTML = `
+                <div class="py-4 px-4 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin text-primary text-sm"></i>
+                    <span class="font-medium text-sage-dark">جاري البحث عن الخدمات...</span>
+                </div>
+            `;
+            dropdown.classList.remove('hidden');
+            if (backdrop) backdrop.classList.remove('hidden');
 
             serviceSuggestionsDebounceTimer = setTimeout(() => {
                 if (serviceSuggestionsAbortController) {
@@ -2956,9 +3003,10 @@
                 })
                 .then(res => res.json())
                 .then(data => {
+                    setServicesSearchLoading(false);
+
                     if (!data.success || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
-                        dropdown.classList.add('hidden');
-                        listEl.innerHTML = '';
+                        renderNoServiceMatchNotice(cleanQuery);
                         return;
                     }
 
@@ -2966,14 +3014,33 @@
                 })
                 .catch(err => {
                     if (err.name !== 'AbortError') {
-                        dropdown.classList.add('hidden');
+                        setServicesSearchLoading(false);
+                        renderNoServiceMatchNotice(cleanQuery);
                     }
                 });
             }, 100);
         }
 
+        function renderNoServiceMatchNotice(query) {
+            const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const backdrop = document.getElementById('servicesSuggestionsBackdrop');
+            const listEl = document.getElementById('servicesSuggestionsList');
+            if (!dropdown || !listEl) return;
+
+            const safeQuery = (query || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+            listEl.innerHTML = `
+                <div class="py-3 px-4 text-center select-none">
+                    <p class="text-xs font-bold text-sage-dark">لا توجد خدمات مطابقة لـ «<span class="text-primary-dark font-extrabold">${safeQuery}</span>»</p>
+                </div>
+            `;
+            dropdown.classList.remove('hidden');
+            if (backdrop) backdrop.classList.remove('hidden');
+        }
+
         function renderServiceSuggestions(suggestions, query) {
             const dropdown = document.getElementById('servicesSuggestionsDropdown');
+            const backdrop = document.getElementById('servicesSuggestionsBackdrop');
             const listEl = document.getElementById('servicesSuggestionsList');
             if (!dropdown || !listEl) return;
 
@@ -2983,25 +3050,30 @@
                 return `
                     <button type="button"
                             onmousedown="selectServiceSuggestion('${safeName}')"
-                            class="service-suggestion-item w-full text-right p-2.5 rounded-xl hover:bg-primary-light/60 focus:bg-primary-light/60 flex items-center justify-between gap-3 transition-colors cursor-pointer group outline-none"
+                            class="service-suggestion-item w-full text-right p-3 rounded-xl hover:bg-[#FAF6F0] focus:bg-[#FAF6F0] border border-transparent hover:border-gold-soft/60 flex items-center justify-between gap-3 transition-all cursor-pointer group outline-none"
                             data-index="${index}">
-                        <div class="min-w-0">
-                            ${item.category ? `<span class="text-[10px] font-bold text-gold-dark block truncate mb-0.5">${item.category}</span>` : ''}
-                            <div class="font-extrabold text-xs sm:text-[13px] text-sage-dark group-hover:text-primary-dark transition-colors truncate">
-                                ${highlightedName}
+                        <div class="min-w-0 flex items-center gap-2.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary/40 group-hover:bg-primary shrink-0 transition-colors"></span>
+                            <div class="min-w-0">
+                                ${item.category ? `<span class="text-[11px] font-bold text-gold-dark block truncate mb-0.5">${item.category}</span>` : ''}
+                                <div class="font-extrabold text-sm text-sage-dark group-hover:text-primary-dark transition-colors truncate">
+                                    ${highlightedName}
+                                </div>
+                                ${item.name_en ? `<span class="text-[10px] font-serif tracking-wider text-gray-400 block uppercase truncate mt-0.5">${item.name_en}</span>` : ''}
                             </div>
-                            ${item.name_en ? `<span class="text-[10px] font-serif tracking-wider text-gray-400 block uppercase truncate">${item.name_en}</span>` : ''}
                         </div>
-                        ${item.price_display ? `
-                            <span class="shrink-0 px-2.5 py-0.5 rounded-full bg-gold-light/60 text-gold-dark font-extrabold text-[11px] border border-gold/25 shadow-2xs">
+                        <div class="shrink-0 flex items-center gap-2 mr-2">
+                            <span class="px-3 py-1 rounded-full bg-gold-light/70 text-gold-dark font-extrabold text-xs border border-gold/30 shadow-2xs whitespace-nowrap">
                                 ${item.price_display}
                             </span>
-                        ` : ''}
+                            <i class="fa-solid fa-chevron-left text-[11px] text-gray-300 group-hover:text-primary transition-transform group-hover:-translate-x-1 shrink-0"></i>
+                        </div>
                     </button>
                 `;
             }).join('');
 
             dropdown.classList.remove('hidden');
+            if (backdrop) backdrop.classList.remove('hidden');
         }
 
         function highlightSearchMatch(text, query) {
@@ -3014,14 +3086,14 @@
             const before = text.substring(0, idx);
             const match = text.substring(idx, idx + query.length);
             const after = text.substring(idx + query.length);
-            return `${before}<mark class="bg-primary-light text-primary-dark font-black rounded px-0.5">${match}</mark>${after}`;
+            return `${before}<mark class="bg-primary/20 text-primary-dark font-black rounded px-1">${match}</mark>${after}`;
         }
 
         function selectServiceSuggestion(serviceName) {
+            hideServicesSuggestions();
+
             const cfg = unifiedSearchConfig['services'];
             const inputEl = document.getElementById(cfg.inputId);
-            const dropdown = document.getElementById('servicesSuggestionsDropdown');
-            if (dropdown) dropdown.classList.add('hidden');
 
             if (inputEl) {
                 inputEl.value = serviceName;
@@ -3037,8 +3109,7 @@
             }
 
             if (context === 'services') {
-                const dropdown = document.getElementById('servicesSuggestionsDropdown');
-                if (dropdown) dropdown.classList.add('hidden');
+                hideServicesSuggestions();
             }
 
             const cfg = unifiedSearchConfig[context];
@@ -3071,8 +3142,7 @@
             if (!cfg) return;
 
             if (context === 'services') {
-                const dropdown = document.getElementById('servicesSuggestionsDropdown');
-                if (dropdown) dropdown.classList.add('hidden');
+                hideServicesSuggestions();
             }
 
             const inputEl = document.getElementById(cfg.inputId);
@@ -3290,7 +3360,7 @@
                 const searchForm = document.getElementById('serviceSearch')?.closest('form');
                 if (dropdown && !dropdown.classList.contains('hidden')) {
                     if (!searchForm || !searchForm.contains(e.target)) {
-                        dropdown.classList.add('hidden');
+                        hideServicesSuggestions();
                     }
                 }
             });
@@ -3298,10 +3368,7 @@
             // Close suggestions dropdown when pressing Escape
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape') {
-                    const dropdown = document.getElementById('servicesSuggestionsDropdown');
-                    if (dropdown && !dropdown.classList.contains('hidden')) {
-                        dropdown.classList.add('hidden');
-                    }
+                    hideServicesSuggestions();
                 }
             });
         }

@@ -251,10 +251,8 @@ class CatalogDataService
                 }
 
                 if ($score > 0) {
-                    $priceDisplay = $srv['price_display'] ?? '';
-                    if (! $priceDisplay && ($srv['price'] ?? 0) > 0) {
-                        $priceDisplay = ((int) $srv['price']).' ر.س';
-                    }
+                    $priceNum = (int) ($srv['price'] ?? 0);
+                    $priceDisplay = $priceNum > 0 ? "{$priceNum} ر.س" : 'حسب الأطوال والكثافة';
 
                     $scored[] = [
                         'score' => $score,
@@ -263,8 +261,8 @@ class CatalogDataService
                             'name' => $name,
                             'name_en' => $nameEn ?: null,
                             'category' => $catTitle,
-                            'price' => (int) ($srv['price'] ?? 0),
-                            'price_display' => $priceDisplay ?: 'حسب الطول والكثافة',
+                            'price' => $priceNum,
+                            'price_display' => $priceDisplay,
                         ],
                     ];
                 }
