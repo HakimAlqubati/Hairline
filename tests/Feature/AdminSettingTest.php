@@ -94,6 +94,11 @@ test('about page data services reflect content from settings', function () {
         ->and($contactLinks['instagram_handle'])->toBe('@hairline_new')
         ->and($contactLinks['phone'])->toBe('0549998877');
 
+    $identity = $salonInfoService->getSalonIdentity();
+    expect($identity['name_ar'])->toBe('هيرلاين')
+        ->and($identity['description_line1'])->toBe('وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،')
+        ->and($identity['stats'])->toBeArray();
+
     $response = $this->get('/?tab=about');
     $response->assertSuccessful();
     $response->assertSee('قصتنا وهويتنا');

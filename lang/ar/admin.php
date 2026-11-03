@@ -76,8 +76,6 @@ return [
         'districts' => 'أحياء التغطية ورسوم التوصيل',
 
         // System
-        'salon_setting' => 'إعدادات الصالون',
-        'salon_settings' => 'الإعدادات العامة للصالون',
         'user' => 'مشرف نظام',
         'users' => 'المشرفون والمدراء',
     ],
@@ -374,6 +372,8 @@ return [
             'site_name_en' => 'اسم الصالون (بالإنجليزية)',
             'site_tagline_ar' => 'الشعار اللفظي (بالعربية)',
             'site_tagline_en' => 'الشعار اللفظي (بالإنجليزية)',
+            'description_line1' => 'وصف الصالون (السطر الأول)',
+            'description_line2' => 'وصف الصالون (السطر الثاني)',
             'site_logo' => 'شعار الصالون (Logo)',
             'site_favicon' => 'أيقونة الموقع (Favicon)',
             'tax_number' => 'الرقم الضريبي',
@@ -388,6 +388,8 @@ return [
             'contact_address' => 'العنوان وموقع الصالون',
             'google_maps_url' => 'رابط موقع الصالون على خرائط Google',
             'google_maps_iframe' => 'كود تضمين الخريطة (Iframe)',
+            'latitude' => 'خط العرض (Latitude)',
+            'longitude' => 'خط الطول (Longitude)',
 
             'instagram_url' => 'رابط إنستغرام',
             'instagram_handle' => 'معرف إنستغرام',

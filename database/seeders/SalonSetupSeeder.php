@@ -6,56 +6,47 @@ namespace Database\Seeders;
 
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
-use App\Models\SalonSetting;
 use App\Models\SalonWorkingHour;
+use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
 class SalonSetupSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. Salon Settings
-        SalonSetting::updateOrCreate(
-            ['id' => 1],
-            [
-                'name' => [
-                    'ar' => 'هيرلاين',
-                    'en' => 'HAIRLINE',
-                ],
-                'tagline' => [
-                    'ar' => 'صالون هيرلاين النسائي',
-                    'en' => 'BEAUTY SALON',
-                ],
-                'description_line1' => [
-                    'ar' => 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
-                    'en' => 'Your premier destination for luxury hair care, nails, and beauty.',
-                ],
-                'description_line2' => [
-                    'ar' => 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',
-                    'en' => 'Delivered by certified specialists with world-class products in a royal ambiance.',
-                ],
-                'address' => [
-                    'ar' => 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى',
-                    'en' => 'Riyadh - Al-Masyaf District, Exit 5, Zuhair Bin Abi Sulma St',
-                ],
-                'logo_path' => '/images/logo.png',
-                'phone' => '0548857705',
-                'whatsapp' => '966548857705',
-                'instagram' => 'hairline.sa',
-                'tiktok' => 'hairline.sa',
-                'snapchat' => 'hairline.sa',
-                'email' => 'info@hairlinesalon.sa',
-                'latitude' => 24.7677,
-                'longitude' => 46.6896,
-                'google_maps_url' => 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps',
-                'tax_number' => '300998877660003',
-                'vat_percentage' => 15.00,
-                'stats' => [
-                    ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
-                    ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
-                ],
-            ]
-        );
+        // 1. System Settings
+        $settings = [
+            'site_name_ar' => 'هيرلاين',
+            'site_name_en' => 'HAIRLINE',
+            'site_tagline_ar' => 'صالون هيرلاين النسائي',
+            'site_tagline_en' => 'BEAUTY SALON',
+            'description_line1' => 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
+            'description_line2' => 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',
+            'contact_address' => 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى',
+            'site_logo' => '/images/logo.png',
+            'contact_phone' => '0548857705',
+            'whatsapp_number' => '966548857705',
+            'instagram_url' => 'https://www.instagram.com/hairline.sa',
+            'instagram_handle' => '@hairline.sa',
+            'tiktok_url' => 'https://www.tiktok.com/@hairline.sa',
+            'tiktok_handle' => '@hairline.sa',
+            'snapchat_url' => 'https://www.snapchat.com/add/hairline.sa',
+            'snapchat_handle' => '@hairline.sa',
+            'contact_email' => 'info@hairlinesalon.sa',
+            'latitude' => '24.7677',
+            'longitude' => '46.6896',
+            'google_maps_url' => 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps',
+            'tax_number' => '300998877660003',
+            'vat_percentage' => '15',
+            'stats' => json_encode([
+                ['value' => '+12', 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
+                ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
+            ], JSON_UNESCAPED_UNICODE),
+        ];
+
+        foreach ($settings as $key => $value) {
+            Setting::setSetting($key, $value);
+        }
 
         // 2. Hero Slides (4 slides)
         $slides = [

@@ -40,6 +40,16 @@ class SettingForm
                                         ->label(__('admin.settings.fields.site_tagline_en')),
                                 ]),
 
+                                Grid::make(2)->schema([
+                                    Textarea::make('description_line1')
+                                        ->label(__('admin.settings.fields.description_line1'))
+                                        ->rows(2),
+
+                                    Textarea::make('description_line2')
+                                        ->label(__('admin.settings.fields.description_line2'))
+                                        ->rows(2),
+                                ]),
+
                                 Grid::make(3)->schema([
                                     TextInput::make('tax_number')
                                         ->label(__('admin.settings.fields.tax_number')),
@@ -110,6 +120,16 @@ class SettingForm
                                     ->label(__('admin.settings.fields.google_maps_iframe'))
                                     ->rows(3)
                                     ->columnSpanFull(),
+
+                                Grid::make(2)->schema([
+                                    TextInput::make('latitude')
+                                        ->label(__('admin.settings.fields.latitude'))
+                                        ->numeric(),
+
+                                    TextInput::make('longitude')
+                                        ->label(__('admin.settings.fields.longitude'))
+                                        ->numeric(),
+                                ]),
                             ]),
 
                         // Tab 3: Social Media Accounts

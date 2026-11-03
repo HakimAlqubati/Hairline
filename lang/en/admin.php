@@ -76,8 +76,6 @@ return [
         'districts' => 'Delivery Districts',
 
         // System
-        'salon_setting' => 'Salon Setting',
-        'salon_settings' => 'Salon Settings',
         'user' => 'User',
         'users' => 'Admin Users',
     ],
@@ -374,6 +372,8 @@ return [
             'site_name_en' => 'Salon Name (English)',
             'site_tagline_ar' => 'Tagline / Slogan (Arabic)',
             'site_tagline_en' => 'Tagline / Slogan (English)',
+            'description_line1' => 'Salon Description (Line 1)',
+            'description_line2' => 'Salon Description (Line 2)',
             'site_logo' => 'Salon Logo',
             'site_favicon' => 'Favicon',
             'tax_number' => 'Tax Identification Number (VAT)',
@@ -388,6 +388,8 @@ return [
             'contact_address' => 'Physical Address & Location',
             'google_maps_url' => 'Google Maps Location URL',
             'google_maps_iframe' => 'Google Maps Embed Iframe Code',
+            'latitude' => 'Latitude',
+            'longitude' => 'Longitude',
 
             'instagram_url' => 'Instagram URL',
             'instagram_handle' => 'Instagram Handle',

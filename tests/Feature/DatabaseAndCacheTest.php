@@ -11,7 +11,6 @@ use App\Models\HairLength;
 use App\Models\HeroSlide;
 use App\Models\MembershipTier;
 use App\Models\SalonGallery;
-use App\Models\SalonSetting;
 use App\Models\SalonWorkingHour;
 use App\Models\Service;
 use App\Models\ServiceCategory;
@@ -27,7 +26,6 @@ use Illuminate\Support\Facades\Cache;
 
 describe('Database Models & Seeded Records', function () {
     test('database contains all seeded salon and catalog entities', function () {
-        expect(SalonSetting::count())->toBeGreaterThanOrEqual(1);
         expect(HeroSlide::count())->toBeGreaterThanOrEqual(4);
         expect(SalonGallery::count())->toBeGreaterThanOrEqual(5);
         expect(Setting::count())->toBeGreaterThanOrEqual(1);

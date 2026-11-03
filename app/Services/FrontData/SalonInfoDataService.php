@@ -6,7 +6,6 @@ namespace App\Services\FrontData;
 
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
-use App\Models\SalonSetting;
 use App\Models\SalonWorkingHour;
 use App\Models\Setting;
 use App\Services\Cache\HairlineCacheService;
@@ -40,7 +39,6 @@ class SalonInfoDataService
     public function getSalonIdentity(): array
     {
         return Cache::rememberForever(HairlineCacheService::KEY_SALON_IDENTITY, function () {
-            $setting = SalonSetting::first();
             $slides = HeroSlide::where('is_active', true)->orderBy('sort_order')->get();
 
             $slidesArray = [];
@@ -53,25 +51,27 @@ class SalonInfoDataService
                 ];
             }
 
-            $siteNameAr = Setting::getSetting('site_name_ar') ?: ($setting?->getTranslation('name', 'ar') ?: 'هيرلاين');
-            $siteNameEn = Setting::getSetting('site_name_en') ?: ($setting?->getTranslation('name', 'en') ?: 'HAIRLINE');
-            $siteTaglineAr = Setting::getSetting('site_tagline_ar') ?: ($setting?->getTranslation('tagline', 'ar') ?: 'صالون هيرلاين النسائي');
-            $siteTaglineEn = Setting::getSetting('site_tagline_en') ?: ($setting?->getTranslation('tagline', 'en') ?: 'BEAUTY SALON');
-            $siteLogo = Setting::getSetting('site_logo') ?: ($setting?->logo_path ?: '/images/logo.png');
+            $siteNameAr = Setting::getSetting('site_name_ar', 'هيرلاين');
+            $siteNameEn = Setting::getSetting('site_name_en', 'HAIRLINE');
+            $siteTaglineAr = Setting::getSetting('site_tagline_ar', 'صالون هيرلاين النسائي');
+            $siteTaglineEn = Setting::getSetting('site_tagline_en', 'BEAUTY SALON');
+            $descriptionLine1 = Setting::getSetting('description_line1', 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،');
+            $descriptionLine2 = Setting::getSetting('description_line2', 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.');
+            $siteLogo = Setting::getSetting('site_logo') ?: '/images/logo.png';
 
             return [
-                'name_en' => $siteNameEn,
-                'name_ar' => $siteNameAr,
-                'tagline_en' => $siteTaglineEn,
-                'tagline_ar' => $siteTaglineAr,
-                'description_line1' => $setting?->getTranslation('description_line1', 'ar') ?: 'وجهتكِ الفاخرة المتكاملة للعناية بالشعر والأظافر والجمال،',
-                'description_line2' => $setting?->getTranslation('description_line2', 'ar') ?: 'بأيدي خبيرات محترفات وأرقى المنتجات العالمية في أجواء ملكية.',
+                'name_en' => (string) $siteNameEn,
+                'name_ar' => (string) $siteNameAr,
+                'tagline_en' => (string) $siteTaglineEn,
+                'tagline_ar' => (string) $siteTaglineAr,
+                'description_line1' => (string) $descriptionLine1,
+                'description_line2' => (string) $descriptionLine2,
                 'hero_slogans' => [
                     'فخامة الجمال',
                     'أناقتكِ تتجدد',
                 ],
-                'logo_url' => $siteLogo,
-                'stats' => $this->getStats($setting),
+                'logo_url' => (string) $siteLogo,
+                'stats' => $this->getStats(),
                 'hero_slides' => ! empty($slidesArray) ? $slidesArray : [
                     [
                         'img' => '/images/salon/reception-desk.jpg',
@@ -99,13 +99,23 @@ class SalonInfoDataService
     /**
      * @return array<int, array{value: string, label: string, bg: string, text: string}>
      */
-    public function getStats(?SalonSetting $setting = null): array
+    public function getStats(): array
     {
-        $setting ??= SalonSetting::first();
         $specialists = $this->specialistsService ?? app(SpecialistsDataService::class);
         $formattedCount = $specialists->getFormattedSpecialistsCount();
 
-        $rawStats = $setting?->stats ?: [
+        $statsSetting = Setting::getSetting('stats');
+        $rawStats = null;
+        if (is_string($statsSetting) && ! empty($statsSetting)) {
+            $decoded = json_decode($statsSetting, true);
+            if (is_array($decoded)) {
+                $rawStats = $decoded;
+            }
+        } elseif (is_array($statsSetting)) {
+            $rawStats = $statsSetting;
+        }
+
+        $rawStats = $rawStats ?: [
             ['value' => $formattedCount, 'label' => 'أخصائية محترفة', 'bg' => 'bg-sage-soft', 'text' => 'text-sage-dark'],
             ['value' => '100%', 'label' => 'منتجات أصلية', 'bg' => 'bg-gold-light', 'text' => 'text-gold-dark'],
         ];
@@ -207,23 +217,19 @@ class SalonInfoDataService
     public function getLocation(): array
     {
         return Cache::rememberForever(HairlineCacheService::KEY_SALON_LOCATION, function () {
-            $setting = SalonSetting::first();
-            $customAddress = Setting::getSetting('contact_address');
-            $customGmaps = Setting::getSetting('google_maps_url');
+            $address = Setting::getSetting('contact_address', 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى');
+            $gmaps = Setting::getSetting('google_maps_url', 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps');
             $customIframe = Setting::getSetting('google_maps_iframe');
-
-            $address = $customAddress ?: ($setting?->getTranslation('address', 'ar') ?? 'الرياض - حي المصيف، مخرج 5، شارع زهير بن أبي سلمى');
-            $gmaps = $customGmaps ?: ($setting?->google_maps_url ?? 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps');
-            $lat = (float) ($setting?->latitude ?? 24.7677);
-            $lng = (float) ($setting?->longitude ?? 46.6896);
+            $lat = (float) (Setting::getSetting('latitude') ?: 24.7677);
+            $lng = (float) (Setting::getSetting('longitude') ?: 46.6896);
 
             return [
                 'city' => 'الرياض',
                 'district' => 'حي المصيف',
                 'street' => 'مخرج 5',
-                'full_address_ar' => $address,
+                'full_address_ar' => (string) $address,
                 'parking_note' => 'مواقف خاصة متوفرة أمام الصالون مباشرة',
-                'google_maps_url' => $gmaps,
+                'google_maps_url' => (string) $gmaps,
                 'google_maps_iframe' => $customIframe ? (string) $customIframe : null,
                 'coordinates' => [
                     'lat' => $lat,
@@ -251,34 +257,19 @@ class SalonInfoDataService
     public function getContactLinks(): array
     {
         return Cache::rememberForever(HairlineCacheService::KEY_CONTACT_LINKS, function () {
-            $setting = SalonSetting::first();
-
-            $wa = Setting::getSetting('whatsapp_number') ?: ($setting?->whatsapp ?: '966548857705');
-            $phone = Setting::getSetting('contact_phone') ?: ($wa ?: '0548857705');
+            $wa = Setting::getSetting('whatsapp_number', '966548857705');
+            $phone = Setting::getSetting('contact_phone', '0548857705');
             $phone2 = Setting::getSetting('contact_phone_2');
-            $email = Setting::getSetting('contact_email');
+            $email = Setting::getSetting('contact_email', 'info@hairlinesalon.sa');
 
-            $igUrl = Setting::getSetting('instagram_url');
-            $igHandle = Setting::getSetting('instagram_handle');
-            if (! $igHandle && $igUrl) {
-                $igHandle = '@'.trim((string) (parse_url((string) $igUrl, PHP_URL_PATH) ?? ''), '/');
-            }
+            $igUrl = Setting::getSetting('instagram_url', 'https://www.instagram.com/hairline.sa');
+            $igHandle = Setting::getSetting('instagram_handle', '@hairline.sa');
 
-            $scUrl = Setting::getSetting('snapchat_url');
-            $scHandle = Setting::getSetting('snapchat_handle');
-            if (! $scHandle && $scUrl) {
-                $scHandle = '@'.trim(str_replace('add/', '', (string) (parse_url((string) $scUrl, PHP_URL_PATH) ?? '')), '/');
-            }
+            $scUrl = Setting::getSetting('snapchat_url', 'https://www.snapchat.com/add/hairline.sa');
+            $scHandle = Setting::getSetting('snapchat_handle', '@hairline.sa');
 
-            $ttUrl = Setting::getSetting('tiktok_url');
-            $ttHandle = Setting::getSetting('tiktok_handle');
-            if (! $ttHandle && $ttUrl) {
-                $ttHandle = '@'.trim((string) (parse_url((string) $ttUrl, PHP_URL_PATH) ?? ''), '/@');
-            }
-
-            $igDefault = $setting?->instagram ?: 'hairline.sa';
-            $scDefault = $setting?->snapchat ?: 'hairline.sa';
-            $ttDefault = $setting?->tiktok ?: 'hairline.sa';
+            $ttUrl = Setting::getSetting('tiktok_url', 'https://www.tiktok.com/@hairline.sa');
+            $ttHandle = Setting::getSetting('tiktok_handle', '@hairline.sa');
 
             $cleanWa = preg_replace('/[^0-9]/', '', (string) $wa);
 
@@ -293,12 +284,12 @@ class SalonInfoDataService
                 'phone' => (string) $phone,
                 'phone_2' => $phone2 ? (string) $phone2 : null,
                 'email' => $email ? (string) $email : null,
-                'instagram' => $igUrl ?: 'https://www.instagram.com/'.ltrim($igDefault, '@'),
-                'instagram_handle' => $igHandle ?: '@'.ltrim($igDefault, '@'),
-                'snapchat' => $scUrl ?: 'https://www.snapchat.com/add/'.ltrim($scDefault, '@'),
-                'snapchat_handle' => $scHandle ?: '@'.ltrim($scDefault, '@'),
-                'tiktok' => $ttUrl ?: 'https://www.tiktok.com/@'.ltrim($ttDefault, '@'),
-                'tiktok_handle' => $ttHandle ?: '@'.ltrim($ttDefault, '@'),
+                'instagram' => (string) $igUrl,
+                'instagram_handle' => (string) $igHandle,
+                'snapchat' => (string) $scUrl,
+                'snapchat_handle' => (string) $scHandle,
+                'tiktok' => (string) $ttUrl,
+                'tiktok_handle' => (string) $ttHandle,
             ];
         });
     }

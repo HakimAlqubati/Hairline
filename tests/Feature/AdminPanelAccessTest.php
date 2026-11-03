@@ -49,7 +49,6 @@ test('authenticated user can access filament resource index pages without action
     '/admin/payments',
     '/admin/payment-methods',
     '/admin/districts',
-    '/admin/salon-settings',
     '/admin/settings',
     '/admin/users',
 ]);
@@ -79,7 +78,6 @@ test('authenticated user can access filament resource create pages without schem
     '/admin/payments/create',
     '/admin/payment-methods/create',
     '/admin/districts/create',
-    '/admin/salon-settings/create',
     '/admin/users/create',
 ]);
 
