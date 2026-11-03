@@ -20,6 +20,10 @@ class HairlineCacheService
 
     public const KEY_WORKING_HOURS = 'hairline:salon:working_hours';
 
+    public const KEY_SALON_LOCATION = 'hairline:salon:location';
+
+    public const KEY_CONTACT_LINKS = 'hairline:salon:contact_links';
+
     public const KEY_CATALOG_MENU_PAGES = 'hairline:catalog:menu_pages';
 
     public const KEY_WALKIN_SERVICES = 'hairline:catalog:walkin_services';
@@ -55,6 +59,8 @@ class HairlineCacheService
         Cache::forget(self::KEY_SALON_GALLERY);
         Cache::forget(self::KEY_ABOUT_US);
         Cache::forget(self::KEY_WORKING_HOURS);
+        Cache::forget(self::KEY_SALON_LOCATION);
+        Cache::forget(self::KEY_CONTACT_LINKS);
     }
 
     /**

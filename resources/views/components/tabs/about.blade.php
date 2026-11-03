@@ -13,14 +13,23 @@
         ? $location['google_maps_url']
         : 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps';
 
+    $mapIframe = $location['google_maps_iframe'] ?? null;
+    if ($mapIframe && preg_match('/src=["\']([^"\']+)["\']/', $mapIframe, $matches)) {
+        $mapIframe = $matches[1];
+    }
+    if (!$mapIframe) {
+        $mapIframe = 'https://maps.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&hl=ar&z=16&output=embed';
+    }
+
     $whatsappUrl = $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705';
-    $phoneDisplay = $contactLinks['whatsapp_display'] ?? '0548857705';
-    $instagramUrl = $contactLinks['instagram'] ?? 'https://www.instagram.com/hairline.5';
-    $instagramHandle = $contactLinks['instagram_handle'] ?? '@hairline.5';
-    $snapchatUrl = $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/hairline.5';
-    $snapchatHandle = $contactLinks['snapchat_handle'] ?? '@hairline.5';
-    $tiktokUrl = $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@hairline';
-    $tiktokHandle = $contactLinks['tiktok_handle'] ?? '@hairline';
+    $phoneDisplay = $contactLinks['whatsapp_display'] ?? ($contactLinks['phone'] ?? '054 885 7705');
+    $phoneRaw = $contactLinks['phone'] ?? preg_replace('/[^0-9+]/', '', $phoneDisplay);
+    $instagramUrl = $contactLinks['instagram'] ?? 'https://www.instagram.com/hairline.sa';
+    $instagramHandle = $contactLinks['instagram_handle'] ?? '@hairline.sa';
+    $snapchatUrl = $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/hairline.sa';
+    $snapchatHandle = $contactLinks['snapchat_handle'] ?? '@hairline.sa';
+    $tiktokUrl = $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@hairline.sa';
+    $tiktokHandle = $contactLinks['tiktok_handle'] ?? '@hairline.sa';
 @endphp
 
 <section id="aboutTabView" class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 pb-10 space-y-5 animate-step">
@@ -105,7 +114,7 @@
                         <i class="fa-brands fa-whatsapp text-sm text-white"></i>
                         <span>واتساب</span>
                     </a>
-                    <a href="tel:0548857705"
+                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) ($phoneRaw ?: '0548857705')) }}"
                        class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-primary/25">
                         <i class="fa-solid fa-phone text-xs text-white"></i>
                         <span>اتصال</span>
@@ -188,7 +197,7 @@
                title="انقري لفتح الموقع في تطبيق الخرائط"
                class="relative block w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-gold-soft shadow-xs group cursor-pointer">
                 <iframe
-                    src="https://maps.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&hl=ar&z=16&output=embed"
+                    src="{{ $mapIframe }}"
                     class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95"
                     loading="lazy"
                     allowfullscreen=""

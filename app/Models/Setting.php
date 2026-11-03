@@ -4,10 +4,25 @@ declare(strict_types=1);
 
 namespace App\Models;
 
+use App\Services\Cache\HairlineCacheService;
 use Illuminate\Database\Eloquent\Model;
 
 class Setting extends Model
 {
+    /**
+     * Bootstrap the model and its events.
+     */
+    protected static function booted(): void
+    {
+        static::saved(function (): void {
+            HairlineCacheService::clearSalonInfo();
+        });
+
+        static::deleted(function (): void {
+            HairlineCacheService::clearSalonInfo();
+        });
+    }
+
     /**
      * The table associated with the model.
      *

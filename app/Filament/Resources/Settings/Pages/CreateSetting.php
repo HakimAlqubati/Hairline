@@ -6,6 +6,7 @@ namespace App\Filament\Resources\Settings\Pages;
 
 use App\Filament\Resources\Settings\SettingResource;
 use App\Models\Setting;
+use App\Services\Cache\HairlineCacheService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
@@ -64,6 +65,7 @@ class CreateSetting extends CreateRecord
 
         if (! empty($finalSettings)) {
             Setting::upsert($finalSettings, ['key'], ['value', 'updated_at']);
+            HairlineCacheService::clearSalonInfo();
         }
 
         $this->sendSuccessNotification(
