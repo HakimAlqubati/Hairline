@@ -80,41 +80,48 @@
     @endif
 
     {{-- Permanent Contact Information, Links, Phone & Map Card --}}
-    <div id="aboutContactSection" class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-soft/40 space-y-5 max-w-4xl mx-auto">
-        <div class="flex items-center justify-between gap-2">
+    <div id="aboutContactSection" class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-soft/40 space-y-6 max-w-4xl mx-auto">
+        <div class="flex items-center justify-between gap-2 pb-4 border-b border-gray-100">
             <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">للتواصل والاستفسار</span>
             <span class="text-xs text-gray-400 font-medium">نسعد بخدمتكِ والرد على استفساراتكِ</span>
         </div>
 
-        {{-- Working Hours & Direct Phone / WhatsApp Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {{-- Working Hours & Direct Phone / WhatsApp --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pb-6 border-b border-gray-100">
             {{-- Working Hours --}}
-            <div class="p-4 rounded-2xl bg-sage-soft border border-sage-light flex flex-col justify-center">
-                <div class="flex items-center gap-2">
-                    <i class="fa-regular fa-clock text-primary-dark text-sm"></i>
-                    <h4 class="font-extrabold text-sm text-sage-dark">أوقات العمل الرسمية</h4>
+            <div class="flex items-start gap-3.5">
+                <div class="w-10 h-10 rounded-2xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0">
+                    <i class="fa-regular fa-clock text-base"></i>
                 </div>
-                <p class="text-xs text-gray-600 mt-1.5 leading-relaxed">
-                    {{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}
-                </p>
+                <div class="space-y-1 min-w-0">
+                    <h4 class="font-extrabold text-sm text-sage-dark">أوقات العمل الرسمية</h4>
+                    <p class="text-xs text-gray-600 leading-relaxed font-medium">
+                        {{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}
+                    </p>
+                </div>
             </div>
 
             {{-- Phone & Direct Call / WhatsApp --}}
-            <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                <div>
-                    <h4 class="font-extrabold text-sm text-sage-dark">الهاتف والحجوزات</h4>
-                    <p class="text-xs font-bold text-primary-dark dir-ltr text-right mt-1" dir="ltr">{{ $phoneDisplay }}</p>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-phone text-sm"></i>
+                    </div>
+                    <div class="space-y-0.5">
+                        <h4 class="font-extrabold text-sm text-sage-dark">الهاتف والحجوزات</h4>
+                        <p class="text-xs font-bold text-primary-dark dir-ltr text-right" dir="ltr">{{ $phoneDisplay }}</p>
+                    </div>
                 </div>
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-2 mr-auto sm:mr-0 shrink-0">
                     <a href="{{ $whatsappUrl }}"
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-[#25D366]/25">
+                       class="px-4 py-2 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-[#25D366]/20">
                         <i class="fa-brands fa-whatsapp text-sm text-white"></i>
                         <span>واتساب</span>
                     </a>
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) ($phoneRaw ?: '0548857705')) }}"
-                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-primary/25">
+                       class="px-4 py-2 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-primary/20">
                         <i class="fa-solid fa-phone text-xs text-white"></i>
                         <span>اتصال</span>
                     </a>
@@ -123,67 +130,72 @@
         </div>
 
         {{-- Social & Contact Links --}}
-        <div class="space-y-2.5">
+        <div class="space-y-3 pb-6 border-b border-gray-100">
             <h4 class="font-extrabold text-sm text-sage-dark">حسابات وروابط التواصل</h4>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                 <a href="{{ $instagramUrl }}"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="p-3.5 rounded-2xl bg-surface hover:bg-gold-light/60 border border-gold-soft/50 hover:border-primary transition flex items-center justify-between gap-3 group">
+                   class="py-2.5 px-3 rounded-2xl hover:bg-[#FAF8F5] transition flex items-center justify-between gap-3 group">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <span class="w-9 h-9 rounded-xl bg-primary-light text-primary-dark group-hover:bg-primary group-hover:text-white transition flex items-center justify-center shrink-0">
                             <i class="fa-brands fa-instagram text-base"></i>
                         </span>
                         <div class="min-w-0">
                             <span class="block text-xs font-extrabold text-sage-dark">إنستغرام</span>
-                            <span class="block text-[11px] text-gray-500 truncate" dir="ltr">{{ $instagramHandle }}</span>
+                            <span class="block text-[11px] text-gray-400 truncate" dir="ltr">{{ $instagramHandle }}</span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-primary-dark"></i>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-300 group-hover:text-primary transition-colors"></i>
                 </a>
 
                 <a href="{{ $snapchatUrl }}"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="p-3.5 rounded-2xl bg-surface hover:bg-gold-light/60 border border-gold-soft/50 hover:border-primary transition flex items-center justify-between gap-3 group">
+                   class="py-2.5 px-3 rounded-2xl hover:bg-[#FAF8F5] transition flex items-center justify-between gap-3 group">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <span class="w-9 h-9 rounded-xl bg-primary-light text-primary-dark group-hover:bg-primary group-hover:text-white transition flex items-center justify-center shrink-0">
                             <i class="fa-brands fa-snapchat text-base"></i>
                         </span>
                         <div class="min-w-0">
                             <span class="block text-xs font-extrabold text-sage-dark">سناب شات</span>
-                            <span class="block text-[11px] text-gray-500 truncate" dir="ltr">{{ $snapchatHandle }}</span>
+                            <span class="block text-[11px] text-gray-400 truncate" dir="ltr">{{ $snapchatHandle }}</span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-primary-dark"></i>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-300 group-hover:text-primary transition-colors"></i>
                 </a>
 
                 <a href="{{ $tiktokUrl }}"
                    target="_blank"
                    rel="noopener noreferrer"
-                   class="p-3.5 rounded-2xl bg-surface hover:bg-gold-light/60 border border-gold-soft/50 hover:border-primary transition flex items-center justify-between gap-3 group">
+                   class="py-2.5 px-3 rounded-2xl hover:bg-[#FAF8F5] transition flex items-center justify-between gap-3 group">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <span class="w-9 h-9 rounded-xl bg-primary-light text-primary-dark group-hover:bg-primary group-hover:text-white transition flex items-center justify-center shrink-0">
                             <i class="fa-brands fa-tiktok text-sm"></i>
                         </span>
                         <div class="min-w-0">
                             <span class="block text-xs font-extrabold text-sage-dark">تيك توك</span>
-                            <span class="block text-[11px] text-gray-500 truncate" dir="ltr">{{ $tiktokHandle }}</span>
+                            <span class="block text-[11px] text-gray-400 truncate" dir="ltr">{{ $tiktokHandle }}</span>
                         </div>
                     </div>
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-primary-dark"></i>
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-gray-300 group-hover:text-primary transition-colors"></i>
                 </a>
             </div>
         </div>
 
         {{-- Location & Embedded Google Map --}}
-        <div class="p-4 sm:p-5 rounded-2xl bg-surface border border-gold-soft/50 space-y-3.5">
+        <div class="space-y-3">
             <div class="flex items-center justify-between gap-2">
-                <div>
-                    <h4 class="font-extrabold text-sm text-sage-dark">العنوان وموقع الصالون</h4>
-                    <p class="text-xs text-gray-700 font-medium leading-relaxed mt-0.5">
-                        {{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}
-                    </p>
+                <div class="flex items-start gap-3.5">
+                    <div class="w-10 h-10 rounded-2xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0">
+                        <i class="fa-solid fa-location-dot text-sm"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-sm text-sage-dark">العنوان وموقع الصالون</h4>
+                        <p class="text-xs text-gray-600 font-medium leading-relaxed mt-0.5">
+                            {{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}
+                        </p>
+                    </div>
                 </div>
                 <span class="px-2.5 py-1 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30 shrink-0">
                     {{ $location['street'] ?? 'مخرج 5' }}
@@ -194,7 +206,7 @@
                target="_blank"
                rel="noopener noreferrer"
                title="انقري لفتح الموقع في تطبيق الخرائط"
-               class="relative block w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-gold-soft shadow-xs group cursor-pointer">
+               class="relative block w-full h-56 sm:h-64 rounded-2xl overflow-hidden border border-gold-soft/60 shadow-xs group cursor-pointer">
                 <iframe
                     src="{{ $mapIframe }}"
                     class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95"
@@ -213,5 +225,6 @@
                 </div>
             </a>
         </div>
+    </div>
     </div>
 </section>
