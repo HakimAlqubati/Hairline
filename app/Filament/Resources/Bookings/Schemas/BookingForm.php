@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Filament\Resources\Bookings\Schemas;
 
 use App\Filament\Support\TranslatableField;
+use App\Models\Booking;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -34,6 +35,15 @@ class BookingForm
                                 ->relationship('customer', 'name')
                                 ->searchable()
                                 ->preload()
+                                ->required(),
+
+                            Select::make('customer_type')
+                                ->label('نوع العميل')
+                                ->options([
+                                    Booking::CUSTOMER_TYPE_REGISTERED => 'عميل مسجل',
+                                    Booking::CUSTOMER_TYPE_GUEST => 'زائر',
+                                ])
+                                ->default(Booking::CUSTOMER_TYPE_REGISTERED)
                                 ->required(),
 
                             Select::make('booking_type')

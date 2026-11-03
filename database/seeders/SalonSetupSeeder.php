@@ -82,7 +82,7 @@ class SalonSetupSeeder extends Seeder
                 [
                     'title' => [
                         'ar' => $slide['title'],
-                        'en' => 'HAIRLINE BEAUTY LOUNGE',
+                        'en' => 'HAIRLINE BEAUTY SALON',
                     ],
                     'subtitle' => [
                         'ar' => $slide['subtitle'],

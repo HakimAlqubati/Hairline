@@ -1,4 +1,4 @@
-{{-- Official HAIRLINE BEAUTY LOUNGE Catalog Page Footer --}}
+{{-- Official HAIRLINE BEAUTY SALON Catalog Page Footer --}}
 <footer class="page-footer select-none">
     <div class="grid grid-cols-3 items-end gap-2 pt-2">
         <!-- Right Column (in RTL): TikTok, Snapchat, Arabic VAT -->
@@ -31,7 +31,7 @@
                 HAIRLINE
             </div>
             <div class="font-en text-[7px] sm:text-[8px] font-medium tracking-[0.42em] text-[#b39d76] mt-0.5 pl-1">
-                BEAUTY LOUNGE
+                BEAUTY SALON
             </div>
         </div>
 

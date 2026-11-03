@@ -59,13 +59,6 @@
                     <span id="{{ $countId }}">0</span> خدمة
                 </span>
             </div>
-
-            <button
-                type="button"
-                onclick="clearUnifiedServiceSearch('{{ $context }}')"
-                class="text-[11px] font-extrabold text-primary-dark hover:text-red-600 underline shrink-0 cursor-pointer transition">
-                عرض الكل
-            </button>
         </div>
     </div>
 </div>

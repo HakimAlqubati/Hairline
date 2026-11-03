@@ -15,7 +15,7 @@
             </span>
             
             <p class="text-xs text-gray-500 group-hover:text-primary-dark transition-colors font-medium flex items-center justify-center gap-1.5">
-                <span>انقري للاطلاع على القائمة والأسعار</span>
+                <span>الاطلاع على قائمة الخدمات والأسعار</span>
                 <span class="text-xs transition-transform duration-300 group-hover:-translate-x-1">‹</span>
             </p>
         </div>

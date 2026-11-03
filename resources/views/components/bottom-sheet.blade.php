@@ -115,12 +115,20 @@
                     </div>
                     <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-light/60 border border-gold/30 text-gold-dark text-[11px] font-extrabold">
                         <i class="fa-solid fa-shield-halved text-[10px]"></i>
-                        <span>تأكيد رقم الجوال</span>
+                        <span>تأكيد بيانات الحجز</span>
                     </div>
                     <h4 class="text-xl font-black text-sage-dark tracking-tight">أدخلي رقم جوالكِ للحجز</h4>
                     <p class="text-xs text-gray-500 leading-relaxed max-w-[290px]">
-                        أدخلي رقم جوالكِ للتحقق من حسابكِ وإتمام حجز الموعد مباشرة
+                        أدخلي رقم جوالكِ لتأكيد حجز الموعد مباشرة
                     </p>
+                </div>
+
+                <!-- Returning Customer Greeting -->
+                <div id="returningCustomerGreeting" class="hidden p-3.5 rounded-2xl bg-gold-light/60 border border-gold/30 text-center animate-step">
+                    <p class="text-xs font-extrabold text-sage-dark">
+                        أهلاً بكِ مجدداً، <span id="returningCustomerName" class="text-primary-dark font-black"></span>!
+                    </p>
+                    <p class="text-[11px] text-gray-500 mt-0.5 font-medium">تم التعرف على حسابكِ، يمكنكِ تأكيد الحجز فوراً</p>
                 </div>
 
                 <div>
@@ -145,11 +153,23 @@
                         يقبل الصيغة المحلية <span dir="ltr" class="font-semibold text-gray-500">05XXXXXXXX</span> أو الدولية <span dir="ltr" class="font-semibold text-gray-500">+9665XXXXXXXX</span>
                     </p>
                 </div>
+
+                <!-- Dynamic Name Input for New Customers -->
+                <div id="guestNameInputContainer" class="hidden space-y-1.5 animate-step">
+                    <label for="guestNameInput" class="block text-xs font-extrabold text-sage-dark">
+                        الاسم الكريم <span class="text-red-500">*</span>
+                    </label>
+                    <input id="guestNameInput"
+                           type="text"
+                           placeholder="اكتبي اسمكِ الكريم..."
+                           autocomplete="name"
+                           class="w-full py-3.5 px-4 rounded-2xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none font-bold text-sm text-sage-dark transition" />
+                </div>
             </div>
 
             <!-- Selected Service & Specialist Mini Summary -->
             <div id="popupBookingSummary" class="rounded-2xl bg-gradient-to-b from-surface to-white border border-gold-soft/80 p-3.5 shadow-2xs space-y-2.5">
-                <!-- Populated dynamically -->
+                <!-- Populated dynamically without price -->
             </div>
 
             <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3" novalidate>
@@ -162,9 +182,28 @@
                         id="phoneVerifySubmitBtn"
                         class="w-full py-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm sm:text-base shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 active:scale-[0.985] transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer">
                     <i id="phoneVerifySubmitBtnIcon" class="fa-solid fa-circle-check text-white text-base"></i>
-                    <span id="phoneVerifySubmitBtnText">تحقق وتأكيد الحجز</span>
+                    <span id="phoneVerifySubmitBtnText">تأكيد الحجز</span>
                 </button>
-                
+
+                <!-- Optional Google Login Button -->
+                <div id="optionalGoogleContainer" class="pt-2 text-center space-y-2">
+                    <div class="flex items-center gap-2">
+                        <div class="h-px bg-gray-200 flex-1"></div>
+                        <span class="text-[11px] text-gray-400 font-bold">أو</span>
+                        <div class="h-px bg-gray-200 flex-1"></div>
+                    </div>
+                    <button type="button"
+                            onclick="startGoogleSignInProcess()"
+                            class="w-full py-3 px-4 rounded-2xl bg-surface hover:bg-gold-light/40 border border-gray-200/90 text-xs font-extrabold text-sage-dark flex items-center justify-center gap-2.5 transition cursor-pointer shadow-2xs">
+                        <svg class="w-4 h-4" viewBox="0 0 48 48" aria-hidden="true">
+                            <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+                            <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+                            <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+                            <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+                        </svg>
+                        <span>المتابعة باستخدام Google (اختياري)</span>
+                    </button>
+                </div>
             </form>
         </div>
 

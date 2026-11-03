@@ -141,28 +141,12 @@
                         </span>
                     </div>
 
-                    <!-- Zoom / Expand Indicator Button (Top Left) -->
-                    <div class="absolute top-3.5 left-3.5 z-20">
-                        <span class="w-9 h-9 rounded-full bg-white/95 backdrop-blur-md border border-primary/35 text-primary-dark group-hover:bg-primary group-hover:text-white group-hover:border-primary group-hover:scale-110 transition-all duration-300 flex items-center justify-center shadow-xs"
-                              title="انقري لتكبير الصورة">
-                            <i class="fa-solid fa-expand text-xs"></i>
-                        </span>
-                    </div>
-
                     <!-- Large Specialist Portrait Image -->
                     <img id="specialist-card-img-{{ $index }}"
                          src="{{ $sp['avatar'] }}"
                          alt="{{ $sp['name'] }}"
-                         onerror="this.onerror=null; this.src='https://placehold.co/400x500/FAF8F5/C29E6D?text={{ urlencode($nameAr) }}'"
+                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($nameAr) }}&background=FFFFFF&color=C29E6D&bold=true&size=512'"
                          class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom" />
-
-                    <!-- Subtle Hover Prompt Pill at Bottom of Portrait -->
-                    <div class="absolute inset-x-0 bottom-3 z-20 flex justify-center opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 pointer-events-none">
-                        <span class="px-3.5 py-1 rounded-full bg-sage-dark/90 backdrop-blur-xs text-primary-light text-[11px] font-bold border border-primary/40 shadow-md flex items-center gap-1.5">
-                            <i class="fa-solid fa-magnifying-glass-plus text-primary text-[10px]"></i>
-                            <span>انقري لتكبير الصورة وعرض التفاصيل</span>
-                        </span>
-                    </div>
 
                     <!-- Bottom Primary Accent Line -->
                     <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -281,7 +265,7 @@
                 <img id="specialistModalImg"
                      src=""
                      alt=""
-                     class="relative z-10 w-full h-full max-h-[285px] sm:max-h-[330px] md:max-h-[430px] object-contain object-bottom drop-shadow-xl transition-transform duration-500 hover:scale-105" />
+                     class="relative z-10 w-full h-full max-h-[285px] sm:max-h-[330px] md:max-h-[430px] object-contain object-bottom drop-shadow-xl" />
 
                 <!-- Bottom Gradient Floor -->
                 <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-primary-soft/40 to-transparent pointer-events-none"></div>
@@ -304,24 +288,13 @@
                         <p id="specialistModalRole" class="text-sm sm:text-base font-extrabold text-primary-dark mt-1.5 leading-relaxed"></p>
                     </div>
 
-                    <!-- Bio Box -->
-                    <div class="p-4 rounded-2xl bg-surface border border-primary-soft/60 space-y-1.5">
+                    <!-- Bio Section: Plain Text Without Box or Borders -->
+                    <div class="space-y-1.5 pt-1">
                         <h4 class="text-xs font-extrabold text-sage-dark flex items-center gap-1.5">
                             <i class="fa-solid fa-sparkles text-primary text-xs"></i>
                             <span>نبذة عن الخبرة والمهارات</span>
                         </h4>
                         <p id="specialistModalBio" class="text-xs sm:text-sm text-gray-600 leading-relaxed font-medium"></p>
-                    </div>
-
-                    <!-- Linked Service Categories -->
-                    <div id="specialistModalServicesWrapper" class="space-y-2">
-                        <h4 class="text-xs font-extrabold text-sage-dark flex items-center gap-1.5">
-                            <i class="fa-solid fa-wand-magic-sparkles text-primary text-xs"></i>
-                            <span>أقسام الخدمات التي تقدمها الأخصائية</span>
-                        </h4>
-                        <div id="specialistModalServices" class="flex flex-wrap gap-1.5">
-                            <!-- Populated dynamically via JS -->
-                        </div>
                     </div>
                 </div>
 

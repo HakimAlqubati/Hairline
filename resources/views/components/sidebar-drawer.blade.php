@@ -71,7 +71,7 @@
 
     <!-- Drawer Footer -->
     <div class="p-5 bg-gold-light/50 border-t border-gold-soft/40 text-center">
-        <p class="text-xs font-bold text-sage-dark">أناقتكِ تتجدد في كل زيارة</p>
-        <p class="text-[11px] text-gold-dark mt-0.5">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }} ©</p>
+        <p class="text-xs font-bold text-sage-dark">هيرلاين لأن الجمال إحساس</p>
+        <p class="text-[11px] text-gold-dark mt-0.5">HAIRLINE BEAUTY SALON ©</p>
     </div>
 </aside>

@@ -165,12 +165,14 @@ class BookingController extends Controller
             $bookingPayload = null;
             if ($hasBooking) {
                 try {
+                    $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
                     $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                         customer: $loggedInCustomer,
-                        serviceCode: (string) $request->input('service_id'),
+                        serviceCode: $serviceInput,
                         specialistSlug: (string) $request->input('specialist_id'),
                         dateLabel: (string) $request->input('booking_date'),
-                        timeSlot: (string) $request->input('booking_time')
+                        timeSlot: (string) $request->input('booking_time'),
+                        customerType: Booking::CUSTOMER_TYPE_REGISTERED
                     );
                 } catch (SlotUnavailableException $e) {
                     return response()->json([
@@ -200,13 +202,130 @@ class BookingController extends Controller
             ]);
         }
 
-        // Return a uniform response to avoid phone enumeration and identity spoofing
+        $existingCustomer = Customer::where('phone', $normalizedPhone)->first();
+        if ($existingCustomer) {
+            return response()->json([
+                'success' => true,
+                'exists' => true,
+                'status' => 'customer_found',
+                'customer_name' => $existingCustomer->name,
+                'phone' => $normalizedPhone,
+                'message' => "أهلاً بكِ مجدداً يا {$existingCustomer->name}!",
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'exists' => false,
-            'status' => 'needs_google_verification',
+            'status' => 'new_customer',
             'phone' => $normalizedPhone,
-            'message' => 'يرجى المتابعة بحساب Google لإثبات هويتكِ وتأكيد الحجز.',
+            'message' => 'أهلاً بكِ في هيرلاين! يرجى إدخال اسمكِ الكريم للمتابعة.',
+        ]);
+    }
+
+    /**
+     * Confirm booking as a guest (or returning customer without mandatory Google sign-in).
+     * Creates or fetches customer, logs them in automatically, and records customer_type = 'guest'.
+     */
+    public function confirmGuestBooking(Request $request): JsonResponse
+    {
+        $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
+        $request->merge(['phone' => $rawPhone]);
+
+        $validator = Validator::make($request->all(), [
+            'phone' => ['required', 'string', new SaudiPhoneNumber($this->availabilityService)],
+            'name' => ['nullable', 'string', 'max:100'],
+            'service_id' => ['required'],
+            'specialist_id' => ['required', 'string'],
+            'booking_date' => ['required', 'string'],
+            'booking_time' => ['required', 'string'],
+        ], [
+            'phone.required' => 'يرجى إدخال رقم الجوال للمتابعة.',
+            'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
+            'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
+            'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $validator->errors()->first(),
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $customer = Customer::where('phone', $normalizedPhone)->first();
+
+        if (! $customer) {
+            $name = trim((string) $request->input('name', ''));
+            if ($name === '' || mb_strlen($name) < 2) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => 'يرجى إدخال اسمكِ الكريم لإتمام الحجز كـ زائر.',
+                    'errors' => ['name' => ['يرجى إدخال اسمكِ الكريم لإتمام الحجز كـ زائر.']],
+                ], 422);
+            }
+
+            $defaultTierId = MembershipTier::where('slug', 'silver')->value('id')
+                ?? MembershipTier::orderBy('min_points_required')->value('id');
+
+            do {
+                $customerCode = 'HL-'.random_int(1000, 9999);
+            } while (Customer::where('customer_code', $customerCode)->exists());
+
+            $customer = Customer::create([
+                'membership_tier_id' => $defaultTierId,
+                'customer_code' => $customerCode,
+                'name' => $name,
+                'phone' => $normalizedPhone,
+                'email' => null,
+                'avatar_url' => 'https://ui-avatars.com/api/?name='.urlencode($name).'&background=FFFFFF&color=C29E6D&bold=true',
+                'total_points' => 0,
+                'is_active' => true,
+            ]);
+        }
+
+        // Automatically log the customer in
+        $request->session()->regenerate();
+        session(['logged_in_customer_id' => $customer->id]);
+
+        $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
+
+        try {
+            $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
+                customer: $customer,
+                serviceCode: $serviceInput,
+                specialistSlug: (string) $request->input('specialist_id'),
+                dateLabel: (string) $request->input('booking_date'),
+                timeSlot: (string) $request->input('booking_time'),
+                customerType: Booking::CUSTOMER_TYPE_GUEST
+            );
+        } catch (SlotUnavailableException $e) {
+            return response()->json([
+                'success' => false,
+                'status' => 'slot_unavailable',
+                'message' => $e->getMessage(),
+            ], 409);
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $e->getMessage(),
+            ], 422);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => 'confirmed',
+            'customer_type' => Booking::CUSTOMER_TYPE_GUEST,
+            'message' => "تم تأكيد حجزكِ بنجاح كـ زائر باسم {$customer->name}",
+            'customer' => $this->formatCustomerPayload($customer),
+            'booking' => $bookingPayload,
+            'customer_bookings' => $this->getCustomerBookingsPayload($customer),
         ]);
     }
 
@@ -356,12 +475,14 @@ class BookingController extends Controller
         $bookingPayload = null;
         if ($hasBooking) {
             try {
+                $serviceInput = $contextData['service_ids'] ?? $contextData['service_id'];
                 $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                     customer: $customer,
-                    serviceCode: $contextData['service_id'],
+                    serviceCode: $serviceInput,
                     specialistSlug: $contextData['specialist_id'],
                     dateLabel: $contextData['booking_date'],
-                    timeSlot: $contextData['booking_time']
+                    timeSlot: $contextData['booking_time'],
+                    customerType: Booking::CUSTOMER_TYPE_REGISTERED
                 );
             } catch (SlotUnavailableException|InvalidArgumentException $e) {
                 return $this->renderPopupCallbackScript([
@@ -498,12 +619,14 @@ class BookingController extends Controller
         $bookingPayload = null;
         if ($hasBooking) {
             try {
+                $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
                 $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                     customer: $customer,
-                    serviceCode: (string) $request->input('service_id'),
+                    serviceCode: $serviceInput,
                     specialistSlug: (string) $request->input('specialist_id'),
                     dateLabel: (string) $request->input('booking_date'),
-                    timeSlot: (string) $request->input('booking_time')
+                    timeSlot: (string) $request->input('booking_time'),
+                    customerType: Booking::CUSTOMER_TYPE_REGISTERED
                 );
             } catch (SlotUnavailableException $e) {
                 return response()->json([

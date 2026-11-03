@@ -49,38 +49,6 @@
     <!-- STEP 1: Simplified Collapsible Tree View (Server-Rendered from Cache, Open by Default) -->
     <div id="bookingStep1Container" class="space-y-5">
 
-        <!-- Unified Search Bar for Booking Services -->
-        <x-services.search-header
-            context="booking"
-            inputId="bookingServiceSearch"
-            clearBtnId="clearBookingSearchBtn"
-            submitBtnId="submitBookingSearchBtn"
-            statusId="bookingSearchStatus"
-            countId="bookingSearchCount"
-            queryTextId="bookingSearchQuery"
-            placeholder="ابحثي عن خدمة متاحة للحجز أو قسم أو سعر..."
-            :sticky="false"
-        />
-
-        <!-- Empty State When No Booking Services Match Search -->
-        <div id="bookingSearchEmptyState" class="hidden bg-white rounded-3xl p-8 text-center border border-primary-soft/60 shadow-2xs space-y-3">
-            <div class="w-12 h-12 rounded-full bg-primary-light/70 text-primary-dark mx-auto flex items-center justify-center">
-                <i class="fa-solid fa-magnifying-glass text-lg"></i>
-            </div>
-            <div class="space-y-1">
-                <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">لا توجد خدمات مطابقة لبحثكِ</h4>
-                <p class="text-xs text-gray-500">
-                    لم نتمكن من العثور على خدمات متاحة للحجز تطابق «<span id="bookingEmptyQueryText" class="font-bold text-primary-dark"></span>».
-                </p>
-            </div>
-            <button type="button"
-                    onclick="clearUnifiedServiceSearch('booking')"
-                    class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary hover:bg-primary-dark text-white text-xs font-extrabold transition cursor-pointer">
-                <i class="fa-solid fa-rotate-right text-[11px]"></i>
-                <span>عرض جميع الخدمات</span>
-            </button>
-        </div>
-
         @forelse($bookableCategories as $cat)
             <div id="booking-cat-{{ $cat['id'] }}"
                  data-category-tree="{{ $cat['id'] }}"
@@ -143,20 +111,11 @@
                                                 <span class="block font-bold text-sm sm:text-[15px] text-sage-dark group-hover/item:text-primary-dark transition-colors leading-snug">
                                                     {{ $sub['name'] }}
                                                 </span>
-                                                <div class="flex flex-wrap items-center gap-2 mt-0.5 text-[11px] text-gray-400 font-medium">
-                                                    <span>المدة: {{ $sub['duration'] }}</span>
-                                                    <span>•</span>
-                                                    <span class="text-gold-dark font-semibold">
-                                                        {{ count($sub['specialists'] ?? []) }} أخصائيات متاحات
-                                                    </span>
-                                                </div>
+                                                <p class="booking-price-hint text-[11px] text-gray-400 font-medium mt-0.5" data-price-hint="{{ $sub['price_hint'] ?? '' }}">
+                                                    {{ $sub['price_hint'] ?? 'بحسب الأطوال والكثافة' }}
+                                                </p>
                                             </div>
                                         </div>
-
-                                        <!-- Price (Minimal Text, No Box) -->
-                                        <span class="font-extrabold text-xs sm:text-sm text-sage-dark shrink-0 whitespace-nowrap">
-                                            {{ $sub['price'] }}
-                                        </span>
                                     </label>
                                 </li>
                             @endforeach

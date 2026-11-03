@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Filament\Resources\Bookings\Tables;
 
+use App\Models\Booking;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
@@ -26,6 +27,21 @@ class BookingTable
                 TextColumn::make('customer.name')
                     ->label(__('admin.fields.customer'))
                     ->searchable()
+                    ->sortable(),
+
+                TextColumn::make('customer_type')
+                    ->label('نوع العميل')
+                    ->badge()
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        Booking::CUSTOMER_TYPE_GUEST => 'زائر',
+                        Booking::CUSTOMER_TYPE_REGISTERED => 'عميل مسجل',
+                        default => $state ?? 'عميل مسجل',
+                    })
+                    ->color(fn ($state) => match ($state) {
+                        Booking::CUSTOMER_TYPE_GUEST => 'warning',
+                        Booking::CUSTOMER_TYPE_REGISTERED => 'success',
+                        default => 'gray',
+                    })
                     ->sortable(),
 
                 TextColumn::make('booking_type')
@@ -92,6 +108,13 @@ class BookingTable
                         'in_progress' => __('admin.statuses.in_progress'),
                         'completed' => __('admin.statuses.completed'),
                         'cancelled' => __('admin.statuses.cancelled'),
+                    ]),
+
+                SelectFilter::make('customer_type')
+                    ->label('نوع العميل')
+                    ->options([
+                        Booking::CUSTOMER_TYPE_REGISTERED => 'عميل مسجل',
+                        Booking::CUSTOMER_TYPE_GUEST => 'زائر',
                     ]),
 
                 SelectFilter::make('booking_type')

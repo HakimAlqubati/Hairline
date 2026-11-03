@@ -34,7 +34,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('toggleFullscreen()', false);
         $response->assertSee('جميع الخدمات');
         $response->assertSee('الخدمات المتاحة للحجز');
-        $response->assertSee('أناقتكِ تتجدد');
+        $response->assertSee('هيرلاين لأن الجمال إحساس');
         $response->assertSee('عن هيرلاين');
         $response->assertSee('حسابي');
         $response->assertSee('سياسة الخصوصية');
@@ -104,13 +104,15 @@ describe('Customer-Facing Pages', function () {
         $response->assertStatus(200);
         $response->assertSee('id="bookingTabView"', false);
         $response->assertSee('id="bookingStep1Container"', false);
-        $response->assertSee('id="bookingServiceSearch"', false);
-        $response->assertSee('id="submitBookingSearchBtn"', false);
-        $response->assertSee('id="bookingSearchStatus"', false);
-        $response->assertSee('id="bookingSearchEmptyState"', false);
-        $response->assertSee("executeUnifiedServiceSearch('booking', event)", false);
+        $response->assertDontSee('id="bookingServiceSearch"', false);
+        $response->assertDontSee('id="submitBookingSearchBtn"', false);
+        $response->assertDontSee('id="bookingSearchStatus"', false);
+        $response->assertDontSee('id="bookingSearchEmptyState"', false);
+        $response->assertDontSee("executeUnifiedServiceSearch('booking', event)", false);
         $response->assertSee('aria-expanded="true"', false);
         $response->assertSee('booking-service-checkbox', false);
+        $response->assertSee('data-price-hint', false);
+        $response->assertDontSee('1 أخصائيات متاحات');
         $response->assertSee('id="floatingBookingConfirmContainer"', false);
         $response->assertSee('id="floatingBookingConfirmBtn"', false);
         $response->assertSee('تأكيد الحجز واختيار الأخصائية');
@@ -203,9 +205,9 @@ describe('Customer-Facing Pages', function () {
         expect($customer->avatar_url)->toContain('storage/customers/');
     });
 
-    test('verifying a Saudi phone number without active session returns uniform needs_google_verification without creating booking or leaking data', function () {
+    test('verifying an existing Saudi phone number returns customer_found with customer name for guest flow', function () {
         $customer = Customer::where('phone', '0551234567')->firstOrFail();
-        $specialist = Specialist::firstOrFail();
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $service = $specialist->services()->firstOrFail();
         $initialBookingCount = Booking::count();
 
@@ -214,20 +216,16 @@ describe('Customer-Facing Pages', function () {
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
             'booking_date' => 'غداً - السبت',
-            'booking_time' => '05:30 م',
+            'booking_time' => '04:00 م',
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'exists' => false,
-                'status' => 'needs_google_verification',
+                'status' => 'customer_found',
+                'customer_name' => $customer->name,
                 'phone' => '0551234567',
             ]);
-
-        $response->assertJsonMissing(['customer']);
-        $response->assertJsonMissing(['booking']);
-        $response->assertJsonMissing(['customer_bookings']);
 
         expect(Booking::count())->toBe($initialBookingCount);
         $this->assertNull(session('logged_in_customer_id'));
@@ -235,7 +233,7 @@ describe('Customer-Facing Pages', function () {
 
     test('active authenticated customer can confirm booking immediately via verify_phone', function () {
         $customer = Customer::where('phone', '0551234567')->firstOrFail();
-        $specialist = Specialist::firstOrFail();
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $service = $specialist->services()->firstOrFail();
         $initialBookingCount = Booking::count();
 
@@ -245,7 +243,7 @@ describe('Customer-Facing Pages', function () {
                 'service_id' => $service->code,
                 'specialist_id' => $specialist->slug,
                 'booking_date' => 'غداً - السبت',
-                'booking_time' => '05:30 م',
+                'booking_time' => '04:00 م',
             ]);
 
         $response->assertStatus(200)
@@ -262,8 +260,8 @@ describe('Customer-Facing Pages', function () {
         expect(Booking::count())->toBe($initialBookingCount + 1);
     });
 
-    test('verifying a non-existing Saudi phone number returns uniform needs_google_verification identical to existing numbers', function () {
-        $specialist = Specialist::firstOrFail();
+    test('verifying a non-existing Saudi phone number returns new_customer status requesting name', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $service = $specialist->services()->firstOrFail();
         $initialBookingCount = Booking::count();
 
@@ -272,14 +270,13 @@ describe('Customer-Facing Pages', function () {
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
             'booking_date' => 'غداً - السبت',
-            'booking_time' => '05:30 م',
+            'booking_time' => '04:00 م',
         ]);
 
         $response->assertStatus(200)
             ->assertJson([
                 'success' => true,
-                'exists' => false,
-                'status' => 'needs_google_verification',
+                'status' => 'new_customer',
                 'phone' => '0509988776',
             ]);
 
@@ -373,7 +370,7 @@ describe('Customer-Facing Pages', function () {
             ], 200),
         ]);
 
-        $specialist = Specialist::firstOrFail();
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $service = $specialist->services()->firstOrFail();
 
         $redirectResponse = $this->get(route('booking.google_redirect', [
@@ -381,7 +378,7 @@ describe('Customer-Facing Pages', function () {
             'service_id' => $service->code,
             'specialist_id' => $specialist->slug,
             'booking_date' => 'غداً - السبت',
-            'booking_time' => '05:30 م',
+            'booking_time' => '04:00 م',
         ]));
 
         $redirectResponse->assertRedirect();
@@ -403,6 +400,85 @@ describe('Customer-Facing Pages', function () {
             'email' => 'reem.alsaud@gmail.com',
             'name' => 'ريم آل سعود',
         ]);
+    });
+
+    test('guest booking confirms booking for new customer, creates customer record, logs in, and sets customer_type to guest', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(4)->toDateString();
+
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'name' => 'نورة محمد',
+            'phone' => '0501112233',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '04:00 م',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'customer_type' => Booking::CUSTOMER_TYPE_GUEST,
+                'customer' => [
+                    'name' => 'نورة محمد',
+                    'phone' => '0501112233',
+                ],
+            ]);
+
+        $customer = Customer::where('phone', '0501112233')->firstOrFail();
+        expect($customer->name)->toBe('نورة محمد');
+        expect(session('logged_in_customer_id'))->toBe($customer->id);
+
+        $booking = Booking::where('customer_id', $customer->id)->latest('id')->firstOrFail();
+        expect($booking->customer_type)->toBe(Booking::CUSTOMER_TYPE_GUEST);
+        expect($booking->isGuest())->toBeTrue();
+        expect($booking->isRegistered())->toBeFalse();
+    });
+
+    test('guest booking supports multi-service selection creating multiple booking items', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $services = $specialist->services()->take(2)->get();
+        if ($services->count() < 2) {
+            $anotherService = Service::firstOrFail();
+            $specialist->services()->syncWithoutDetaching([$anotherService->id]);
+            $services = $specialist->services()->take(2)->get();
+        }
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(5)->toDateString();
+        $serviceCodes = $services->pluck('code')->all();
+
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'name' => 'عبير الخالد',
+            'phone' => '0502223344',
+            'service_id' => $serviceCodes,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '04:00 م',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'customer_type' => Booking::CUSTOMER_TYPE_GUEST,
+            ]);
+
+        $customer = Customer::where('phone', '0502223344')->firstOrFail();
+        $booking = Booking::where('customer_id', $customer->id)->latest('id')->firstOrFail();
+        expect($booking->items()->count())->toBe(count($serviceCodes));
+    });
+
+    test('dedicated contact and privacy pages return 200 with appropriate content', function () {
+        $contactResponse = $this->get('/contact');
+        $contactResponse->assertStatus(200);
+        $contactResponse->assertSee('للتواصل والاستفسار');
+        $contactResponse->assertSee('أوقات العمل الرسمية');
+
+        $privacyResponse = $this->get('/privacy');
+        $privacyResponse->assertStatus(200);
+        $privacyResponse->assertSee('سياسة الخصوصية');
+        $privacyResponse->assertSee('حماية وسرية البيانات الشخصية');
     });
 
     test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {

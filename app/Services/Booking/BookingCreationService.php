@@ -43,23 +43,30 @@ class BookingCreationService
      */
     public function createBookingForCustomer(
         Customer $customer,
-        string $serviceCode,
+        string|array $serviceCode,
         string $specialistSlug,
         string $dateLabel,
-        string $timeSlot
+        string $timeSlot,
+        string $customerType = Booking::CUSTOMER_TYPE_REGISTERED
     ): array {
-        $service = $this->availabilityService->resolveService($serviceCode);
-        if (! $service) {
-            throw new InvalidArgumentException('الخدمة المختارة غير متاحة.');
+        $serviceCodes = is_array($serviceCode) ? $serviceCode : [$serviceCode];
+        $services = [];
+        foreach ($serviceCodes as $sc) {
+            $resolved = $this->availabilityService->resolveService((string) $sc);
+            if ($resolved) {
+                $services[] = $resolved;
+            }
         }
+
+        if (empty($services)) {
+            throw new InvalidArgumentException('الخدمات المختارة غير متاحة.');
+        }
+
+        $primaryService = $services[0];
 
         $specialist = $this->availabilityService->resolveSpecialist($specialistSlug);
         if (! $specialist) {
             throw new InvalidArgumentException('الأخصائية المختارة غير متاحة.');
-        }
-
-        if (! $this->availabilityService->specialistOffersService($specialist, $service)) {
-            throw new InvalidArgumentException('عذراً، الأخصائية المختارة لا تقدم هذه الخدمة.');
         }
 
         $timeSlotClean = trim($timeSlot);
@@ -92,29 +99,37 @@ class BookingCreationService
                 throw new InvalidArgumentException('عذراً، هذا الموعد قد مضى وقته لليوم. يرجى اختيار موعد قادم.');
             }
         }
-        $durationMinutes = $this->availabilityService->resolveDurationMinutes($specialist, $service);
-        $shiftCheck = $this->availabilityService->validateWithinShift($specialist, $bookingDate, $startTime24, $durationMinutes);
+
+        $totalDurationMinutes = 0;
+        foreach ($services as $srv) {
+            $totalDurationMinutes += $this->availabilityService->resolveDurationMinutes($specialist, $srv);
+        }
+        if ($totalDurationMinutes === 0) {
+            $totalDurationMinutes = 45;
+        }
+
+        $shiftCheck = $this->availabilityService->validateWithinShift($specialist, $bookingDate, $startTime24, $totalDurationMinutes);
         if (! $shiftCheck['valid']) {
             throw new InvalidArgumentException($shiftCheck['message'] ?? 'الوقت المختار يقع خارج أوقات دوام الأخصائية.');
         }
 
-        $endTime24 = $this->availabilityService->calculateEndTime24($startTime24, $durationMinutes);
+        $endTime24 = $this->availabilityService->calculateEndTime24($startTime24, $totalDurationMinutes);
 
-        $price = (float) $service->base_price;
+        $price = (float) array_sum(array_map(fn ($s) => (float) $s->base_price, $services));
         $vatAmount = round($price * 15 / 115, 2);
         $depositRequired = round(max($price * 0.30, min(50.0, $price)), 2);
 
         $booking = DB::transaction(function () use (
             $customer,
-            $service,
+            $customerType,
+            $services,
             $specialist,
             $bookingDate,
             $startTime24,
             $endTime24,
             $price,
             $vatAmount,
-            $depositRequired,
-            $durationMinutes
+            $depositRequired
         ): Booking {
             // Lock specialist row for update to serialize concurrent booking attempts for this specialist
             $lockedSpecialist = Specialist::whereKey($specialist->id)->lockForUpdate()->first();
@@ -139,6 +154,7 @@ class BookingCreationService
             $booking = Booking::create([
                 'booking_number' => $bookingNumber,
                 'customer_id' => $customer->id,
+                'customer_type' => $customerType,
                 'customer_address_id' => null,
                 'booking_type' => 'salon',
                 'booking_date' => $bookingDate->toDateString(),
@@ -153,22 +169,28 @@ class BookingCreationService
                 'deposit_paid' => 0.00,
                 'payment_status' => 'unpaid',
                 'admin_notes' => [
-                    'ar' => 'حجز إلكتروني مباشر من صفحة الحجز',
-                    'en' => 'Direct online booking from booking page',
+                    'ar' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'حجز إلكتروني كـ زائر' : 'حجز إلكتروني مباشر من صفحة الحجز',
+                    'en' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'Online guest booking' : 'Direct online booking from booking page',
                 ],
             ]);
 
-            BookingItem::create([
-                'booking_id' => $booking->id,
-                'service_id' => $service->id,
-                'specialist_id' => $specialist->id,
-                'hair_length_id' => null,
-                'unit_price' => $price,
-                'duration_minutes' => $durationMinutes,
-                'scheduled_start_time' => $startTime24,
-                'scheduled_end_time' => $endTime24,
-                'status' => 'confirmed',
-            ]);
+            $itemStart = $startTime24;
+            foreach ($services as $srv) {
+                $itemDuration = $this->availabilityService->resolveDurationMinutes($specialist, $srv);
+                $itemEnd = $this->availabilityService->calculateEndTime24($itemStart, $itemDuration);
+                BookingItem::create([
+                    'booking_id' => $booking->id,
+                    'service_id' => $srv->id,
+                    'specialist_id' => $specialist->id,
+                    'hair_length_id' => null,
+                    'unit_price' => (float) $srv->base_price,
+                    'duration_minutes' => $itemDuration,
+                    'scheduled_start_time' => $itemStart,
+                    'scheduled_end_time' => $itemEnd,
+                    'status' => 'confirmed',
+                ]);
+                $itemStart = $itemEnd;
+            }
 
             return $booking;
         });
@@ -177,14 +199,16 @@ class BookingCreationService
         $nameEn = $specialist->getTranslation('name', 'en');
         $specialistFullName = $nameEn ? "{$nameAr} | {$nameEn}" : $nameAr;
 
+        $serviceNames = array_map(fn ($s) => $s->getTranslation('name', 'ar'), $services);
+
         return [
             'id' => $booking->booking_number,
             'db_id' => $booking->id,
             'customerName' => $customer->name,
             'customerPhone' => $customer->phone,
             'customerEmail' => $customer->email,
-            'categoryTitle' => $service->category?->getTranslation('name', 'ar') ?? 'خدمات الصالون',
-            'serviceName' => $service->getTranslation('name', 'ar'),
+            'categoryTitle' => $primaryService->category?->getTranslation('name', 'ar') ?? 'خدمات الصالون',
+            'serviceName' => implode(' + ', $serviceNames),
             'specialistName' => $specialistFullName,
             'date' => $dateLabelClean,
             'bookingDateIso' => $bookingDate->toDateString(),

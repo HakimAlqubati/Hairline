@@ -173,6 +173,8 @@
         <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" :workingHours="$workingHours ?? []" :location="$location ?? []" :contactLinks="$contactLinks ?? []" :isActive="($initialView ?? 'home') === 'about'" />
         <x-tabs.account />
+        <x-tabs.contact :salonIdentity="$salonIdentity" :workingHours="$workingHours ?? []" :location="$location ?? []" :contactLinks="$contactLinks ?? []" :isActive="($initialView ?? 'home') === 'contact'" />
+        <x-tabs.privacy :salonIdentity="$salonIdentity" :isActive="($initialView ?? 'home') === 'privacy'" />
 
         <!-- 4. BOTTOM NAVIGATION BAR -->
         <x-bottom-nav />
@@ -270,9 +272,10 @@
         const defaultBookingDateObj = bookingDates[1] || bookingDates[0] || { display_label: "غداً - السبت", date_iso: "" };
 
         let bookingState = {
-            step: 1, // 1: Services (Main Category + Sub-Services directly underneath), 2: Specialist & Time, 3: Confirmation
+            step: 1, // 1: Services, 2: Specialist & Time, 3: Confirmation
             selectedCategory: null,
             selectedSubService: null,
+            selectedSubServices: [],
             selectedSpecialist: null,
             selectedDate: defaultBookingDateObj.display_label,
             selectedDateIso: defaultBookingDateObj.date_iso,
@@ -284,6 +287,7 @@
                 slots: []
             },
             verifiedPhone: "",
+            phoneChecked: false,
             confirmedCustomerName: "",
             confirmedCustomerEmail: ""
         };
@@ -375,6 +379,8 @@
             const servicesView = document.getElementById('servicesTabView');
             const specialistsView = document.getElementById('specialistsTabView');
             const bookingView = document.getElementById('bookingTabView');
+            const contactView = document.getElementById('contactTabView');
+            const privacyView = document.getElementById('privacyTabView');
             const desktopFabContainer = document.getElementById('desktopFloatingBookingContainer');
 
             if (homeView) homeView.classList.add('hidden');
@@ -383,6 +389,8 @@
             if (servicesView) servicesView.classList.add('hidden');
             if (specialistsView) specialistsView.classList.add('hidden');
             if (bookingView) bookingView.classList.add('hidden');
+            if (contactView) contactView.classList.add('hidden');
+            if (privacyView) privacyView.classList.add('hidden');
 
             if (tabName === 'home') {
                 if (homeView) homeView.classList.remove('hidden');
@@ -419,6 +427,24 @@
                 renderMyBookings();
                 if (accountView) accountView.classList.remove('hidden');
                 updateUrl('/profile');
+            }
+            if (tabName === 'contact') {
+                if (contactView) {
+                    contactView.classList.remove('hidden');
+                    contactView.classList.remove('animate-step');
+                    void contactView.offsetWidth;
+                    contactView.classList.add('animate-step');
+                }
+                updateUrl('/contact');
+            }
+            if (tabName === 'privacy') {
+                if (privacyView) {
+                    privacyView.classList.remove('hidden');
+                    privacyView.classList.remove('animate-step');
+                    void privacyView.offsetWidth;
+                    privacyView.classList.add('animate-step');
+                }
+                updateUrl('/privacy');
             }
 
             if (desktopFabContainer) {
@@ -518,7 +544,7 @@
                 imgEl.alt = sp.name || '';
                 imgEl.onerror = function () {
                     this.onerror = null;
-                    this.src = 'https://placehold.co/400x500/FAF8F5/C29E6D?text=HL';
+                    this.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(sp.name || 'HL') + '&background=FFFFFF&color=C29E6D&bold=true&size=512';
                 };
             }
 
@@ -526,20 +552,7 @@
             if (roleEl) roleEl.textContent = sp.role || '';
             if (expEl) expEl.textContent = sp.experience || '';
             if (bioEl) bioEl.textContent = sp.bio || '';
-
-            if (servicesEl) {
-                const cats = getSpecialistServiceCategories(sp.id);
-                if (cats.length > 0) {
-                    if (servicesWrapper) servicesWrapper.classList.remove('hidden');
-                    servicesEl.innerHTML = cats.map(title => `
-                        <span class="px-3 py-1 rounded-full bg-primary-light/85 text-primary-dark border border-primary/30 text-xs font-extrabold">
-                            ${title}
-                        </span>
-                    `).join('');
-                } else if (servicesWrapper) {
-                    servicesWrapper.classList.add('hidden');
-                }
-            }
+            if (servicesWrapper) servicesWrapper.classList.add('hidden');
 
             // Highlight active thumbnail
             for (let i = 0; i < total; i++) {
@@ -822,6 +835,18 @@
                 return;
             }
 
+            if (sectionType === 'contact') {
+                closeBottomSheet();
+                switchTab('contact');
+                return;
+            }
+
+            if (sectionType === 'privacy') {
+                closeBottomSheet();
+                switchTab('privacy');
+                return;
+            }
+
             const sheetTitle = document.getElementById('sheetTitle');
             const sheetSubtitle = document.getElementById('sheetSubtitle');
             const sheetBackBtn = document.getElementById('sheetBackBtn');
@@ -1018,6 +1043,7 @@
                 step: 1,
                 selectedCategory: null,
                 selectedSubService: null,
+                selectedSubServices: [],
                 selectedSpecialist: null,
                 selectedDate: initialDateObj.display_label,
                 selectedDateIso: initialDateObj.date_iso,
@@ -1029,6 +1055,7 @@
                     slots: []
                 },
                 verifiedPhone: "",
+                phoneChecked: false,
                 confirmedCustomerName: "",
                 confirmedCustomerEmail: ""
             };
@@ -1153,6 +1180,10 @@
             document.querySelectorAll('.booking-tree-row').forEach(row => {
                 row.classList.remove('bg-gold-light/40');
             });
+            bookingState.selectedSubServices = [];
+            bookingState.selectedSubService = null;
+            bookingState.selectedCategory = null;
+            syncFloatingConfirmButton();
         }
 
         function findCategoryAndSubService(subId, catId = null) {
@@ -1175,32 +1206,33 @@
 
         function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
             if (!checkboxEl) return;
+            if (!Array.isArray(bookingState.selectedSubServices)) {
+                bookingState.selectedSubServices = [];
+            }
+
+            const activeRow = document.getElementById(`srv-row-${subId}`);
 
             if (checkboxEl.checked) {
-                document.querySelectorAll('.booking-service-checkbox').forEach(cb => {
-                    if (cb !== checkboxEl) {
-                        cb.checked = false;
-                    }
-                });
-                document.querySelectorAll('.booking-tree-row').forEach(row => {
-                    row.classList.remove('bg-gold-light/40');
-                });
-
-                const activeRow = document.getElementById(`srv-row-${subId}`);
                 if (activeRow) {
                     activeRow.classList.add('bg-gold-light/40');
                 }
-
                 const { foundCategory, foundSub } = findCategoryAndSubService(subId, catId);
-                bookingState.selectedCategory = foundCategory || null;
-                bookingState.selectedSubService = foundSub || null;
+                if (foundSub && !bookingState.selectedSubServices.some(s => s.id === foundSub.id)) {
+                    bookingState.selectedSubServices.push(foundSub);
+                }
+                if (!bookingState.selectedCategory && foundCategory) {
+                    bookingState.selectedCategory = foundCategory;
+                }
+                bookingState.selectedSubService = bookingState.selectedSubServices[0] || null;
             } else {
-                const activeRow = document.getElementById(`srv-row-${subId}`);
                 if (activeRow) {
                     activeRow.classList.remove('bg-gold-light/40');
                 }
-                bookingState.selectedCategory = null;
-                bookingState.selectedSubService = null;
+                bookingState.selectedSubServices = bookingState.selectedSubServices.filter(s => s.id !== subId);
+                bookingState.selectedSubService = bookingState.selectedSubServices[0] || null;
+                if (bookingState.selectedSubServices.length === 0) {
+                    bookingState.selectedCategory = null;
+                }
             }
 
             syncFloatingConfirmButton();
@@ -1212,10 +1244,11 @@
             const whatsappContainer = document.getElementById('floatingWhatsappContainer');
             if (!container) return;
 
+            const count = Array.isArray(bookingState.selectedSubServices) ? bookingState.selectedSubServices.length : 0;
             const shouldShow = (
                 currentActiveTab === 'booking' &&
                 bookingState.step === 1 &&
-                Boolean(bookingState.selectedSubService)
+                count > 0
             );
 
             if (floatingConfirmHideTimeout) {
@@ -1228,8 +1261,12 @@
             }
 
             if (shouldShow) {
-                if (labelEl && bookingState.selectedSubService) {
-                    labelEl.textContent = `${bookingState.selectedSubService.name} • ${bookingState.selectedSubService.price}`;
+                if (labelEl) {
+                    if (count === 1) {
+                        labelEl.textContent = `${bookingState.selectedSubServices[0].name}`;
+                    } else {
+                        labelEl.textContent = `متابعة الحجز (${count} خدمات مختارة)`;
+                    }
                 }
                 container.classList.remove('hidden');
                 requestAnimationFrame(() => {
@@ -1246,7 +1283,11 @@
         }
 
         function proceedToSpecialistStep() {
-            if (!bookingState.selectedCategory || !bookingState.selectedSubService) return;
+            const count = Array.isArray(bookingState.selectedSubServices) ? bookingState.selectedSubServices.length : 0;
+            if (count === 0 && !bookingState.selectedSubService) return;
+            if (!bookingState.selectedSubService && count > 0) {
+                bookingState.selectedSubService = bookingState.selectedSubServices[0];
+            }
             bookingState.selectedSpecialist = null;
             bookingState.selectedTime = null;
             bookingState.availability = { loading: true, is_day_off: false, shift_label: "", slots: [] };
@@ -1331,8 +1372,12 @@
 
             // STEP 2: اختيار الأخصائية وتحديد الوقت (مرتبط بشيفتات قاعدة البيانات والتحقق من المواعيد المحجوزة)
             else if (bookingState.step === 2) {
-                const sub = bookingState.selectedSubService;
-                if (!sub) return;
+                const subServices = (Array.isArray(bookingState.selectedSubServices) && bookingState.selectedSubServices.length > 0)
+                    ? bookingState.selectedSubServices
+                    : (bookingState.selectedSubService ? [bookingState.selectedSubService] : []);
+                if (subServices.length === 0) return;
+                const sub = subServices[0];
+                bookingState.selectedSubService = sub;
 
                 if (pageTitle) pageTitle.textContent = "الخطوة 2: اختيار الأخصائية";
                 if (pageSubtitle) {
@@ -1341,7 +1386,13 @@
                 }
                 if (step2Container) step2Container.classList.remove('hidden');
 
-                const linkedSpecialists = sub.specialists.map(id => specialistsData[id]).filter(Boolean);
+                const allSpecialistLists = subServices.map(s => s.specialists || []);
+                const commonSlugs = allSpecialistLists.length > 1
+                    ? allSpecialistLists.reduce((a, b) => a.filter(c => b.includes(c)))
+                    : (allSpecialistLists[0] || []);
+                const finalSpecialistSlugs = commonSlugs.length > 0 ? commonSlugs : [...new Set(allSpecialistLists.flat())];
+                const linkedSpecialists = finalSpecialistSlugs.map(id => specialistsData[id]).filter(Boolean);
+
                 if (!bookingState.selectedSpecialist && linkedSpecialists.length > 0) {
                     bookingState.selectedSpecialist = linkedSpecialists[0];
                     bookingState.selectedTime = null;
@@ -1367,25 +1418,21 @@
                 const shiftLabel = bookingState.availability?.shift_label || "";
 
                 if (step2Body) {
+                    const servicesTitleText = subServices.map(s => s.name).join(' • ');
                     step2Body.innerHTML = `
                         <div class="space-y-4">
-                            <!-- Summary Card -->
-                            <div class="p-4 rounded-2xl bg-gold-light/70 border border-gold/40 flex items-center justify-between">
-                                <div>
-                                    <span class="text-[11px] font-bold text-gold-dark block">${bookingState.selectedCategory.title}</span>
-                                    <h4 class="font-extrabold text-sm sm:text-base text-sage-dark mt-0.5">${sub.name}</h4>
-                                </div>
-                                <div class="text-left shrink-0">
-                                    <span class="font-black text-sm sm:text-base text-sage-dark block">${sub.price}</span>
-                                    <span class="text-[11px] text-gray-500">${sub.duration}</span>
-                                </div>
+                            <!-- Summary Card: Centered, No Price, No Duration -->
+                            <div class="p-4 rounded-2xl bg-gold-light/60 border border-gold/30 text-center space-y-1">
+                                <span class="text-[11px] font-bold text-gold-dark block">
+                                    ${subServices.length > 1 ? `الخدمات المختارة (${subServices.length})` : (bookingState.selectedCategory?.title || 'الخدمة المختارة')}
+                                </span>
+                                <h4 class="font-black text-base sm:text-lg text-sage-dark text-center leading-relaxed">
+                                    ${servicesTitleText}
+                                </h4>
                             </div>
 
-                            <!-- Specialists List -->
+                            <!-- Specialists List (Label hidden per client request) -->
                             <div class="space-y-2.5">
-                                <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
-                                    اختاري الأخصائية (${linkedSpecialists.length} أخصائيات معتمدات):
-                                </label>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     ${linkedSpecialists.map(sp => {
                                         const isSelected = bookingState.selectedSpecialist && bookingState.selectedSpecialist.id === sp.id;
@@ -1400,7 +1447,7 @@
                                                     <div class="relative w-11 h-11 shrink-0" style="width: 44px; height: 44px;">
                                                         <img src="${sp.avatar}" 
                                                              alt="${sp.name}"
-                                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=211C18&color=C29E6D&bold=true&size=96';"
+                                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(sp.name)}&background=FFFFFF&color=C29E6D&bold=true&size=96';"
                                                              class="w-11 h-11 rounded-full object-cover border ${isSelected ? 'border-primary ring-2 ring-primary/20' : 'border-gold/30'} shrink-0 shadow-2xs"
                                                              style="width: 44px; height: 44px; min-width: 44px; min-height: 44px;">
                                                     </div>
@@ -1766,18 +1813,28 @@
             const loggedInAvatarFallback = document.getElementById('loggedInCustomerAvatarFallback');
             const btnText = document.getElementById('phoneVerifySubmitBtnText');
             const btnIcon = document.getElementById('phoneVerifySubmitBtnIcon');
+            const nameContainer = document.getElementById('guestNameInputContainer');
+            const returningGreeting = document.getElementById('returningCustomerGreeting');
 
             if (!modal || !card) return;
 
+            bookingState.phoneChecked = false;
+            if (nameContainer) nameContainer.classList.add('hidden');
+            if (returningGreeting) returningGreeting.classList.add('hidden');
+
             const timeSlot = bookingState.selectedTime || bookingState.selectedSpecialist?.availableSlots?.[0];
+            const subServices = (Array.isArray(bookingState.selectedSubServices) && bookingState.selectedSubServices.length > 0)
+                ? bookingState.selectedSubServices
+                : (bookingState.selectedSubService ? [bookingState.selectedSubService] : []);
+            const servicesTitle = subServices.map(s => s.name).join(' + ');
+
             if (summaryEl) {
                 summaryEl.innerHTML = `
                     <div class="flex items-center justify-between gap-2">
                         <div class="flex items-center gap-2 min-w-0">
                             <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
-                            <span class="font-extrabold text-sm text-sage-dark truncate">${bookingState.selectedSubService.name}</span>
+                            <span class="font-extrabold text-sm text-sage-dark truncate">${servicesTitle}</span>
                         </div>
-                        <span class="font-black text-sm text-primary-dark shrink-0">${bookingState.selectedSubService.price}</span>
                     </div>
                     <div class="border-t border-dashed border-gray-200/80"></div>
                     <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
@@ -1808,7 +1865,7 @@
                 if (loggedInName) loggedInName.textContent = currentCustomer.name || 'عميلتنا العزيزة';
                 if (loggedInPhone) loggedInPhone.value = currentCustomer.phone || '';
 
-                const customerAvatarSrc = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name || 'HL')}&background=211C18&color=C5A373&bold=true`;
+                const customerAvatarSrc = currentCustomer.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(currentCustomer.name || 'HL')}&background=FFFFFF&color=C29E6D&bold=true`;
                 if (loggedInAvatar) {
                     loggedInAvatar.src = customerAvatarSrc;
                     loggedInAvatar.alt = currentCustomer.name || 'صورة الحساب';
@@ -1830,8 +1887,8 @@
                 if (loggedInAvatarFallback) {
                     loggedInAvatarFallback.classList.remove('hidden');
                 }
-                if (btnText) btnText.textContent = 'تحقق وتأكيد الحجز';
-                if (btnIcon) btnIcon.className = 'fa-solid fa-shield-check text-white';
+                if (btnText) btnText.textContent = 'تأكيد الحجز';
+                if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
             }
 
             switchPopupToPhoneStep();
@@ -1926,6 +1983,11 @@
             const errorEl = document.getElementById('phoneVerifyError');
             const errorText = document.getElementById('phoneVerifyErrorText');
             const submitBtn = document.getElementById('phoneVerifySubmitBtn');
+            const btnText = document.getElementById('phoneVerifySubmitBtnText');
+            const nameContainer = document.getElementById('guestNameInputContainer');
+            const nameInput = document.getElementById('guestNameInput');
+            const returningGreeting = document.getElementById('returningCustomerGreeting');
+            const returningName = document.getElementById('returningCustomerName');
 
             const isCustomerLoggedIn = Boolean(currentCustomer && currentCustomer.id && currentCustomer.phone);
             const rawPhone = isCustomerLoggedIn
@@ -1944,25 +2006,129 @@
             if (errorEl) errorEl.classList.add('hidden');
             if (phoneInput) phoneInput.classList.remove('border-red-500');
 
+            const timeSlot = bookingState.selectedTime;
+            if (!timeSlot) {
+                if (errorText) errorText.textContent = 'يرجى اختيار وقت متاح للحجز أولاً.';
+                if (errorEl) errorEl.classList.remove('hidden');
+                return;
+            }
+            const bookingDateVal = bookingState.selectedDateIso || bookingState.selectedDate;
+            const subServices = (Array.isArray(bookingState.selectedSubServices) && bookingState.selectedSubServices.length > 0)
+                ? bookingState.selectedSubServices
+                : (bookingState.selectedSubService ? [bookingState.selectedSubService] : []);
+            const serviceIds = subServices.map(s => s.id);
+            const primaryServiceId = subServices[0]?.id || bookingState.selectedSubService?.id;
+
+            const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
             const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
+            // CASE 1: Customer already logged in
+            if (isCustomerLoggedIn) {
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري تأكيد حجزكِ باسم ${currentCustomer.name}...</span>`;
+                }
+                try {
+                    const response = await fetch("{{ route('booking.verify_phone') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            phone: rawPhone,
+                            service_ids: serviceIds,
+                            service_id: primaryServiceId,
+                            specialist_id: bookingState.selectedSpecialist.id,
+                            booking_date: bookingDateVal,
+                            booking_time: timeSlot
+                        })
+                    });
+                    const data = await response.json();
+                    if (!response.ok || data.status === 'validation_error' || data.status === 'slot_unavailable') {
+                        if (errorText) errorText.textContent = data.message || 'تأكدي من صحة البيانات المدخلة.';
+                        if (errorEl) errorEl.classList.remove('hidden');
+                        fetchSpecialistAvailability();
+                        return;
+                    }
+                    if (data.status === 'confirmed') {
+                        finalizeConfirmedBookingFromServer(data);
+                    }
+                } catch (err) {
+                    if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+                    }
+                }
+                return;
+            }
+
+            // CASE 2: Guest booking - Step A: Check if phone exists
+            if (!bookingState.phoneChecked) {
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري فحص الرقم...</span>`;
+                }
+                try {
+                    const response = await fetch("{{ route('booking.verify_phone') }}", {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        body: JSON.stringify({
+                            phone: rawPhone
+                        })
+                    });
+                    const data = await response.json();
+                    bookingState.verifiedPhone = data.phone || rawPhone;
+                    bookingState.phoneChecked = true;
+
+                    if (data.status === 'customer_found') {
+                        if (returningGreeting) returningGreeting.classList.remove('hidden');
+                        if (returningName) returningName.textContent = data.customer_name || 'عميلتنا العزيزة';
+                        if (nameContainer) nameContainer.classList.add('hidden');
+                        if (btnText) btnText.textContent = `تأكيد الحجز فوراً كـ زائر (${data.customer_name})`;
+                    } else {
+                        if (nameContainer) nameContainer.classList.remove('hidden');
+                        if (returningGreeting) returningGreeting.classList.add('hidden');
+                        if (btnText) btnText.textContent = 'المتابعة كـ زائر وتأكيد الحجز';
+                        if (nameInput) setTimeout(() => nameInput.focus(), 150);
+                    }
+                } catch (err) {
+                    if (errorText) errorText.textContent = 'حدث خطأ أثناء فحص رقم الجوال.';
+                    if (errorEl) errorEl.classList.remove('hidden');
+                } finally {
+                    if (submitBtn) {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalBtnHtml;
+                    }
+                }
+                return;
+            }
+
+            // CASE 2: Guest booking - Step B: Confirm booking as guest!
+            const guestName = nameInput ? nameInput.value.trim() : '';
+            const isNameRequired = nameContainer && !nameContainer.classList.contains('hidden');
+            if (isNameRequired && guestName.length < 2) {
+                if (errorText) errorText.textContent = 'يرجى كتابة اسمكِ الكريم لإتمام الحجز كـ زائر.';
+                if (errorEl) errorEl.classList.remove('hidden');
+                if (nameInput) nameInput.focus();
+                return;
+            }
+
             if (submitBtn) {
                 submitBtn.disabled = true;
-                submitBtn.innerHTML = isCustomerLoggedIn
-                    ? `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري تأكيد حجزكِ باسم ${currentCustomer.name}...</span>`
-                    : `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري التحقق من الرقم...</span>`;
+                submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري تأكيد حجزكِ كـ زائر...</span>`;
             }
 
             try {
-                const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-                const timeSlot = bookingState.selectedTime;
-                if (!timeSlot) {
-                    if (errorText) errorText.textContent = 'يرجى اختيار وقت متاح للحجز أولاً.';
-                    if (errorEl) errorEl.classList.remove('hidden');
-                    return;
-                }
-                const bookingDateVal = bookingState.selectedDateIso || bookingState.selectedDate;
-
-                const response = await fetch("{{ route('booking.verify_phone') }}", {
+                const response = await fetch("{{ route('booking.guest_confirm') }}", {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -1970,8 +2136,10 @@
                         'X-CSRF-TOKEN': csrfToken
                     },
                     body: JSON.stringify({
-                        phone: rawPhone,
-                        service_id: bookingState.selectedSubService.id,
+                        phone: bookingState.verifiedPhone || rawPhone,
+                        name: guestName,
+                        service_ids: serviceIds,
+                        service_id: primaryServiceId,
                         specialist_id: bookingState.selectedSpecialist.id,
                         booking_date: bookingDateVal,
                         booking_time: timeSlot
@@ -1987,17 +2155,11 @@
                     return;
                 }
 
-                // Case 1: Active authenticated customer session -> Confirmed directly
                 if (data.status === 'confirmed') {
                     finalizeConfirmedBookingFromServer(data);
                 }
-                // Case 2: Requires Google Identity Verification
-                else {
-                    bookingState.verifiedPhone = data.phone || rawPhone;
-                    switchPopupToGoogleStep(bookingState.verifiedPhone);
-                }
             } catch (err) {
-                if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+                if (errorText) errorText.textContent = 'حدث خطأ أثناء حفظ الحجز، يرجى المحاولة مرة أخرى.';
                 if (errorEl) errorEl.classList.remove('hidden');
             } finally {
                 if (submitBtn) {
@@ -2133,7 +2295,8 @@
                     },
                     body: JSON.stringify(Object.assign({
                         phone: bookingState.verifiedPhone || '',
-                        service_id: bookingState.selectedSubService?.id || '',
+                        service_ids: (bookingState.selectedSubServices || []).map(s => s.id),
+                        service_id: bookingState.selectedSubService?.id || (bookingState.selectedSubServices?.[0]?.id) || '',
                         specialist_id: bookingState.selectedSpecialist?.id || '',
                         booking_date: bookingDateVal,
                         booking_time: timeSlot
@@ -2825,107 +2988,102 @@
         }
 
         function filterServicesCatalogView(rawQuery, normalizedQuery) {
-            const pages = document.querySelectorAll('#servicesTabView .menu-page');
+            const pagesContainer = document.getElementById('pagesContainer');
+            const resultsContainer = document.getElementById('servicesSearchResultsContainer');
+            const resultsList = document.getElementById('servicesSearchResultsList');
 
             if (!normalizedQuery) {
-                pages.forEach(page => {
-                    page.classList.remove('hidden', 'search-filtered-page');
-                });
-                document.querySelectorAll('#servicesTabView .service-section-block, #servicesTabView .service-subsection-group, #servicesTabView .category-group, #servicesTabView .multi-length-block, #servicesTabView .service-row').forEach(el => {
-                    el.classList.remove('hidden', 'search-highlight');
-                });
+                if (pagesContainer) pagesContainer.classList.remove('hidden');
+                if (resultsContainer) resultsContainer.classList.add('hidden');
+                if (resultsList) resultsList.innerHTML = '';
                 updateSearchFeedbackUI('services', '', '', 0);
                 return;
             }
 
-            let totalMatchedServices = 0;
+            const pages = document.querySelectorAll('#servicesTabView .menu-page');
+            const matchedItems = [];
 
             pages.forEach(page => {
                 const pageNum = page.getAttribute('data-page');
-
-                // Page 8 is the visual Hair Lengths Diagram (no individual service rows)
-                if (pageNum === '8') {
-                    const diagramMatches = matchesSearchTokens(page.textContent, normalizedQuery);
-                    page.classList.toggle('hidden', !diagramMatches);
-                    page.classList.toggle('search-filtered-page', diagramMatches);
-                    if (diagramMatches) {
-                        totalMatchedServices++;
-                    }
-                    return;
-                }
-
                 const mainTitleEl = page.querySelector(':scope > .page-content > .section-main-title');
-                const pageTitleText = mainTitleEl ? mainTitleEl.textContent : '';
-                let pageMatches = 0;
+                const pageTitleText = mainTitleEl ? mainTitleEl.querySelector('.ar-title')?.textContent?.trim() || mainTitleEl.textContent?.trim() : '';
 
-                // 1. Filter multi-length service blocks
+                // 1. Multi-length service blocks
                 page.querySelectorAll('.multi-length-block').forEach(block => {
                     const subGroup = block.closest('.service-subsection-group');
-                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent || '';
-                    const blockTitleText = block.querySelector('.multi-length-title')?.textContent || '';
-                    let blockMatches = 0;
+                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent?.trim() || '';
+                    const blockTitleText = block.querySelector('.multi-length-title')?.textContent?.trim() || '';
+                    const categoryLabel = [pageTitleText, subTitleText, blockTitleText].filter(Boolean).join(' • ');
 
                     block.querySelectorAll('.length-row-item.service-row').forEach(row => {
-                        row.classList.remove('search-highlight');
-                        const combinedText = `${pageTitleText} ${subTitleText} ${blockTitleText} ${row.textContent}`;
+                        const arName = row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim();
+                        const enName = row.querySelector('.en-name')?.textContent?.trim() || '';
+                        const price = row.querySelector('.price-badge')?.textContent?.trim() || '';
+                        const combinedText = `${categoryLabel} ${arName} ${enName} ${price}`;
+
                         if (matchesSearchTokens(combinedText, normalizedQuery)) {
-                            row.classList.remove('hidden');
-                            blockMatches++;
-                            pageMatches++;
-                            totalMatchedServices++;
-                        } else {
-                            row.classList.add('hidden');
+                            matchedItems.push({
+                                arName,
+                                enName,
+                                category: categoryLabel,
+                                price,
+                            });
                         }
                     });
-
-                    block.classList.toggle('hidden', blockMatches === 0);
                 });
 
-                // 2. Filter standard service rows (outside multi-length blocks)
+                // 2. Standard service rows
                 page.querySelectorAll('.service-row:not(.length-row-item)').forEach(row => {
-                    row.classList.remove('search-highlight');
-                    const catGroup = row.closest('.category-group');
-                    const catLabelText = catGroup?.querySelector('.category-side-label')?.textContent || '';
                     const subGroup = row.closest('.service-subsection-group');
-                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent || '';
-                    const secBlock = row.closest('.service-section-block');
-                    const secTitleText = secBlock?.querySelector('.section-main-title')?.textContent || '';
+                    const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent?.trim() || '';
+                    const catGroup = row.closest('.category-group');
+                    const catLabelText = catGroup?.querySelector('.category-side-label')?.textContent?.trim() || '';
+                    const categoryLabel = [pageTitleText, catLabelText, subTitleText].filter(Boolean).join(' • ');
 
-                    const combinedText = `${pageTitleText} ${secTitleText} ${catLabelText} ${subTitleText} ${row.textContent}`;
+                    const arName = row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim();
+                    const enName = row.querySelector('.en-name')?.textContent?.trim() || '';
+                    const price = row.querySelector('.price-badge')?.textContent?.trim() || '';
+                    const combinedText = `${categoryLabel} ${arName} ${enName} ${price}`;
+
                     if (matchesSearchTokens(combinedText, normalizedQuery)) {
-                        row.classList.remove('hidden');
-                        pageMatches++;
-                        totalMatchedServices++;
-                    } else {
-                        row.classList.add('hidden');
+                        matchedItems.push({
+                            arName,
+                            enName,
+                            category: categoryLabel,
+                            price,
+                        });
                     }
                 });
-
-                // 3. Hide empty category groups, subsections, and section blocks
-                page.querySelectorAll('.category-group').forEach(group => {
-                    const hasVisible = group.querySelector('.service-row:not(.hidden)') !== null;
-                    group.classList.toggle('hidden', !hasVisible);
-                });
-
-                page.querySelectorAll('.service-subsection-group').forEach(subGroup => {
-                    const hasVisible = subGroup.querySelector('.service-row:not(.hidden)') !== null;
-                    subGroup.classList.toggle('hidden', !hasVisible);
-                });
-
-                page.querySelectorAll('.service-section-block').forEach(secBlock => {
-                    const hasVisible = secBlock.querySelector('.service-row:not(.hidden)') !== null;
-                    secBlock.classList.toggle('hidden', !hasVisible);
-                });
-
-                // 4. Show only pages that contain matching services in compact mode
-                if (pageMatches > 0) {
-                    page.classList.remove('hidden');
-                    page.classList.add('search-filtered-page');
-                } else {
-                    page.classList.add('hidden');
-                    page.classList.remove('search-filtered-page');
-                }
             });
+
+            const totalMatchedServices = matchedItems.length;
+
+            if (totalMatchedServices > 0) {
+                if (pagesContainer) pagesContainer.classList.add('hidden');
+                if (resultsContainer) resultsContainer.classList.remove('hidden');
+                if (resultsList) {
+                    resultsList.innerHTML = matchedItems.map(item => `
+                        <div class="p-3.5 sm:p-4 rounded-2xl bg-white border border-primary-soft/80 shadow-xs flex items-center justify-between gap-3 hover:border-primary transition">
+                            <div class="min-w-0">
+                                ${item.category ? `<span class="text-[11px] font-bold text-gold-dark block truncate mb-0.5">${item.category}</span>` : ''}
+                                <h4 class="font-extrabold text-sm sm:text-[15px] text-sage-dark leading-snug">${item.arName}</h4>
+                                ${item.enName ? `<span class="text-[11px] font-serif tracking-wider text-gray-400 block uppercase mt-0.5">${item.enName}</span>` : ''}
+                            </div>
+                            ${item.price ? `
+                                <div class="shrink-0 text-left">
+                                    <span class="inline-block px-3 py-1 rounded-full bg-gold-light/60 text-gold-dark font-extrabold text-xs sm:text-sm border border-gold/25 shadow-2xs">
+                                        ${item.price}
+                                    </span>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `).join('');
+                }
+            } else {
+                if (pagesContainer) pagesContainer.classList.remove('hidden');
+                if (resultsContainer) resultsContainer.classList.add('hidden');
+                if (resultsList) resultsList.innerHTML = '';
+            }
 
             updateSearchFeedbackUI('services', rawQuery, normalizedQuery, totalMatchedServices);
         }
@@ -3014,6 +3172,10 @@
                 switchTab('specialists');
             } else if (initial === 'booking') {
                 openBookingFlow();
+            } else if (initial === 'contact') {
+                switchTab('contact');
+            } else if (initial === 'privacy') {
+                switchTab('privacy');
             } else {
                 switchTab('home');
             }

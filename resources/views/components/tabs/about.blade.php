@@ -37,7 +37,6 @@
     <div class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-soft/40 space-y-5 max-w-4xl mx-auto">
         <div class="flex items-center justify-between">
             <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">{{ $aboutUs['title'] ?? 'من نحن' }}</span>
-            <span class="text-xs font-serif tracking-widest text-gray-400">EST. {{ $aboutUs['founding_year'] ?? '2020' }}</span>
         </div>
 
         <h2 class="text-2xl font-black text-sage-dark">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</h2>

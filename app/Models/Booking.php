@@ -14,9 +14,14 @@ class Booking extends Model
 {
     use HasFactory, HasTranslations;
 
+    public const CUSTOMER_TYPE_GUEST = 'guest';
+
+    public const CUSTOMER_TYPE_REGISTERED = 'registered';
+
     protected $fillable = [
         'booking_number',
         'customer_id',
+        'customer_type',
         'customer_address_id',
         'booking_type',
         'booking_date',
@@ -48,6 +53,16 @@ class Booking extends Model
             'deposit_required' => 'float',
             'deposit_paid' => 'float',
         ];
+    }
+
+    public function isGuest(): bool
+    {
+        return $this->customer_type === self::CUSTOMER_TYPE_GUEST;
+    }
+
+    public function isRegistered(): bool
+    {
+        return $this->customer_type === self::CUSTOMER_TYPE_REGISTERED;
     }
 
     public function customer(): BelongsTo

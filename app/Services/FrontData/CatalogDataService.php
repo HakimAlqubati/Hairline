@@ -264,12 +264,26 @@ class CatalogDataService
 
                 $subServices = [];
                 foreach ($cat->services as $srv) {
+                    $override = $srv->getTranslation('price_display_override', 'ar');
+                    if ($override) {
+                        if (preg_match('/(\d+)\s*-\s*(\d+)/', $override, $m)) {
+                            $priceHint = "يبدأ من {$m[1]} إلى {$m[2]} ر.س بحسب الأطوال والكثافة";
+                        } elseif (preg_match('/(\d+)/', $override, $m)) {
+                            $priceHint = "يبدأ من {$m[1]} ر.س بحسب الأطوال والكثافة";
+                        } else {
+                            $priceHint = str_replace('SR', 'ر.س', $override).' بحسب الأطوال والكثافة';
+                        }
+                    } else {
+                        $priceHint = 'يبدأ من '.((int) $srv->base_price).' ر.س بحسب الأطوال والكثافة';
+                    }
+
                     $subServices[] = [
                         'id' => $srv->code,
                         'name' => $srv->getTranslation('name', 'ar'),
                         'desc' => $srv->getTranslation('description', 'ar') ?? '',
                         'duration' => "{$srv->duration_minutes} دقيقة",
                         'price' => "{$srv->base_price} ر.س",
+                        'price_hint' => $priceHint,
                         'is_bookable' => (bool) $srv->is_bookable,
                         'is_home_available' => (bool) $srv->is_home_available,
                         'specialists' => $srv->specialists->pluck('slug')->toArray(),

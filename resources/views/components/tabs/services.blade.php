@@ -38,6 +38,11 @@
     <!-- Minimal Search Bar Sticky at Top -->
     <x-services.search-header />
 
+    <!-- Dedicated Minimalist Search Results List (Clean vertical list replacing complex brochure pages during search) -->
+    <div id="servicesSearchResultsContainer" class="hidden max-w-3xl mx-auto my-6 px-3 sm:px-4 space-y-2.5">
+        <div id="servicesSearchResultsList" class="space-y-2"></div>
+    </div>
+
     <!-- Main Pages Container -->
     <main id="pagesContainer" class="py-4 px-1.5 sm:px-3 max-w-7xl mx-auto">
 
