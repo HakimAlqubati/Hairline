@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Database\Seeders;
 
-use App\Models\FounderStory;
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
 use App\Models\SalonSetting;
@@ -177,57 +176,7 @@ class SalonSetupSeeder extends Seeder
             );
         }
 
-        // 4. Founder Story
-        FounderStory::updateOrCreate(
-            ['id' => 1],
-            [
-                'title' => [
-                    'ar' => 'من نحن',
-                    'en' => 'About Hairline',
-                ],
-                'founder_name' => [
-                    'ar' => 'سارة السيف',
-                    'en' => 'Sara Al-Saif',
-                ],
-                'founder_title' => [
-                    'ar' => 'مؤسسة هيرلاين',
-                    'en' => 'Founder of Hairline',
-                ],
-                'intro_text' => [
-                    'ar' => 'تأسس هيرلاين عام 2020 برؤية وشغف من مؤسسته سارة السيف، ليكون وجهتكِ المفضلة للجمال والعناية.',
-                    'en' => 'Founded in 2020 with passion and vision to be your sanctuary of beauty and wellness.',
-                ],
-                'description_text' => [
-                    'ar' => 'هيرلاين هو مساحتكِ الخاصة للدلال والتجدد، نهتم بأدق التفاصيل ونقدم لكِ خدمات مميزة في عالم العناية بالشعر والبشرة والأظافر، هدفنا أن تعيشي أحلى تجربة من أول زيارة.',
-                    'en' => 'Hairline is your personal space for pampering and renewal with meticulous attention to detail.',
-                ],
-                'belief_text' => [
-                    'ar' => 'نؤمن إن الجمال الحقيقي يبدأ من إحساسكِ الجيد بنفسكِ وأن الاهتمام بذاتكِ ليس مجرد رفاهية، بل جزء من حياة كل سيدة، ومن هنا، نحرص على تقديم تجربة عناية متكاملة تمنحكِ لحظات تستحقينها.',
-                    'en' => 'We believe true beauty begins from feeling confident and well cared for.',
-                ],
-                'founder_message_title' => [
-                    'ar' => 'كلمة المؤسسة',
-                    'en' => "Founder's Message",
-                ],
-                'founder_message_paragraphs' => [
-                    'ar' => json_encode([
-                        'من يوم تأسيس هيرلاين، كان طموحي أقدم أكثر من مجرد خدمات صالون، كنت أبغى أصنع مساحة خاصة لكل سيدة تحس فيها بالاهتمام بنفسها والراحة.',
-                        'أؤمن بأن الجمال يتجاوز المظهر، هو انعكاس للشعور بالثقة بالنفس والرضا الداخلي، وكل امرأه تستحق وقت لنفسها يعزز إحساسها بجمالها وقوتها وتميزها.',
-                        'ومن هنا جاء هيرلاين عشان يكون جزء من رحلتي ورحلتكم بالاهتمام بالجمال والمظهر وتعزيز الثقة الداخلية وتقديم خدمة تستحقها كل امرأه بمختلف الأعمار.',
-                    ], JSON_UNESCAPED_UNICODE),
-                    'en' => json_encode([
-                        'From the founding day of Hairline, our ambition was to create more than just salon services.',
-                        'We believe beauty reflects self-confidence and inner peace.',
-                        'Hairline was created to be part of every woman\'s self-care journey.',
-                    ]),
-                ],
-                'founding_year' => 2020,
-                'founder_image_path' => '/images/salon/salon-stations-tv.jpg',
-                'is_active' => true,
-            ]
-        );
-
-        // 5. Working Hours (7 days)
+        // 4. Working Hours (7 days)
         for ($day = 0; $day <= 6; $day++) {
             $dayNamesAr = [
                 0 => 'الأحد',

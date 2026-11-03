@@ -62,8 +62,6 @@ return [
         'hero_slides' => 'شرائح الواجهة الرئيسية',
         'salon_gallery' => 'صورة بالمعرض',
         'salon_galleries' => 'معرض الأعمال',
-        'founder_story' => 'قصة المؤسس',
-        'founder_stories' => 'قصص المؤسسين',
         'cancellation_policy' => 'سياسة إلغاء',
         'cancellation_policies' => 'سياسات الإلغاء',
         'salon_working_hour' => 'ساعات عمل يومية',

@@ -7,7 +7,6 @@ use App\Models\BookingItem;
 use App\Models\CatalogPage;
 use App\Models\Customer;
 use App\Models\District;
-use App\Models\FounderStory;
 use App\Models\HairLength;
 use App\Models\HeroSlide;
 use App\Models\MembershipTier;
@@ -17,6 +16,7 @@ use App\Models\SalonWorkingHour;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServicePricingTier;
+use App\Models\Setting;
 use App\Models\Specialist;
 use App\Services\Cache\HairlineCacheService;
 use App\Services\FrontData\CatalogDataService;
@@ -30,7 +30,7 @@ describe('Database Models & Seeded Records', function () {
         expect(SalonSetting::count())->toBeGreaterThanOrEqual(1);
         expect(HeroSlide::count())->toBeGreaterThanOrEqual(4);
         expect(SalonGallery::count())->toBeGreaterThanOrEqual(5);
-        expect(FounderStory::count())->toBeGreaterThanOrEqual(1);
+        expect(Setting::count())->toBeGreaterThanOrEqual(1);
         expect(SalonWorkingHour::count())->toBe(7);
 
         expect(CatalogPage::count())->toBe(8);

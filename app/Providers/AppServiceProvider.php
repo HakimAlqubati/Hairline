@@ -6,7 +6,6 @@ namespace App\Providers;
 
 use App\Enums\BrandColor;
 use App\Models\CatalogPage;
-use App\Models\FounderStory;
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
 use App\Models\SalonSetting;
@@ -65,7 +64,6 @@ class AppServiceProvider extends ServiceProvider
         SalonSetting::observe(SalonSettingObserver::class);
         HeroSlide::observe(SalonSettingObserver::class);
         SalonGallery::observe(SalonSettingObserver::class);
-        FounderStory::observe(SalonSettingObserver::class);
         SalonWorkingHour::observe(SalonSettingObserver::class);
     }
 }

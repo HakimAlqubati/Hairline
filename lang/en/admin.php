@@ -62,8 +62,6 @@ return [
         'hero_slides' => 'Hero Slides',
         'salon_gallery' => 'Gallery Item',
         'salon_galleries' => 'Salon Gallery',
-        'founder_story' => 'Founder Story',
-        'founder_stories' => 'Founder Stories',
         'cancellation_policy' => 'Cancellation Policy',
         'cancellation_policies' => 'Cancellation Policies',
         'salon_working_hour' => 'Working Hour',
