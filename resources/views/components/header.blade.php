@@ -96,10 +96,10 @@
 
     /* Header Action Circular Buttons (Guaranteed 1:1 Aspect Ratio & Comfortable Touch Target) */
     .header-action-btn {
-        width: 38px;
-        height: 38px;
-        min-width: 38px;
-        min-height: 38px;
+        width: 42px;
+        height: 42px;
+        min-width: 42px;
+        min-height: 42px;
         flex-shrink: 0;
         aspect-ratio: 1 / 1;
         border-radius: 9999px;
@@ -113,25 +113,25 @@
 
     @media (max-width: 374px) {
         .header-action-btn {
-            width: 35px;
-            height: 35px;
-            min-width: 35px;
-            min-height: 35px;
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            min-height: 38px;
         }
     }
 
     @media (min-width: 640px) {
         .header-action-btn {
-            width: 40px;
-            height: 40px;
-            min-width: 40px;
-            min-height: 40px;
+            width: 44px;
+            height: 44px;
+            min-width: 44px;
+            min-height: 44px;
         }
     }
 </style>
 
 <!-- Placeholder container to preserve layout flow and prevent layout shift (CLS) -->
-<div id="headerPlaceholder" class="w-full relative h-[76px] sm:h-[82px] md:h-[92px]">
+<div id="headerPlaceholder" class="w-full relative h-[82px] sm:h-[88px] md:h-[92px]">
     <header id="mainHeader" class="fixed top-0 left-0 right-0 mx-auto max-w-[480px] md:max-w-none w-full z-30 header-tapered-wrapper header-visible">
         <!-- Outer Slanted Layer with Luxury Glowing Border Accent -->
         <div class="w-full header-tapered-shape bg-white/30 pb-[1.5px] px-[1px] transition-all">
@@ -142,22 +142,22 @@
 
                 <div class="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-14 lg:px-20 relative flex items-center justify-between gap-2 sm:gap-4 w-full">
                     <!-- Right Side: Official Salon Logo + Name & Subtitle -->
-                    <div class="flex items-center gap-2 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('home')">
+                    <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('home')">
                         <!-- Circular Luxury Logo with White Background & Border -->
-                        <div class="w-11 h-11 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-white border-2 border-white/90 shadow-md ring-2 ring-black/5 flex items-center justify-center relative overflow-hidden shrink-0 p-1 sm:p-1.5 transition-transform hover:scale-105">
+                        <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-white border-2 border-white/90 shadow-md ring-2 ring-black/5 flex items-center justify-center relative overflow-hidden shrink-0 p-1 sm:p-1.5 transition-transform hover:scale-105">
                             <img src="{{ asset('images/logo.png') }}"
                                  alt="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} - {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}"
                                  class="w-full h-full object-contain">
                         </div>
 
                         <!-- Salon Title & Subtitle -->
-                        <div class="flex flex-col min-w-0">
-                            <div class="flex items-center gap-1 sm:gap-1.5">
-                                <h1 class="text-sm sm:text-lg md:text-xl font-black text-white tracking-tight truncate drop-shadow-sm">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}</h1>
-                                <span class="text-white/60 font-light text-xs sm:text-base">|</span>
-                                <span class="text-[11px] sm:text-sm md:text-base font-bold tracking-wider text-white/95 font-serif drop-shadow-sm">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}</span>
+                        <div class="flex flex-col min-w-0 justify-center">
+                            <div class="flex items-center gap-1.5">
+                                <h1 class="text-base sm:text-lg md:text-xl font-black text-white tracking-tight truncate drop-shadow-sm leading-tight">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}</h1>
+                                <span class="text-white/60 font-light text-sm sm:text-base leading-tight">|</span>
+                                <span class="text-xs sm:text-sm md:text-base font-bold tracking-wider text-white/95 font-serif drop-shadow-sm leading-tight">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}</span>
                             </div>
-                            <span class="text-[9px] sm:text-[11px] font-bold tracking-[0.2em] sm:tracking-[0.24em] text-white/80 uppercase mt-0.5 drop-shadow-xs">
+                            <span class="text-[10px] sm:text-[11px] font-bold tracking-[0.22em] sm:tracking-[0.24em] text-white/85 uppercase mt-0.5 drop-shadow-xs">
                                 {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}
                             </span>
                         </div>
@@ -235,8 +235,8 @@
                         <button onclick="openSidebarSection('contact')" 
                                 title="موقع الصالون والتواصل"
                                 aria-label="موقع الصالون والتواصل"
-                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-white/95 hover:opacity-80 transition active:scale-95 cursor-pointer">
-                            <i class="fa-solid fa-location-dot text-[13px] sm:text-sm text-primary"></i>
+                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-white/95 transition active:scale-95 cursor-pointer border border-white/60">
+                            <i class="fa-solid fa-location-dot text-[15px] sm:text-base text-primary"></i>
                         </button>
 
                         <!-- 4. Far-Left Sidebar Menu Button (Mobile Only) -->
@@ -245,7 +245,7 @@
                                 title="القائمة الجانبية"
                                 aria-label="القائمة الجانبية"
                                 class="header-action-btn md:hidden bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-gray-900 hover:text-white transition active:scale-95 cursor-pointer border border-white/60">
-                            <i class="fa-solid fa-ellipsis-vertical text-[13px] sm:text-base"></i>
+                            <i class="fa-solid fa-ellipsis-vertical text-[17px] sm:text-lg"></i>
                         </button>
                     </div>
                 </div>
