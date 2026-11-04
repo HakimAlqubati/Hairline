@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 
 @source '../../resources/views/**/*.blade.php';
+@source '../../resources/js/**/*.js';
 
 /* ============================================================
    HAIRLINE BEAUTY SALON — New Brand Design Tokens
@@ -62,7 +63,7 @@ body {
 }
 
 .bottom-sheet {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), scale 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes subtlePulse {
@@ -87,4 +88,88 @@ body {
 
 .animate-step {
     animation: fadeSlideUp 0.3s ease-out forwards;
+}
+
+@keyframes bookingPageReveal {
+    0% {
+        opacity: 0;
+        transform: translateY(18px) scale(0.99);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-booking-page {
+    animation: bookingPageReveal 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+body.simulated-fullscreen {
+    background-color: #FAF8F5 !important;
+}
+
+body.simulated-fullscreen #appContainer {
+    max-width: 100% !important;
+    box-shadow: none !important;
+}
+
+.hairline-custom-scroll::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.hairline-custom-scroll::-webkit-scrollbar-track {
+    background: #FAF8F5;
+    border-radius: 9999px;
+}
+
+.hairline-custom-scroll::-webkit-scrollbar-thumb {
+    background: #C29E6D;
+    border-radius: 9999px;
+}
+
+.hairline-custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: #A3803B;
+}
+
+.hairline-custom-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: #C29E6D #FAF8F5;
+}
+
+.specialist-card {
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1),
+                border-color 0.35s ease;
+    will-change: transform;
+}
+
+.specialist-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -12px rgba(194, 158, 109, 0.28), 0 8px 20px -6px rgba(33, 28, 24, 0.08);
+}
+
+.specialist-portrait-img {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.45s ease;
+    transform-origin: center bottom;
+    will-change: transform;
+}
+
+.specialist-card:hover .specialist-portrait-img {
+    transform: scale(1.07) translateY(-3px);
+    filter: drop-shadow(0 12px 20px rgba(33, 28, 24, 0.12));
+}
+
+.specialist-arch-bg {
+    transition: transform 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.4s ease,
+                background-color 0.4s ease;
+}
+
+.specialist-card:hover .specialist-arch-bg {
+    transform: scale(1.03);
+    border-color: rgba(194, 158, 109, 0.45);
+    background-color: rgba(255, 255, 255, 0.92);
 }

@@ -141,7 +141,53 @@
 
     <!-- STEP 3: Final Booking Confirmation Receipt (Rendered Dynamically Inside the Page) -->
     <div id="bookingStep3Container" class="hidden animate-step">
-        <!-- Populated dynamically after phone verification / Google registration -->
+        <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
+            <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
+                <i class="fa-solid fa-check"></i>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-black text-sage-dark">تم تأكيد حجزك بنجاح</h3>
+                <p class="text-sm font-extrabold text-primary-dark mt-1">
+                    باسم: <span class="text-sage-dark"></span>
+                </p>
+                <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
+                    رقم الحجز:
+                </div>
+            </div>
+
+            <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
+                <div class="pb-2.5 border-b border-gray-200/60">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
+                    <span class="text-sm font-extrabold text-sage-dark"></span>
+                </div>
+                <div class="pb-2.5 border-b border-gray-200/60">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
+                    <span class="text-sm font-extrabold text-sage-dark"></span>
+                </div>
+                <div class="pb-2.5 border-b border-gray-200/60">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
+                    <div class="flex items-center gap-2">
+                        <span class="text-sm font-extrabold text-sage-dark"></span>
+                    </div>
+                </div>
+                <div class="pt-0.5">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
+                    <span class="text-sm font-extrabold text-sage-dark"></span>
+                </div>
+            </div>
+
+            <div class="flex gap-2.5 pt-2">
+                <button onclick="switchTab('account');" 
+                        class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
+                      حجوزاتي
+                </button>
+                <button onclick="switchTab('home');" 
+                        class="flex-1 py-3.5 rounded-2xl bg-gold-light text-gold-dark font-extrabold text-xs hover:bg-gold hover:text-white transition cursor-pointer">
+                    العودة للرئيسية
+                </button>
+            </div>
+        </div>
     </div>
 
 </section>
