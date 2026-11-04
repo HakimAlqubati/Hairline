@@ -152,8 +152,26 @@ export function switchPopupToGoogleStep(phone) {
 }
 
 export function handlePhoneInputValidation(inputEl) {
+    if (!inputEl) return;
     const errorEl = document.getElementById('phoneVerifyError');
-    const val = normalizeDigitsJs(inputEl.value);
+    let val = normalizeDigitsJs(inputEl.value).replace(/\D/g, '');
+
+    // Normalize international prefix if pasted (e.g. 009665... or 9665...) to standard 05...
+    if (val.startsWith('009665')) {
+        val = '0' + val.slice(5);
+    } else if (val.startsWith('9665')) {
+        val = '0' + val.slice(3);
+    }
+
+    // Strict Saudi mobile length: maximum 10 digits (05XXXXXXXX) - prevents any extra digits
+    if (val.length > 10) {
+        val = val.slice(0, 10);
+    }
+
+    if (inputEl.value !== val) {
+        inputEl.value = val;
+    }
+
     if (val.length === 0 || SAUDI_PHONE_REGEX.test(val)) {
         if (errorEl) errorEl.classList.add('hidden');
         inputEl.classList.remove('border-red-500');
@@ -179,7 +197,7 @@ export async function submitPhoneVerification(event) {
 
     if (!isCustomerLoggedIn && !SAUDI_PHONE_REGEX.test(rawPhone)) {
         if (errorText) {
-            errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).';
+            errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح.';
         }
         if (errorEl) errorEl.classList.remove('hidden');
         if (phoneInput) phoneInput.classList.add('border-red-500');
@@ -353,7 +371,7 @@ export async function submitPhoneVerification(event) {
     }
 }
 
-export function startGoogleSignInProcess() {
+export function startGoogleSignInProcess(context = null) {
     const errorEl = document.getElementById('googleRegisterError');
     const profileErrorEl = document.getElementById('profileGoogleRegisterError');
     const btnTitle = document.getElementById('googleOAuthBtnTitle');
@@ -367,6 +385,7 @@ export function startGoogleSignInProcess() {
     if (profileBtnTitle) profileBtnTitle.textContent = 'جاري الاتصال بحساب Google...';
 
     const googleClientId = window.__HAIRLINE_DATA__?.googleClientId || null;
+    const isProfile = (context === 'profile' || state.currentActiveTab === 'account');
 
     const resetBtnState = (errorMsg) => {
         if (btnTitle) btnTitle.textContent = 'المتابعة باستخدام حساب Google';
@@ -387,30 +406,34 @@ export function startGoogleSignInProcess() {
                 ux_mode: 'popup',
                 callback: function (response) {
                     if (response && response.code) {
-                        completeGoogleBookingWithOAuth({ code: response.code });
+                        completeGoogleBookingWithOAuth({ code: response.code }, isProfile);
                     } else {
                         resetBtnState('تم إلغاء عملية تسجيل الدخول عبر Google.');
                     }
                 },
                 error_callback: function () {
-                    openGoogleOAuthRedirectPopup();
+                    openGoogleOAuthRedirectPopup(isProfile);
                 }
             });
             codeClient.requestCode();
             return;
         } catch (e) {
-            openGoogleOAuthRedirectPopup();
+            openGoogleOAuthRedirectPopup(isProfile);
             return;
         }
     }
 
-    openGoogleOAuthRedirectPopup();
+    openGoogleOAuthRedirectPopup(isProfile);
 }
 
-export function openGoogleOAuthRedirectPopup() {
-    const timeSlot = state.bookingState.selectedTime || '';
-    const bookingDateVal = state.bookingState.selectedDateIso || state.bookingState.selectedDate || '';
-    const params = new URLSearchParams({
+export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
+    const isProfile = isProfileOnly || state.currentActiveTab === 'account';
+    const timeSlot = isProfile ? '' : (state.bookingState.selectedTime || '');
+    const bookingDateVal = isProfile ? '' : (state.bookingState.selectedDateIso || state.bookingState.selectedDate || '');
+    const params = new URLSearchParams(isProfile ? {
+        is_profile: '1'
+    } : {
+        is_profile: '0',
         phone: state.bookingState.verifiedPhone || '',
         service_id: state.bookingState.selectedSubService?.id || '',
         specialist_id: state.bookingState.selectedSpecialist?.id || '',
@@ -448,7 +471,7 @@ export function openGoogleOAuthRedirectPopup() {
     }
 }
 
-export async function completeGoogleBookingWithOAuth(oauthPayload) {
+export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly = false) {
     const btn = document.getElementById('googleOAuthBtn');
     const profileBtn = document.getElementById('profileGoogleOAuthBtn');
     const btnTitle = document.getElementById('googleOAuthBtnTitle');
@@ -466,9 +489,21 @@ export async function completeGoogleBookingWithOAuth(oauthPayload) {
     if (profileBtnTitle) profileBtnTitle.textContent = 'جاري التحقق...';
 
     try {
-        const timeSlot = state.bookingState.selectedTime || '';
-        const bookingDateVal = state.bookingState.selectedDateIso || state.bookingState.selectedDate || '';
+        const isProfile = isProfileOnly || state.currentActiveTab === 'account';
+        const timeSlot = isProfile ? '' : (state.bookingState.selectedTime || '');
+        const bookingDateVal = isProfile ? '' : (state.bookingState.selectedDateIso || state.bookingState.selectedDate || '');
         const registerUrl = routes.googleRegister || '/booking/google-register';
+
+        const payloadData = isProfile
+            ? Object.assign({ is_profile: true }, oauthPayload)
+            : Object.assign({
+                phone: state.bookingState.verifiedPhone || '',
+                service_ids: (state.bookingState.selectedSubServices || []).map(s => s.id),
+                service_id: state.bookingState.selectedSubService?.id || (state.bookingState.selectedSubServices?.[0]?.id) || '',
+                specialist_id: state.bookingState.selectedSpecialist?.id || '',
+                booking_date: bookingDateVal,
+                booking_time: timeSlot
+            }, oauthPayload);
 
         const response = await fetch(registerUrl, {
             method: 'POST',
@@ -477,14 +512,7 @@ export async function completeGoogleBookingWithOAuth(oauthPayload) {
                 'Accept': 'application/json',
                 'X-CSRF-TOKEN': csrfToken
             },
-            body: JSON.stringify(Object.assign({
-                phone: state.bookingState.verifiedPhone || '',
-                service_ids: (state.bookingState.selectedSubServices || []).map(s => s.id),
-                service_id: state.bookingState.selectedSubService?.id || (state.bookingState.selectedSubServices?.[0]?.id) || '',
-                specialist_id: state.bookingState.selectedSpecialist?.id || '',
-                booking_date: bookingDateVal,
-                booking_time: timeSlot
-            }, oauthPayload))
+            body: JSON.stringify(payloadData)
         });
 
         const data = await response.json();

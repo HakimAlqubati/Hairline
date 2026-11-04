@@ -113,14 +113,7 @@
                     <div class="w-16 h-16 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-1">
                         <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
                     </div>
-                    <div class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-gold-light/60 border border-gold/30 text-gold-dark text-[11px] font-extrabold">
-                        <i class="fa-solid fa-shield-halved text-[10px]"></i>
-                        <span>تأكيد بيانات الحجز</span>
-                    </div>
-                    <h4 class="text-xl font-black text-sage-dark tracking-tight">أدخلي رقم جوالكِ للحجز</h4>
-                    <p class="text-xs text-gray-500 leading-relaxed max-w-[290px]">
-                        أدخلي رقم جوالكِ لتأكيد حجز الموعد مباشرة
-                    </p>
+                    <h4 class="text-xl font-bold text-sage-dark tracking-tight">تأكيد بيانات الحجز</h4>
                 </div>
 
                 <!-- Returning Customer Greeting -->
@@ -138,9 +131,9 @@
                     <div class="relative flex items-center">
                         <input id="bookingPhoneInput"
                                type="tel"
-                               inputmode="tel"
+                               inputmode="numeric"
                                dir="ltr"
-                               maxlength="14"
+                               maxlength="10"
                                placeholder="05XXXXXXXX"
                                autocomplete="tel"
                                oninput="handlePhoneInputValidation(this)"
@@ -149,9 +142,7 @@
                             🇸🇦 +966
                         </span>
                     </div>
-                    <p class="text-[11px] text-gray-400 mt-1">
-                        يقبل الصيغة المحلية <span dir="ltr" class="font-semibold text-gray-500">05XXXXXXXX</span> أو الدولية <span dir="ltr" class="font-semibold text-gray-500">+9665XXXXXXXX</span>
-                    </p>
+                    
                 </div>
 
                 <!-- Dynamic Name Input for New Customers -->
@@ -175,7 +166,7 @@
             <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3" novalidate>
                 <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1 flex items-center gap-1.5">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    <span id="phoneVerifyErrorText">يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).</span>
+                    <span id="phoneVerifyErrorText">يرجى إدخال رقم جوال سعودي صحيح.</span>
                 </p>
 
                 <button type="submit"

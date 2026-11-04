@@ -26,7 +26,7 @@ class SaudiPhoneNumber implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         if (! is_string($value) && ! is_numeric($value)) {
-            $fail('يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).');
+            $fail('يرجى إدخال رقم جوال سعودي صحيح.');
 
             return;
         }
@@ -34,7 +34,7 @@ class SaudiPhoneNumber implements ValidationRule
         $service = $this->availabilityService ?? app(SpecialistAvailabilityService::class);
 
         if (! $service->isValidSaudiPhone((string) $value)) {
-            $fail('يرجى إدخال رقم جوال سعودي صحيح يبدأ بـ 05 ويتكون من 10 أرقام (مثال: 0551234567).');
+            $fail('يرجى إدخال رقم جوال سعودي صحيح.');
         }
     }
 }

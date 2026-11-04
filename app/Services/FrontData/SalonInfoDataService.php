@@ -262,14 +262,14 @@ class SalonInfoDataService
             $phone2 = Setting::getSetting('contact_phone_2');
             $email = Setting::getSetting('contact_email', 'info@hairlinesalon.sa');
 
-            $igUrl = Setting::getSetting('instagram_url', 'https://www.instagram.com/hairline.sa');
-            $igHandle = Setting::getSetting('instagram_handle', '@hairline.sa');
+            $igUrl = Setting::getSetting('instagram_url', 'https://www.instagram.com/Hairline.5');
+            $igHandle = Setting::getSetting('instagram_handle', '@Hairline.5');
 
-            $scUrl = Setting::getSetting('snapchat_url', 'https://www.snapchat.com/add/hairline.sa');
-            $scHandle = Setting::getSetting('snapchat_handle', '@hairline.sa');
+            $scUrl = Setting::getSetting('snapchat_url', 'https://www.snapchat.com/add/Hairline.5');
+            $scHandle = Setting::getSetting('snapchat_handle', '@Hairline.5');
 
-            $ttUrl = Setting::getSetting('tiktok_url', 'https://www.tiktok.com/@hairline.sa');
-            $ttHandle = Setting::getSetting('tiktok_handle', '@hairline.sa');
+            $ttUrl = Setting::getSetting('tiktok_url', 'https://www.tiktok.com/@Hairline.TikTok');
+            $ttHandle = Setting::getSetting('tiktok_handle', '@Hairline.TikTok');
 
             $cleanWa = preg_replace('/[^0-9]/', '', (string) $wa);
 

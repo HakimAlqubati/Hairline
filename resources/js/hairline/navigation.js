@@ -330,12 +330,11 @@ export function openSidebarSection(sectionType) {
                 </div>
 
                 <div class="p-4 rounded-2xl bg-surface border border-gold-soft/50 space-y-3">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
                         <div>
-                            <h4 class="font-extrabold text-sm text-sage-dark">العنوان وموقع الصالون</h4>
+                            <h4 class="font-extrabold text-sm text-sage-dark">العنوان</h4>
                             <p class="text-xs text-gray-700 font-medium leading-relaxed mt-0.5">${addressText}</p>
                         </div>
-                        <span class="px-2.5 py-1 rounded-full bg-gold-light text-gold-dark text-[10px] font-bold border border-gold/30 shrink-0">مخرج 5</span>
                     </div>
 
                     <!-- Clickable Map Frame -->

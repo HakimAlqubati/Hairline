@@ -71,7 +71,8 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('id="aboutContactSection"', false);
         $response->assertSee('الهاتف والحجوزات');
         $response->assertSee('حسابات وروابط التواصل');
-        $response->assertSee('العنوان وموقع الصالون');
+        $response->assertSee('العنوان');
+        $response->assertDontSee('العنوان وموقع الصالون');
         $response->assertDontSee('تعرفي على الأخصائيات');
         $response->assertDontSee('معلومات التواصل');
     });
@@ -792,6 +793,43 @@ describe('Customer-Facing Pages', function () {
             ]);
 
         $newCustomer = Customer::where('email', 'direct.profile.user@gmail.com')->firstOrFail();
+        expect($newCustomer->phone)->toBeNull();
+        expect(session('logged_in_customer_id'))->toBe($newCustomer->id);
+    });
+
+    test('direct Google sign in from profile with is_profile flag registers customer without requiring phone even if service_id was in payload', function () {
+        Http::fake([
+            'https://oauth2.googleapis.com/token' => Http::response([
+                'access_token' => 'mock-google-token',
+            ], 200),
+            'https://www.googleapis.com/oauth2/v3/userinfo' => Http::response([
+                'email' => 'profile.only.google@gmail.com',
+                'email_verified' => true,
+                'name' => 'نوف السبيعي',
+                'picture' => 'https://example.com/nouf.jpg',
+            ], 200),
+        ]);
+
+        $response = $this->postJson(route('booking.google_register'), [
+            'code' => 'valid-oauth-code',
+            'is_profile' => true,
+            'service_id' => 'leftover-service-id',
+            'specialist_id' => 'leftover-specialist-id',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'registered_via_google' => true,
+                'customer' => [
+                    'name' => 'نوف السبيعي',
+                    'email' => 'profile.only.google@gmail.com',
+                    'phone' => null,
+                ],
+            ]);
+
+        $newCustomer = Customer::where('email', 'profile.only.google@gmail.com')->firstOrFail();
         expect($newCustomer->phone)->toBeNull();
         expect(session('logged_in_customer_id'))->toBe($newCustomer->id);
     });

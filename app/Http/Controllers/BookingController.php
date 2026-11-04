@@ -334,15 +334,17 @@ class BookingController extends Controller
      */
     public function redirectToGoogle(Request $request): RedirectResponse
     {
+        $isProfile = $request->boolean('is_profile');
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->query('phone', ''));
-        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : '';
 
         $bookingContext = [
+            'is_profile' => $isProfile,
             'phone' => $normalizedPhone,
-            'service_id' => (string) $request->query('service_id', ''),
-            'specialist_id' => (string) $request->query('specialist_id', ''),
-            'booking_date' => (string) $request->query('booking_date', ''),
-            'booking_time' => (string) $request->query('booking_time', ''),
+            'service_id' => $isProfile ? '' : (string) $request->query('service_id', ''),
+            'specialist_id' => $isProfile ? '' : (string) $request->query('specialist_id', ''),
+            'booking_date' => $isProfile ? '' : (string) $request->query('booking_date', ''),
+            'booking_time' => $isProfile ? '' : (string) $request->query('booking_time', ''),
         ];
 
         $stateToken = bin2hex(random_bytes(16));
@@ -409,7 +411,8 @@ class BookingController extends Controller
             ]);
         }
 
-        $hasBooking = ! empty($bookingContext['service_id']) && ! empty($bookingContext['specialist_id']);
+        $isProfile = (bool) ($bookingContext['is_profile'] ?? false);
+        $hasBooking = ! $isProfile && ! empty($bookingContext['service_id']) && ! empty($bookingContext['specialist_id']);
 
         if ($hasBooking) {
             $contextData = [
@@ -514,7 +517,7 @@ class BookingController extends Controller
     public function registerWithGoogle(Request $request): JsonResponse
     {
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
-        $request->merge(['phone' => $rawPhone]);
+        $request->merge(['phone' => $rawPhone !== '' ? $rawPhone : null]);
 
         $oauthCode = trim((string) $request->input('code', ''));
         if ($oauthCode === '') {
@@ -534,14 +537,12 @@ class BookingController extends Controller
             ], 422);
         }
 
-        $hasBooking = $request->filled('service_id') && $request->filled('specialist_id');
+        $isProfile = $request->boolean('is_profile');
+        $hasBooking = ! $isProfile && $request->filled('service_id') && $request->filled('specialist_id');
 
-        $rules = [];
-        if ($hasBooking || $request->filled('phone')) {
-            $rules['phone'] = ['required', 'string', new SaudiPhoneNumber($this->availabilityService)];
-        } else {
-            $rules['phone'] = ['nullable', 'string', new SaudiPhoneNumber($this->availabilityService)];
-        }
+        $rules = [
+            'phone' => ['nullable', 'string', new SaudiPhoneNumber($this->availabilityService)],
+        ];
 
         if ($hasBooking) {
             $rules['service_id'] = ['required', 'string'];
@@ -564,7 +565,6 @@ class BookingController extends Controller
         }
 
         $validator = Validator::make($request->all(), $rules, [
-            'phone.required' => 'يرجى إدخال رقم الجوال.',
             'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
             'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
             'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
@@ -675,13 +675,13 @@ class BookingController extends Controller
         }
 
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->input('phone', ''));
-        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : null;
         $request->merge(['phone' => $normalizedPhone]);
 
         $validator = Validator::make($request->all(), [
             'name' => ['required', 'string', 'min:2', 'max:255'],
             'phone' => [
-                'required',
+                'nullable',
                 'string',
                 new SaudiPhoneNumber($this->availabilityService),
                 Rule::unique('customers', 'phone')->ignore($customer->id),
@@ -690,7 +690,6 @@ class BookingController extends Controller
         ], [
             'name.required' => 'يرجى إدخال الاسم الكامل.',
             'name.min' => 'يجب أن يتكون الاسم من حرفين على الأقل.',
-            'phone.required' => 'يرجى إدخال رقم الجوال.',
             'phone.unique' => 'رقم الجوال هذا مسجل بالفعل لحساب آخر.',
             'avatar.image' => 'يرجى اختيار ملف صورة صالح.',
             'avatar.max' => 'حجم الصورة يجب ألا يتجاوز 4 ميجابايت.',

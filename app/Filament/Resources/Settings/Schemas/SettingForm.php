@@ -143,7 +143,7 @@ class SettingForm
 
                                     TextInput::make('instagram_handle')
                                         ->label(__('admin.settings.fields.instagram_handle'))
-                                        ->placeholder('@hairline.sa'),
+                                        ->placeholder('@Hairline.5'),
 
                                     TextInput::make('snapchat_url')
                                         ->label(__('admin.settings.fields.snapchat_url'))
@@ -151,7 +151,7 @@ class SettingForm
 
                                     TextInput::make('snapchat_handle')
                                         ->label(__('admin.settings.fields.snapchat_handle'))
-                                        ->placeholder('@hairline.sa'),
+                                        ->placeholder('@Hairline.5'),
 
                                     TextInput::make('tiktok_url')
                                         ->label(__('admin.settings.fields.tiktok_url'))
@@ -159,7 +159,7 @@ class SettingForm
 
                                     TextInput::make('tiktok_handle')
                                         ->label(__('admin.settings.fields.tiktok_handle'))
-                                        ->placeholder('@hairline.sa'),
+                                        ->placeholder('@Hairline.TikTok'),
 
                                     TextInput::make('facebook_url')
                                         ->label(__('admin.settings.fields.facebook_url'))

@@ -22,7 +22,7 @@ export function renderCustomerProfile() {
                 <div class="max-w-md mx-auto space-y-3">
                     <button type="button"
                             id="profileGoogleOAuthBtn"
-                            onclick="startGoogleSignInProcess()"
+                            onclick="startGoogleSignInProcess('profile')"
                             class="w-full p-4 rounded-2xl bg-primary hover:bg-primary-dark text-white shadow-xl shadow-primary/25 hover:shadow-2xl border-2 border-white/80 hover:border-white active:scale-[0.985] transition-all duration-300 flex items-center justify-between gap-3 group cursor-pointer">
                         <div class="flex items-center gap-3.5 text-right">
                             <div class="w-11 h-11 rounded-xl bg-white shadow-sm flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
@@ -73,8 +73,8 @@ export function renderCustomerProfile() {
                 <div class="min-w-0">
                     <h3 class="font-extrabold text-base sm:text-lg text-sage-dark truncate">${state.currentCustomer.name}</h3>
                     <p class="text-xs text-gray-500 font-semibold mt-0.5 flex items-center gap-1.5" dir="ltr">
-                        <i class="fa-solid fa-phone text-[10px] text-gold-dark"></i>
-                        <span>${state.currentCustomer.phone || ''}</span>
+                        <i class="fa-solid ${state.currentCustomer.phone ? 'fa-phone' : 'fa-envelope'} text-[10px] text-gold-dark"></i>
+                        <span>${state.currentCustomer.phone || state.currentCustomer.email || ''}</span>
                     </p>
                 </div>
             </div>
@@ -167,8 +167,8 @@ export async function submitEditProfile(event) {
         return;
     }
 
-    if (!SAUDI_PHONE_REGEX.test(rawPhone)) {
-        if (errorText) errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح (مثال: 0551234567).';
+    if (rawPhone !== '' && !SAUDI_PHONE_REGEX.test(rawPhone)) {
+        if (errorText) errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح.';
         if (errorEl) errorEl.classList.remove('hidden');
         return;
     }

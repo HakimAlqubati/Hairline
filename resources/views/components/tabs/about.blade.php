@@ -24,12 +24,12 @@
     $whatsappUrl = $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705';
     $phoneDisplay = $contactLinks['whatsapp_display'] ?? ($contactLinks['phone'] ?? '054 885 7705');
     $phoneRaw = $contactLinks['phone'] ?? preg_replace('/[^0-9+]/', '', $phoneDisplay);
-    $instagramUrl = $contactLinks['instagram'] ?? 'https://www.instagram.com/hairline.sa';
-    $instagramHandle = $contactLinks['instagram_handle'] ?? '@hairline.sa';
-    $snapchatUrl = $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/hairline.sa';
-    $snapchatHandle = $contactLinks['snapchat_handle'] ?? '@hairline.sa';
-    $tiktokUrl = $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@hairline.sa';
-    $tiktokHandle = $contactLinks['tiktok_handle'] ?? '@hairline.sa';
+    $instagramUrl = $contactLinks['instagram'] ?? 'https://www.instagram.com/Hairline.5';
+    $instagramHandle = $contactLinks['instagram_handle'] ?? '@Hairline.5';
+    $snapchatUrl = $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/Hairline.5';
+    $snapchatHandle = $contactLinks['snapchat_handle'] ?? '@Hairline.5';
+    $tiktokUrl = $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@Hairline.TikTok';
+    $tiktokHandle = $contactLinks['tiktok_handle'] ?? '@Hairline.TikTok';
 @endphp
 
 <section id="aboutTabView" class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 pb-10 space-y-5 animate-step">
@@ -52,7 +52,7 @@
         </p>
 
         {{-- Belief paragraph --}}
-        <p class="text-sm text-gray-600 leading-relaxed font-medium text-sage-dark">
+        <p class="text-sm text-gray-600 leading-relaxed">
             {{ $aboutUs['belief_paragraph'] ?? '' }}
         </p>
 
@@ -72,8 +72,8 @@
             {{-- Founder Signature --}}
             @if(!empty($aboutUs['founder_signature']))
                 <div class="pt-3 border-t border-gray-100">
-                    <p class="text-sm font-black text-sage-dark">{{ $aboutUs['founder_signature']['name_ar'] }}</p>
-                    <p class="text-xs text-gold-dark font-medium">{{ $aboutUs['founder_signature']['title_en'] }} | {{ $aboutUs['founder_signature']['title_ar'] }}</p>
+                    <p class="text-sm font-bold text-sage-dark">{{ $aboutUs['founder_signature']['name_ar'] }}</p>
+                    <p class="text-xs text-gold-dark font-medium">{{ $aboutUs['founder_signature']['title_ar'] }}</p>
                 </div>
             @endif
         </div>
@@ -81,10 +81,7 @@
 
     {{-- Permanent Contact Information, Links, Phone & Map Card --}}
     <div id="aboutContactSection" class="bg-white rounded-3xl p-6 md:p-8 shadow-card border border-gold-soft/40 space-y-6 max-w-4xl mx-auto">
-        <div class="flex items-center justify-between gap-2">
-            <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">للتواصل والاستفسار</span>
-            <span class="text-xs text-gray-400 font-medium">نسعد بخدمتكِ والرد على استفساراتكِ</span>
-        </div>
+        <h3 class="text-lg sm:text-xl font-bold text-sage-dark">للتواصل والاستفسار</h3>
 
         {{-- Working Hours & Direct Phone / WhatsApp --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-1">
@@ -191,21 +188,16 @@
 
         {{-- Location & Embedded Google Map --}}
         <div class="space-y-3.5 pt-1">
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-start gap-3.5">
-                    <span class="w-11 h-11 rounded-2xl bg-primary-light/70 text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
-                        <i class="fa-solid fa-location-dot text-base"></i>
-                    </span>
-                    <div>
-                        <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">العنوان وموقع الصالون</h4>
-                        <p class="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed mt-0.5">
-                            {{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}
-                        </p>
-                    </div>
-                </div>
-                <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold border border-gold/25 shrink-0">
-                    {{ $location['street'] ?? 'مخرج 5' }}
+            <div class="flex items-start gap-3.5">
+                <span class="w-11 h-11 rounded-2xl bg-primary-light/70 text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
+                    <i class="fa-solid fa-location-dot text-base"></i>
                 </span>
+                <div>
+                    <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">العنوان</h4>
+                    <p class="text-xs sm:text-sm text-gray-600 font-medium leading-relaxed mt-0.5">
+                        {{ $location['full_address_ar'] ?? 'الرياض - حي المصيف، مخرج 5' }}
+                    </p>
+                </div>
             </div>
 
             <a href="{{ $mapUrl }}"
