@@ -19,6 +19,35 @@
     <meta name="theme-color" content="#211C18">
     <link rel="manifest" href="{{ asset('manifest.json') }}">
 
+    <!-- Frontend Data Bridge (Available synchronously before ES Modules evaluate) -->
+    <script>
+        window.__HAIRLINE_DATA__ = {
+            routes: {
+                availability: "{{ route('booking.availability') }}",
+                verifyPhone: "{{ route('booking.verify_phone') }}",
+                guestConfirm: "{{ route('booking.guest_confirm') }}",
+                googleRedirect: "{{ route('booking.google_redirect') }}",
+                googleRegister: "{{ route('booking.google_register') }}",
+                profileUpdate: "{{ route('profile.update') }}",
+                profileLogout: "{{ route('profile.logout') }}",
+                suggestions: "{{ route('services.suggestions') }}"
+            },
+            googleClientId: {!! json_encode(config('services.google.client_id')) !!},
+            csrfToken: "{{ csrf_token() }}",
+            initialView: "{{ $initialView ?? 'home' }}",
+            heroSlides: {!! json_encode($heroSlides, JSON_UNESCAPED_UNICODE) !!},
+            walkInServices: {!! json_encode($walkInServices, JSON_UNESCAPED_UNICODE) !!},
+            specialists: {!! json_encode($specialistsData, JSON_UNESCAPED_UNICODE) !!},
+            bookableCategories: {!! json_encode($bookableCategories, JSON_UNESCAPED_UNICODE) !!},
+            bookingDates: {!! json_encode($bookingDates ?? [], JSON_UNESCAPED_UNICODE) !!},
+            customer: {!! json_encode($currentCustomer ?? null, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
+            bookings: {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!},
+            salonIdentity: {!! json_encode($salonIdentity, JSON_UNESCAPED_UNICODE) !!},
+            workingHours: {!! json_encode($workingHours ?? [], JSON_UNESCAPED_UNICODE) !!},
+            location: {!! json_encode($location ?? [], JSON_UNESCAPED_UNICODE) !!}
+        };
+    </script>
+
     <!-- Compiled Production Assets via Vite (Tailwind CSS v4 & Modular JS) -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
@@ -63,7 +92,7 @@
         </main>
 
         <!-- 3. DYNAMIC TAB VIEWS -->
-        <x-tabs.services :menuPages="$menuPages ?? []" />
+        <x-tabs.services :menuPages="$menuPages ?? []" :isActive="($initialView ?? 'home') === 'services'" />
         <x-tabs.specialists :specialists="$specialistsData ?? []" :isActive="($initialView ?? 'home') === 'specialists'" />
         <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" :workingHours="$workingHours ?? []" :location="$location ?? []" :contactLinks="$contactLinks ?? []" :isActive="($initialView ?? 'home') === 'about'" />
@@ -143,34 +172,5 @@
         </div>
 
     </div>
-
-    <!-- ==================== FRONTEND DATA BRIDGE ==================== -->
-    <script>
-        window.__HAIRLINE_DATA__ = {
-            routes: {
-                availability: "{{ route('booking.availability') }}",
-                verifyPhone: "{{ route('booking.verify_phone') }}",
-                guestConfirm: "{{ route('booking.guest_confirm') }}",
-                googleRedirect: "{{ route('booking.google_redirect') }}",
-                googleRegister: "{{ route('booking.google_register') }}",
-                profileUpdate: "{{ route('profile.update') }}",
-                profileLogout: "{{ route('profile.logout') }}",
-                suggestions: "{{ route('services.suggestions') }}"
-            },
-            googleClientId: {!! json_encode(config('services.google.client_id')) !!},
-            csrfToken: "{{ csrf_token() }}",
-            initialView: "{{ $initialView ?? 'home' }}",
-            heroSlides: {!! json_encode($heroSlides, JSON_UNESCAPED_UNICODE) !!},
-            walkInServices: {!! json_encode($walkInServices, JSON_UNESCAPED_UNICODE) !!},
-            specialists: {!! json_encode($specialistsData, JSON_UNESCAPED_UNICODE) !!},
-            bookableCategories: {!! json_encode($bookableCategories, JSON_UNESCAPED_UNICODE) !!},
-            bookingDates: {!! json_encode($bookingDates ?? [], JSON_UNESCAPED_UNICODE) !!},
-            customer: {!! json_encode($currentCustomer ?? null, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!},
-            bookings: {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!},
-            salonIdentity: {!! json_encode($salonIdentity, JSON_UNESCAPED_UNICODE) !!},
-            workingHours: {!! json_encode($workingHours ?? [], JSON_UNESCAPED_UNICODE) !!},
-            location: {!! json_encode($location ?? [], JSON_UNESCAPED_UNICODE) !!}
-        };
-    </script>
 </body>
 </html>

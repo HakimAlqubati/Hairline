@@ -31,8 +31,13 @@ export function setServicesSearchLoading(isLoading) {
     const spinner = document.getElementById('servicesSearchSpinner');
     const icon = document.getElementById('servicesSearchIcon');
     if (spinner && icon) {
-        spinner.classList.toggle('hidden', !isLoading);
-        icon.classList.toggle('hidden', isLoading);
+        if (isLoading) {
+            spinner.classList.remove('hidden');
+            icon.classList.add('hidden');
+        } else {
+            spinner.classList.add('hidden');
+            icon.classList.remove('hidden');
+        }
     }
 }
 
@@ -44,11 +49,93 @@ export function hideServicesSuggestions() {
     if (backdrop) backdrop.classList.add('hidden');
 }
 
+export function getClientCatalogServices() {
+    if (state.cachedCatalogServices && state.cachedCatalogServices.length > 0) {
+        return state.cachedCatalogServices;
+    }
+
+    const services = [];
+    const pages = document.querySelectorAll('#servicesTabView .menu-page');
+
+    pages.forEach(page => {
+        const mainTitleEl = page.querySelector(':scope > .page-content > .section-main-title');
+        const pageTitleText = mainTitleEl ? (mainTitleEl.querySelector('.ar-title')?.textContent?.trim() || mainTitleEl.textContent?.trim()) : '';
+
+        // Multi-length blocks
+        page.querySelectorAll('.multi-length-block').forEach(block => {
+            const subGroup = block.closest('.service-subsection-group');
+            const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent?.trim() || '';
+            const blockArTitle = block.querySelector('.multi-length-title .ar-name')?.textContent?.trim() || '';
+            const blockEnTitle = block.querySelector('.multi-length-title .en-name')?.textContent?.trim() || '';
+            const categoryLabel = [pageTitleText, subTitleText].filter(Boolean).join(' • ');
+
+            block.querySelectorAll('.length-row-item.service-row').forEach(row => {
+                const lenAr = row.querySelector('.length-label .ar')?.textContent?.trim() || '';
+                const lenEn = row.querySelector('.length-label .en')?.textContent?.trim() || '';
+                const name = blockArTitle ? `${blockArTitle} (${lenAr})` : (row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim());
+                const name_en = blockEnTitle ? `${blockEnTitle} (${lenEn})` : (row.querySelector('.en-name')?.textContent?.trim() || '');
+                const price_display = row.querySelector('.price-badge')?.textContent?.trim() || '';
+
+                if (name) {
+                    services.push({
+                        name,
+                        name_en,
+                        category: categoryLabel,
+                        price_display,
+                    });
+                }
+            });
+        });
+
+        // Standard service rows
+        page.querySelectorAll('.service-row:not(.length-row-item)').forEach(row => {
+            const subGroup = row.closest('.service-subsection-group');
+            const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent?.trim() || '';
+            const catGroup = row.closest('.category-group');
+            const catLabelText = catGroup?.querySelector('.category-side-label')?.textContent?.trim() || '';
+            const categoryLabel = [pageTitleText, catLabelText, subTitleText].filter(Boolean).join(' • ');
+
+            const name = row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim();
+            const name_en = row.querySelector('.en-name')?.textContent?.trim() || '';
+            const price_display = row.querySelector('.price-badge')?.textContent?.trim() || '';
+
+            if (name) {
+                services.push({
+                    name,
+                    name_en,
+                    category: categoryLabel,
+                    price_display,
+                });
+            }
+        });
+    });
+
+    state.cachedCatalogServices = services;
+    return services;
+}
+
+export function getClientSideSuggestions(query, limit = 10) {
+    const normalizedQuery = normalizeSearchText(query);
+    if (!normalizedQuery) return [];
+
+    const all = getClientCatalogServices();
+    const matched = [];
+
+    for (const s of all) {
+        const text = `${s.category} ${s.name} ${s.name_en}`;
+        if (matchesSearchTokens(text, normalizedQuery)) {
+            matched.push(s);
+            if (matched.length >= limit) break;
+        }
+    }
+    return matched;
+}
+
 export function handleSearchFocus(context) {
     if (context === 'services') {
         const inputEl = document.getElementById('serviceSearch');
         if (inputEl && inputEl.value.trim().length > 0) {
-            fetchServiceAjaxSuggestions(inputEl.value.trim());
+            handleUnifiedSearchInput('services');
         }
     }
 }
@@ -69,8 +156,21 @@ export function handleUnifiedSearchInput(context) {
 
     if (context === 'services') {
         if (hasText) {
+            // 1. Instant 0ms client-side suggestions for immediate feedback
+            const clientMatches = getClientSideSuggestions(trimmedVal, 10);
+            if (clientMatches.length > 0) {
+                renderServiceSuggestions(clientMatches, trimmedVal);
+            }
+
+            // 2. Fetch server suggestions in background for ranked/normalized suggestions
             fetchServiceAjaxSuggestions(trimmedVal);
         } else {
+            if (state.serviceSuggestionsDebounceTimer) {
+                clearTimeout(state.serviceSuggestionsDebounceTimer);
+            }
+            if (state.serviceSuggestionsAbortController) {
+                state.serviceSuggestionsAbortController.abort();
+            }
             hideServicesSuggestions();
             executeUnifiedServiceSearch(context);
         }
@@ -99,23 +199,21 @@ export function fetchServiceAjaxSuggestions(query) {
         return;
     }
 
-    setServicesSearchLoading(true);
-    listEl.innerHTML = `
-        <div class="py-4 px-4 text-center text-xs text-gray-400 flex items-center justify-center gap-2">
-            <i class="fa-solid fa-circle-notch fa-spin text-primary text-sm"></i>
-            <span class="font-medium text-sage-dark">جاري البحث عن الخدمات...</span>
-        </div>
-    `;
-    dropdown.classList.remove('hidden');
-    if (backdrop) backdrop.classList.remove('hidden');
-
     state.serviceSuggestionsDebounceTimer = setTimeout(() => {
         if (state.serviceSuggestionsAbortController) {
             state.serviceSuggestionsAbortController.abort();
         }
         state.serviceSuggestionsAbortController = new AbortController();
 
-        const suggestionsUrl = routes.suggestions || '/services/suggestions';
+        const currentVal = document.getElementById(unifiedSearchConfig.services.inputId)?.value?.trim();
+        if (currentVal !== cleanQuery) {
+            setServicesSearchLoading(false);
+            return;
+        }
+
+        setServicesSearchLoading(true);
+
+        const suggestionsUrl = routes.suggestions || window.__HAIRLINE_DATA__?.routes?.suggestions || '/services/suggestions';
 
         fetch(`${suggestionsUrl}?q=${encodeURIComponent(cleanQuery)}&limit=10`, {
             signal: state.serviceSuggestionsAbortController.signal,
@@ -128,20 +226,28 @@ export function fetchServiceAjaxSuggestions(query) {
         .then(data => {
             setServicesSearchLoading(false);
 
+            const latestInputVal = document.getElementById(unifiedSearchConfig.services.inputId)?.value?.trim();
+            if (latestInputVal !== cleanQuery) return;
+
             if (!data.success || !Array.isArray(data.suggestions) || data.suggestions.length === 0) {
-                renderNoServiceMatchNotice(cleanQuery);
+                // If client already displayed results, don't wipe them out
+                if (listEl.children.length === 0) {
+                    renderNoServiceMatchNotice(cleanQuery);
+                }
                 return;
             }
 
             renderServiceSuggestions(data.suggestions, cleanQuery);
         })
         .catch(err => {
+            setServicesSearchLoading(false);
             if (err.name !== 'AbortError') {
-                setServicesSearchLoading(false);
-                renderNoServiceMatchNotice(cleanQuery);
+                if (listEl.children.length === 0) {
+                    renderNoServiceMatchNotice(cleanQuery);
+                }
             }
         });
-    }, 100);
+    }, 150);
 }
 
 export function renderNoServiceMatchNotice(query) {
@@ -172,7 +278,8 @@ export function renderServiceSuggestions(suggestions, query) {
         const safeName = (item.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
         return `
             <button type="button"
-                    onmousedown="selectServiceSuggestion('${safeName}')"
+                    onclick="selectServiceSuggestion('${safeName}')"
+                    onmousedown="event.preventDefault(); selectServiceSuggestion('${safeName}')"
                     class="service-suggestion-item w-full text-right p-3 rounded-xl hover:bg-[#FAF6F0] focus:bg-[#FAF6F0] border border-transparent hover:border-gold-soft/60 flex items-center justify-between gap-3 transition-all cursor-pointer group outline-none"
                     data-index="${index}">
                 <div class="min-w-0 flex items-center gap-2.5">
@@ -213,13 +320,23 @@ export function highlightSearchMatch(text, query) {
 }
 
 export function selectServiceSuggestion(serviceName) {
+    if (state.serviceSuggestionsDebounceTimer) {
+        clearTimeout(state.serviceSuggestionsDebounceTimer);
+    }
+    if (state.serviceSuggestionsAbortController) {
+        state.serviceSuggestionsAbortController.abort();
+    }
+
     hideServicesSuggestions();
+    setServicesSearchLoading(false);
 
     const cfg = unifiedSearchConfig['services'];
     const inputEl = document.getElementById(cfg.inputId);
 
     if (inputEl) {
         inputEl.value = serviceName;
+        const clearBtn = document.getElementById(cfg.clearBtnId);
+        if (clearBtn) clearBtn.classList.remove('hidden');
     }
 
     executeUnifiedServiceSearch('services');
@@ -230,9 +347,15 @@ export function executeUnifiedServiceSearch(context, event = null) {
         event.preventDefault();
     }
 
-    if (context === 'services') {
-        hideServicesSuggestions();
+    if (state.serviceSuggestionsDebounceTimer) {
+        clearTimeout(state.serviceSuggestionsDebounceTimer);
     }
+    if (state.serviceSuggestionsAbortController) {
+        state.serviceSuggestionsAbortController.abort();
+    }
+
+    hideServicesSuggestions();
+    setServicesSearchLoading(false);
 
     const cfg = unifiedSearchConfig[context];
     if (!cfg) return;
@@ -260,12 +383,18 @@ export function executeUnifiedServiceSearch(context, event = null) {
 }
 
 export function clearUnifiedServiceSearch(context, focusInput = false) {
+    if (state.serviceSuggestionsDebounceTimer) {
+        clearTimeout(state.serviceSuggestionsDebounceTimer);
+    }
+    if (state.serviceSuggestionsAbortController) {
+        state.serviceSuggestionsAbortController.abort();
+    }
+
+    hideServicesSuggestions();
+    setServicesSearchLoading(false);
+
     const cfg = unifiedSearchConfig[context];
     if (!cfg) return;
-
-    if (context === 'services') {
-        hideServicesSuggestions();
-    }
 
     const inputEl = document.getElementById(cfg.inputId);
     const clearBtn = document.getElementById(cfg.clearBtnId);
@@ -337,20 +466,23 @@ export function filterServicesCatalogView(rawQuery, normalizedQuery) {
 
     pages.forEach(page => {
         const mainTitleEl = page.querySelector(':scope > .page-content > .section-main-title');
-        const pageTitleText = mainTitleEl ? mainTitleEl.querySelector('.ar-title')?.textContent?.trim() || mainTitleEl.textContent?.trim() : '';
+        const pageTitleText = mainTitleEl ? (mainTitleEl.querySelector('.ar-title')?.textContent?.trim() || mainTitleEl.textContent?.trim()) : '';
 
         // 1. Multi-length service blocks
         page.querySelectorAll('.multi-length-block').forEach(block => {
             const subGroup = block.closest('.service-subsection-group');
             const subTitleText = subGroup?.querySelector('.subsection-title')?.textContent?.trim() || '';
-            const blockTitleText = block.querySelector('.multi-length-title')?.textContent?.trim() || '';
-            const categoryLabel = [pageTitleText, subTitleText, blockTitleText].filter(Boolean).join(' • ');
+            const blockArTitle = block.querySelector('.multi-length-title .ar-name')?.textContent?.trim() || '';
+            const blockEnTitle = block.querySelector('.multi-length-title .en-name')?.textContent?.trim() || '';
+            const categoryLabel = [pageTitleText, subTitleText].filter(Boolean).join(' • ');
 
             block.querySelectorAll('.length-row-item.service-row').forEach(row => {
-                const arName = row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim();
-                const enName = row.querySelector('.en-name')?.textContent?.trim() || '';
+                const lenAr = row.querySelector('.length-label .ar')?.textContent?.trim() || '';
+                const lenEn = row.querySelector('.length-label .en')?.textContent?.trim() || '';
+                const arName = blockArTitle ? `${blockArTitle} (${lenAr})` : (row.querySelector('.ar-name')?.textContent?.trim() || row.textContent?.trim());
+                const enName = blockEnTitle ? `${blockEnTitle} (${lenEn})` : (row.querySelector('.en-name')?.textContent?.trim() || '');
                 const price = row.querySelector('.price-badge')?.textContent?.trim() || '';
-                const combinedText = `${categoryLabel} ${arName} ${enName} ${price}`;
+                const combinedText = `${categoryLabel} ${blockArTitle} ${lenAr} ${blockEnTitle} ${lenEn} ${price}`;
 
                 if (matchesSearchTokens(combinedText, normalizedQuery)) {
                     matchedItems.push({
@@ -411,7 +543,7 @@ export function filterServicesCatalogView(rawQuery, normalizedQuery) {
             `).join('');
         }
     } else {
-        if (pagesContainer) pagesContainer.classList.remove('hidden');
+        if (pagesContainer) pagesContainer.classList.add('hidden');
         if (resultsContainer) resultsContainer.classList.add('hidden');
         if (resultsList) resultsList.innerHTML = '';
     }
@@ -475,16 +607,18 @@ export function filterBookingTreeView(rawQuery, normalizedQuery) {
 }
 
 export function initServicesSearch() {
+    // Outside click dismisses suggestions dropdown safely
     document.addEventListener('click', function (e) {
         const dropdown = document.getElementById('servicesSuggestionsDropdown');
         const searchForm = document.getElementById('serviceSearch')?.closest('form');
         if (dropdown && !dropdown.classList.contains('hidden')) {
-            if (!searchForm || !searchForm.contains(e.target)) {
+            if ((!searchForm || !searchForm.contains(e.target)) && !dropdown.contains(e.target)) {
                 hideServicesSuggestions();
             }
         }
     });
 
+    // Close suggestions dropdown when pressing Escape
     document.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             hideServicesSuggestions();

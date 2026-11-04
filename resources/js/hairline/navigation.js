@@ -9,24 +9,101 @@ export function updateUrl(path) {
     }
 }
 
+let sidebarCloseTimer = null;
+let isSidebarActive = false;
+
 export function toggleSidebar(show) {
     const overlay = document.getElementById('sidebarOverlay');
     const drawer = document.getElementById('sidebarDrawer');
     if (!overlay || !drawer) return;
 
+    if (sidebarCloseTimer) {
+        clearTimeout(sidebarCloseTimer);
+        sidebarCloseTimer = null;
+    }
+
     if (show) {
+        isSidebarActive = true;
+
+        // Prevent body background scroll on mobile/desktop while open
+        document.body.classList.add('overflow-hidden');
+
+        // Reveal elements in DOM
         overlay.classList.remove('hidden');
+        drawer.classList.remove('hidden');
+        drawer.setAttribute('aria-hidden', 'false');
+
+        // Force browser layout flush for deterministic transition start
+        void drawer.offsetWidth;
+
         requestAnimationFrame(() => {
             overlay.classList.remove('opacity-0');
+            overlay.classList.add('is-active');
             drawer.classList.remove('-translate-x-full');
+            drawer.classList.add('sidebar-open');
         });
     } else {
-        overlay.classList.add('opacity-0');
+        isSidebarActive = false;
+
+        // Restore body scroll
+        document.body.classList.remove('overflow-hidden');
+
+        drawer.setAttribute('aria-hidden', 'true');
+        drawer.classList.remove('sidebar-open');
         drawer.classList.add('-translate-x-full');
-        setTimeout(() => {
-            overlay.classList.add('hidden');
-        }, 300);
+        overlay.classList.remove('is-active');
+        overlay.classList.add('opacity-0');
+
+        // Allow reverse animation to complete before hiding overlay from DOM
+        sidebarCloseTimer = setTimeout(() => {
+            if (!isSidebarActive) {
+                overlay.classList.add('hidden');
+            }
+        }, 360);
     }
+}
+
+export function initSidebarListeners() {
+    const drawer = document.getElementById('sidebarDrawer');
+    if (!drawer || drawer.dataset.sidebarInitialized === 'true') return;
+    drawer.dataset.sidebarInitialized = 'true';
+
+    // Keyboard support: Escape closes sidebar
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isSidebarActive) {
+            toggleSidebar(false);
+        }
+    });
+
+    // Touch gesture: swipe left on drawer to dismiss
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let trackingSwipe = false;
+
+    drawer.addEventListener('touchstart', (e) => {
+        if (!e.touches || e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        trackingSwipe = true;
+    }, { passive: true });
+
+    drawer.addEventListener('touchmove', (e) => {
+        if (!trackingSwipe || !e.touches || e.touches.length !== 1) return;
+        const currentX = e.touches[0].clientX;
+        const currentY = e.touches[0].clientY;
+        const diffX = currentX - touchStartX;
+        const diffY = currentY - touchStartY;
+
+        // If swiping left (negative diffX) beyond 45px threshold and horizontal movement exceeds vertical
+        if (diffX < -45 && Math.abs(diffX) > Math.abs(diffY)) {
+            trackingSwipe = false;
+            toggleSidebar(false);
+        }
+    }, { passive: true });
+
+    drawer.addEventListener('touchend', () => {
+        trackingSwipe = false;
+    }, { passive: true });
 }
 
 export function switchTab(tabName) {

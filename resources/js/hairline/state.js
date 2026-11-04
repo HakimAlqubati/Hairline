@@ -59,27 +59,26 @@ export const specialistsListArray = Object.values(specialistsData);
 
 export const unifiedSearchConfig = {
     services: {
-        inputId: 'servicesSearchInput',
-        containerId: 'servicesSearchContainer',
-        clearBtnId: 'servicesSearchClearBtn',
-        feedbackId: 'servicesSearchFeedback',
-        countElId: 'servicesSearchCount',
-        queryTextElId: 'servicesSearchQueryText',
-        resetLinkElId: 'servicesSearchResetLink',
-        noResultsId: 'servicesSearchNoResults',
-        queryDisplayId: 'servicesSearchNoResultsQuery',
-        lastQuery: ''
+        inputId: 'serviceSearch',
+        clearBtnId: 'clearSearchBtn',
+        submitBtnId: 'submitSearchBtn',
+        statusId: 'servicesSearchStatus',
+        countId: 'servicesSearchCount',
+        queryTextId: 'servicesSearchQuery',
+        emptyStateId: 'servicesSearchEmptyState',
+        emptyQueryId: 'servicesEmptyQueryText',
+        resultsContainerId: 'servicesSearchResultsContainer',
+        resultsListId: 'servicesSearchResultsList',
+        pagesContainerId: 'pagesContainer'
     },
     booking: {
-        inputId: 'bookingSearchInput',
-        containerId: 'bookingSearchContainer',
-        clearBtnId: 'bookingSearchClearBtn',
-        feedbackId: 'bookingSearchFeedback',
-        countElId: 'bookingSearchCount',
-        queryTextElId: 'bookingSearchQueryText',
-        resetLinkElId: 'bookingSearchResetLink',
-        noResultsId: 'bookingSearchNoResults',
-        queryDisplayId: 'bookingSearchNoResultsQuery',
-        lastQuery: ''
+        inputId: 'bookingServiceSearch',
+        clearBtnId: 'bookingClearSearchBtn',
+        submitBtnId: 'bookingSubmitSearchBtn',
+        statusId: 'bookingSearchStatus',
+        countId: 'bookingSearchCount',
+        queryTextId: 'bookingSearchQuery',
+        emptyStateId: 'bookingSearchEmptyState',
+        emptyQueryId: 'bookingEmptyQueryText'
     }
 };

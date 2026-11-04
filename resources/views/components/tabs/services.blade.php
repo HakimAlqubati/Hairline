@@ -1,5 +1,6 @@
 @props([
     'menuPages' => app(\App\Services\FrontData\CatalogMenuDataService::class)->getMenuPages(),
+    'isActive' => false,
 ])
 
 @php
@@ -33,7 +34,7 @@
     </defs>
 </svg>
 
-<section id="servicesTabView" class="hidden flex-1 w-full animate-step selection:bg-[#b7a077]/30 selection:text-[#4a4336]">
+<section id="servicesTabView" class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full animate-step selection:bg-[#b7a077]/30 selection:text-[#4a4336]">
 
     <!-- Minimal Search Bar Sticky at Top -->
     <x-services.search-header />

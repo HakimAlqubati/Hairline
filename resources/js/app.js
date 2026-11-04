@@ -8,6 +8,7 @@ import { setHeroSlide, startHeroSlider } from './hairline/hero-slider.js';
 import {
     updateUrl,
     toggleSidebar,
+    initSidebarListeners,
     switchTab,
     openSidebarSection,
     updateBookingBadge,
@@ -259,6 +260,7 @@ function initHairlineApp() {
     updateBookingBadge();
     renderMyBookings();
     initServicesSearch();
+    initSidebarListeners();
     initSpecialistKeyboardAndTouch();
     initAuthMessageListener();
 
