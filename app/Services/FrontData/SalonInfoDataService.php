@@ -187,7 +187,7 @@ class SalonInfoDataService
             $defaultWorkingHours = Setting::getSetting('default_working_hours');
             $hour = SalonWorkingHour::where('is_closed', false)->first();
 
-            $hoursAr = $defaultWorkingHours ?: ($hour ? $hour->getTranslation('notes', 'ar') : 'يومياً من 2:00 ظهراً حتى 10:00 مساءً');
+            $hoursAr = $defaultWorkingHours ?: ($hour ? $hour->getTranslation('notes', 'ar') : 'من 2:00 ظهراً حتى 10:00 مساءً');
 
             return [
                 'days' => 'يومياً',

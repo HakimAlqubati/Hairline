@@ -56,7 +56,14 @@ export function openBookingFlowWithCategory(categoryId) {
 }
 
 export function handleBookingBack() {
-    if (state.bookingState.step === 2) {
+    if (state.bookingState.step === 3) {
+        if (state.availabilityAbortController) {
+            state.availabilityAbortController.abort();
+        }
+        state.bookingState.step = 2;
+        renderBookingStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else if (state.bookingState.step === 2) {
         if (state.availabilityAbortController) {
             state.availabilityAbortController.abort();
         }
@@ -70,6 +77,7 @@ export function handleBookingBack() {
             slots: []
         };
         renderBookingStep();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 
@@ -208,18 +216,60 @@ export function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
     syncFloatingConfirmButton();
 }
 
+export function handleFloatingBookingConfirm() {
+    if (state.bookingState.step === 1) {
+        proceedToSpecialistStep();
+    } else if (state.bookingState.step === 2) {
+        proceedToTimeStep();
+    } else if (state.bookingState.step === 3) {
+        confirmFinalBooking();
+    }
+}
+
 export function syncFloatingConfirmButton() {
     const container = document.getElementById('floatingBookingConfirmContainer');
+    const titleEl = document.getElementById('floatingBookingConfirmTitle');
     const labelEl = document.getElementById('floatingSelectedServiceText');
+    const iconEl = document.getElementById('floatingBookingConfirmIcon');
     const whatsappContainer = document.getElementById('floatingWhatsappContainer');
     if (!container) return;
 
-    const count = Array.isArray(state.bookingState.selectedSubServices) ? state.bookingState.selectedSubServices.length : 0;
-    const shouldShow = (
-        state.currentActiveTab === 'booking' &&
-        state.bookingState.step === 1 &&
-        count > 0
-    );
+    let shouldShow = false;
+    let titleText = "تأكيد الحجز واختيار الأخصائية";
+    let subtitleText = "";
+    let iconClass = "fa-solid fa-check text-xs";
+
+    if (state.currentActiveTab === 'booking') {
+        if (state.bookingState.step === 1) {
+            const count = Array.isArray(state.bookingState.selectedSubServices) ? state.bookingState.selectedSubServices.length : 0;
+            if (count > 0) {
+                shouldShow = true;
+                titleText = "تأكيد الحجز واختيار الأخصائية";
+                subtitleText = count === 1
+                    ? state.bookingState.selectedSubServices[0].name
+                    : `متابعة الحجز (${count} خدمات مختارة)`;
+                iconClass = "fa-solid fa-check text-xs";
+            }
+        } else if (state.bookingState.step === 2) {
+            if (state.bookingState.selectedSpecialist) {
+                shouldShow = true;
+                const spNameAr = (state.bookingState.selectedSpecialist.name || '').split('|')[0].trim();
+                titleText = "تأكيد الأخصائية واختيار الوقت";
+                subtitleText = `الأخصائية: ${spNameAr}`;
+                iconClass = "fa-solid fa-user-check text-xs";
+            }
+        } else if (state.bookingState.step === 3) {
+            const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
+            const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
+            if (!isLoadingSlots && !isDayOff && state.bookingState.selectedTime) {
+                shouldShow = true;
+                const spNameAr = (state.bookingState.selectedSpecialist?.name || '').split('|')[0].trim();
+                titleText = `تأكيد الموعد (${state.bookingState.selectedTime})`;
+                subtitleText = `${state.bookingState.selectedDate || 'الموعد'} مع ${spNameAr}`;
+                iconClass = "fa-solid fa-calendar-check text-xs";
+            }
+        }
+    }
 
     if (state.floatingConfirmHideTimeout) {
         clearTimeout(state.floatingConfirmHideTimeout);
@@ -231,13 +281,10 @@ export function syncFloatingConfirmButton() {
     }
 
     if (shouldShow) {
-        if (labelEl) {
-            if (count === 1) {
-                labelEl.textContent = `${state.bookingState.selectedSubServices[0].name}`;
-            } else {
-                labelEl.textContent = `متابعة الحجز (${count} خدمات مختارة)`;
-            }
-        }
+        if (titleEl) titleEl.textContent = titleText;
+        if (labelEl) labelEl.textContent = subtitleText;
+        if (iconEl) iconEl.className = iconClass;
+
         container.classList.remove('hidden');
         requestAnimationFrame(() => {
             container.classList.remove('opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
@@ -260,8 +307,23 @@ export function proceedToSpecialistStep() {
     }
     state.bookingState.selectedSpecialist = null;
     state.bookingState.selectedTime = null;
-    state.bookingState.availability = { loading: true, is_day_off: false, shift_label: "", slots: [] };
+    state.bookingState.availability = { loading: false, is_day_off: false, shift_label: "", slots: [] };
     state.bookingState.step = 2;
+    renderBookingStep();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+export function proceedToTimeStep() {
+    if (!state.bookingState.selectedSpecialist) return;
+    state.bookingState.step = 3;
+    state.bookingState.selectedTime = null;
+    state.bookingState.availability = {
+        loading: true,
+        is_day_off: false,
+        shift_label: "",
+        slots: []
+    };
+    fetchSpecialistAvailability();
     renderBookingStep();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -272,7 +334,7 @@ export function updateStepperUI(step) {
     const toggleAllBtn = document.getElementById('toggleAllTreeBtn');
 
     if (bookingStepper) {
-        if (step === 1 || step === 2) {
+        if (step >= 1 && step <= 3) {
             bookingStepper.classList.remove('hidden');
         } else {
             bookingStepper.classList.add('hidden');
@@ -280,7 +342,7 @@ export function updateStepperUI(step) {
     }
 
     if (backBtn) {
-        if (step === 2) {
+        if (step === 2 || step === 3) {
             backBtn.classList.remove('hidden');
         } else {
             backBtn.classList.add('hidden');
@@ -295,7 +357,7 @@ export function updateStepperUI(step) {
         }
     }
 
-    for (let i = 1; i <= 2; i++) {
+    for (let i = 1; i <= 3; i++) {
         const el = document.getElementById(`stepIndicator${i}`);
         if (!el) continue;
         const bar = el.children[0];
@@ -312,6 +374,7 @@ export function updateStepperUI(step) {
             label.className = "text-xs font-medium text-gray-400";
         }
     }
+    syncFloatingConfirmButton();
 }
 
 export function renderBookingStep() {
@@ -322,6 +385,9 @@ export function renderBookingStep() {
     const step2Body = document.getElementById('bookingStep2Body');
     const step2Footer = document.getElementById('bookingStep2Footer');
     const step3Container = document.getElementById('bookingStep3Container');
+    const step3Body = document.getElementById('bookingStep3Body');
+    const step3Footer = document.getElementById('bookingStep3Footer');
+    const step4Container = document.getElementById('bookingStep4Container') || step3Container;
 
     updateStepperUI(state.bookingState.step);
     syncFloatingConfirmButton();
@@ -329,6 +395,7 @@ export function renderBookingStep() {
     if (step1Container) step1Container.classList.add('hidden');
     if (step2Container) step2Container.classList.add('hidden');
     if (step3Container) step3Container.classList.add('hidden');
+    if (step4Container && step4Container !== step3Container) step4Container.classList.add('hidden');
 
     if (state.bookingState.step === 1) {
         if (pageTitle) pageTitle.textContent = "الخدمات المتاحة للحجز";
@@ -347,8 +414,8 @@ export function renderBookingStep() {
 
         if (pageTitle) pageTitle.textContent = "الخطوة 2: اختيار الأخصائية";
         if (pageSubtitle) {
-            pageSubtitle.textContent = "";
-            pageSubtitle.classList.add('hidden');
+            pageSubtitle.textContent = "يرجى اختيار الأخصائية المناسبة لمتابعة الحجز";
+            pageSubtitle.classList.remove('hidden');
         }
         if (step2Container) step2Container.classList.remove('hidden');
 
@@ -358,30 +425,6 @@ export function renderBookingStep() {
             : (allSpecialistLists[0] || []);
         const finalSpecialistSlugs = commonSlugs.length > 0 ? commonSlugs : [...new Set(allSpecialistLists.flat())];
         const linkedSpecialists = finalSpecialistSlugs.map(id => specialistsData[id]).filter(Boolean);
-
-        if (!state.bookingState.selectedSpecialist && linkedSpecialists.length > 0) {
-            state.bookingState.selectedSpecialist = linkedSpecialists[0];
-            state.bookingState.selectedTime = null;
-            state.bookingState.availability = {
-                loading: true,
-                is_day_off: false,
-                shift_label: "",
-                slots: []
-            };
-            fetchSpecialistAvailability();
-        }
-
-        const datesList = (Array.isArray(bookingDates) && bookingDates.length > 0)
-            ? bookingDates
-            : [
-                { display_label: "اليوم", date_iso: "" },
-                { display_label: "غداً - السبت", date_iso: "" }
-            ];
-
-        const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
-        const shiftSlots = Array.isArray(state.bookingState.availability?.slots) ? state.bookingState.availability.slots : [];
-        const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
-        const shiftLabel = state.bookingState.availability?.shift_label || "";
 
         if (step2Body) {
             const servicesTitleText = subServices.map(s => s.name).join(' • ');
@@ -502,11 +545,83 @@ export function renderBookingStep() {
                             }).join('')}
                         </div>
                     </div>
+                </div>
+            `;
+        }
 
-                    <div class="space-y-3 pt-3 border-t border-gray-200/70">
+        if (step2Footer) {
+            step2Footer.innerHTML = '';
+        }
+    } else if (state.bookingState.step === 3) {
+        const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+            ? state.bookingState.selectedSubServices
+            : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+        if (subServices.length === 0 || !state.bookingState.selectedSpecialist) {
+            state.bookingState.step = 2;
+            renderBookingStep();
+            return;
+        }
+
+        if (pageTitle) pageTitle.textContent = "الخطوة 3: تحديد اليوم والوقت";
+        if (pageSubtitle) {
+            pageSubtitle.textContent = "اختاري اليوم والوقت المناسب لزيارتكِ";
+            pageSubtitle.classList.remove('hidden');
+        }
+        if (step3Container) step3Container.classList.remove('hidden');
+
+        const datesList = (Array.isArray(bookingDates) && bookingDates.length > 0)
+            ? bookingDates
+            : [
+                { display_label: "اليوم", date_iso: "" },
+                { display_label: "غداً - السبت", date_iso: "" }
+            ];
+
+        const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
+        const shiftSlots = Array.isArray(state.bookingState.availability?.slots) ? state.bookingState.availability.slots : [];
+        const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
+        const shiftLabel = state.bookingState.availability?.shift_label || "";
+
+        const sp = state.bookingState.selectedSpecialist;
+        const nameParts = (sp.name || '').split('|').map(s => s.trim());
+        const spNameAr = nameParts[0] || (sp.name || '');
+        const spNameEn = nameParts[1] || '';
+        const servicesTitleText = subServices.map(s => s.name).join(' • ');
+
+        if (step3Body) {
+            step3Body.innerHTML = `
+                <div class="space-y-5">
+                    <!-- Selected Service & Specialist Header Card -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white border border-primary-soft/60 shadow-xs flex items-center justify-between gap-3">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary shrink-0 bg-surface flex items-center justify-center">
+                                ${sp.has_custom_avatar && sp.avatar ? `
+                                    <img src="${sp.avatar}" alt="${spNameAr}" class="w-full h-full object-cover" />
+                                ` : `
+                                    <span class="text-lg font-black font-serif text-primary">${sp.initials || 'HL'}</span>
+                                `}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-xs font-bold text-gray-400">الأخصائية المختارة:</span>
+                                    <span class="font-black text-sm sm:text-base text-sage-dark">${spNameAr}</span>
+                                    ${spNameEn ? `<span class="text-[11px] font-serif text-primary-dark tracking-wide uppercase">${spNameEn}</span>` : ''}
+                                </div>
+                                <p class="text-xs font-bold text-primary truncate mt-0.5">${servicesTitleText}</p>
+                            </div>
+                        </div>
+                        <button type="button" 
+                                onclick="handleBookingBack()" 
+                                class="shrink-0 px-3 py-1.5 rounded-xl border border-primary-soft text-primary-dark text-xs font-bold hover:bg-primary hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            <span>تغيير الأخصائية</span>
+                        </button>
+                    </div>
+
+                    <!-- Date & Time Picker Section -->
+                    <div class="space-y-4 pt-1">
                         <div class="flex items-center justify-between gap-2">
                             <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
-                                الوقت واليوم المتاح مع ${state.bookingState.selectedSpecialist.name}:
+                                اختاري اليوم المناسب:
                             </label>
                             ${isLoadingSlots ? `
                                 <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-gold-light/50 text-gold-dark text-[10px] font-bold border border-gold-soft/50 animate-pulse">
@@ -540,85 +655,77 @@ export function renderBookingStep() {
                             }).join('')}
                         </div>
 
-                        ${isLoadingSlots ? `
-                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 animate-pulse" aria-label="جاري تحميل الأوقات">
-                                ${Array.from({ length: 8 }).map(() => `
-                                    <div class="py-2.5 px-2 rounded-xl bg-gray-100 border border-gray-200/60 flex items-center justify-center">
-                                        <div class="h-3.5 w-12 bg-gray-200/90 rounded"></div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : (isDayOff ? `
-                            <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
-                                <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
-                                <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو أخصائية أخرى لإتمام الحجز.</p>
-                            </div>
-                        ` : (shiftSlots.length === 0 ? `
-                            <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
-                                <p class="text-xs font-bold text-gray-500">لا توجد مواعيد متاحة في هذا التاريخ.</p>
-                            </div>
-                        ` : `
-                            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
-                                ${shiftSlots.map(slotObj => {
-                                    const slotTime = slotObj.time;
-                                    const isBooked = Boolean(slotObj.is_booked || !slotObj.is_available);
-                                    const isSelectedSlot = !isBooked && state.bookingState.selectedTime === slotTime;
+                        <div class="pt-2">
+                            <label class="block text-xs sm:text-sm font-extrabold text-sage-dark mb-2.5">
+                                اختاري الوقت المتاح مع ${spNameAr}:
+                            </label>
+                            ${isLoadingSlots ? `
+                                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 animate-pulse" aria-label="جاري تحميل الأوقات">
+                                    ${Array.from({ length: 8 }).map(() => `
+                                        <div class="py-2.5 px-2 rounded-xl bg-gray-100 border border-gray-200/60 flex items-center justify-center">
+                                            <div class="h-3.5 w-12 bg-gray-200/90 rounded"></div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            ` : (isDayOff ? `
+                                <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">
+                                    <p class="text-xs font-extrabold text-red-700">الأخصائية في يوم إجازة في هذا التاريخ</p>
+                                    <p class="text-[11px] text-red-600">يرجى اختيار يوم آخر أو الضغط على "تغيير الأخصائية" لاختيار أخصائية أخرى.</p>
+                                </div>
+                            ` : (shiftSlots.length === 0 ? `
+                                <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
+                                    <p class="text-xs font-bold text-gray-500">لا توجد مواعيد متاحة في هذا التاريخ.</p>
+                                </div>
+                            ` : `
+                                <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
+                                    ${shiftSlots.map(slotObj => {
+                                        const slotTime = slotObj.time;
+                                        const isBooked = Boolean(slotObj.is_booked || !slotObj.is_available);
+                                        const isSelectedSlot = !isBooked && state.bookingState.selectedTime === slotTime;
 
-                                    if (isBooked) {
+                                        if (isBooked) {
+                                            return `
+                                                <button type="button"
+                                                        disabled
+                                                        title="هذا الموعد محجوز مسبقاً"
+                                                        class="py-2 px-1.5 rounded-xl text-[11px] font-bold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-75">
+                                                    <span class="line-through">${slotTime}</span>
+                                                    <span class="text-[9px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.2 rounded">محجوز</span>
+                                                </button>
+                                            `;
+                                        }
+
                                         return `
                                             <button type="button"
-                                                    disabled
-                                                    title="هذا الموعد محجوز مسبقاً"
-                                                    class="py-2 px-1.5 rounded-xl text-[11px] font-bold border border-gray-200 bg-gray-100 text-gray-400 cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-75">
-                                                <span class="line-through">${slotTime}</span>
-                                                <span class="text-[9px] font-extrabold text-red-500 bg-red-50 px-1.5 py-0.2 rounded">محجوز</span>
+                                                    onclick="selectBookingTime('${slotTime}')" 
+                                                    class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
+                                                        isSelectedSlot 
+                                                        ? 'bg-primary text-white border-primary shadow-xs' 
+                                                        : 'bg-white text-sage-dark border-gray-200 hover:border-primary'
+                                                    }">
+                                                ${slotTime}
                                             </button>
                                         `;
-                                    }
-
-                                    return `
-                                        <button type="button"
-                                                onclick="selectBookingTime('${slotTime}')" 
-                                                class="py-2.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
-                                                    isSelectedSlot 
-                                                    ? 'bg-primary text-white border-primary shadow-xs' 
-                                                    : 'bg-white text-sage-dark border-gray-200 hover:border-primary'
-                                                }">
-                                            ${slotTime}
-                                        </button>
-                                    `;
-                                }).join('')}
-                            </div>
-                        `))}
+                                    }).join('')}
+                                </div>
+                            `))}
+                        </div>
                     </div>
                 </div>
             `;
         }
 
-        const canConfirm = !isLoadingSlots && Boolean(state.bookingState.selectedTime) && !isDayOff;
-        if (step2Footer) {
-            step2Footer.innerHTML = `
-                <button onclick="confirmFinalBooking()" 
-                        ${canConfirm ? '' : 'disabled'}
-                        class="w-full py-4 rounded-2xl ${canConfirm ? 'bg-primary hover:bg-primary-dark shadow-lg shadow-primary/25 cursor-pointer' : 'bg-gray-300 cursor-not-allowed'} text-white font-extrabold text-sm transition flex items-center justify-center gap-2">
-                    ${isLoadingSlots ? `
-                        <i class="fa-solid fa-spinner fa-spin text-white"></i>
-                        <span>جاري جلب الأوقات المتاحة...</span>
-                    ` : `
-                        <i class="fa-solid fa-circle-check text-white"></i>
-                        <span>${canConfirm ? `تأكيد الحجز مع ${state.bookingState.selectedSpecialist.name}` : (isDayOff ? 'يرجى اختيار أخصائية أو يوم آخر' : 'يرجى اختيار وقت متاح للحجز')}</span>
-                    `}
-                </button>
-            `;
+        if (step3Footer) {
+            step3Footer.innerHTML = '';
         }
-    } else if (state.bookingState.step === 3 || state.bookingState.step === 4) {
+    } else if (state.bookingState.step === 4 || state.bookingState.step === 5) {
         const lastBooking = state.confirmedBookings[0];
         const customerName = state.bookingState.confirmedCustomerName || lastBooking?.customerName || state.currentCustomer?.name || "";
         if (pageTitle) pageTitle.textContent = "تم تأكيد حجزك بنجاح";
         if (pageSubtitle) pageSubtitle.textContent = "رقم الحجز: " + (lastBooking?.id || '');
-        if (step3Container && lastBooking) {
-            step3Container.classList.remove('hidden');
-            step3Container.innerHTML = `
+        if (step4Container && lastBooking) {
+            step4Container.classList.remove('hidden');
+            step4Container.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
                     <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
                         <i class="fa-solid fa-check"></i>
@@ -675,6 +782,7 @@ export function renderBookingStep() {
             `;
         }
     }
+    syncFloatingConfirmButton();
 }
 
 export function selectCategory(catId) {
@@ -788,12 +896,12 @@ export async function fetchSpecialistAvailability() {
                 state.bookingState.selectedTime = availableList.length > 0 ? availableList[0].time : null;
             }
 
-            if (state.bookingState.step === 2) {
+            if (state.bookingState.step === 3) {
                 renderBookingStep();
             }
         } else {
             state.bookingState.availability.loading = false;
-            if (state.bookingState.step === 2) {
+            if (state.bookingState.step === 3) {
                 renderBookingStep();
             }
         }
@@ -802,10 +910,11 @@ export async function fetchSpecialistAvailability() {
             return;
         }
         state.bookingState.availability.loading = false;
-        if (state.bookingState.step === 2) {
+        if (state.bookingState.step === 3) {
             renderBookingStep();
         }
     }
+    syncFloatingConfirmButton();
 }
 
 export function confirmFinalBooking() {

@@ -31,7 +31,7 @@ return new class extends Migration
                 'vat_percentage' => '15',
                 'deposit_percentage' => '30',
                 'currency' => 'SAR',
-                'default_working_hours' => 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً',
+                'default_working_hours' => 'من 2:00 ظهراً حتى 10:00 مساءً',
                 'contact_phone' => '0548857705',
                 'whatsapp_number' => '966548857705',
                 'contact_email' => 'info@hairlinesalon.sa',

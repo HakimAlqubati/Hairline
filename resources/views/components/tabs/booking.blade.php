@@ -31,9 +31,9 @@
             </button>
         </div>
 
-        <!-- 2-Step Progress Bar -->
+        <!-- 3-Step Progress Bar -->
         <div id="bookingStepper" class="pt-2">
-            <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 text-center">
                 <div id="stepIndicator1" class="flex flex-col items-center">
                     <div class="w-full h-1.5 rounded-full bg-primary mb-1.5 transition-colors duration-300"></div>
                     <span class="text-xs font-extrabold text-primary-dark">1. اختيار الخدمة</span>
@@ -41,6 +41,10 @@
                 <div id="stepIndicator2" class="flex flex-col items-center">
                     <div class="w-full h-1.5 rounded-full bg-primary-soft/40 mb-1.5 transition-colors duration-300"></div>
                     <span class="text-xs font-medium text-gray-400">2. اختيار الأخصائية</span>
+                </div>
+                <div id="stepIndicator3" class="flex flex-col items-center">
+                    <div class="w-full h-1.5 rounded-full bg-primary-soft/40 mb-1.5 transition-colors duration-300"></div>
+                    <span class="text-xs font-medium text-gray-400">3. تحديد الموعد</span>
                 </div>
             </div>
         </div>
@@ -129,18 +133,24 @@
         @endforelse
     </div>
 
-    <!-- STEP 2: Specialist & Shift-Based Time Selection (Rendered Dynamically Inside the Page) -->
-    <div id="bookingStep2Container" class="hidden space-y-5 animate-step">
+    <!-- STEP 2: Specialist Selection (Rendered Dynamically Inside the Page) -->
+    <div id="bookingStep2Container" class="hidden space-y-5 pb-24 md:pb-28 animate-step">
         <div id="bookingStep2Body" class="space-y-5">
             <!-- Populated dynamically when user clicks the floating confirm button -->
         </div>
-        <div id="bookingStep2Footer" class="pt-2">
-            <!-- Final booking confirmation button -->
-        </div>
+        <div id="bookingStep2Footer" class="empty:hidden"></div>
     </div>
 
-    <!-- STEP 3: Final Booking Confirmation Receipt (Rendered Dynamically Inside the Page) -->
-    <div id="bookingStep3Container" class="hidden animate-step">
+    <!-- STEP 3: Shift-Based Time Selection (Rendered Dynamically Inside the Page) -->
+    <div id="bookingStep3Container" class="hidden space-y-5 pb-24 md:pb-28 animate-step">
+        <div id="bookingStep3Body" class="space-y-5">
+            <!-- Populated dynamically when user confirms the specialist -->
+        </div>
+        <div id="bookingStep3Footer" class="empty:hidden"></div>
+    </div>
+
+    <!-- STEP 4: Final Booking Confirmation Receipt (Rendered Dynamically Inside the Page) -->
+    <div id="bookingStep4Container" class="hidden animate-step">
         <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
             <div class="w-16 h-16 rounded-full bg-sage-light border-2 border-primary mx-auto flex items-center justify-center text-primary text-2xl shadow-sm">
                 <i class="fa-solid fa-check"></i>

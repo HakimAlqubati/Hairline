@@ -265,7 +265,7 @@ export function openSidebarSection(sectionType) {
     const brandNameAr = salonIdentity.name_ar || 'هيرلاين';
     const brandNameEn = salonIdentity.name_en || 'HAIRLINE';
     const brandTaglineEn = salonIdentity.tagline_en || 'BEAUTY SALON';
-    const hoursText = workingHours.hours_ar || 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً';
+    const hoursText = workingHours.hours_ar || 'من 2:00 ظهراً حتى 10:00 مساءً';
     const addressText = location.full_address_ar || 'الرياض - حي المصيف، مخرج 5';
     const mapsUrl = (location.google_maps_url && !location.google_maps_url.includes('24.7677'))
         ? location.google_maps_url

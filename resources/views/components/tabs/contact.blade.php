@@ -64,7 +64,7 @@
                 <div class="space-y-1 min-w-0">
                     <span class="text-xs font-medium text-gray-400 block">أوقات العمل الرسمية</span>
                     <h3 class="text-base sm:text-lg font-bold text-sage-dark">
-                        {{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}
+                        {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}
                     </h3>
                 </div>
             </div>

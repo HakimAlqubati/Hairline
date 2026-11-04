@@ -149,19 +149,19 @@
             </a>
         </div>
 
-        <!-- 11. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Hidden Until Service Selected) -->
+        <!-- 11. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Dynamic Across Steps 1, 2 & 3) -->
         <div id="floatingBookingConfirmContainer"
              class="fixed bottom-24 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 hidden opacity-0 translate-y-4 scale-95 pointer-events-none transition-all duration-300 ease-out">
             <button type="button"
                     id="floatingBookingConfirmBtn"
-                    onclick="proceedToSpecialistStep()"
-                    aria-label="تأكيد الحجز والانتقال لاختيار الأخصائية"
+                    onclick="handleFloatingBookingConfirm()"
+                    aria-label="تأكيد الحجز والانتقال للخطوة التالية"
                     class="group flex items-center gap-3 px-5 py-3.5 rounded-full bg-primary hover:bg-primary-dark text-white shadow-fab border-2 border-white/85 hover:border-white active:scale-95 transition-all duration-300 cursor-pointer">
-                <span class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white shrink-0 group-hover:bg-white group-hover:text-primary-dark transition-colors">
-                    <i class="fa-solid fa-check text-xs"></i>
+                <span id="floatingBookingConfirmIconWrapper" class="w-8 h-8 rounded-full bg-white/20 border border-white/40 flex items-center justify-center text-white shrink-0 group-hover:bg-white group-hover:text-primary-dark transition-colors">
+                    <i id="floatingBookingConfirmIcon" class="fa-solid fa-check text-xs"></i>
                 </span>
                 <div class="text-right">
-                    <span class="block text-xs sm:text-sm font-black tracking-wide leading-tight">
+                    <span id="floatingBookingConfirmTitle" class="block text-xs sm:text-sm font-black tracking-wide leading-tight">
                         تأكيد الحجز واختيار الأخصائية
                     </span>
                     <span id="floatingSelectedServiceText" class="block text-[11px] font-bold text-white/90 truncate max-w-[190px] sm:max-w-[260px]">

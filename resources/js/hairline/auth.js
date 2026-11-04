@@ -565,7 +565,7 @@ export function finalizeConfirmedBookingFromServer(data) {
     updateBookingBadge();
 
     if (data.booking) {
-        state.bookingState.step = 3;
+        state.bookingState.step = 4;
         renderBookingStep();
         openToast('تم تأكيد الحجز بنجاح');
     } else {
