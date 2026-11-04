@@ -576,6 +576,8 @@
 
             const counterEl = document.getElementById('specialistModalCounter');
             const imgEl = document.getElementById('specialistModalImg');
+            const initialsWrapper = document.getElementById('specialistModalInitialsWrapper');
+            const initialsText = document.getElementById('specialistModalInitials');
             const nameEl = document.getElementById('specialistModalName');
             const roleEl = document.getElementById('specialistModalRole');
             const expEl = document.getElementById('specialistModalExperience');
@@ -588,13 +590,19 @@
                 counterEl.textContent = `${currentSpecialistModalIndex + 1} / ${total}`;
             }
 
-            if (imgEl) {
-                imgEl.src = sp.avatar || '';
-                imgEl.alt = sp.name || '';
-                imgEl.onerror = function () {
-                    this.onerror = null;
-                    this.src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(sp.name || 'HL') + '&background=FFFFFF&color=C29E6D&bold=true&size=512';
-                };
+            if (sp.has_custom_avatar && sp.avatar) {
+                if (imgEl) {
+                    imgEl.src = sp.avatar;
+                    imgEl.alt = sp.name || '';
+                    imgEl.classList.remove('hidden');
+                }
+                if (initialsWrapper) initialsWrapper.classList.add('hidden');
+            } else {
+                if (imgEl) imgEl.classList.add('hidden');
+                if (initialsWrapper) {
+                    initialsWrapper.classList.remove('hidden');
+                    if (initialsText) initialsText.textContent = sp.initials || 'HL';
+                }
             }
 
             if (nameEl) nameEl.textContent = sp.name || '';
@@ -1530,11 +1538,21 @@
                                                         `}
                                                     </div>
 
-                                                    <!-- Large Specialist Portrait Image -->
-                                                    <img src="${sp.avatar}" 
-                                                         alt="${sp.name}"
-                                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=512';"
-                                                         class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom ${isSelected ? 'scale-[1.04]' : ''}" />
+                                                    <!-- Large Specialist Portrait Image or Initials Badge -->
+                                                    ${sp.has_custom_avatar && sp.avatar ? `
+                                                        <img src="${sp.avatar}" 
+                                                             alt="${sp.name}"
+                                                             onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=512';"
+                                                             class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom ${isSelected ? 'scale-[1.04]' : ''}" />
+                                                    ` : `
+                                                        <div class="relative z-10 my-auto pb-4 flex flex-col items-center justify-center">
+                                                            <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-primary/30 shadow-xl flex items-center justify-center specialist-portrait-img transition-transform duration-500">
+                                                                <span class="text-4xl sm:text-5xl font-black font-serif text-primary tracking-widest select-none">
+                                                                    ${sp.initials || 'HL'}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    `}
 
                                                     <!-- Bottom Primary Accent Line -->
                                                     <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'} transition-opacity"></div>

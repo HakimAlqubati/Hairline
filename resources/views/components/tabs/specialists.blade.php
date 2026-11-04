@@ -141,12 +141,29 @@
                         </span>
                     </div>
 
-                    <!-- Large Specialist Portrait Image -->
-                    <img id="specialist-card-img-{{ $index }}"
-                         src="{{ $sp['avatar'] }}"
-                         alt="{{ $sp['name'] }}"
-                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name={{ urlencode($nameAr) }}&background=FFFFFF&color=C29E6D&bold=true&size=512'"
-                         class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom" />
+                    <!-- Large Specialist Portrait Image or Luxury Initials Badge -->
+                    @if(!empty($sp['has_custom_avatar']))
+                        <img id="specialist-card-img-{{ $index }}"
+                             src="{{ $sp['avatar'] }}"
+                             alt="{{ $sp['name'] }}"
+                             onerror="this.style.display='none'; var initEl = document.getElementById('specialist-card-initials-{{ $index }}'); if(initEl) initEl.classList.remove('hidden');"
+                             class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom" />
+                        <div id="specialist-card-initials-{{ $index }}" class="hidden relative z-10 my-auto pb-4 flex flex-col items-center justify-center">
+                            <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-primary/30 shadow-xl flex items-center justify-center specialist-portrait-img transition-transform duration-500 group-hover:scale-105">
+                                <span class="text-4xl sm:text-5xl font-black font-serif text-primary tracking-widest select-none">
+                                    {{ $sp['initials'] ?? 'HL' }}
+                                </span>
+                            </div>
+                        </div>
+                    @else
+                        <div id="specialist-card-initials-{{ $index }}" class="relative z-10 my-auto pb-4 flex flex-col items-center justify-center">
+                            <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-primary/30 shadow-xl flex items-center justify-center specialist-portrait-img transition-transform duration-500 group-hover:scale-105">
+                                <span class="text-4xl sm:text-5xl font-black font-serif text-primary tracking-widest select-none">
+                                    {{ $sp['initials'] ?? 'HL' }}
+                                </span>
+                            </div>
+                        </div>
+                    @endif
 
                     <!-- Bottom Primary Accent Line -->
                     <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light opacity-75 group-hover:opacity-100 transition-opacity"></div>
@@ -267,6 +284,13 @@
                      alt=""
                      class="relative z-10 w-full h-full max-h-[285px] sm:max-h-[330px] md:max-h-[430px] object-contain object-bottom drop-shadow-xl" />
 
+                <!-- Modal Initials Avatar (when specialist has no photo) -->
+                <div id="specialistModalInitialsWrapper" class="hidden relative z-10 my-auto pb-6 flex flex-col items-center justify-center">
+                    <div class="w-36 h-36 sm:w-44 sm:h-44 rounded-full bg-white border-4 border-primary/30 shadow-2xl flex items-center justify-center">
+                        <span id="specialistModalInitials" class="text-5xl sm:text-6xl font-black font-serif text-primary tracking-widest select-none"></span>
+                    </div>
+                </div>
+
                 <!-- Bottom Gradient Floor -->
                 <div class="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-primary-soft/40 to-transparent pointer-events-none"></div>
             </div>
@@ -309,10 +333,16 @@
                                         onclick="selectSpecialistInModal({{ $thumbIdx }})"
                                         id="specialist-modal-thumb-{{ $thumbIdx }}"
                                         title="{{ $thumbSp['name'] }}"
-                                        class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary-soft hover:border-primary transition-all duration-200 cursor-pointer bg-surface shrink-0">
-                                    <img src="{{ $thumbSp['avatar'] }}"
-                                         alt="{{ $thumbSp['name'] }}"
-                                         class="w-full h-full object-cover object-top" />
+                                        class="w-9 h-9 rounded-full overflow-hidden border-2 border-primary-soft hover:border-primary transition-all duration-200 cursor-pointer bg-white shrink-0 flex items-center justify-center">
+                                    @if(!empty($thumbSp['has_custom_avatar']))
+                                        <img src="{{ $thumbSp['avatar'] }}"
+                                             alt="{{ $thumbSp['name'] }}"
+                                             class="w-full h-full object-cover object-top" />
+                                    @else
+                                        <span class="w-full h-full bg-white text-primary font-black font-serif text-xs flex items-center justify-center select-none">
+                                            {{ $thumbSp['initials'] ?? 'HL' }}
+                                        </span>
+                                    @endif
                                 </button>
                             @endforeach
                         </div>

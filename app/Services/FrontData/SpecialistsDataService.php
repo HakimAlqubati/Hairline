@@ -43,9 +43,13 @@ class SpecialistsDataService
      * @return array<string, array{
      *     id: string,
      *     name: string,
+     *     name_ar?: string,
+     *     name_en?: string,
      *     role: string,
      *     experience: string,
      *     avatar: string,
+     *     has_custom_avatar?: bool,
+     *     initials?: string,
      *     bio: string,
      *     availableSlots: array<int, string>
      * }>
@@ -58,8 +62,8 @@ class SpecialistsDataService
 
             $result = [];
             foreach ($specialists as $sp) {
-                $nameAr = $sp->getTranslation('name', 'ar');
-                $nameEn = $sp->getTranslation('name', 'en');
+                $nameAr = $sp->getTranslation('name', 'ar') ?? '';
+                $nameEn = $sp->getTranslation('name', 'en') ?? '';
                 $fullName = $nameEn ? "{$nameAr} | {$nameEn}" : $nameAr;
 
                 $shiftForDay = $sp->shifts->firstWhere('day_of_week', (int) $defaultDate->dayOfWeek)
@@ -79,18 +83,45 @@ class SpecialistsDataService
                 }
 
                 $avatar = $sp->avatar_url;
-                if ($avatar && ! str_starts_with($avatar, 'http') && ! str_starts_with($avatar, 'data:')) {
+                $hasCustomAvatar = ! empty($avatar) && ! str_contains($avatar, 'ui-avatars.com');
+
+                if ($hasCustomAvatar && ! str_starts_with($avatar, 'http') && ! str_starts_with($avatar, 'data:')) {
                     $avatar = (str_starts_with($avatar, 'images/') || str_starts_with($avatar, '/images/'))
                         ? asset(ltrim($avatar, '/'))
                         : asset('storage/'.ltrim($avatar, '/'));
                 }
 
+                $initials = '';
+                if (! empty($nameEn)) {
+                    $enWords = array_values(array_filter(explode(' ', trim($nameEn))));
+                    if (count($enWords) >= 2) {
+                        $initials = strtoupper(substr($enWords[0], 0, 1).substr($enWords[1], 0, 1));
+                    } else {
+                        $initials = strtoupper(substr($nameEn, 0, 2));
+                    }
+                } elseif (! empty($nameAr)) {
+                    $arWords = array_values(array_filter(explode(' ', trim($nameAr))));
+                    if (count($arWords) >= 2) {
+                        $initials = mb_substr($arWords[0], 0, 1).' '.mb_substr($arWords[1], 0, 1);
+                    } else {
+                        $initials = mb_substr($nameAr, 0, 2);
+                    }
+                } else {
+                    $initials = 'HL';
+                }
+
+                $fallbackAvatar = 'https://ui-avatars.com/api/?name='.urlencode($nameEn ?: $nameAr).'&background=FFFFFF&color=C29E6D&bold=true&size=512';
+
                 $result[$sp->slug] = [
                     'id' => $sp->slug,
                     'name' => $fullName,
+                    'name_ar' => $nameAr,
+                    'name_en' => $nameEn,
                     'role' => $sp->getTranslation('role', 'ar'),
                     'experience' => $sp->getTranslation('experience', 'ar'),
-                    'avatar' => $avatar ?: 'https://ui-avatars.com/api/?name='.urlencode($nameAr).'&background=211C18&color=C29E6D&bold=true&size=150',
+                    'avatar' => $hasCustomAvatar ? $avatar : $fallbackAvatar,
+                    'has_custom_avatar' => $hasCustomAvatar,
+                    'initials' => $initials,
                     'bio' => $sp->getTranslation('bio', 'ar') ?: '',
                     'availableSlots' => $slots,
                 ];

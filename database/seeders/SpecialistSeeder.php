@@ -55,7 +55,7 @@ class SpecialistSeeder extends Seeder
                 'name_en' => 'Najla Alobaid',
                 'role' => 'ميك أب أرتيست',
                 'experience' => 'أكثر من 6 سنوات من الخبرة',
-                'avatar' => 'https://ui-avatars.com/api/?name=Najla+Alobaid&background=211C18&color=C29E6D&bold=true&size=150',
+                'avatar' => null,
                 'bio' => 'متخصصة في المكياج وتتميز بلمساتها الاحترافية التي تبرز جمال الملامح بأسلوب مناسب لكل مناسبة.',
                 'is_home' => false,
             ],

@@ -37,7 +37,7 @@ class SpecialistFactory extends Factory
                 'ar' => 'متخصصة في العناية الفائقة بأرقى المعايير.',
                 'en' => 'Specialized in top-tier hair and beauty techniques.',
             ],
-            'avatar_url' => 'https://ui-avatars.com/api/?name='.urlencode($name).'&background=211C18&color=C29E6D&bold=true',
+            'avatar_url' => 'https://ui-avatars.com/api/?name='.urlencode($name).'&background=FFFFFF&color=C29E6D&bold=true',
             'phone' => '0548857705',
             'is_home_specialist' => fake()->boolean(40),
             'sort_order' => fake()->numberBetween(1, 20),
