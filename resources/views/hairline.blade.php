@@ -76,6 +76,9 @@
 
 <body class="min-h-screen bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
 
+    <!-- 0. GLOBAL LUXURY PRELOADER -->
+    <x-global-loader :salonIdentity="$salonIdentity" />
+
     <!-- Responsive App Canvas (Phone frame on mobile, full-screen website layout on desktop) -->
     <div id="appContainer" class="w-full max-w-[480px] md:max-w-none min-h-screen bg-surface md:bg-transparent relative flex flex-col shadow-2xl md:shadow-none overflow-x-hidden pb-28 md:pb-16 transition-all duration-300">
 
