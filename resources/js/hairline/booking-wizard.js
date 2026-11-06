@@ -724,6 +724,7 @@ export function renderBookingStep() {
         if (pageTitle) pageTitle.textContent = "تم تأكيد حجزك بنجاح";
         if (pageSubtitle) pageSubtitle.textContent = "رقم الحجز: " + (lastBooking?.id || '');
         if (step4Container && lastBooking) {
+            const waUrl = getBookingWhatsAppShareUrl(lastBooking, customerName);
             step4Container.classList.remove('hidden');
             step4Container.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
@@ -736,8 +737,11 @@ export function renderBookingStep() {
                         <p class="text-sm font-extrabold text-primary-dark mt-1">
                             باسم: <span class="text-sage-dark">${customerName}</span>
                         </p>
-                        <div class="mt-2 inline-block px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
-                            رقم الحجز: ${lastBooking.id}
+                        <div class="mt-2 inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-gold-light text-gold-dark text-xs font-black">
+                            <span>رقم الحجز:</span>
+                            <span class="font-mono">#${lastBooking.id}</span>
+                            <span class="mx-1 opacity-40">•</span>
+                            <span class="text-[11px] font-bold text-amber-800 bg-amber-100/90 px-2 py-0.5 rounded-full">قيد الانتظار</span>
                         </div>
                     </div>
 
@@ -768,7 +772,20 @@ export function renderBookingStep() {
                         </div>
                     </div>
 
-                    <div class="flex gap-2.5 pt-2">
+                    <!-- Manual WhatsApp Share Button -->
+                    <div class="pt-1">
+                        <a href="${waUrl}" 
+                           target="_blank" 
+                           rel="noopener noreferrer" 
+                           id="bookingReceiptWhatsAppBtn"
+                           class="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                            <i class="fa-brands fa-whatsapp text-xl"></i>
+                            <span>إرسال تفاصيل الحجز إلى واتساب الصالون</span>
+                        </a>
+                         
+                    </div>
+
+                    <div class="flex gap-2.5 pt-1">
                         <button onclick="switchTab('account');" 
                                 class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
                               حجوزاتي
@@ -920,4 +937,33 @@ export async function fetchSpecialistAvailability() {
 export function confirmFinalBooking() {
     if (!state.bookingState.selectedCategory || !state.bookingState.selectedSubService || !state.bookingState.selectedSpecialist || !state.bookingState.selectedTime) return;
     openPhoneVerificationModal();
+}
+
+export function getBookingWhatsAppShareUrl(booking, customerName = '') {
+    const rawWaUrl = window.__HAIRLINE_DATA__?.whatsappUrl || 'https://wa.me/966548857705';
+    const baseUrl = rawWaUrl.split('?')[0];
+
+    const b = booking || state.confirmedBookings[0];
+    if (!b) return baseUrl;
+
+    const name = customerName || b.customerName || state.currentCustomer?.name || 'عميلة هيرلاين';
+    const phone = b.customerPhone || state.currentCustomer?.phone || '';
+
+    const lines = [
+        'مرحباً صالون هيرلاين،',
+        'أود مشاركة تفاصيل حجز جديد:',
+        '',
+        `رقم الحجز: #${b.id}`,
+        `اسم العميلة: ${name}`,
+        phone ? `رقم الجوال: ${phone}` : null,
+        `الخدمة: ${b.serviceName}`,
+        `الأخصائية: ${b.specialistName}`,
+        `الموعد: ${b.date}`,
+        `الوقت: ${b.time}`,
+        b.price ? `التكلفة التقديرية: ${b.price}` : null,
+        '',
+        'أرجو تأكيد موعدي، شكراً لكم.'
+    ].filter(line => line !== null).join('\n');
+
+    return `${baseUrl}?text=${encodeURIComponent(lines)}`;
 }

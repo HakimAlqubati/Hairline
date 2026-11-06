@@ -187,7 +187,19 @@
                 </div>
             </div>
 
-            <div class="flex gap-2.5 pt-2">
+            <div class="pt-1">
+                <a id="bookingReceiptStaticWhatsAppBtn"
+                   href="{{ $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705' }}"
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-xl"></i>
+                    <span>إرسال تفاصيل الحجز إلى واتساب الصالون</span>
+                </a>
+             
+            </div>
+
+            <div class="flex gap-2.5 pt-1">
                 <button onclick="switchTab('account');" 
                         class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
                       حجوزاتي

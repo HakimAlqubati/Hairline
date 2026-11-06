@@ -26,6 +26,7 @@ class BookingCreationService
      * @return array{
      *     id: string,
      *     db_id: int,
+     *     status: string,
      *     customerName: string,
      *     customerPhone: string,
      *     customerEmail: ?string,
@@ -156,18 +157,18 @@ class BookingCreationService
                 'customer_id' => $customer->id,
                 'customer_type' => $customerType,
                 'customer_address_id' => null,
-                'booking_type' => 'salon',
+                'booking_type' => Booking::BOOKING_TYPE_SALON,
                 'booking_date' => $bookingDate->toDateString(),
                 'overall_start_time' => $startTime24,
                 'overall_end_time' => $endTime24,
-                'status' => 'confirmed',
+                'status' => Booking::STATUS_PENDING,
                 'subtotal_amount' => $price,
                 'discount_amount' => 0.00,
                 'vat_amount' => $vatAmount,
                 'total_amount' => $price,
                 'deposit_required' => $depositRequired,
                 'deposit_paid' => 0.00,
-                'payment_status' => 'unpaid',
+                'payment_status' => Booking::PAYMENT_STATUS_UNPAID,
                 'admin_notes' => [
                     'ar' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'حجز إلكتروني كـ زائر' : 'حجز إلكتروني مباشر من صفحة الحجز',
                     'en' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'Online guest booking' : 'Direct online booking from booking page',
@@ -187,7 +188,7 @@ class BookingCreationService
                     'duration_minutes' => $itemDuration,
                     'scheduled_start_time' => $itemStart,
                     'scheduled_end_time' => $itemEnd,
-                    'status' => 'confirmed',
+                    'status' => Booking::STATUS_PENDING,
                 ]);
                 $itemStart = $itemEnd;
             }
@@ -204,6 +205,7 @@ class BookingCreationService
         return [
             'id' => $booking->booking_number,
             'db_id' => $booking->id,
+            'status' => $booking->status,
             'customerName' => $customer->name,
             'customerPhone' => $customer->phone,
             'customerEmail' => $customer->email,

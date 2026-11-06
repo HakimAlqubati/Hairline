@@ -43,7 +43,12 @@ class BookingPayloadFormatter
     {
         return Booking::with(['customer', 'items.service.category', 'items.specialist'])
             ->where('customer_id', $customer->id)
-            ->whereIn('status', ['confirmed', 'pending', 'in_progress', 'completed'])
+            ->whereIn('status', [
+                Booking::STATUS_CONFIRMED,
+                Booking::STATUS_PENDING,
+                Booking::STATUS_IN_PROGRESS,
+                Booking::STATUS_COMPLETED,
+            ])
             ->orderByDesc('id')
             ->limit(20)
             ->get()
@@ -61,6 +66,7 @@ class BookingPayloadFormatter
                 return [
                     'id' => $booking->booking_number,
                     'db_id' => $booking->id,
+                    'status' => $booking->status,
                     'customerName' => $customer->name,
                     'customerPhone' => $customer->phone,
                     'customerEmail' => $customer->email,

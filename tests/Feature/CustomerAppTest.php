@@ -385,7 +385,7 @@ describe('Customer-Facing Pages', function () {
         $newCustomer = Customer::where('phone', '0509988776')->firstOrFail();
         $this->assertDatabaseHas('bookings', [
             'customer_id' => $newCustomer->id,
-            'status' => 'confirmed',
+            'status' => Booking::STATUS_PENDING,
         ]);
     });
 
@@ -1164,5 +1164,42 @@ describe('Static Data Services', function () {
 
         $failedLogin = $service->login('INVALID');
         expect($failedLogin['success'])->toBeFalse();
+    });
+
+    test('Booking model has status constants and new bookings default to pending with manual whatsapp button', function () {
+        expect(Booking::STATUS_PENDING)->toBe('pending');
+        expect(Booking::STATUS_CONFIRMED)->toBe('confirmed');
+        expect(Booking::STATUS_IN_PROGRESS)->toBe('in_progress');
+        expect(Booking::STATUS_COMPLETED)->toBe('completed');
+        expect(Booking::STATUS_CANCELLED)->toBe('cancelled');
+        expect(Booking::STATUS_NO_SHOW)->toBe('no_show');
+        expect(Booking::PAYMENT_STATUS_UNPAID)->toBe('unpaid');
+        expect(Booking::getStatuses())->toContain(Booking::STATUS_PENDING, Booking::STATUS_CONFIRMED);
+
+        $customer = Customer::where('phone', '0551234567')->firstOrFail();
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+
+        $creationService = app(BookingCreationService::class);
+        $payload = $creationService->createBookingForCustomer(
+            customer: $customer,
+            serviceCode: $service->code,
+            specialistSlug: $specialist->slug,
+            dateLabel: 'غداً - السبت',
+            timeSlot: '04:00 م',
+            customerType: Booking::CUSTOMER_TYPE_REGISTERED
+        );
+
+        $createdBooking = Booking::findOrFail($payload['db_id']);
+        expect($createdBooking->status)->toBe(Booking::STATUS_PENDING);
+        expect($createdBooking->isPending())->toBeTrue();
+        expect($createdBooking->isConfirmed())->toBeFalse();
+
+        // Also verify the booking page renders the manual WhatsApp share button in Step 4
+        $bookingPageResponse = $this->get('/booking');
+        $bookingPageResponse->assertStatus(200);
+        $bookingPageResponse->assertSee('id="bookingReceiptStaticWhatsAppBtn"', false);
+        $bookingPageResponse->assertSee('إرسال تفاصيل الحجز إلى واتساب الصالون');
+        $bookingPageResponse->assertSee('fa-brands fa-whatsapp', false);
     });
 });

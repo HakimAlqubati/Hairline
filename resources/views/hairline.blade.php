@@ -44,7 +44,9 @@
             bookings: {!! json_encode($initialBookings ?? [], JSON_UNESCAPED_UNICODE) !!},
             salonIdentity: {!! json_encode($salonIdentity, JSON_UNESCAPED_UNICODE) !!},
             workingHours: {!! json_encode($workingHours ?? [], JSON_UNESCAPED_UNICODE) !!},
-            location: {!! json_encode($location ?? [], JSON_UNESCAPED_UNICODE) !!}
+            location: {!! json_encode($location ?? [], JSON_UNESCAPED_UNICODE) !!},
+            contactLinks: {!! json_encode($contactLinks ?? [], JSON_UNESCAPED_UNICODE) !!},
+            whatsappUrl: "{{ $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705' }}"
         };
     </script>
 
