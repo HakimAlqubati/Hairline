@@ -234,7 +234,7 @@
                         <button onclick="openSidebarSection('contact')" 
                                 title="موقع الصالون والتواصل"
                                 aria-label="موقع الصالون والتواصل"
-                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-white/95 transition active:scale-95 cursor-pointer border border-white/60">
+                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-[#FAF8F5] hover:text-primary transition active:scale-95 cursor-pointer border border-white/80">
                             <i class="fa-solid fa-location-dot text-[15px] sm:text-base text-primary"></i>
                         </button>
 
@@ -243,8 +243,8 @@
                                 onclick="toggleSidebar(true)" 
                                 title="القائمة الجانبية"
                                 aria-label="القائمة الجانبية"
-                                class="header-action-btn md:hidden bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-gray-900 hover:text-white transition active:scale-95 cursor-pointer border border-white/60">
-                            <i class="fa-solid fa-ellipsis-vertical text-[17px] sm:text-lg"></i>
+                                class="header-action-btn md:hidden bg-white text-primary shadow-md shadow-black/10 hover:bg-[#FAF8F5] hover:text-primary transition active:scale-95 cursor-pointer border border-white/80">
+                            <i class="fa-solid fa-ellipsis-vertical text-[17px] sm:text-lg text-primary"></i>
                         </button>
                     </div>
                 </div>
