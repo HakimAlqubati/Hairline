@@ -95,10 +95,7 @@
                     loading="lazy">
                 </iframe>
                 <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-sage-dark/80 via-sage-dark/40 to-transparent flex items-center justify-between text-white text-xs font-bold">
-                    <span class="flex items-center gap-1.5">
-                        <i class="fa-solid fa-diamond-turn-right text-primary"></i>
-                        <span>انقري لفتح الإتجاهات في Google Maps</span>
-                    </span>
+                    
                     <span class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-xs text-[11px]">مخرج 5</span>
                 </div>
             </a>

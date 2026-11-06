@@ -151,12 +151,12 @@
                                  loading="eager">
                         </div>
 
-                        <!-- Salon Title & Subtitle (English Only) -->
+                        <!-- Salon Title & Subtitle (English Only - Bold Typography) -->
                         <div class="flex flex-col min-w-0 justify-center">
-                            <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-widest text-white font-serif drop-shadow-sm leading-tight">
+                            <h1 class="text-lg sm:text-xl md:text-2xl font-black tracking-[0.16em] text-white font-serif drop-shadow-sm leading-tight [-webkit-text-stroke:_0.4px_currentColor]">
                                 {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}
                             </h1>
-                            <span class="text-[9px] sm:text-[10.5px] font-semibold tracking-[0.26em] text-white/85 uppercase mt-0.5 drop-shadow-xs">
+                            <span class="text-[10px] sm:text-[11.5px] font-black tracking-[0.28em] text-white uppercase mt-0.5 drop-shadow-xs [-webkit-text-stroke:_0.25px_currentColor]">
                                 {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}
                             </span>
                         </div>
