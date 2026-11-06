@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\HairlineController;
 use Illuminate\Support\Facades\Route;
 
@@ -23,8 +25,8 @@ Route::get('/privacy', [HairlineController::class, 'show'])->defaults('initialVi
 Route::get('/booking/availability', [BookingController::class, 'getAvailability'])->name('booking.availability');
 Route::post('/booking/verify-phone', [BookingController::class, 'verifyPhone'])->name('booking.verify_phone');
 Route::post('/booking/guest-confirm', [BookingController::class, 'confirmGuestBooking'])->name('booking.guest_confirm');
-Route::post('/booking/google-register', [BookingController::class, 'registerWithGoogle'])->name('booking.google_register');
-Route::get('/auth/google/redirect', [BookingController::class, 'redirectToGoogle'])->name('booking.google_redirect');
-Route::get('/auth/google/callback', [BookingController::class, 'handleGoogleCallback'])->name('booking.google_callback');
-Route::post('/profile/update', [BookingController::class, 'updateProfile'])->name('profile.update');
-Route::post('/profile/logout', [BookingController::class, 'logout'])->name('profile.logout');
+Route::post('/booking/google-register', [GoogleAuthController::class, 'registerWithGoogle'])->name('booking.google_register');
+Route::get('/auth/google/redirect', [GoogleAuthController::class, 'redirectToGoogle'])->name('booking.google_redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback'])->name('booking.google_callback');
+Route::post('/profile/update', [CustomerProfileController::class, 'updateProfile'])->name('profile.update');
+Route::post('/profile/logout', [CustomerProfileController::class, 'logout'])->name('profile.logout');
