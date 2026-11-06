@@ -143,21 +143,20 @@
                 <div class="max-w-7xl mx-auto px-3.5 sm:px-6 md:px-14 lg:px-20 relative flex items-center justify-between gap-2 sm:gap-4 w-full">
                     <!-- Right Side: Official Salon Logo + Name & Subtitle -->
                     <div class="flex items-center gap-2.5 sm:gap-3.5 cursor-pointer min-w-0" onclick="switchTab('home')">
-                        <!-- Circular Luxury Logo with White Background & Border -->
-                        <div class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-full bg-white border-2 border-white/90 shadow-md ring-2 ring-black/5 flex items-center justify-center relative overflow-hidden shrink-0 p-1 sm:p-1.5 transition-transform hover:scale-105">
-                            <img src="{{ asset('images/logo.png') }}"
-                                 alt="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} - {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}"
-                                 class="w-full h-full object-contain">
+                        <!-- Cutout White Vector Logo (Emblem Only, Transparent, No Text) -->
+                        <div class="w-10 h-10 sm:w-11 sm:h-11 md:w-12 md:h-12 shrink-0 flex items-center justify-center text-white transition-transform hover:scale-105 drop-shadow-xs">
+                            <img src="{{ asset('images/logo-white.svg') }}"
+                                 alt="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}"
+                                 class="w-full h-full object-contain"
+                                 loading="eager">
                         </div>
 
-                        <!-- Salon Title & Subtitle -->
+                        <!-- Salon Title & Subtitle (English Only) -->
                         <div class="flex flex-col min-w-0 justify-center">
-                            <div class="flex items-center gap-1.5">
-                                <h1 class="text-base sm:text-lg md:text-xl font-black text-white tracking-tight truncate drop-shadow-sm leading-tight">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}</h1>
-                                <span class="text-white/60 font-light text-sm sm:text-base leading-tight">|</span>
-                                <span class="text-xs sm:text-sm md:text-base font-bold tracking-wider text-white/95 font-serif drop-shadow-sm leading-tight">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}</span>
-                            </div>
-                            <span class="text-[10px] sm:text-[11px] font-bold tracking-[0.22em] sm:tracking-[0.24em] text-white/85 uppercase mt-0.5 drop-shadow-xs">
+                            <h1 class="text-base sm:text-lg md:text-xl font-bold tracking-widest text-white font-serif drop-shadow-sm leading-tight">
+                                {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}
+                            </h1>
+                            <span class="text-[9px] sm:text-[10.5px] font-semibold tracking-[0.26em] text-white/85 uppercase mt-0.5 drop-shadow-xs">
                                 {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}
                             </span>
                         </div>

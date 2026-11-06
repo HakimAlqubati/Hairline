@@ -56,4 +56,9 @@ class PaymentMethodResource extends Resource
             'edit' => EditPaymentMethod::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 }

@@ -56,4 +56,9 @@ class CancellationPolicyResource extends Resource
             'edit' => EditCancellationPolicy::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 }

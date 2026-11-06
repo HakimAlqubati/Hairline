@@ -77,7 +77,7 @@ return [
 
         // System
         'user' => 'User',
-        'users' => 'Admin Users',
+        'users' => 'Users',
     ],
 
     'sections' => [

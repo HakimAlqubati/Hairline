@@ -56,4 +56,9 @@ class DistrictResource extends Resource
             'edit' => EditDistrict::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 }

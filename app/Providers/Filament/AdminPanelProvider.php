@@ -63,13 +63,9 @@ class AdminPanelProvider extends PanelProvider
                     ->label(fn (): string => __('admin.nav.loyalty_program'))
                     ->collapsed(false),
 
-                NavigationGroup::make()
-                    ->label(fn (): string => __('admin.nav.financials_logistics'))
-                    ->collapsed(true),
-
-                NavigationGroup::make()
-                    ->label(fn (): string => __('admin.nav.system_settings'))
-                    ->collapsed(true),
+                // NavigationGroup::make()
+                //     ->label(fn (): string => __('admin.nav.financials_logistics'))
+                //     ->collapsed(true),
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')

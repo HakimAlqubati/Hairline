@@ -56,4 +56,9 @@ class SalonGalleryResource extends Resource
             'edit' => EditSalonGallery::route('/{record}/edit'),
         ];
     }
+
+    public static function canAccess(): bool
+    {
+        return false;
+    }
 }
