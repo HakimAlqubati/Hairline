@@ -76,7 +76,7 @@
     </style>
 </head>
 
-<body class="min-h-screen bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
+<body class="min-h-screen has-loader bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
 
     <!-- 0. GLOBAL LUXURY PRELOADER -->
     <x-global-loader :salonIdentity="$salonIdentity" />
@@ -88,7 +88,7 @@
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
 
         <!-- 2. MAIN HOME VIEW (Contained in luxury max-w-7xl centered container) -->
-        <main id="mainHomeView" class="{{ ($initialView ?? 'home') === 'home' ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 space-y-5 md:space-y-8">
+        <main id="mainHomeView" class="{{ ($initialView ?? 'home') === 'home' ? '' : 'hidden' }} flex-1 w-full max-w-7xl mx-auto px-4 sm:px-5 lg:px-8 pt-4 md:pt-5 space-y-4 md:space-y-5">
             <!-- Main Service Rows (Strictly 2 Wide Rows) -->
             <x-service-rows />
 

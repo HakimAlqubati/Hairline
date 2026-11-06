@@ -283,6 +283,13 @@ function initHairlineApp() {
         switchTab(initial);
     }
 
+    // Safety fallback: ensure home entrance animations trigger even if preloader is skipped
+    setTimeout(() => {
+        if (!document.body.classList.contains('site-entered')) {
+            document.body.classList.add('site-entered');
+        }
+    }, 700);
+
     // Support browser back/forward buttons
     window.addEventListener('popstate', () => {
         const path = window.location.pathname.replace(/^\/+/, '');

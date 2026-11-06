@@ -158,10 +158,15 @@
         loader.classList.add('loader-dismissed');
         loader.setAttribute('aria-hidden', 'true');
 
+        // Trigger home entrance animation in perfect sync with the loader dissolving
+        document.body.classList.add('site-entered');
+        window.dispatchEvent(new CustomEvent('hairline:site-entered'));
+
         setTimeout(function() {
             if (loader.parentNode) {
                 loader.parentNode.removeChild(loader);
             }
+            document.body.classList.remove('has-loader');
         }, 600);
     }
 

@@ -2,7 +2,7 @@
     'heroSlides' => [],
 ])
 
-<section aria-label="البانر الإعلاني" class="relative">
+<section aria-label="البانر الإعلاني" class="relative home-slider-enter-bottom">
     <div id="heroSliderContainer" class="relative w-full h-64 sm:h-72 md:h-96 lg:h-[420px] rounded-3xl overflow-hidden shadow-lg border border-white">
         
         <!-- Dynamic Slide Image -->

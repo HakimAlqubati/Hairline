@@ -332,3 +332,76 @@ body.simulated-fullscreen #appContainer {
     border-color: rgba(194, 158, 109, 0.45);
     background-color: rgba(255, 255, 255, 0.92);
 }
+
+/* ============================================================
+   Home Opening Entrance Choreography
+   (Cards from Right & Left, Slider from Bottom)
+   ============================================================ */
+@keyframes homeCardSlideRight {
+    0% {
+        opacity: 0;
+        transform: translate3d(52px, 0, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes homeCardSlideLeft {
+    0% {
+        opacity: 0;
+        transform: translate3d(-52px, 0, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+@keyframes homeSliderSlideUp {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 52px, 0);
+    }
+    100% {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+/* Pre-hidden while loader is active, waiting for entrance sequence */
+body.has-loader:not(.site-entered) .home-card-enter-right,
+body.has-loader:not(.site-entered) .home-card-enter-left,
+body.has-loader:not(.site-entered) .home-slider-enter-bottom {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Fluid Entrance Animation Triggered on Site Open */
+.site-entered .home-card-enter-right {
+    animation: homeCardSlideRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards;
+    will-change: transform, opacity;
+}
+
+.site-entered .home-card-enter-left {
+    animation: homeCardSlideLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.12s forwards;
+    will-change: transform, opacity;
+}
+
+.site-entered .home-slider-enter-bottom {
+    animation: homeSliderSlideUp 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.22s forwards;
+    will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .home-card-enter-right,
+    .home-card-enter-left,
+    .home-slider-enter-bottom {
+        opacity: 1 !important;
+        transform: none !important;
+        animation: none !important;
+        pointer-events: auto !important;
+    }
+}
+
