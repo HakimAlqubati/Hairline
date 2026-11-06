@@ -113,13 +113,13 @@
                     <a href="{{ $whatsappUrl }}"
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-[#25D366]/20">
-                        <i class="fa-brands fa-whatsapp text-sm text-white"></i>
+                       class="group flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:shadow-primary/20">
+                        <i class="fa-brands fa-whatsapp text-sm text-primary group-hover:text-white transition-colors"></i>
                         <span>واتساب</span>
                     </a>
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) ($phoneRaw ?: '0548857705')) }}"
-                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white text-xs font-bold transition flex items-center justify-center gap-1.5 shadow-xs shadow-primary/20">
-                        <i class="fa-solid fa-phone text-xs text-white"></i>
+                       class="group flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:shadow-primary/20">
+                        <i class="fa-solid fa-phone text-xs text-primary group-hover:text-white transition-colors"></i>
                         <span>اتصال</span>
                     </a>
                 </div>

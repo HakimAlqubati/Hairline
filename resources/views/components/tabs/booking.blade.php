@@ -192,7 +192,7 @@
                    href="{{ $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705' }}"
                    target="_blank" 
                    rel="noopener noreferrer" 
-                   class="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
+                   class="w-full py-3.5 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md shadow-primary/25 hover:shadow-lg active:scale-98 transition-all cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-xl"></i>
                     <span>إرسال تفاصيل الحجز إلى واتساب الصالون</span>
                 </a>

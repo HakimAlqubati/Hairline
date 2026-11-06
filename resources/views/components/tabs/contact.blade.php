@@ -41,14 +41,14 @@
         <!-- Row 1: Direct Contact Buttons -->
         <div class="flex flex-col sm:flex-row items-center gap-4">
             <a href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"
-               class="w-full sm:flex-1 py-4 px-6 rounded-2xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-sm flex items-center justify-center gap-2.5 shadow-md shadow-[#25D366]/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-                <i class="fa-brands fa-whatsapp text-lg"></i>
+               class="group w-full sm:flex-1 py-4 px-6 rounded-2xl bg-transparent border-2 border-primary text-primary-dark hover:text-white hover:bg-primary hover:border-primary font-bold text-sm flex items-center justify-center gap-2.5 shadow-2xs hover:shadow-md hover:shadow-primary/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                <i class="fa-brands fa-whatsapp text-lg text-primary group-hover:text-white transition-colors duration-300"></i>
                 <span>محادثة واتساب مباشرة</span>
             </a>
 
             <a href="tel:{{ $phoneClean }}"
-               class="w-full sm:flex-1 py-4 px-6 rounded-2xl bg-primary hover:bg-primary-dark text-white font-bold text-sm flex items-center justify-center gap-2.5 shadow-md shadow-primary/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-                <i class="fa-solid fa-phone text-sm"></i>
+               class="group w-full sm:flex-1 py-4 px-6 rounded-2xl bg-transparent border-2 border-primary text-primary-dark hover:text-white hover:bg-primary hover:border-primary font-bold text-sm flex items-center justify-center gap-2.5 shadow-2xs hover:shadow-md hover:shadow-primary/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
+                <i class="fa-solid fa-phone text-sm text-primary group-hover:text-white transition-colors duration-300"></i>
                 <span dir="ltr">{{ $phone }}</span>
                 <span>اتصال مباشر</span>
             </a>
