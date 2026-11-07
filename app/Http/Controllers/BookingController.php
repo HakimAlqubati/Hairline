@@ -99,13 +99,18 @@ class BookingController extends Controller
             if ($hasBooking) {
                 try {
                     $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
+                    $guestsCount = $request->has('guests_count') ? (int) $request->input('guests_count') : 1;
+                    $customerNotes = $request->filled('customer_notes') ? (string) $request->input('customer_notes') : null;
+
                     $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                         customer: $loggedInCustomer,
                         serviceCode: $serviceInput,
                         specialistSlug: (string) $request->input('specialist_id'),
                         dateLabel: (string) $request->input('booking_date'),
                         timeSlot: (string) $request->input('booking_time'),
-                        customerType: Booking::CUSTOMER_TYPE_REGISTERED
+                        customerType: Booking::CUSTOMER_TYPE_REGISTERED,
+                        guestsCount: $guestsCount,
+                        customerNotes: $customerNotes
                     );
                 } catch (SlotUnavailableException $e) {
                     return response()->json([
@@ -201,6 +206,8 @@ class BookingController extends Controller
         session(['logged_in_customer_id' => $customer->id]);
 
         $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
+        $guestsCount = $request->has('guests_count') ? (int) $request->input('guests_count') : 1;
+        $customerNotes = $request->filled('customer_notes') ? (string) $request->input('customer_notes') : null;
 
         try {
             $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
@@ -209,7 +216,9 @@ class BookingController extends Controller
                 specialistSlug: (string) $request->input('specialist_id'),
                 dateLabel: (string) $request->input('booking_date'),
                 timeSlot: (string) $request->input('booking_time'),
-                customerType: Booking::CUSTOMER_TYPE_GUEST
+                customerType: Booking::CUSTOMER_TYPE_GUEST,
+                guestsCount: $guestsCount,
+                customerNotes: $customerNotes
             );
         } catch (SlotUnavailableException $e) {
             return response()->json([

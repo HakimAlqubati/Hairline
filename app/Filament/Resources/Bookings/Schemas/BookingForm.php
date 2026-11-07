@@ -8,6 +8,7 @@ use App\Filament\Support\TranslatableField;
 use App\Models\Booking;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Grid;
@@ -46,6 +47,13 @@ class BookingForm
                                 ->default(Booking::CUSTOMER_TYPE_REGISTERED)
                                 ->required(),
 
+                            TextInput::make('guests_count')
+                                ->label('عدد الأشخاص')
+                                ->numeric()
+                                ->default(1)
+                                ->minValue(1)
+                                ->required(),
+
                             Select::make('booking_type')
                                 ->label(__('admin.fields.booking_type'))
                                 ->options([
@@ -80,61 +88,6 @@ class BookingForm
                             ->hidden(),
                     ]),
 
-                Section::make(__('admin.sections.financial_summary'))
-                    ->columnSpanFull()
-                    ->schema([
-                        Grid::make(4)->schema([
-                            TextInput::make('subtotal_amount')
-                                ->label(__('admin.fields.subtotal_amount'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-
-                            TextInput::make('discount_amount')
-                                ->label(__('admin.fields.discount_amount'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-
-                            TextInput::make('vat_amount')
-                                ->label(__('admin.fields.vat_amount'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-
-                            TextInput::make('total_amount')
-                                ->label(__('admin.fields.total_amount'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-                        ]),
-
-                        Grid::make(3)->schema([
-                            TextInput::make('deposit_required')
-                                ->label(__('admin.fields.deposit_required'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-
-                            TextInput::make('deposit_paid')
-                                ->label(__('admin.fields.deposit_paid'))
-                                ->numeric()
-                                ->prefix('SAR')
-                                ->default(0.00),
-
-                            Select::make('payment_status')
-                                ->label(__('admin.fields.payment_status'))
-                                ->options([
-                                    'unpaid' => __('admin.statuses.unpaid'),
-                                    'partially_paid' => __('admin.statuses.partially_paid'),
-                                    'fully_paid' => __('admin.statuses.fully_paid'),
-                                    'refunded' => __('admin.statuses.refunded'),
-                                ])
-                                ->default('unpaid')
-                                ->required(),
-                        ]),
-                    ]),
-
                 Section::make(__('admin.sections.status_and_notes'))
                     ->columnSpanFull()
                     ->schema([
@@ -150,6 +103,13 @@ class BookingForm
                             ])
                             ->default('confirmed')
                             ->required(),
+
+                        Textarea::make('customer_notes')
+                            ->label('ملاحظات العميلة')
+                            ->placeholder('ملاحظات أو متطلبات خاصة بالعميلة...')
+                            ->rows(3)
+                            ->columnSpanFull()
+                            ->nullable(),
 
                         TranslatableField::textarea('admin_notes', __('admin.fields.admin_notes'), rows: 3),
                     ]),

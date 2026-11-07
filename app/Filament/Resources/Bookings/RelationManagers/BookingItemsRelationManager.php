@@ -53,13 +53,7 @@ class BookingItemsRelationManager extends RelationManager
                         ->nullable(),
                 ]),
 
-                Grid::make(4)->schema([
-                    TextInput::make('unit_price')
-                        ->label(__('admin.fields.unit_price'))
-                        ->numeric()
-                        ->prefix('SAR')
-                        ->required(),
-
+                Grid::make(3)->schema([
                     TextInput::make('duration_minutes')
                         ->label(__('admin.fields.duration_minutes'))
                         ->numeric()
@@ -74,6 +68,10 @@ class BookingItemsRelationManager extends RelationManager
                         ->label(__('admin.fields.scheduled_end_time'))
                         ->required(),
                 ]),
+
+                TextInput::make('unit_price')
+                    ->default(0.00)
+                    ->hidden(),
 
                 Select::make('status')
                     ->label(__('admin.fields.status'))
@@ -109,10 +107,6 @@ class BookingItemsRelationManager extends RelationManager
                     ->label(__('admin.fields.hair_length'))
                     ->badge()
                     ->color('gray'),
-
-                TextColumn::make('unit_price')
-                    ->label(__('admin.fields.unit_price'))
-                    ->money('SAR'),
 
                 TextColumn::make('duration_minutes')
                     ->label(__('admin.fields.duration_minutes'))

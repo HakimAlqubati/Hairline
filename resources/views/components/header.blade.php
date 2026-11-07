@@ -128,6 +128,7 @@
             min-height: 44px;
         }
     }
+ 
 </style>
 
 <!-- Placeholder container to preserve layout flow and prevent layout shift (CLS) -->

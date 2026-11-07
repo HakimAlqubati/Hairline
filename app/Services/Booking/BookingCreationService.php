@@ -48,7 +48,9 @@ class BookingCreationService
         string $specialistSlug,
         string $dateLabel,
         string $timeSlot,
-        string $customerType = Booking::CUSTOMER_TYPE_REGISTERED
+        string $customerType = Booking::CUSTOMER_TYPE_REGISTERED,
+        int $guestsCount = 1,
+        ?string $customerNotes = null
     ): array {
         $serviceCodes = is_array($serviceCode) ? $serviceCode : [$serviceCode];
         $services = [];
@@ -130,7 +132,9 @@ class BookingCreationService
             $endTime24,
             $price,
             $vatAmount,
-            $depositRequired
+            $depositRequired,
+            $guestsCount,
+            $customerNotes
         ): Booking {
             // Lock specialist row for update to serialize concurrent booking attempts for this specialist
             $lockedSpecialist = Specialist::whereKey($specialist->id)->lockForUpdate()->first();
@@ -158,6 +162,7 @@ class BookingCreationService
                 'customer_type' => $customerType,
                 'customer_address_id' => null,
                 'booking_type' => Booking::BOOKING_TYPE_SALON,
+                'guests_count' => max(1, $guestsCount),
                 'booking_date' => $bookingDate->toDateString(),
                 'overall_start_time' => $startTime24,
                 'overall_end_time' => $endTime24,
@@ -173,6 +178,7 @@ class BookingCreationService
                     'ar' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'حجز إلكتروني كـ زائر' : 'حجز إلكتروني مباشر من صفحة الحجز',
                     'en' => $customerType === Booking::CUSTOMER_TYPE_GUEST ? 'Online guest booking' : 'Direct online booking from booking page',
                 ],
+                'customer_notes' => $customerNotes ? trim($customerNotes) : null,
             ]);
 
             $itemStart = $startTime24;
@@ -216,6 +222,8 @@ class BookingCreationService
             'bookingDateIso' => $bookingDate->toDateString(),
             'time' => $timeSlotClean,
             'price' => ((int) $price).' ر.س',
+            'guests_count' => $booking->guests_count,
+            'customer_notes' => $booking->customer_notes,
         ];
     }
 }

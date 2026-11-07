@@ -6,7 +6,6 @@ namespace App\Services\FrontData;
 
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
-use App\Models\SalonWorkingHour;
 use App\Models\Setting;
 use App\Services\Cache\HairlineCacheService;
 use Illuminate\Support\Facades\Cache;
@@ -185,15 +184,14 @@ class SalonInfoDataService
     {
         $cachedHours = Cache::rememberForever(HairlineCacheService::KEY_WORKING_HOURS, function () {
             $defaultWorkingHours = Setting::getSetting('default_working_hours');
-            $hour = SalonWorkingHour::where('is_closed', false)->first();
 
-            $hoursAr = $defaultWorkingHours ?: ($hour ? $hour->getTranslation('notes', 'ar') : 'من 2:00 ظهراً حتى 10:00 مساءً');
+            $hoursAr = $defaultWorkingHours ?: 'من 2:00 ظهراً حتى 10:00 مساءً';
 
             return [
                 'days' => 'يومياً',
-                'hours_ar' => $hoursAr,
-                'hours_from' => $hour ? substr((string) $hour->opening_time, 0, 5) : '14:00',
-                'hours_to' => $hour ? substr((string) $hour->closing_time, 0, 5) : '22:00',
+                'hours_ar' => (string) $hoursAr,
+                'hours_from' => '14:00',
+                'hours_to' => '22:00',
             ];
         });
 

@@ -54,8 +54,13 @@ body {
     scrollbar-width: none;
 }
 
-/* Ensure hidden utility takes absolute precedence over FontAwesome or third-party styles */
-.hidden, [hidden] {
+/* Ensure native hidden attribute is respected */
+[hidden] {
+    display: none !important;
+}
+
+/* Specific icon override for FontAwesome if needed without breaking responsive classes */
+i.hidden, svg.hidden {
     display: none !important;
 }
 

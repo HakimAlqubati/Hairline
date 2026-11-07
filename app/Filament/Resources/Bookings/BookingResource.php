@@ -9,7 +9,6 @@ use App\Filament\Resources\Bookings\Pages\EditBooking;
 use App\Filament\Resources\Bookings\Pages\ListBookings;
 use App\Filament\Resources\Bookings\Pages\ViewBooking;
 use App\Filament\Resources\Bookings\RelationManagers\BookingItemsRelationManager;
-use App\Filament\Resources\Bookings\RelationManagers\PaymentsRelationManager;
 use App\Filament\Resources\Bookings\Schemas\BookingForm;
 use App\Filament\Resources\Bookings\Tables\BookingTable;
 use App\Models\Booking;
@@ -67,7 +66,6 @@ class BookingResource extends Resource
     {
         return [
             BookingItemsRelationManager::class,
-            PaymentsRelationManager::class,
         ];
     }
 

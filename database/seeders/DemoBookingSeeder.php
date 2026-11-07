@@ -48,6 +48,8 @@ class DemoBookingSeeder extends Seeder
                 'deposit_required' => 225.00,
                 'deposit_paid' => 225.00,
                 'payment_status' => 'partially_paid',
+                'guests_count' => 1,
+                'customer_notes' => 'يرجى التركيز على أطراف الشعر المتقصفة',
                 'admin_notes' => [
                     'ar' => 'حجز مؤكد مع دفعة عربون عبر بطاقة مدى',
                     'en' => 'Confirmed booking with deposit paid via Mada',

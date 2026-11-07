@@ -50,7 +50,10 @@ import {
     selectBookingTime,
     fetchSpecialistAvailability,
     confirmFinalBooking,
-    getBookingWhatsAppShareUrl
+    getBookingWhatsAppShareUrl,
+    changeBookingGuestsCount,
+    handleBookingGuestsCountInput,
+    handleBookingNotesInput
 } from './hairline/booking-wizard.js';
 import {
     normalizeDigitsJs,
@@ -200,6 +203,9 @@ Object.assign(window, {
     fetchSpecialistAvailability,
     confirmFinalBooking,
     getBookingWhatsAppShareUrl,
+    changeBookingGuestsCount,
+    handleBookingGuestsCountInput,
+    handleBookingNotesInput,
 
     // Auth & Phone Verification
     normalizeDigitsJs,

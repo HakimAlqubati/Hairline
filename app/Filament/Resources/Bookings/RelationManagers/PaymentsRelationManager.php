@@ -21,6 +21,11 @@ class PaymentsRelationManager extends RelationManager
 {
     protected static string $relationship = 'payments';
 
+    public static function canViewForRecord(Model $ownerRecord, string $pageClass): bool
+    {
+        return false;
+    }
+
     public static function getTitle(Model $ownerRecord, string $pageClass): string
     {
         return __('admin.resources.payments');

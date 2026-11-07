@@ -96,6 +96,8 @@ class GoogleAuthController extends Controller
                 'specialist_id' => (string) ($bookingContext['specialist_id'] ?? ''),
                 'booking_date' => (string) ($bookingContext['booking_date'] ?? ''),
                 'booking_time' => (string) ($bookingContext['booking_time'] ?? ''),
+                'guests_count' => ! empty($bookingContext['guests_count']) ? (int) $bookingContext['guests_count'] : 1,
+                'customer_notes' => ! empty($bookingContext['customer_notes']) ? (string) $bookingContext['customer_notes'] : null,
             ];
 
             $slotValidator = Validator::make($contextData, [
@@ -161,7 +163,9 @@ class GoogleAuthController extends Controller
                     specialistSlug: $contextData['specialist_id'],
                     dateLabel: $contextData['booking_date'],
                     timeSlot: $contextData['booking_time'],
-                    customerType: Booking::CUSTOMER_TYPE_REGISTERED
+                    customerType: Booking::CUSTOMER_TYPE_REGISTERED,
+                    guestsCount: $contextData['guests_count'] ?? 1,
+                    customerNotes: $contextData['customer_notes'] ?? null
                 );
             } catch (SlotUnavailableException|InvalidArgumentException $e) {
                 return $this->googleOAuthService->renderPopupCallbackScript([
@@ -248,13 +252,18 @@ class GoogleAuthController extends Controller
         if ($hasBooking) {
             try {
                 $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
+                $guestsCount = $request->has('guests_count') ? (int) $request->input('guests_count') : 1;
+                $customerNotes = $request->filled('customer_notes') ? (string) $request->input('customer_notes') : null;
+
                 $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                     customer: $customer,
                     serviceCode: $serviceInput,
                     specialistSlug: (string) $request->input('specialist_id'),
                     dateLabel: (string) $request->input('booking_date'),
                     timeSlot: (string) $request->input('booking_time'),
-                    customerType: Booking::CUSTOMER_TYPE_REGISTERED
+                    customerType: Booking::CUSTOMER_TYPE_REGISTERED,
+                    guestsCount: $guestsCount,
+                    customerNotes: $customerNotes
                 );
             } catch (SlotUnavailableException $e) {
                 return response()->json([

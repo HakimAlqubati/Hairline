@@ -43,6 +43,9 @@ export function openPhoneVerificationModal() {
         : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
     const servicesTitle = subServices.map(s => s.name).join(' + ');
 
+    const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
+    const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
+
     if (summaryEl) {
         summaryEl.innerHTML = `
             <div class="flex items-center justify-between gap-2">
@@ -70,6 +73,18 @@ export function openPhoneVerificationModal() {
                     <span class="truncate font-semibold text-sage-dark">${state.bookingState.selectedDate} • ${timeSlot}</span>
                 </div>
             </div>
+            ${guestsCount > 1 ? `
+                <div class="text-[11px] text-gray-500 font-medium flex items-center gap-1.5 pt-1 border-t border-dashed border-gray-200/80">
+                    <i class="fa-solid fa-users text-primary text-[10px]"></i>
+                    <span>عدد الأشخاص: <strong class="text-sage-dark font-extrabold">${guestsCount} أشخاص</strong></span>
+                </div>
+            ` : ''}
+            ${customerNotes ? `
+                <div class="text-[11px] text-gray-500 font-medium flex items-start gap-1.5 pt-1 border-t border-dashed border-gray-200/80">
+                    <i class="fa-solid fa-comment-dots text-primary text-[10px] mt-0.5 shrink-0"></i>
+                    <span class="truncate">ملاحظاتكِ: <span class="text-sage-dark font-semibold">${customerNotes}</span></span>
+                </div>
+            ` : ''}
         `;
     }
 
@@ -223,6 +238,8 @@ export async function submitPhoneVerification(event) {
     const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
     const verifyPhoneUrl = routes.verifyPhone || '/booking/verify-phone';
     const guestConfirmUrl = routes.guestConfirm || '/booking/guest-confirm';
+    const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
+    const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
     // CASE 1: Customer already logged in
     if (isCustomerLoggedIn) {
@@ -244,7 +261,9 @@ export async function submitPhoneVerification(event) {
                     service_id: primaryServiceId,
                     specialist_id: state.bookingState.selectedSpecialist.id,
                     booking_date: bookingDateVal,
-                    booking_time: timeSlot
+                    booking_time: timeSlot,
+                    guests_count: guestsCount,
+                    customer_notes: customerNotes
                 })
             });
             const data = await response.json();
@@ -344,7 +363,9 @@ export async function submitPhoneVerification(event) {
                 service_id: primaryServiceId,
                 specialist_id: state.bookingState.selectedSpecialist.id,
                 booking_date: bookingDateVal,
-                booking_time: timeSlot
+                booking_time: timeSlot,
+                guests_count: guestsCount,
+                customer_notes: customerNotes
             })
         });
 
@@ -430,6 +451,9 @@ export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
     const isProfile = isProfileOnly || state.currentActiveTab === 'account';
     const timeSlot = isProfile ? '' : (state.bookingState.selectedTime || '');
     const bookingDateVal = isProfile ? '' : (state.bookingState.selectedDateIso || state.bookingState.selectedDate || '');
+    const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
+    const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
+
     const params = new URLSearchParams(isProfile ? {
         is_profile: '1'
     } : {
@@ -438,7 +462,9 @@ export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
         service_id: state.bookingState.selectedSubService?.id || '',
         specialist_id: state.bookingState.selectedSpecialist?.id || '',
         booking_date: bookingDateVal,
-        booking_time: timeSlot
+        booking_time: timeSlot,
+        guests_count: guestsCount,
+        customer_notes: customerNotes
     });
 
     const width = 520;
@@ -493,6 +519,8 @@ export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly
         const timeSlot = isProfile ? '' : (state.bookingState.selectedTime || '');
         const bookingDateVal = isProfile ? '' : (state.bookingState.selectedDateIso || state.bookingState.selectedDate || '');
         const registerUrl = routes.googleRegister || '/booking/google-register';
+        const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
+        const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
         const payloadData = isProfile
             ? Object.assign({ is_profile: true }, oauthPayload)
@@ -502,7 +530,9 @@ export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly
                 service_id: state.bookingState.selectedSubService?.id || (state.bookingState.selectedSubServices?.[0]?.id) || '',
                 specialist_id: state.bookingState.selectedSpecialist?.id || '',
                 booking_date: bookingDateVal,
-                booking_time: timeSlot
+                booking_time: timeSlot,
+                guests_count: guestsCount,
+                customer_notes: customerNotes
             }, oauthPayload);
 
         const response = await fetch(registerUrl, {

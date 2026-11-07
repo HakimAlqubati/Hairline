@@ -8,7 +8,6 @@ use App\Enums\BrandColor;
 use App\Models\CatalogPage;
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
-use App\Models\SalonWorkingHour;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServicePricingTier;
@@ -62,6 +61,5 @@ class AppServiceProvider extends ServiceProvider
 
         HeroSlide::observe(SalonSettingObserver::class);
         SalonGallery::observe(SalonSettingObserver::class);
-        SalonWorkingHour::observe(SalonSettingObserver::class);
     }
 }

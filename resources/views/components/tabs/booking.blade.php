@@ -146,6 +146,81 @@
         <div id="bookingStep3Body" class="space-y-5">
             <!-- Populated dynamically when user confirms the specialist -->
         </div>
+
+        <!-- Extra Booking Details: Guests Count & Customer Notes -->
+        <div id="bookingDetailsSection" class="bg-white rounded-2xl p-4 sm:p-5 border border-primary-soft/60 shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-2.5 border-b border-primary-soft/40">
+                <span class="w-8 h-8 rounded-xl bg-primary-light flex items-center justify-center text-primary-dark text-sm">
+                    <i class="fa-solid fa-clipboard-list"></i>
+                </span>
+                <div>
+                    <h4 class="text-xs sm:text-sm font-extrabold text-sage-dark">تفاصيل الحجز الإضافية</h4>
+                    <p class="text-[11px] text-gray-500">حددي عدد الأشخاص وأضيفي أي ملاحظات خاصة لصالون هيرلاين</p>
+                </div>
+            </div>
+
+            <!-- Number of Persons (Guests Count) -->
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <label for="bookingGuestsCountInput" class="block text-xs sm:text-sm font-extrabold text-sage-dark">
+                        عدد الأشخاص اللواتي يردن الحجز
+                    </label>
+                    <span id="bookingGuestsCountBadge" class="text-[11px] font-extrabold text-primary px-3 py-0.5 rounded-full bg-primary-light/70 border border-primary-soft/50">
+                        1 شخص
+                    </span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <div class="inline-flex items-center bg-surface border border-gray-200 rounded-xl p-1 shadow-2xs">
+                        <button type="button"
+                                onclick="changeBookingGuestsCount(-1)"
+                                aria-label="تقليل عدد الأشخاص"
+                                class="w-9 h-9 rounded-lg bg-white hover:bg-primary hover:text-white text-sage-dark flex items-center justify-center font-bold text-sm border border-gray-200 transition cursor-pointer active:scale-95">
+                            <i class="fa-solid fa-minus text-xs"></i>
+                        </button>
+                        <input type="number"
+                               id="bookingGuestsCountInput"
+                               name="guests_count"
+                               min="1"
+                               max="20"
+                               value="1"
+                               oninput="handleBookingGuestsCountInput(this)"
+                               class="w-14 text-center font-black text-sm sm:text-base text-sage-dark bg-transparent border-0 focus:ring-0 focus:outline-none" />
+                        <button type="button"
+                                onclick="changeBookingGuestsCount(1)"
+                                aria-label="زيادة عدد الأشخاص"
+                                class="w-9 h-9 rounded-lg bg-white hover:bg-primary hover:text-white text-sage-dark flex items-center justify-center font-bold text-sm border border-gray-200 transition cursor-pointer active:scale-95">
+                            <i class="fa-solid fa-plus text-xs"></i>
+                        </button>
+                    </div>
+
+                    <p class="text-[11px] text-gray-400 font-medium">
+                        (أنتِ ومن معكِ من صديقات أو قريبات)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Customer Notes -->
+            <div class="space-y-1.5 pt-1">
+                <label for="bookingCustomerNotesInput" class="block text-xs sm:text-sm font-extrabold text-sage-dark">
+                    ملاحظات العميلة <span class="text-gray-400 font-normal text-xs">(اختياري)</span>
+                </label>
+                <div class="relative">
+                    <textarea id="bookingCustomerNotesInput"
+                              name="customer_notes"
+                              rows="3"
+                              maxlength="1000"
+                              oninput="handleBookingNotesInput(this)"
+                              placeholder="اكتبي أي متطلبات خاصة، طول الشعر، تفضيلات، أو ملاحظات ترغبين بإعلام خبيراتنا بها..."
+                              class="w-full p-3.5 rounded-xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none text-xs sm:text-sm font-medium text-sage-dark placeholder:text-gray-400 transition resize-none"></textarea>
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 mt-1 px-1">
+                        <span>سيعتني فريقنا بجميع ملاحظاتكِ بعناية</span>
+                        <span id="bookingNotesCharCount">0 / 1000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="bookingStep3Footer" class="empty:hidden"></div>
     </div>
 
@@ -181,9 +256,17 @@
                         <span class="text-sm font-extrabold text-sage-dark"></span>
                     </div>
                 </div>
-                <div class="pt-0.5">
+                <div class="pb-2.5 border-b border-gray-200/60">
                     <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
                     <span class="text-sm font-extrabold text-sage-dark"></span>
+                </div>
+                <div class="pb-2.5 border-b border-gray-200/60">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">عدد الأشخاص:</span>
+                    <span class="text-sm font-extrabold text-sage-dark">1</span>
+                </div>
+                <div id="bookingReceiptNotesRow" class="hidden pt-0.5">
+                    <span class="text-xs text-gray-500 font-bold block mb-1">ملاحظات العميلة:</span>
+                    <span class="text-xs font-bold text-gray-600 block bg-white p-2.5 rounded-xl border border-gray-200/60 leading-relaxed"></span>
                 </div>
             </div>
 

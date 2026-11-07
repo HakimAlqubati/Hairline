@@ -24,8 +24,19 @@ export function openBookingFlow() {
         verifiedPhone: "",
         phoneChecked: false,
         confirmedCustomerName: "",
-        confirmedCustomerEmail: ""
+        confirmedCustomerEmail: "",
+        guestsCount: 1,
+        customerNotes: ""
     };
+
+    const guestsInput = document.getElementById('bookingGuestsCountInput');
+    const badge = document.getElementById('bookingGuestsCountBadge');
+    const notesInput = document.getElementById('bookingCustomerNotesInput');
+    const charCount = document.getElementById('bookingNotesCharCount');
+    if (guestsInput) guestsInput.value = '1';
+    if (badge) badge.textContent = '1 شخص';
+    if (notesInput) notesInput.value = '';
+    if (charCount) charCount.textContent = '0 / 1000';
 
     clearAllServiceCheckboxes();
     if (typeof window.clearUnifiedServiceSearch === 'function') {
@@ -718,6 +729,24 @@ export function renderBookingStep() {
         if (step3Footer) {
             step3Footer.innerHTML = '';
         }
+
+        const guestsInput = document.getElementById('bookingGuestsCountInput');
+        const badge = document.getElementById('bookingGuestsCountBadge');
+        const notesInput = document.getElementById('bookingCustomerNotesInput');
+        const charCount = document.getElementById('bookingNotesCharCount');
+        if (guestsInput && state.bookingState.guestsCount) {
+            guestsInput.value = state.bookingState.guestsCount;
+            if (badge) {
+                const count = state.bookingState.guestsCount;
+                badge.textContent = count === 1 ? '1 شخص' : (count === 2 ? 'شخصان' : `${count} أشخاص`);
+            }
+        }
+        if (notesInput && state.bookingState.customerNotes !== undefined) {
+            notesInput.value = state.bookingState.customerNotes;
+            if (charCount) {
+                charCount.textContent = `${state.bookingState.customerNotes.length} / 1000`;
+            }
+        }
     } else if (state.bookingState.step === 4 || state.bookingState.step === 5) {
         const lastBooking = state.confirmedBookings[0];
         const customerName = state.bookingState.confirmedCustomerName || lastBooking?.customerName || state.currentCustomer?.name || "";
@@ -725,6 +754,8 @@ export function renderBookingStep() {
         if (pageSubtitle) pageSubtitle.textContent = "رقم الحجز: " + (lastBooking?.id || '');
         if (step4Container && lastBooking) {
             const waUrl = getBookingWhatsAppShareUrl(lastBooking, customerName);
+            const guestsNum = lastBooking.guests_count || lastBooking.guestsCount || state.bookingState.guestsCount || 1;
+            const notesText = lastBooking.customer_notes || lastBooking.customerNotes || state.bookingState.customerNotes || '';
             step4Container.classList.remove('hidden');
             step4Container.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
@@ -766,10 +797,20 @@ export function renderBookingStep() {
                                 <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
                             </div>
                         </div>
-                        <div class="pt-0.5">
+                        <div class="pb-2.5 border-b border-gray-200/60">
                             <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
                             <span class="text-sm font-extrabold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
                         </div>
+                        <div class="pb-2.5 border-b border-gray-200/60">
+                            <span class="text-xs text-gray-500 font-bold block mb-1">عدد الأشخاص:</span>
+                            <span class="text-sm font-extrabold text-sage-dark">${guestsNum > 1 ? `${guestsNum} أشخاص` : 'شخص واحد'}</span>
+                        </div>
+                        ${notesText ? `
+                            <div class="pt-0.5">
+                                <span class="text-xs text-gray-500 font-bold block mb-1">ملاحظاتكِ:</span>
+                                <span class="text-xs font-bold text-gray-600 block bg-white p-2.5 rounded-xl border border-gray-200/60 leading-relaxed">${notesText}</span>
+                            </div>
+                        ` : ''}
                     </div>
 
                     <!-- Manual WhatsApp Share Button -->
@@ -939,6 +980,43 @@ export function confirmFinalBooking() {
     openPhoneVerificationModal();
 }
 
+export function changeBookingGuestsCount(delta) {
+    const input = document.getElementById('bookingGuestsCountInput');
+    const badge = document.getElementById('bookingGuestsCountBadge');
+    let current = parseInt(input?.value || state.bookingState.guestsCount || '1', 10);
+    if (isNaN(current)) current = 1;
+    let next = current + delta;
+    if (next < 1) next = 1;
+    if (next > 20) next = 20;
+
+    state.bookingState.guestsCount = next;
+    if (input) input.value = next;
+    if (badge) {
+        badge.textContent = next === 1 ? '1 شخص' : (next === 2 ? 'شخصان' : `${next} أشخاص`);
+    }
+}
+
+export function handleBookingGuestsCountInput(el) {
+    const badge = document.getElementById('bookingGuestsCountBadge');
+    let val = parseInt(el?.value || '1', 10);
+    if (isNaN(val) || val < 1) val = 1;
+    if (val > 20) val = 20;
+
+    state.bookingState.guestsCount = val;
+    if (badge) {
+        badge.textContent = val === 1 ? '1 شخص' : (val === 2 ? 'شخصان' : `${val} أشخاص`);
+    }
+}
+
+export function handleBookingNotesInput(el) {
+    const charCount = document.getElementById('bookingNotesCharCount');
+    const val = el?.value || '';
+    state.bookingState.customerNotes = val;
+    if (charCount) {
+        charCount.textContent = `${val.length} / 1000`;
+    }
+}
+
 export function getBookingWhatsAppShareUrl(booking, customerName = '') {
     const rawWaUrl = window.__HAIRLINE_DATA__?.whatsappUrl || 'https://wa.me/966548857705';
     const baseUrl = rawWaUrl.split('?')[0];
@@ -948,6 +1026,8 @@ export function getBookingWhatsAppShareUrl(booking, customerName = '') {
 
     const name = customerName || b.customerName || state.currentCustomer?.name || 'عميلة هيرلاين';
     const phone = b.customerPhone || state.currentCustomer?.phone || '';
+    const guests = b.guests_count || b.guestsCount || (state.bookingState.guestsCount > 1 ? state.bookingState.guestsCount : null);
+    const notes = b.customer_notes || b.customerNotes || state.bookingState.customerNotes || '';
 
     const lines = [
         'مرحباً صالون هيرلاين،',
@@ -960,6 +1040,8 @@ export function getBookingWhatsAppShareUrl(booking, customerName = '') {
         `الأخصائية: ${b.specialistName}`,
         `الموعد: ${b.date}`,
         `الوقت: ${b.time}`,
+        guests && guests > 1 ? `عدد الأشخاص: ${guests} أشخاص` : null,
+        notes ? `ملاحظات العميلة: ${notes}` : null,
         b.price ? `التكلفة التقديرية: ${b.price}` : null,
         '',
         'أرجو تأكيد موعدي، شكراً لكم.'

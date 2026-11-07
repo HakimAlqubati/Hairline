@@ -40,6 +40,8 @@ class BookingFactory extends Factory
             'deposit_required' => $deposit,
             'deposit_paid' => $deposit,
             'payment_status' => 'partially_paid',
+            'guests_count' => 1,
+            'customer_notes' => null,
             'admin_notes' => null,
         ];
     }

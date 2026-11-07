@@ -44,6 +44,13 @@ class BookingTable
                     })
                     ->sortable(),
 
+                TextColumn::make('guests_count')
+                    ->label('العدد')
+                    ->alignCenter()
+                    ->sortable()
+                    ->badge()
+                    ->color('gray'),
+
                 TextColumn::make('booking_type')
                     ->label(__('admin.fields.booking_type'))
                     ->badge()
@@ -81,22 +88,6 @@ class BookingTable
                         'cancelled', 'no_show' => 'danger',
                         default => 'gray',
                     }),
-
-                TextColumn::make('payment_status')
-                    ->label(__('admin.fields.payment_status'))
-                    ->badge()
-                    ->formatStateUsing(fn ($state) => __('admin.statuses.'.$state) ?? $state)
-                    ->color(fn ($state) => match ($state) {
-                        'fully_paid' => 'success',
-                        'partially_paid' => 'warning',
-                        'unpaid' => 'danger',
-                        default => 'gray',
-                    }),
-
-                TextColumn::make('total_amount')
-                    ->label(__('admin.fields.total_amount'))
-                    ->money('SAR')
-                    ->sortable(),
             ])
             ->defaultSort('booking_date', 'desc')
             ->filters([

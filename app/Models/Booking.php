@@ -51,6 +51,7 @@ class Booking extends Model
         'customer_type',
         'customer_address_id',
         'booking_type',
+        'guests_count',
         'booking_date',
         'overall_start_time',
         'overall_end_time',
@@ -63,6 +64,7 @@ class Booking extends Model
         'deposit_paid',
         'payment_status',
         'admin_notes',
+        'customer_notes',
     ];
 
     public array $translatable = [
@@ -72,6 +74,7 @@ class Booking extends Model
     protected function casts(): array
     {
         return [
+            'guests_count' => 'integer',
             'booking_date' => 'date',
             'subtotal_amount' => 'float',
             'discount_amount' => 'float',

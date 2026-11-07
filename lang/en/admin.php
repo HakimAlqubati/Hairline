@@ -64,8 +64,6 @@ return [
         'salon_galleries' => 'Salon Gallery',
         'cancellation_policy' => 'Cancellation Policy',
         'cancellation_policies' => 'Cancellation Policies',
-        'salon_working_hour' => 'Working Hour',
-        'salon_working_hours' => 'Salon Working Hours',
 
         // Financials & Logistics
         'payment' => 'Payment Transaction',

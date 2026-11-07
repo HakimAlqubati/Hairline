@@ -6,7 +6,6 @@ namespace Database\Seeders;
 
 use App\Models\HeroSlide;
 use App\Models\SalonGallery;
-use App\Models\SalonWorkingHour;
 use App\Models\Setting;
 use Illuminate\Database\Seeder;
 
@@ -163,45 +162,6 @@ class SalonSetupSeeder extends Seeder
                     'aspect_ratio' => $item['aspect_ratio'] ?? '16/10',
                     'sort_order' => $index,
                     'is_active' => true,
-                ]
-            );
-        }
-
-        // 4. Working Hours (7 days)
-        for ($day = 0; $day <= 6; $day++) {
-            $dayNamesAr = [
-                0 => 'الأحد',
-                1 => 'الاثنين',
-                2 => 'الثلاثاء',
-                3 => 'الأربعاء',
-                4 => 'الخميس',
-                5 => 'الجمعة',
-                6 => 'السبت',
-            ];
-            $dayNamesEn = [
-                0 => 'Sunday',
-                1 => 'Monday',
-                2 => 'Tuesday',
-                3 => 'Wednesday',
-                4 => 'Thursday',
-                5 => 'Friday',
-                6 => 'Saturday',
-            ];
-
-            SalonWorkingHour::updateOrCreate(
-                ['day_of_week' => $day],
-                [
-                    'day_label' => [
-                        'ar' => $dayNamesAr[$day],
-                        'en' => $dayNamesEn[$day],
-                    ],
-                    'opening_time' => '14:00:00',
-                    'closing_time' => '22:00:00',
-                    'is_closed' => false,
-                    'notes' => [
-                        'ar' => 'من 2:00 ظهراً حتى 10:00 مساءً',
-                        'en' => '2:00 PM to 10:00 PM daily',
-                    ],
                 ]
             );
         }

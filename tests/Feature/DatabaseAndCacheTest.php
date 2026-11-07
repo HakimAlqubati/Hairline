@@ -11,7 +11,6 @@ use App\Models\HairLength;
 use App\Models\HeroSlide;
 use App\Models\MembershipTier;
 use App\Models\SalonGallery;
-use App\Models\SalonWorkingHour;
 use App\Models\Service;
 use App\Models\ServiceCategory;
 use App\Models\ServicePricingTier;
@@ -29,7 +28,6 @@ describe('Database Models & Seeded Records', function () {
         expect(HeroSlide::count())->toBeGreaterThanOrEqual(4);
         expect(SalonGallery::count())->toBeGreaterThanOrEqual(5);
         expect(Setting::count())->toBeGreaterThanOrEqual(1);
-        expect(SalonWorkingHour::count())->toBe(7);
 
         expect(CatalogPage::count())->toBe(8);
         expect(ServiceCategory::count())->toBe(7);

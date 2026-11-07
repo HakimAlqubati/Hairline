@@ -18,7 +18,7 @@ test('authenticated user can access filament admin dashboard without navigation 
     $response = $this->actingAs($user)->get('/admin');
 
     $response->assertSuccessful();
-    $response->assertSee(__('admin.charts.revenue_trend'));
+    $response->assertDontSee(__('admin.charts.revenue_trend'));
     $response->assertSee(__('admin.charts.bookings_status'));
     $response->assertSee(__('admin.charts.top_services'));
     $response->assertSee(__('admin.charts.top_specialists'));
@@ -43,14 +43,22 @@ test('authenticated user can access filament resource index pages without action
     '/admin/membership-tiers',
     '/admin/loyalty-point-transactions',
     '/admin/hero-slides',
-    '/admin/salon-galleries',
-    '/admin/cancellation-policies',
-    '/admin/salon-working-hours',
+    '/admin/settings',
+    '/admin/users',
+]);
+
+test('authenticated user is forbidden from hidden or disabled filament resource index pages', function (string $url) {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get($url);
+
+    $response->assertForbidden();
+})->with([
     '/admin/payments',
     '/admin/payment-methods',
     '/admin/districts',
-    '/admin/settings',
-    '/admin/users',
+    '/admin/salon-galleries',
+    '/admin/cancellation-policies',
 ]);
 
 test('authenticated user can access filament resource create pages without schema or syntax errors', function (string $url) {
@@ -72,13 +80,21 @@ test('authenticated user can access filament resource create pages without schem
     '/admin/membership-tiers/create',
     '/admin/loyalty-point-transactions/create',
     '/admin/hero-slides/create',
-    '/admin/salon-galleries/create',
-    '/admin/cancellation-policies/create',
-    '/admin/salon-working-hours/create',
+    '/admin/users/create',
+]);
+
+test('authenticated user is forbidden from hidden or disabled filament resource create pages', function (string $url) {
+    $user = User::factory()->create();
+
+    $response = $this->actingAs($user)->get($url);
+
+    $response->assertForbidden();
+})->with([
     '/admin/payments/create',
     '/admin/payment-methods/create',
     '/admin/districts/create',
-    '/admin/users/create',
+    '/admin/salon-galleries/create',
+    '/admin/cancellation-policies/create',
 ]);
 
 test('authenticated user can access service category edit page without schema or syntax errors', function () {
@@ -191,4 +207,57 @@ test('invalid credentials show validation error on custom filament login page', 
         ])
         ->call('authenticate')
         ->assertHasFormErrors(['email']);
+});
+
+test('booking index page does not show payment status or total amount columns', function () {
+    $user = User::factory()->create();
+    $customer = Customer::factory()->create();
+    Booking::create([
+        'booking_number' => 'HL-TEST-FIN-001',
+        'customer_id' => $customer->id,
+        'booking_type' => 'salon',
+        'booking_date' => now()->toDateString(),
+        'overall_start_time' => '10:00:00',
+        'overall_end_time' => '11:00:00',
+        'status' => 'confirmed',
+        'subtotal_amount' => 500.00,
+        'total_amount' => 500.00,
+        'payment_status' => 'fully_paid',
+    ]);
+
+    $response = $this->actingAs($user)->get('/admin/bookings');
+
+    $response->assertSuccessful();
+    $response->assertDontSee(__('admin.fields.payment_status'));
+    $response->assertDontSee(__('admin.fields.total_amount'));
+});
+
+test('booking create and edit pages do not show financial summary or payment fields', function () {
+    $user = User::factory()->create();
+    $customer = Customer::factory()->create();
+    $booking = Booking::create([
+        'booking_number' => 'HL-TEST-FIN-002',
+        'customer_id' => $customer->id,
+        'booking_type' => 'salon',
+        'booking_date' => now()->toDateString(),
+        'overall_start_time' => '10:00:00',
+        'overall_end_time' => '11:00:00',
+        'status' => 'confirmed',
+        'subtotal_amount' => 350.00,
+        'total_amount' => 350.00,
+        'payment_status' => 'unpaid',
+    ]);
+
+    $createResponse = $this->actingAs($user)->get('/admin/bookings/create');
+    $createResponse->assertSuccessful();
+    $createResponse->assertDontSee(__('admin.sections.financial_summary'));
+    $createResponse->assertDontSee(__('admin.fields.subtotal_amount'));
+    $createResponse->assertDontSee(__('admin.fields.vat_amount'));
+
+    $editResponse = $this->actingAs($user)->get("/admin/bookings/{$booking->id}/edit");
+    $editResponse->assertSuccessful();
+    $editResponse->assertDontSee(__('admin.sections.financial_summary'));
+    $editResponse->assertDontSee(__('admin.fields.subtotal_amount'));
+    $editResponse->assertDontSee(__('admin.fields.total_amount'));
+    $editResponse->assertDontSee(__('admin.fields.deposit_required'));
 });

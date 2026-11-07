@@ -501,6 +501,55 @@ describe('Customer-Facing Pages', function () {
         expect($booking->items()->count())->toBe(count($serviceCodes));
     });
 
+    test('guest booking records guests_count and customer_notes properly', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(6)->toDateString();
+
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'name' => 'سارة العتيبي',
+            'phone' => '0503334455',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '04:00 م',
+            'guests_count' => 3,
+            'customer_notes' => 'نود الجلوس سوياً إن أمكن، وشعري بحاجة لعناية خاصة',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+                'booking' => [
+                    'guests_count' => 3,
+                    'customer_notes' => 'نود الجلوس سوياً إن أمكن، وشعري بحاجة لعناية خاصة',
+                ],
+            ]);
+
+        $booking = Booking::where('customer_notes', 'like', '%نود الجلوس سوياً%')->firstOrFail();
+        expect($booking->guests_count)->toBe(3);
+        expect($booking->customer_notes)->toBe('نود الجلوس سوياً إن أمكن، وشعري بحاجة لعناية خاصة');
+    });
+
+    test('booking guest confirm rejects invalid guests_count', function () {
+        $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
+        $service = $specialist->services()->firstOrFail();
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(6)->toDateString();
+
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'name' => 'سارة العتيبي',
+            'phone' => '0503334456',
+            'service_id' => $service->code,
+            'specialist_id' => $specialist->slug,
+            'booking_date' => $targetDate,
+            'booking_time' => '04:00 م',
+            'guests_count' => 0,
+        ]);
+
+        $response->assertStatus(422);
+    });
+
     test('dedicated contact and privacy pages return 200 with appropriate content', function () {
         $contactResponse = $this->get('/contact');
         $contactResponse->assertStatus(200);

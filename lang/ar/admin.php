@@ -64,8 +64,6 @@ return [
         'salon_galleries' => 'معرض الأعمال',
         'cancellation_policy' => 'سياسة إلغاء',
         'cancellation_policies' => 'سياسات الإلغاء',
-        'salon_working_hour' => 'ساعات عمل يومية',
-        'salon_working_hours' => 'أوقات العمل الأسبوعية',
 
         // Financials & Logistics
         'payment' => 'معاملة مالية',

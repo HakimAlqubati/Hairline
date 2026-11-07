@@ -51,7 +51,9 @@ export const state = {
         verifiedPhone: "",
         phoneChecked: false,
         confirmedCustomerName: "",
-        confirmedCustomerEmail: ""
+        confirmedCustomerEmail: "",
+        guestsCount: 1,
+        customerNotes: ""
     }
 };
 

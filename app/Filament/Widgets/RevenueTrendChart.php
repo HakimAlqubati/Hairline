@@ -11,6 +11,11 @@ use Filament\Widgets\ChartWidget;
 
 class RevenueTrendChart extends ChartWidget
 {
+    public static function canView(): bool
+    {
+        return false;
+    }
+
     protected static bool $isLazy = false;
 
     protected static ?int $sort = 1;

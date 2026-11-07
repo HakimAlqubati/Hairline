@@ -76,6 +76,8 @@ class BookingPayloadFormatter
                     'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : '',
                     'time' => $startTimeFormatted,
                     'price' => ((int) $booking->total_amount).' ر.س',
+                    'guests_count' => $booking->guests_count ?? 1,
+                    'customer_notes' => $booking->customer_notes,
                 ];
             })
             ->values()

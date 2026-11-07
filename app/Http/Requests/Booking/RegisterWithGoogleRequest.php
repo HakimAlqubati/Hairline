@@ -56,6 +56,8 @@ class RegisterWithGoogleRequest extends BaseApiRequest
                 new WithinSpecialistShift(availabilityService: $availabilityService),
                 new AvailableSpecialistSlot(availabilityService: $availabilityService),
             ];
+            $rules['guests_count'] = ['nullable', 'integer', 'min:1', 'max:20'];
+            $rules['customer_notes'] = ['nullable', 'string', 'max:1000'];
         }
 
         return $rules;
@@ -72,6 +74,9 @@ class RegisterWithGoogleRequest extends BaseApiRequest
             'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
             'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
             'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
+            'guests_count.integer' => 'عدد الأشخاص يجب أن يكون رقماً صحيحاً.',
+            'guests_count.min' => 'عدد الأشخاص يجب أن يكون شخص واحد على الأقل.',
+            'customer_notes.max' => 'ملاحظات العميلة يجب ألا تتجاوز 1000 حرف.',
         ];
     }
 }
