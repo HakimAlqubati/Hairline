@@ -5,14 +5,14 @@
 <div id="sidebarOverlay" 
      onclick="toggleSidebar(false)" 
      aria-hidden="true"
-     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 hidden opacity-0 drawer-backdrop">
+     class="fixed inset-0 bg-black/60 z-40 hidden drawer-backdrop">
 </div>
 
 <aside id="sidebarDrawer" 
        role="dialog"
        aria-modal="true"
        aria-label="القائمة الجانبية"
-       class="fixed top-0 left-0 h-full w-72 sm:w-80 max-w-[84vw] bg-white z-50 shadow-2xl -translate-x-full sidebar-drawer flex flex-col justify-between rounded-r-[2rem] border-r border-primary/20 overflow-hidden select-none">
+       class="fixed top-0 left-0 h-full w-72 sm:w-80 max-w-[84vw] bg-white z-50 sidebar-drawer flex flex-col justify-between rounded-r-[2rem] border-r border-primary/20 overflow-hidden select-none hidden">
     
     <!-- Drawer Top Header & Navigation Body -->
     <div class="flex-1 flex flex-col min-h-0 overflow-y-auto no-scrollbar bg-white">

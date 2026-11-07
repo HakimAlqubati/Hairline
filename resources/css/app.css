@@ -65,170 +65,124 @@ i.hidden, svg.hidden {
 }
 
 /* ============================================================
-   Luxury Sidebar Drawer & Opposing Motion Choreography
+   Ultra-Smooth Hardware-Accelerated Luxury Sidebar Drawer
    ============================================================ */
 
 /* 1. Backdrop Overlay */
 .drawer-backdrop {
     opacity: 0;
+    visibility: hidden;
     pointer-events: none;
-    backdrop-filter: blur(0px);
-    -webkit-backdrop-filter: blur(0px);
-    transition: opacity 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                backdrop-filter 0.32s cubic-bezier(0.4, 0, 0.2, 1),
-                -webkit-backdrop-filter 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-    will-change: opacity, backdrop-filter;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    will-change: opacity, visibility;
+    transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+                visibility 0.28s ease;
 }
 
 .drawer-backdrop.is-active {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1),
-                -webkit-backdrop-filter 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* 2. Main Drawer Frame */
 .sidebar-drawer {
-    transform: translate3d(-105%, 0, 0);
-    box-shadow: none;
-    will-change: transform, box-shadow;
-    /* Closing motion: smooth, accelerating exit curve */
-    transition: transform 0.34s cubic-bezier(0.32, 0, 0.67, 0),
-                box-shadow 0.28s ease;
+    transform: translate3d(-102%, 0, 0);
+    visibility: hidden;
+    will-change: transform, visibility;
+    box-shadow: 15px 0 40px -10px rgba(33, 28, 24, 0.18), 5px 0 15px -3px rgba(0, 0, 0, 0.05);
+    /* Closing motion: crisp, smooth exit without lag */
+    transition: transform 0.24s cubic-bezier(0.4, 0, 1, 1),
+                visibility 0.24s ease;
 }
 
 .sidebar-drawer.sidebar-open {
-    transform: translate3d(0, 0, 0) !important;
-    box-shadow: 0 25px 60px -12px rgba(33, 28, 24, 0.38), 0 0 35px rgba(194, 158, 109, 0.15);
-    /* Opening motion: luxurious spring-deceleration curve */
-    transition: transform 0.44s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.44s ease;
+    transform: translate3d(0, 0, 0);
+    visibility: visible;
+    /* Opening motion: modern fluid deceleration (iOS-style curve) */
+    transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* 3. Close Button: Rotational Spring Blossom on Open / Reverse on Close */
+/* 3. Close Button: Smooth Scale & Fade */
 .sidebar-drawer .drawer-close-btn {
-    transform: rotate(-90deg) scale(0.65);
+    transform: scale(0.9);
     opacity: 0;
     will-change: transform, opacity;
-    /* Reverse exit */
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.08s,
-                opacity 0.18s ease 0.08s,
+    transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+                opacity 0.2s ease,
                 background-color 0.2s ease,
                 color 0.2s ease,
                 border-color 0.2s ease;
 }
 
 .sidebar-drawer.sidebar-open .drawer-close-btn {
-    transform: rotate(0deg) scale(1);
+    transform: scale(1);
     opacity: 1;
-    /* Spring entrance */
-    transition: transform 0.42s cubic-bezier(0.34, 1.45, 0.64, 1) 0.12s,
-                opacity 0.3s ease 0.1s,
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.06s,
+                opacity 0.24s ease 0.06s,
                 background-color 0.2s ease,
                 color 0.2s ease,
                 border-color 0.2s ease;
 }
 
-/* 4. Brand Header */
-.sidebar-drawer .drawer-brand {
-    transform: translate3d(-18px, 0, 0);
-    opacity: 0;
-    will-change: transform, opacity;
-    /* Reverse exit */
-    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.1s,
-                opacity 0.18s ease 0.1s;
-}
-
-.sidebar-drawer.sidebar-open .drawer-brand {
-    transform: translate3d(0, 0, 0);
-    opacity: 1;
-    /* Forward entrance */
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.14s,
-                opacity 0.35s ease 0.14s;
-}
-
-/* 5. Category Title ("القائمة التعريفية") */
+/* 4. Category Title ("القائمة التعريفية") */
 .sidebar-drawer .drawer-section-label {
-    transform: translate3d(-14px, 0, 0);
     opacity: 0;
+    transform: translate3d(-6px, 0, 0);
     will-change: transform, opacity;
-    /* Reverse exit */
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.08s,
-                opacity 0.16s ease 0.08s;
+    transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
 .sidebar-drawer.sidebar-open .drawer-section-label {
-    transform: translate3d(0, 0, 0);
     opacity: 1;
-    /* Forward entrance */
-    transition: transform 0.38s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
-                opacity 0.35s ease 0.18s;
+    transform: translate3d(0, 0, 0);
+    transition: opacity 0.22s ease 0.04s,
+                transform 0.22s cubic-bezier(0.16, 1, 0.3, 1) 0.04s;
 }
 
-/* 6. Navigation Items: Cascading Stagger (Opposing Reverse Order) */
+/* 5. Navigation Items: Fluid Micro-Stagger (Settles completely in ~300ms) */
 .sidebar-drawer .drawer-item {
-    transform: translate3d(-22px, 0, 0);
+    transform: translate3d(-10px, 0, 0);
     opacity: 0;
     will-change: transform, opacity;
+    transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
-/* Reverse Exit Sequence (Item 3 first, then Item 2, then Item 1) */
-.sidebar-drawer:not(.sidebar-open) .drawer-item-3 {
-    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0s,
-                opacity 0.18s ease 0s;
-}
-
-.sidebar-drawer:not(.sidebar-open) .drawer-item-2 {
-    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.04s,
-                opacity 0.18s ease 0.04s;
-}
-
-.sidebar-drawer:not(.sidebar-open) .drawer-item-1 {
-    transition: transform 0.22s cubic-bezier(0.4, 0, 0.2, 1) 0.08s,
-                opacity 0.18s ease 0.08s;
-}
-
-/* Forward Entrance Sequence (Item 1 first, then Item 2, then Item 3) */
 .sidebar-drawer.sidebar-open .drawer-item-1 {
     transform: translate3d(0, 0, 0);
     opacity: 1;
-    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.22s,
-                opacity 0.38s ease 0.22s;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.06s,
+                opacity 0.24s ease 0.06s;
 }
 
 .sidebar-drawer.sidebar-open .drawer-item-2 {
     transform: translate3d(0, 0, 0);
     opacity: 1;
-    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.27s,
-                opacity 0.38s ease 0.27s;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.10s,
+                opacity 0.24s ease 0.10s;
 }
 
 .sidebar-drawer.sidebar-open .drawer-item-3 {
     transform: translate3d(0, 0, 0);
     opacity: 1;
-    transition: transform 0.42s cubic-bezier(0.22, 1, 0.36, 1) 0.32s,
-                opacity 0.38s ease 0.32s;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.14s,
+                opacity 0.24s ease 0.14s;
 }
 
-/* 7. Drawer Footer */
+/* 6. Drawer Footer */
 .sidebar-drawer .drawer-footer {
-    transform: translate3d(0, 16px, 0);
     opacity: 0;
+    transform: translate3d(0, 8px, 0);
     will-change: transform, opacity;
-    /* Reverse exit */
-    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) 0.04s,
-                opacity 0.16s ease 0.04s;
+    transition: opacity 0.16s ease, transform 0.16s ease;
 }
 
 .sidebar-drawer.sidebar-open .drawer-footer {
-    transform: translate3d(0, 0, 0);
     opacity: 1;
-    /* Forward entrance */
-    transition: transform 0.44s cubic-bezier(0.16, 1, 0.3, 1) 0.36s,
-                opacity 0.38s ease 0.36s;
+    transform: translate3d(0, 0, 0);
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.16s,
+                opacity 0.24s ease 0.16s;
 }
 
 .bottom-sheet {

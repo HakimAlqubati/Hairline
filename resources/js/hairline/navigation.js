@@ -33,14 +33,12 @@ export function toggleSidebar(show) {
         drawer.classList.remove('hidden');
         drawer.setAttribute('aria-hidden', 'false');
 
-        // Force browser layout flush for deterministic transition start
-        void drawer.offsetWidth;
-
+        // Smooth transition trigger without forced layout thrashing
         requestAnimationFrame(() => {
-            overlay.classList.remove('opacity-0');
-            overlay.classList.add('is-active');
-            drawer.classList.remove('-translate-x-full');
-            drawer.classList.add('sidebar-open');
+            requestAnimationFrame(() => {
+                overlay.classList.add('is-active');
+                drawer.classList.add('sidebar-open');
+            });
         });
     } else {
         isSidebarActive = false;
@@ -50,16 +48,15 @@ export function toggleSidebar(show) {
 
         drawer.setAttribute('aria-hidden', 'true');
         drawer.classList.remove('sidebar-open');
-        drawer.classList.add('-translate-x-full');
         overlay.classList.remove('is-active');
-        overlay.classList.add('opacity-0');
 
-        // Allow reverse animation to complete before hiding overlay from DOM
+        // Allow reverse animation (240ms) to complete before hiding from DOM
         sidebarCloseTimer = setTimeout(() => {
             if (!isSidebarActive) {
                 overlay.classList.add('hidden');
+                drawer.classList.add('hidden');
             }
-        }, 360);
+        }, 260);
     }
 }
 
