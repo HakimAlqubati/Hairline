@@ -54,6 +54,11 @@ body {
     scrollbar-width: none;
 }
 
+/* Ensure hidden utility takes absolute precedence over FontAwesome or third-party styles */
+.hidden, [hidden] {
+    display: none !important;
+}
+
 /* ============================================================
    Luxury Sidebar Drawer & Opposing Motion Choreography
    ============================================================ */

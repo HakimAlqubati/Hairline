@@ -16,8 +16,12 @@
         <form onsubmit="executeUnifiedServiceSearch('{{ $context }}', event)" class="relative flex items-center gap-2" role="search" novalidate>
             <div class="relative flex-1">
                 <span class="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[#b39d76] flex items-center">
-                    <i id="{{ $context }}SearchIcon" class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
-                    <i id="{{ $context }}SearchSpinner" class="hidden fa-solid fa-circle-notch fa-spin text-xs sm:text-sm text-primary"></i>
+                    <span id="{{ $context }}SearchIcon" class="flex items-center">
+                        <i class="fa-solid fa-magnifying-glass text-xs sm:text-sm"></i>
+                    </span>
+                    <span id="{{ $context }}SearchSpinner" class="hidden text-primary flex items-center" style="display: none;">
+                        <i class="fa-solid fa-circle-notch fa-spin text-xs sm:text-sm"></i>
+                    </span>
                 </span>
 
                 <input

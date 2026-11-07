@@ -33,10 +33,14 @@ export function setServicesSearchLoading(isLoading) {
     if (spinner && icon) {
         if (isLoading) {
             spinner.classList.remove('hidden');
+            spinner.style.display = 'flex';
             icon.classList.add('hidden');
+            icon.style.display = 'none';
         } else {
             spinner.classList.add('hidden');
+            spinner.style.display = 'none';
             icon.classList.remove('hidden');
+            icon.style.display = 'flex';
         }
     }
 }
