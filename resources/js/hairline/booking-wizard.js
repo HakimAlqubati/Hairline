@@ -776,41 +776,50 @@ export function renderBookingStep() {
                         </div>
                     </div>
 
-                    <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
-                        <div class="pb-2.5 border-b border-gray-200/60">
-                            <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
-                            <span class="text-sm font-extrabold text-sage-dark">${customerName}</span>
-                        </div>
-                        <div class="pb-2.5 border-b border-gray-200/60">
-                            <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
-                            <span class="text-sm font-extrabold text-sage-dark">${lastBooking.serviceName}</span>
-                        </div>
-                        <div class="pb-2.5 border-b border-gray-200/60">
-                            <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
-                            <div class="flex items-center gap-2">
-                                ${state.bookingState.selectedSpecialist?.avatar ? `
-                                    <img src="${state.bookingState.selectedSpecialist.avatar}" 
-                                         alt="${lastBooking.specialistName}" 
-                                         class="w-7 h-7 rounded-full object-cover border border-primary/40 shrink-0 shadow-2xs" 
-                                         onerror="this.classList.add('hidden')" />
-                                ` : ''}
-                                <span class="text-sm font-extrabold text-sage-dark">${lastBooking.specialistName}</span>
+                    <!-- 2 Rows with Columns, completely borderless and box-free -->
+                    <div class="py-3 px-1 text-right space-y-4">
+                        <!-- Row 1: اسم العميلة، الخدمة المختارة، الأخصائية -->
+                        <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">اسم العميلة</span>
+                                <span class="text-xs sm:text-sm font-extrabold text-sage-dark block truncate">${customerName}</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الخدمة المختارة</span>
+                                <span class="text-xs sm:text-sm font-extrabold text-sage-dark block truncate">${lastBooking.serviceName}</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الأخصائية</span>
+                                <div class="flex items-center gap-1.5 min-w-0">
+                                    ${state.bookingState.selectedSpecialist?.avatar ? `
+                                        <img src="${state.bookingState.selectedSpecialist.avatar}" 
+                                             alt="${lastBooking.specialistName}" 
+                                             class="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shrink-0 shadow-2xs" 
+                                             onerror="this.classList.add('hidden')" />
+                                    ` : ''}
+                                    <span class="text-xs sm:text-sm font-extrabold text-sage-dark truncate">${lastBooking.specialistName}</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="pb-2.5 border-b border-gray-200/60">
-                            <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
-                            <span class="text-sm font-extrabold text-sage-dark">${lastBooking.date} • الساعة ${lastBooking.time}</span>
-                        </div>
-                        <div class="pb-2.5 border-b border-gray-200/60">
-                            <span class="text-xs text-gray-500 font-bold block mb-1">عدد الأشخاص:</span>
-                            <span class="text-sm font-extrabold text-sage-dark">${guestsNum > 1 ? `${guestsNum} أشخاص` : 'شخص واحد'}</span>
-                        </div>
-                        ${notesText ? `
-                            <div class="pt-0.5">
-                                <span class="text-xs text-gray-500 font-bold block mb-1">ملاحظاتكِ:</span>
-                                <span class="text-xs font-bold text-gray-600 block bg-white p-2.5 rounded-xl border border-gray-200/60 leading-relaxed">${notesText}</span>
+
+                        <!-- Row 2: الموعد، عدد الأشخاص، ملاحظات العميلة -->
+                        <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الموعد</span>
+                                <span class="text-xs sm:text-sm font-extrabold text-sage-dark block leading-snug">
+                                    ${lastBooking.date}
+                                    <span class="text-[11px] font-bold text-primary block">${lastBooking.time}</span>
+                                </span>
                             </div>
-                        ` : ''}
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">عدد الأشخاص</span>
+                                <span class="text-xs sm:text-sm font-extrabold text-sage-dark block">${guestsNum > 1 ? `${guestsNum} أشخاص` : 'شخص واحد'}</span>
+                            </div>
+                            <div class="min-w-0">
+                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">ملاحظات العميلة</span>
+                                <span class="text-xs sm:text-sm font-semibold text-gray-600 block truncate" title="${notesText || 'لا توجد ملاحظات'}">${notesText || '—'}</span>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Manual WhatsApp Share Button -->

@@ -213,32 +213,40 @@
                 </div>
             </div>
 
-            <div class="bg-surface rounded-2xl p-4 border border-gold-soft text-right space-y-3">
-                <div class="pb-2.5 border-b border-gray-200/60">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">اسم العميلة:</span>
-                    <span class="text-sm font-extrabold text-sage-dark"></span>
-                </div>
-                <div class="pb-2.5 border-b border-gray-200/60">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">الخدمة المختارة:</span>
-                    <span class="text-sm font-extrabold text-sage-dark"></span>
-                </div>
-                <div class="pb-2.5 border-b border-gray-200/60">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">الأخصائية:</span>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm font-extrabold text-sage-dark"></span>
+            <!-- 2 Rows with Columns, completely borderless and box-free -->
+            <div class="py-3 px-1 text-right space-y-4">
+                <!-- Row 1: اسم العميلة، الخدمة المختارة، الأخصائية -->
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">اسم العميلة</span>
+                        <span class="text-xs sm:text-sm font-extrabold text-sage-dark block truncate"></span>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الخدمة المختارة</span>
+                        <span class="text-xs sm:text-sm font-extrabold text-sage-dark block truncate"></span>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الأخصائية</span>
+                        <div class="flex items-center gap-1.5 min-w-0">
+                            <span class="text-xs sm:text-sm font-extrabold text-sage-dark truncate"></span>
+                        </div>
                     </div>
                 </div>
-                <div class="pb-2.5 border-b border-gray-200/60">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">الموعد:</span>
-                    <span class="text-sm font-extrabold text-sage-dark"></span>
-                </div>
-                <div class="pb-2.5 border-b border-gray-200/60">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">عدد الأشخاص:</span>
-                    <span class="text-sm font-extrabold text-sage-dark">1</span>
-                </div>
-                <div id="bookingReceiptNotesRow" class="hidden pt-0.5">
-                    <span class="text-xs text-gray-500 font-bold block mb-1">ملاحظات العميلة:</span>
-                    <span class="text-xs font-bold text-gray-600 block bg-white p-2.5 rounded-xl border border-gray-200/60 leading-relaxed"></span>
+
+                <!-- Row 2: الموعد، عدد الأشخاص، ملاحظات العميلة -->
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الموعد</span>
+                        <span class="text-xs sm:text-sm font-extrabold text-sage-dark block leading-snug"></span>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">عدد الأشخاص</span>
+                        <span class="text-xs sm:text-sm font-extrabold text-sage-dark block">1</span>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">ملاحظات العميلة</span>
+                        <span class="text-xs sm:text-sm font-semibold text-gray-600 block truncate">—</span>
+                    </div>
                 </div>
             </div>
 

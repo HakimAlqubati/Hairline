@@ -217,7 +217,7 @@ export async function submitEditProfile(event) {
         renderCustomerProfile();
         renderMyBookings();
         closeEditProfileModal();
-        openToast('تم تحديث ملفكِ الشخصي بنجاح ✨');
+        openToast('تم تحديث ملفكِ الشخصي');
     } catch (err) {
         if (errorText) errorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
         if (errorEl) errorEl.classList.remove('hidden');
