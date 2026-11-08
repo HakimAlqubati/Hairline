@@ -50,18 +50,17 @@
                 <!-- Small WhatsApp Button -->
                 <a href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"
                    title="محادثة واتساب مباشرة"
-                   class="group inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
                     <i class="fa-brands fa-whatsapp text-sm text-primary group-hover:text-white transition-colors duration-200"></i>
                     <span>واتساب</span>
                 </a>
 
-                <!-- Small Call Button -->
+                <!-- Small Call Button (Same Width, No "اتصال" Word) -->
                 <a href="tel:{{ $phoneClean }}"
-                   title="اتصال مباشر"
-                   class="group inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                   title="اتصال مباشر: {{ $phone }}"
+                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
                     <i class="fa-solid fa-phone text-xs text-primary group-hover:text-white transition-colors duration-200"></i>
-                    <span dir="ltr" class="font-mono text-[11px]">{{ $phone }}</span>
-                    <span>اتصال</span>
+                    <span dir="ltr" class="font-mono text-xs">{{ $phone }}</span>
                 </a>
 
                 <!-- Subtle Divider -->
