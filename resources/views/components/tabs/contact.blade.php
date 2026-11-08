@@ -84,21 +84,39 @@
         </div>
 
         <!-- Row 3: Interactive Map Frame -->
-        <div class="space-y-2 pt-2">
-            <span class="text-xs font-medium text-gray-400 block">خريطة الوصول للصالون</span>
-            <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer"
-               title="انقري لفتح الموقع في تطبيق الخرائط"
-               class="relative block w-full h-64 sm:h-72 rounded-2xl overflow-hidden border border-primary-soft shadow-xs group cursor-pointer">
+        <div class="space-y-3 pt-2">
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span class="text-xs font-bold text-sage-dark">خريطة الموقع التفاعلية</span>
+                    <span class="text-[11px] text-gray-400 hidden sm:inline">(يمكنك السحب والتقريب واستكشاف الشوارع)</span>
+                </div>
+                <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer"
+                   title="فتح الخريطة في تطبيق Google Maps"
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-all duration-200 cursor-pointer">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <span>فتح في تطبيق الخرائط</span>
+                </a>
+            </div>
+
+            <div class="relative w-full h-72 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl overflow-hidden border border-primary-soft/80 shadow-xs bg-neutral-100 group">
                 <iframe 
                     src="{{ $mapIframe }}"
-                    class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95" 
-                    loading="lazy">
+                    class="w-full h-full border-0 select-auto" 
+                    loading="lazy"
+                    allowfullscreen=""
+                    referrerpolicy="no-referrer-when-downgrade"
+                    title="خريطة موقع صالون هيرلاين التفاعلية">
                 </iframe>
-                <div class="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-sage-dark/80 via-sage-dark/40 to-transparent flex items-center justify-between text-white text-xs font-bold">
-                    
-                    <span class="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur-xs text-[11px]">مخرج 5</span>
+
+                <!-- Floating Subtle Location Badge -->
+                <div class="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-2">
+                    <div class="px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md text-[11px] font-extrabold text-sage-dark shadow-md border border-gray-200/60 flex items-center gap-1.5 pointer-events-auto">
+                        <i class="fa-solid fa-location-dot text-primary text-xs"></i>
+                        <span>حي المصيف • مخرج 5</span>
+                    </div>
                 </div>
-            </a>
+            </div>
         </div>
 
         <!-- Row 4: Social Media Channels -->

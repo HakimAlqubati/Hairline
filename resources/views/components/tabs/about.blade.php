@@ -200,28 +200,28 @@
                 </div>
             </div>
 
-            <a href="{{ $mapUrl }}"
-               target="_blank"
-               rel="noopener noreferrer"
-               title="انقري لفتح الموقع في تطبيق الخرائط"
-               class="relative block w-full h-56 sm:h-72 rounded-2xl overflow-hidden border border-gold-soft/40 shadow-xs group cursor-pointer">
+            <div class="flex items-center justify-between gap-2">
+                <span class="text-xs text-gray-400 font-medium">(يمكنكِ تحريك الخريطة والتقريب لاستكشاف الشوارع)</span>
+                <a href="{{ $mapUrl }}"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="انقري لفتح الموقع في تطبيق الخرائط"
+                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-all duration-200 cursor-pointer">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    <span>فتح في خرائط جوجل</span>
+                </a>
+            </div>
+
+            <div class="relative w-full h-64 sm:h-80 rounded-2xl overflow-hidden border border-gold-soft/40 shadow-xs bg-neutral-100 group">
                 <iframe
                     src="{{ $mapIframe }}"
-                    class="w-full h-full border-0 pointer-events-none filter saturate-150 brightness-95"
+                    class="w-full h-full border-0 select-auto"
                     loading="lazy"
                     allowfullscreen=""
                     referrerpolicy="no-referrer-when-downgrade"
                     title="موقع صالون هيرلاين">
                 </iframe>
-
-                <div class="absolute inset-0 bg-sage-dark/10 group-hover:bg-sage-dark/25 transition-all flex items-end p-3.5">
-                    <span class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/95 backdrop-blur-md text-xs font-bold text-sage-dark group-hover:bg-primary group-hover:text-white transition shadow-sm border border-gray-200/60">
-                        <i class="fa-solid fa-location-dot text-primary group-hover:text-white text-xs"></i>
-                        <span>فتح في خرائط جوجل (Google Maps)</span>
-                        <span class="text-xs">↗</span>
-                    </span>
-                </div>
-            </a>
+            </div>
         </div>
     </div>
 </section>
