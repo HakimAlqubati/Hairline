@@ -181,7 +181,16 @@ export function switchTab(tabName) {
     }
 
     if (desktopFabContainer) {
-        desktopFabContainer.classList.toggle('md:hidden', tabName === 'booking');
+        const hideDesktopFab = tabName === 'booking' || tabName === 'account';
+        if (hideDesktopFab) {
+            desktopFabContainer.classList.add('hidden', 'md:hidden');
+            desktopFabContainer.classList.remove('md:flex');
+            desktopFabContainer.style.display = 'none';
+        } else {
+            desktopFabContainer.classList.remove('hidden', 'md:hidden');
+            desktopFabContainer.classList.add('hidden', 'md:flex');
+            desktopFabContainer.style.display = '';
+        }
     }
 
     syncFloatingConfirmButton();

@@ -374,14 +374,14 @@ class CatalogDataService
                     $override = $srv->getTranslation('price_display_override', 'ar');
                     if ($override) {
                         if (preg_match('/(\d+)\s*-\s*(\d+)/', $override, $m)) {
-                            $priceHint = "يبدأ من {$m[1]} إلى {$m[2]} ر.س بحسب الأطوال والكثافة";
+                            $priceHint = "تبدأ من {$m[1]} إلى {$m[2]} ر.س بحسب الأطوال والكثافة";
                         } elseif (preg_match('/(\d+)/', $override, $m)) {
-                            $priceHint = "يبدأ من {$m[1]} ر.س بحسب الأطوال والكثافة";
+                            $priceHint = "تبدأ من {$m[1]} ر.س بحسب الأطوال والكثافة";
                         } else {
-                            $priceHint = str_replace('SR', 'ر.س', $override).' بحسب الأطوال والكثافة';
+                            $priceHint = str_replace(['SR', 'يبدأ'], ['ر.س', 'تبدأ'], $override).' بحسب الأطوال والكثافة';
                         }
                     } else {
-                        $priceHint = 'يبدأ من '.((int) $srv->base_price).' ر.س بحسب الأطوال والكثافة';
+                        $priceHint = 'تبدأ من '.((int) $srv->base_price).' ر.س بحسب الأطوال والكثافة';
                     }
 
                     $subServices[] = [

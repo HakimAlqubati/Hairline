@@ -128,6 +128,8 @@
             min-height: 44px;
         }
     }
+
+   
  
 </style>
 
@@ -152,12 +154,18 @@
                                  loading="eager">
                         </div>
 
-                        <!-- Salon Title & Subtitle (English Only - Bold Typography) -->
+                        <!-- Salon Title & Subtitle (Arabic + English & Subtitle) -->
                         <div class="flex flex-col min-w-0 justify-center">
-                            <h1 class="text-lg sm:text-xl md:text-2xl font-black tracking-[0.16em] text-white font-serif drop-shadow-sm leading-tight [-webkit-text-stroke:_0.4px_currentColor]">
-                                {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}
-                            </h1>
-                            <span class="text-[10px] sm:text-[11.5px] font-black tracking-[0.28em] text-white uppercase mt-0.5 drop-shadow-xs [-webkit-text-stroke:_0.25px_currentColor]">
+                            <div class="flex items-center gap-1.5">
+                                <h1 class="text-base sm:text-lg md:text-xl font-black text-white tracking-tight truncate drop-shadow-sm leading-tight">
+                                    {{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}
+                                </h1>
+                                <span class="text-white/60 font-light text-sm sm:text-base leading-tight">|</span>
+                                <span class="text-xs sm:text-sm md:text-base font-bold tracking-wider text-white/95 font-serif drop-shadow-sm leading-tight">
+                                    {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}
+                                </span>
+                            </div>
+                            <span class="text-[9px] sm:text-[10.5px] font-semibold tracking-[0.26em] text-white/85 uppercase mt-0.5 drop-shadow-xs">
                                 {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}
                             </span>
                         </div>

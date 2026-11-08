@@ -28,17 +28,27 @@
                 <i class="fa-solid fa-xmark text-sm"></i>
             </button>
 
-            <!-- Brand: Cutout White Vector Logo + English Typography (Matching Header 1:1) -->
+            <!-- Brand: Cutout White Vector Logo + Brand Typography (Matching Header 1:1) -->
             <div class="drawer-brand flex items-center gap-3 relative z-10 cursor-pointer" onclick="toggleSidebar(false); switchTab('home')">
                 <div class="w-11 h-11 sm:w-12 sm:h-12 shrink-0 flex items-center justify-center text-white drop-shadow-xs transition-transform hover:scale-105">
                     <img src="{{ asset('images/logo-white.svg') }}"
-                         alt="{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}"
+                         alt="{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}"
                          class="w-full h-full object-contain"
                          loading="eager">
                 </div>
                 <div class="flex flex-col min-w-0 justify-center">
-                    <h3 class="font-black text-white text-xl tracking-[0.16em] font-serif leading-tight drop-shadow-sm [-webkit-text-stroke:_0.4px_currentColor]">{{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}</h3>
-                    <p class="text-[10px] sm:text-[11px] tracking-[0.28em] text-white font-black uppercase mt-0.5 drop-shadow-xs [-webkit-text-stroke:_0.25px_currentColor]">{{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</p>
+                    <div class="flex items-center gap-1.5">
+                        <h3 class="font-black text-white text-lg tracking-tight leading-tight drop-shadow-sm">
+                            {{ $salonIdentity['name_ar'] ?? 'هيرلاين' }}
+                        </h3>
+                        <span class="text-white/60 font-light text-sm leading-tight">|</span>
+                        <span class="font-bold text-white text-sm tracking-wider font-serif leading-tight drop-shadow-sm">
+                            {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }}
+                        </span>
+                    </div>
+                    <p class="text-[9px] sm:text-[10px] tracking-[0.26em] text-white font-black uppercase mt-0.5 drop-shadow-xs">
+                        {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}
+                    </p>
                 </div>
             </div>
         </div>
@@ -47,19 +57,9 @@
         <div class="p-4 space-y-3 mt-2 flex-1 bg-white">
             <p class="drawer-section-label px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">القائمة التعريفية</p>
 
-            <!-- Item 1: الأخصائيات -->
-            <button onclick="openSidebarSection('specialists')" 
-                    class="drawer-item drawer-item-1 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
-                <div>
-                    <span class="block text-sm sm:text-base font-black text-black group-hover:text-primary transition-colors">الأخصائيات</span>
-                    <span class="text-[11px] font-medium text-gray-500">نخبة خبيرات الشعر والجمال</span>
-                </div>
-                <span class="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1">‹</span>
-            </button>
-
-            <!-- Item 2: للتواصل والاستفسار -->
+            <!-- Item 1: للتواصل والاستفسار -->
             <button onclick="openSidebarSection('contact')" 
-                    class="drawer-item drawer-item-2 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                    class="drawer-item drawer-item-1 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
                 <div>
                     <span class="block text-sm sm:text-base font-black text-black group-hover:text-primary transition-colors">للتواصل والاستفسار</span>
                     <span class="text-[11px] font-medium text-gray-500">(اتصل بنا)</span>
@@ -67,9 +67,9 @@
                 <span class="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1">‹</span>
             </button>
 
-            <!-- Item 3: سياسة الخصوصية -->
+            <!-- Item 2: سياسة الخصوصية -->
             <button onclick="openSidebarSection('privacy')" 
-                    class="drawer-item drawer-item-3 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                    class="drawer-item drawer-item-2 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
                 <div>
                     <span class="block text-sm sm:text-base font-black text-black group-hover:text-primary transition-colors">سياسة الخصوصية</span>
                     <span class="text-[11px] font-medium text-gray-500">(حماية وسرية بياناتكِ)</span>

@@ -108,7 +108,7 @@
         <!-- 4. BOTTOM NAVIGATION BAR -->
         <x-bottom-nav />
 
-        <!-- 5. SIDEBAR DRAWER (3 Items) -->
+        <!-- 5. SIDEBAR DRAWER -->
         <x-sidebar-drawer :salonIdentity="$salonIdentity" />
 
         <!-- 6. UNIVERSAL BOTTOM SHEET MODAL -->
@@ -121,7 +121,7 @@
         <x-ios-fullscreen-modal />
 
         <!-- 9. DESKTOP FLOATING BOOKING CONCIERGE BUTTON -->
-        <div id="desktopFloatingBookingContainer" class="hidden md:flex fixed bottom-8 left-8 z-40 items-center">
+        <div id="desktopFloatingBookingContainer" class="{{ in_array($initialView ?? 'home', ['booking', 'account']) ? 'hidden md:hidden' : 'hidden md:flex' }} fixed bottom-8 left-8 z-40 items-center"{{ in_array($initialView ?? 'home', ['booking', 'account']) ? ' style="display: none;"' : '' }}>
             <button id="desktopFloatingBookingBtn"
                     onclick="toggleDesktopBooking()"
                     aria-label="للحجز"

@@ -47,40 +47,40 @@
 
             <!-- 2. Action Buttons (Smaller Size) & Social Links (Directly Above Map) -->
             <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 self-end md:self-auto">
-                <!-- Small WhatsApp Button -->
+                <!-- Small WhatsApp Button (Brand Green) -->
                 <a href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"
                    title="محادثة واتساب مباشرة"
-                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-sm text-primary group-hover:text-white transition-colors duration-200"></i>
+                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-sm text-white"></i>
                     <span>واتساب</span>
                 </a>
 
-                <!-- Small Call Button (Same Width, No "اتصال" Word) -->
+                <!-- Small Call Button (Brand Primary Logo Color) -->
                 <a href="tel:{{ $phoneClean }}"
                    title="اتصال مباشر: {{ $phone }}"
-                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
-                    <i class="fa-solid fa-phone text-xs text-primary group-hover:text-white transition-colors duration-200"></i>
+                   class="group inline-flex items-center justify-center gap-1.5 py-1.5 w-32 rounded-lg bg-primary hover:bg-primary-dark text-white font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                    <i class="fa-solid fa-phone text-xs text-white"></i>
                     <span dir="ltr" class="font-mono text-xs">{{ $phone }}</span>
                 </a>
 
                 <!-- Subtle Divider -->
                 <span class="h-4 w-px bg-gray-200 hidden sm:inline-block"></span>
 
-                <!-- Social Media Channel Icons -->
+                <!-- Social Media Channel Icons (With Original Brand Colors) -->
                 <div class="flex items-center gap-1.5">
                     <a href="{{ $contactLinks['instagram'] ?? 'https://www.instagram.com/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
                        title="Instagram"
-                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888] text-white flex items-center justify-center transition shadow-2xs hover:scale-110 hover:opacity-95 cursor-pointer">
                         <i class="fa-brands fa-instagram text-xs sm:text-sm"></i>
                     </a>
                     <a href="{{ $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
                        title="Snapchat"
-                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FFFC00] text-black border border-black/10 flex items-center justify-center transition shadow-2xs hover:scale-110 hover:brightness-95 cursor-pointer">
                         <i class="fa-brands fa-snapchat text-xs sm:text-sm"></i>
                     </a>
                     <a href="{{ $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@Hairline.TikTok' }}" target="_blank" rel="noopener noreferrer"
                        title="TikTok"
-                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-black text-white flex items-center justify-center transition shadow-2xs hover:scale-110 hover:bg-neutral-800 cursor-pointer">
                         <i class="fa-brands fa-tiktok text-[11px] sm:text-xs"></i>
                     </a>
                 </div>

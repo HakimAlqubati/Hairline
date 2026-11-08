@@ -69,8 +69,9 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('أوقات العمل الرسمية');
         $response->assertSee('التعريف بالصالون');
         $response->assertSee('id="aboutContactSection"', false);
-        $response->assertSee('الهاتف والحجوزات');
-        $response->assertSee('حسابات وروابط التواصل');
+        $response->assertSee('(للتواصل)');
+        $response->assertDontSee('الهاتف والحجوزات');
+        $response->assertDontSee('حسابات وروابط التواصل');
         $response->assertSee('العنوان');
         $response->assertDontSee('العنوان وموقع الصالون');
         $response->assertDontSee('تعرفي على الأخصائيات');
@@ -152,15 +153,17 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('خدمات الشعر');
         $response->assertSee('معالجات الشعر');
         $response->assertSee('البروتين بالتمليس الحراري');
-        $response->assertSee('المكياج ( مع الرموش)');
+        $response->assertSee('المكياج');
         $response->assertSee('data-category-tree="hair_services"', false);
         $response->assertSee('data-category-tree="hair_treatments"', false);
         $response->assertSee('data-category-tree="skin_eyebrows"', false);
         $response->assertDontSee('data-category-tree="nails"', false);
         $response->assertSee('تم تأكيد حجزك بنجاح');
-        $response->assertSee('الخدمة المختارة:');
-        $response->assertSee('الأخصائية:');
-        $response->assertSee('الموعد:');
+        $response->assertSee('الخدمة المختارة');
+        $response->assertSee('الأخصائية');
+        $response->assertSee('الموعد');
+        $response->assertDontSee('booking-cat-count', false);
+        $response->assertDontSee('bookingCustomerNotesInput', false);
         $response->assertDontSee('القسم الرئيسي:');
         $response->assertDontSee('التكلفة التقديرية (شاملة VAT):');
         $response->assertDontSee('موعدكِ مؤكد يا جميلة!');
@@ -560,6 +563,45 @@ describe('Customer-Facing Pages', function () {
         $privacyResponse->assertStatus(200);
         $privacyResponse->assertSee('سياسة الخصوصية');
         $privacyResponse->assertSee('حماية وسرية البيانات الشخصية');
+    });
+
+    test('booking and contact page visual updates: hidden service counter, tabda min, no notes, original social brand colors, and hidden fab on profile', function () {
+        // 1. Booking page checks
+        $bookingResponse = $this->get('/booking');
+        $bookingResponse->assertStatus(200);
+        $bookingResponse->assertDontSee('booking-cat-count', false);
+        $bookingResponse->assertDontSee('bookingCustomerNotesInput', false);
+        $bookingResponse->assertSee('تبدأ من');
+        $bookingResponse->assertDontSee('يبدأ من 350');
+
+        // 2. Contact page checks (original brand colors)
+        $contactResponse = $this->get('/contact');
+        $contactResponse->assertStatus(200);
+        $contactResponse->assertSee('bg-[#25D366]', false);
+        $contactResponse->assertSee('bg-gradient-to-tr from-[#f09433] via-[#dc2743] to-[#bc1888]', false);
+        $contactResponse->assertSee('bg-[#FFFC00]', false);
+        $contactResponse->assertSee('bg-black text-white', false);
+
+        // 3. Profile & my-bookings page checks (floating booking concierge hidden on profile / account page)
+        $profileResponse = $this->get('/profile');
+        $profileResponse->assertStatus(200);
+        $profileResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
+        $profileResponse->assertSee('style="display: none;"', false);
+
+        $myBookingsResponse = $this->get('/my-bookings');
+        $myBookingsResponse->assertStatus(200);
+        $myBookingsResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
+        $myBookingsResponse->assertSee('style="display: none;"', false);
+    });
+
+    test('sidebar drawer navigation hides specialists and displays contact and privacy sections', function () {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('id="sidebarDrawer"', false);
+        $response->assertSee('openSidebarSection(\'contact\')', false);
+        $response->assertSee('openSidebarSection(\'privacy\')', false);
+        $response->assertDontSee('openSidebarSection(\'specialists\')', false);
+        $response->assertDontSee('نخبة خبيرات الشعر والجمال');
     });
 
     test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {
@@ -1244,11 +1286,10 @@ describe('Static Data Services', function () {
         expect($createdBooking->isPending())->toBeTrue();
         expect($createdBooking->isConfirmed())->toBeFalse();
 
-        // Also verify the booking page renders the manual WhatsApp share button in Step 4
+        // Verify the booking page does NOT render the manual WhatsApp share button in Step 4
         $bookingPageResponse = $this->get('/booking');
         $bookingPageResponse->assertStatus(200);
-        $bookingPageResponse->assertSee('id="bookingReceiptStaticWhatsAppBtn"', false);
-        $bookingPageResponse->assertSee('إرسال تفاصيل الحجز إلى واتساب الصالون');
-        $bookingPageResponse->assertSee('fa-brands fa-whatsapp', false);
+        $bookingPageResponse->assertDontSee('id="bookingReceiptStaticWhatsAppBtn"', false);
+        $bookingPageResponse->assertDontSee('إرسال تفاصيل الحجز إلى واتساب الصالون');
     });
 });

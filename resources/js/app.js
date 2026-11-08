@@ -302,7 +302,7 @@ function initHairlineApp() {
         if (path === 'services') switchTab('services');
         else if (path === 'specialists') switchTab('specialists');
         else if (path === 'about') switchTab('about');
-        else if (path === 'profile') switchTab('account');
+        else if (path === 'profile' || path === 'my-bookings' || path === 'bookings') switchTab('account');
         else if (path === 'booking') openBookingFlow();
         else if (path === 'contact') switchTab('contact');
         else if (path === 'privacy') switchTab('privacy');

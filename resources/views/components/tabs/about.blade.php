@@ -100,26 +100,21 @@
 
             {{-- Phone & Direct Call / WhatsApp --}}
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-start gap-3.5">
-                    <span class="w-11 h-11 rounded-2xl bg-primary-light/70 text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
-                        <i class="fa-solid fa-headset text-base"></i>
-                    </span>
-                    <div>
-                        <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">الهاتف والحجوزات</h4>
-                        <p class="text-xs sm:text-sm font-bold text-primary-dark dir-ltr text-right mt-0.5" dir="ltr">{{ $phoneDisplay }}</p>
-                    </div>
+                <div>
+                    <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">(للتواصل)</h4>
+                    <p class="text-xs sm:text-sm font-bold text-primary-dark dir-ltr text-right mt-0.5" dir="ltr">{{ $phoneDisplay }}</p>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
                     <a href="{{ $whatsappUrl }}"
                        target="_blank"
                        rel="noopener noreferrer"
-                       class="group flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:shadow-primary/20">
-                        <i class="fa-brands fa-whatsapp text-sm text-primary group-hover:text-white transition-colors"></i>
+                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-[#25D366] hover:bg-[#1EBE5D] text-white font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs shadow-[#25D366]/20">
+                        <i class="fa-brands fa-whatsapp text-sm text-white"></i>
                         <span>واتساب</span>
                     </a>
                     <a href="tel:{{ preg_replace('/[^0-9+]/', '', (string) ($phoneRaw ?: '0548857705')) }}"
-                       class="group flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-2xs hover:shadow-xs hover:shadow-primary/20">
-                        <i class="fa-solid fa-phone text-xs text-primary group-hover:text-white transition-colors"></i>
+                       class="flex-1 sm:flex-none px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-xs transition-all duration-200 flex items-center justify-center gap-1.5 shadow-xs shadow-primary/20">
+                        <i class="fa-solid fa-phone text-xs text-white"></i>
                         <span>اتصال</span>
                     </a>
                 </div>
@@ -129,9 +124,8 @@
         {{-- Subtle Soft Divider --}}
         <div class="h-px w-full bg-gradient-to-l from-transparent via-gray-200/60 to-transparent"></div>
 
-        {{-- Social & Contact Links --}}
+        {{-- Social & Contact Links (Without Title as Requested) --}}
         <div class="space-y-3">
-            <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">حسابات وروابط التواصل</h4>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <a href="{{ $instagramUrl }}"
                    target="_blank"
@@ -200,8 +194,7 @@
                 </div>
             </div>
 
-            <div class="flex items-center justify-between gap-2">
-                <span class="text-xs text-gray-400 font-medium">(يمكنكِ تحريك الخريطة والتقريب لاستكشاف الشوارع)</span>
+            <div class="flex items-center justify-end gap-2">
                 <a href="{{ $mapUrl }}"
                    target="_blank"
                    rel="noopener noreferrer"

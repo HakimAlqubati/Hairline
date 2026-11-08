@@ -19,6 +19,8 @@ Route::get('/services/suggestions', [HairlineController::class, 'searchSuggestio
 Route::get('/specialists', [HairlineController::class, 'show'])->defaults('initialView', 'specialists')->name('specialists');
 Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
 Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');
+Route::get('/my-bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('my_bookings');
+Route::get('/bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('bookings');
 Route::get('/contact', [HairlineController::class, 'show'])->defaults('initialView', 'contact')->name('contact');
 Route::get('/privacy', [HairlineController::class, 'show'])->defaults('initialView', 'privacy')->name('privacy');
 

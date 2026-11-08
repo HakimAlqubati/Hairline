@@ -802,8 +802,8 @@ export function renderBookingStep() {
                             </div>
                         </div>
 
-                        <!-- Row 2: الموعد، عدد الأشخاص، ملاحظات العميلة -->
-                        <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                        <!-- Row 2: الموعد، عدد الأشخاص -->
+                        <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
                             <div class="min-w-0">
                                 <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الموعد</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-sage-dark block leading-snug">
@@ -815,27 +815,10 @@ export function renderBookingStep() {
                                 <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">عدد الأشخاص</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-sage-dark block">${guestsNum > 1 ? `${guestsNum} أشخاص` : 'شخص واحد'}</span>
                             </div>
-                            <div class="min-w-0">
-                                <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">ملاحظات العميلة</span>
-                                <span class="text-xs sm:text-sm font-semibold text-gray-600 block truncate" title="${notesText || 'لا توجد ملاحظات'}">${notesText || '—'}</span>
-                            </div>
                         </div>
                     </div>
 
-                    <!-- Manual WhatsApp Share Button -->
-                    <div class="pt-1">
-                        <a href="${waUrl}" 
-                           target="_blank" 
-                           rel="noopener noreferrer" 
-                           id="bookingReceiptWhatsAppBtn"
-                           class="w-full py-3.5 px-4 rounded-2xl bg-[#25D366] hover:bg-[#20BD5A] text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md hover:shadow-lg active:scale-98 transition-all cursor-pointer">
-                            <i class="fa-brands fa-whatsapp text-xl"></i>
-                            <span>إرسال تفاصيل الحجز إلى واتساب الصالون</span>
-                        </a>
-                         
-                    </div>
-
-                    <div class="flex gap-2.5 pt-1">
+                    <div class="flex gap-2.5 pt-2">
                         <button onclick="switchTab('account');" 
                                 class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
                               حجوزاتي

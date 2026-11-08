@@ -75,11 +75,6 @@
                             {{ $cat['title'] }}
                         </h3>
                     </div>
-
-                    <span class="booking-cat-count text-xs font-bold text-primary-dark shrink-0"
-                          data-total-count="{{ count($cat['subServices'] ?? []) }}">
-                        {{ count($cat['subServices'] ?? []) }} خدمات
-                    </span>
                 </button>
 
                 <!-- Sub-Services Tree Branches (Open by Default, Borderless Minimal Rows with Checkbox) -->
@@ -147,8 +142,8 @@
             <!-- Populated dynamically when user confirms the specialist -->
         </div>
 
-        <!-- Extra Booking Details: Guests Count & Customer Notes -->
-        <div id="bookingDetailsSection" class="bg-white rounded-2xl p-4 sm:p-5 border border-primary-soft/60 shadow-xs space-y-3.5">
+        <!-- Extra Booking Details: Guests Count -->
+        <div id="bookingDetailsSection" class="bg-white rounded-2xl p-4 sm:p-5 border border-primary-soft/60 shadow-xs">
             <!-- Number of Persons -->
             <div class="flex items-center justify-between gap-4">
                 <label for="bookingGuestsCountInput" class="text-xs sm:text-sm font-extrabold text-sage-dark cursor-pointer">
@@ -176,20 +171,6 @@
                         <i class="fa-solid fa-plus text-[10px]"></i>
                     </button>
                 </div>
-            </div>
-
-            <!-- Customer Notes -->
-            <div class="space-y-1.5">
-                <label for="bookingCustomerNotesInput" class="block text-xs sm:text-sm font-extrabold text-sage-dark">
-                    ملاحظات العميلة
-                </label>
-                <textarea id="bookingCustomerNotesInput"
-                          name="customer_notes"
-                          rows="2"
-                          maxlength="1000"
-                          oninput="handleBookingNotesInput(this)"
-                          placeholder="أي ملاحظات أو طلبات خاصة..."
-                          class="w-full p-3 rounded-xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none text-xs sm:text-sm font-medium text-sage-dark placeholder:text-gray-400 transition resize-none"></textarea>
             </div>
         </div>
 
@@ -233,8 +214,8 @@
                     </div>
                 </div>
 
-                <!-- Row 2: الموعد، عدد الأشخاص، ملاحظات العميلة -->
-                <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
+                <!-- Row 2: الموعد، عدد الأشخاص -->
+                <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
                     <div class="min-w-0">
                         <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الموعد</span>
                         <span class="text-xs sm:text-sm font-extrabold text-sage-dark block leading-snug"></span>
@@ -243,26 +224,10 @@
                         <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">عدد الأشخاص</span>
                         <span class="text-xs sm:text-sm font-extrabold text-sage-dark block">1</span>
                     </div>
-                    <div class="min-w-0">
-                        <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">ملاحظات العميلة</span>
-                        <span class="text-xs sm:text-sm font-semibold text-gray-600 block truncate">—</span>
-                    </div>
                 </div>
             </div>
 
-            <div class="pt-1">
-                <a id="bookingReceiptStaticWhatsAppBtn"
-                   href="{{ $contactLinks['whatsapp'] ?? 'https://wa.me/966548857705' }}"
-                   target="_blank" 
-                   rel="noopener noreferrer" 
-                   class="w-full py-3.5 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2.5 shadow-md shadow-primary/25 hover:shadow-lg active:scale-98 transition-all cursor-pointer">
-                    <i class="fa-brands fa-whatsapp text-xl"></i>
-                    <span>إرسال تفاصيل الحجز إلى واتساب الصالون</span>
-                </a>
-             
-            </div>
-
-            <div class="flex gap-2.5 pt-1">
+            <div class="flex gap-2.5 pt-2">
                 <button onclick="switchTab('account');" 
                         class="flex-1 py-3.5 rounded-2xl bg-primary text-white font-extrabold text-xs hover:bg-primary-dark transition cursor-pointer">
                       حجوزاتي
