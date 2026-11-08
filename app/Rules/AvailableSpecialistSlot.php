@@ -53,13 +53,6 @@ class AvailableSpecialistSlot implements DataAwareRule, ValidationRule
     {
         $availability = $this->availabilityService ?? app(SpecialistAvailabilityService::class);
 
-        $specialistKey = $this->specialistIdentifier ?? (string) ($this->data['specialist_id'] ?? '');
-        $specialist = $availability->resolveSpecialist($specialistKey);
-
-        if (! $specialist) {
-            return;
-        }
-
         $timeString = trim((string) $value);
         if ($timeString === '') {
             return;
@@ -89,10 +82,50 @@ class AvailableSpecialistSlot implements DataAwareRule, ValidationRule
             }
         }
 
-        $serviceKey = $this->serviceIdentifier ?? (string) ($this->data['service_id'] ?? '');
-        $service = $availability->resolveService($serviceKey);
-        $durationMinutes = $availability->resolveDurationMinutes($specialist, $service);
-        $endTime24 = $availability->calculateEndTime24($startTime24, $durationMinutes);
+        if (! empty($this->data['items']) && is_array($this->data['items'])) {
+            $resolvedItems = $availability->resolveBookingItems(null, null, $this->data['items']);
+            $cursorTime = $startTime24;
+            foreach ($resolvedItems as $item) {
+                $duration = $item['duration_minutes'];
+                $itemEndTime24 = $availability->calculateEndTime24($cursorTime, $duration);
+                if ($availability->hasOverlappingBooking(
+                    specialistId: $item['specialist']->id,
+                    date: $date,
+                    startTime24: $cursorTime,
+                    endTime24: $itemEndTime24,
+                    ignoreBookingId: $this->ignoreBookingId
+                )) {
+                    $fail('عذراً، هذا الموعد محجوز مسبقاً مع الأخصائية المختارة. يرجى اختيار وقت آخر متاح.');
+
+                    return;
+                }
+                $cursorTime = $itemEndTime24;
+            }
+
+            return;
+        }
+
+        $specialistKey = $this->specialistIdentifier ?? (string) ($this->data['specialist_id'] ?? '');
+        $specialist = $availability->resolveSpecialist($specialistKey);
+
+        if (! $specialist) {
+            return;
+        }
+
+        $serviceInput = $this->serviceIdentifier ?? ($this->data['service_ids'] ?? ($this->data['service_id'] ?? ''));
+        $serviceCodes = is_array($serviceInput) ? $serviceInput : [$serviceInput];
+        $totalDurationMinutes = 0;
+        foreach ($serviceCodes as $sc) {
+            $srv = $availability->resolveService((string) $sc);
+            if ($srv) {
+                $totalDurationMinutes += $availability->resolveDurationMinutes($specialist, $srv);
+            }
+        }
+        if ($totalDurationMinutes === 0) {
+            $totalDurationMinutes = 60;
+        }
+
+        $endTime24 = $availability->calculateEndTime24($startTime24, $totalDurationMinutes);
 
         $hasConflict = $availability->hasOverlappingBooking(
             specialistId: $specialist->id,

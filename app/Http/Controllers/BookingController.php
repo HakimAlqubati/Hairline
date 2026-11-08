@@ -35,6 +35,43 @@ class BookingController extends Controller
      */
     public function getAvailability(GetAvailabilityRequest $request): JsonResponse
     {
+        $itemsInput = $request->input('items') ?: $request->query('items');
+        if (is_string($itemsInput)) {
+            $itemsInput = json_decode($itemsInput, true);
+        }
+
+        if (! empty($itemsInput) && is_array($itemsInput)) {
+            $resolvedItems = $this->availabilityService->resolveBookingItems(null, null, $itemsInput);
+            if (empty($resolvedItems)) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'not_found',
+                    'message' => 'الخدمات أو الأخصائيات المختارة غير متاحة حالياً.',
+                ], 404);
+            }
+
+            foreach ($resolvedItems as $it) {
+                if (! $this->availabilityService->specialistOffersService($it['specialist'], $it['service'])) {
+                    $spName = $it['specialist']->getTranslation('name', 'ar');
+                    $srvName = $it['service']->getTranslation('name', 'ar');
+
+                    return response()->json([
+                        'success' => false,
+                        'status' => 'validation_error',
+                        'message' => "عذراً، الأخصائية ({$spName}) لا تقدم خدمة ({$srvName}).",
+                    ], 422);
+                }
+            }
+
+            $date = $this->availabilityService->resolveBookingDate((string) $request->query('booking_date', ''));
+            $availability = $this->availabilityService->getAvailabilityForItems($resolvedItems, $date);
+
+            return response()->json([
+                'success' => true,
+                ...$availability,
+            ]);
+        }
+
         $specialist = $this->availabilityService->resolveSpecialist((string) $request->query('specialist_id'));
         if (! $specialist) {
             return response()->json([
@@ -76,7 +113,7 @@ class BookingController extends Controller
     public function verifyPhone(VerifyPhoneRequest $request): JsonResponse
     {
         $rawPhone = (string) $request->input('phone', '');
-        $hasBooking = $request->filled('service_id') && $request->filled('specialist_id');
+        $hasBooking = ($request->filled('service_id') && $request->filled('specialist_id')) || $request->filled('items');
 
         $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
         $loggedInCustomerId = session('logged_in_customer_id');
@@ -105,12 +142,13 @@ class BookingController extends Controller
                     $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                         customer: $loggedInCustomer,
                         serviceCode: $serviceInput,
-                        specialistSlug: (string) $request->input('specialist_id'),
+                        specialistSlug: (string) $request->input('specialist_id', ''),
                         dateLabel: (string) $request->input('booking_date'),
                         timeSlot: (string) $request->input('booking_time'),
                         customerType: Booking::CUSTOMER_TYPE_REGISTERED,
                         guestsCount: $guestsCount,
-                        customerNotes: $customerNotes
+                        customerNotes: $customerNotes,
+                        items: $request->input('items')
                     );
                 } catch (SlotUnavailableException $e) {
                     return response()->json([
@@ -213,12 +251,13 @@ class BookingController extends Controller
             $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                 customer: $customer,
                 serviceCode: $serviceInput,
-                specialistSlug: (string) $request->input('specialist_id'),
+                specialistSlug: (string) $request->input('specialist_id', ''),
                 dateLabel: (string) $request->input('booking_date'),
                 timeSlot: (string) $request->input('booking_time'),
                 customerType: Booking::CUSTOMER_TYPE_GUEST,
                 guestsCount: $guestsCount,
-                customerNotes: $customerNotes
+                customerNotes: $customerNotes,
+                items: $request->input('items')
             );
         } catch (SlotUnavailableException $e) {
             return response()->json([

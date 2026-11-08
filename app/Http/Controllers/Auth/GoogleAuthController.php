@@ -88,7 +88,7 @@ class GoogleAuthController extends Controller
         }
 
         $isProfile = (bool) ($bookingContext['is_profile'] ?? false);
-        $hasBooking = ! $isProfile && ! empty($bookingContext['service_id']) && ! empty($bookingContext['specialist_id']);
+        $hasBooking = ! $isProfile && ((! empty($bookingContext['service_id']) && ! empty($bookingContext['specialist_id'])) || ! empty($bookingContext['items']));
 
         if ($hasBooking) {
             $contextData = [
@@ -98,15 +98,20 @@ class GoogleAuthController extends Controller
                 'booking_time' => (string) ($bookingContext['booking_time'] ?? ''),
                 'guests_count' => ! empty($bookingContext['guests_count']) ? (int) $bookingContext['guests_count'] : 1,
                 'customer_notes' => ! empty($bookingContext['customer_notes']) ? (string) $bookingContext['customer_notes'] : null,
+                'items' => ! empty($bookingContext['items']) ? (array) $bookingContext['items'] : null,
             ];
 
             $slotValidator = Validator::make($contextData, [
-                'service_id' => ['required', 'string'],
+                'service_id' => ['required_without:items', 'nullable', 'string'],
                 'specialist_id' => [
-                    'required',
+                    'required_without:items',
+                    'nullable',
                     'string',
                     new SpecialistOffersService($this->availabilityService),
                 ],
+                'items' => ['nullable', 'array'],
+                'items.*.service_id' => ['required_with:items', 'string'],
+                'items.*.specialist_id' => ['required_with:items', 'string', new SpecialistOffersService($this->availabilityService)],
                 'booking_date' => [
                     'required',
                     'string',
@@ -119,8 +124,8 @@ class GoogleAuthController extends Controller
                     new AvailableSpecialistSlot(availabilityService: $this->availabilityService),
                 ],
             ], [
-                'service_id.required' => 'يرجى اختيار الخدمة المطلوبة.',
-                'specialist_id.required' => 'يرجى اختيار الأخصائية.',
+                'service_id.required_without' => 'يرجى اختيار الخدمة المطلوبة.',
+                'specialist_id.required_without' => 'يرجى اختيار الأخصائية.',
                 'booking_date.required' => 'يرجى اختيار تاريخ الموعد.',
                 'booking_time.required' => 'يرجى اختيار وقت الموعد.',
             ]);
@@ -165,7 +170,8 @@ class GoogleAuthController extends Controller
                     timeSlot: $contextData['booking_time'],
                     customerType: Booking::CUSTOMER_TYPE_REGISTERED,
                     guestsCount: $contextData['guests_count'] ?? 1,
-                    customerNotes: $contextData['customer_notes'] ?? null
+                    customerNotes: $contextData['customer_notes'] ?? null,
+                    items: $contextData['items'] ?? null
                 );
             } catch (SlotUnavailableException|InvalidArgumentException $e) {
                 return $this->googleOAuthService->renderPopupCallbackScript([
@@ -208,7 +214,7 @@ class GoogleAuthController extends Controller
         }
 
         $isProfile = $request->boolean('is_profile');
-        $hasBooking = ! $isProfile && $request->filled('service_id') && $request->filled('specialist_id');
+        $hasBooking = ! $isProfile && (($request->filled('service_id') && $request->filled('specialist_id')) || $request->filled('items'));
 
         $rawPhone = (string) $request->input('phone', '');
         $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : '';
@@ -258,12 +264,13 @@ class GoogleAuthController extends Controller
                 $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
                     customer: $customer,
                     serviceCode: $serviceInput,
-                    specialistSlug: (string) $request->input('specialist_id'),
+                    specialistSlug: (string) $request->input('specialist_id', ''),
                     dateLabel: (string) $request->input('booking_date'),
                     timeSlot: (string) $request->input('booking_time'),
                     customerType: Booking::CUSTOMER_TYPE_REGISTERED,
                     guestsCount: $guestsCount,
-                    customerNotes: $customerNotes
+                    customerNotes: $customerNotes,
+                    items: $request->input('items')
                 );
             } catch (SlotUnavailableException $e) {
                 return response()->json([

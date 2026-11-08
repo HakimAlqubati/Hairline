@@ -42,11 +42,30 @@ export function openPhoneVerificationModal() {
         ? state.bookingState.selectedSubServices
         : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
     const servicesTitle = subServices.map(s => s.name).join(' + ');
+    const hasMultiple = subServices.length > 1;
 
     const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
     const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
     if (summaryEl) {
+        let servicesHtml = '';
+        if (hasMultiple) {
+            servicesHtml = `
+                <div class="space-y-1.5 py-1 text-right">
+                    ${subServices.map(s => {
+                        const sp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
+                        const spName = sp ? (sp.name || '').split('|')[0].trim() : '';
+                        return `
+                            <div class="flex items-center justify-between text-xs bg-gray-50/70 p-2 rounded-xl border border-gray-100">
+                                <span class="font-bold text-sage-dark">${s.name}</span>
+                                <span class="text-primary font-black"><i class="fa-regular fa-user text-[10px] ml-1 text-gold-dark"></i>${spName}</span>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        }
+
         summaryEl.innerHTML = `
             <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
@@ -54,10 +73,11 @@ export function openPhoneVerificationModal() {
                     <span class="font-extrabold text-sm text-sage-dark truncate">${servicesTitle}</span>
                 </div>
             </div>
+            ${hasMultiple ? servicesHtml : ''}
             <div class="border-t border-dashed border-gray-200/80"></div>
             <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
                 <div class="flex items-center gap-2 min-w-0">
-                    ${state.bookingState.selectedSpecialist?.avatar ? `
+                    ${!hasMultiple && state.bookingState.selectedSpecialist?.avatar ? `
                         <img src="${state.bookingState.selectedSpecialist.avatar}"
                              alt="${state.bookingState.selectedSpecialist.name}"
                              onerror="this.onerror=null; this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');"
@@ -66,7 +86,14 @@ export function openPhoneVerificationModal() {
                     ` : `
                         <i class="fa-regular fa-user text-primary-dark text-xs shrink-0"></i>
                     `}
-                    <span class="truncate font-bold text-sage-dark">${state.bookingState.selectedSpecialist?.name || ''}</span>
+                    <span class="truncate font-bold text-sage-dark">
+                        ${hasMultiple 
+                            ? subServices.map(s => {
+                                const sp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
+                                return sp ? (sp.name || '').split('|')[0].trim() : '';
+                            }).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(' + ')
+                            : (state.bookingState.selectedSpecialist?.name || '')}
+                    </span>
                 </div>
                 <div class="flex items-center gap-1.5 justify-end text-left min-w-0">
                     <i class="fa-regular fa-calendar-check text-gold-dark text-[11px] shrink-0"></i>
@@ -234,6 +261,10 @@ export async function submitPhoneVerification(event) {
         : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
     const serviceIds = subServices.map(s => s.id);
     const primaryServiceId = subServices[0]?.id || state.bookingState.selectedSubService?.id;
+    const items = subServices.map(s => ({
+        service_id: s.id,
+        specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
+    }));
 
     const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
     const verifyPhoneUrl = routes.verifyPhone || '/booking/verify-phone';
@@ -259,7 +290,8 @@ export async function submitPhoneVerification(event) {
                     phone: rawPhone,
                     service_ids: serviceIds,
                     service_id: primaryServiceId,
-                    specialist_id: state.bookingState.selectedSpecialist.id,
+                    specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id,
+                    items: items,
                     booking_date: bookingDateVal,
                     booking_time: timeSlot,
                     guests_count: guestsCount,
@@ -361,7 +393,8 @@ export async function submitPhoneVerification(event) {
                 name: guestName,
                 service_ids: serviceIds,
                 service_id: primaryServiceId,
-                specialist_id: state.bookingState.selectedSpecialist.id,
+                specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id,
+                items: items,
                 booking_date: bookingDateVal,
                 booking_time: timeSlot,
                 guests_count: guestsCount,
@@ -454,13 +487,22 @@ export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
     const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
     const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    const items = subServices.map(s => ({
+        service_id: s.id,
+        specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
+    }));
+
     const params = new URLSearchParams(isProfile ? {
         is_profile: '1'
     } : {
         is_profile: '0',
         phone: state.bookingState.verifiedPhone || '',
         service_id: state.bookingState.selectedSubService?.id || '',
-        specialist_id: state.bookingState.selectedSpecialist?.id || '',
+        specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id || '',
+        items: JSON.stringify(items),
         booking_date: bookingDateVal,
         booking_time: timeSlot,
         guests_count: guestsCount,
@@ -522,13 +564,22 @@ export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly
         const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
         const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
+        const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+            ? state.bookingState.selectedSubServices
+            : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+        const items = subServices.map(s => ({
+            service_id: s.id,
+            specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
+        }));
+
         const payloadData = isProfile
             ? Object.assign({ is_profile: true }, oauthPayload)
             : Object.assign({
                 phone: state.bookingState.verifiedPhone || '',
                 service_ids: (state.bookingState.selectedSubServices || []).map(s => s.id),
                 service_id: state.bookingState.selectedSubService?.id || (state.bookingState.selectedSubServices?.[0]?.id) || '',
-                specialist_id: state.bookingState.selectedSpecialist?.id || '',
+                specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id || '',
+                items: items,
                 booking_date: bookingDateVal,
                 booking_time: timeSlot,
                 guests_count: guestsCount,

@@ -18,6 +18,13 @@ class RegisterWithGoogleRequest extends BaseApiRequest
     {
         $availabilityService = app(SpecialistAvailabilityService::class);
         $rawPhone = $availabilityService->sanitizePhoneDigits((string) $this->input('phone', ''));
+        $items = $this->input('items');
+        if (is_string($items)) {
+            $decoded = json_decode($items, true);
+            if (is_array($decoded)) {
+                $this->merge(['items' => $decoded]);
+            }
+        }
         $this->merge([
             'phone' => $rawPhone !== '' ? $rawPhone : null,
             'code' => trim((string) $this->input('code', '')),
@@ -31,7 +38,7 @@ class RegisterWithGoogleRequest extends BaseApiRequest
     {
         $availabilityService = app(SpecialistAvailabilityService::class);
         $isProfile = $this->boolean('is_profile');
-        $hasBooking = ! $isProfile && $this->filled('service_id') && $this->filled('specialist_id');
+        $hasBooking = ! $isProfile && (($this->filled('service_id') && $this->filled('specialist_id')) || $this->filled('items'));
 
         $rules = [
             'code' => ['required', 'string'],
@@ -39,12 +46,16 @@ class RegisterWithGoogleRequest extends BaseApiRequest
         ];
 
         if ($hasBooking) {
-            $rules['service_id'] = ['required', 'string'];
+            $rules['service_id'] = ['required_without:items', 'nullable', 'string'];
             $rules['specialist_id'] = [
-                'required',
+                'required_without:items',
+                'nullable',
                 'string',
                 new SpecialistOffersService($availabilityService),
             ];
+            $rules['items'] = ['nullable', 'array'];
+            $rules['items.*.service_id'] = ['required_with:items', 'string'];
+            $rules['items.*.specialist_id'] = ['required_with:items', 'string', new SpecialistOffersService($availabilityService)];
             $rules['booking_date'] = [
                 'required',
                 'string',
@@ -71,7 +82,9 @@ class RegisterWithGoogleRequest extends BaseApiRequest
         return [
             'code.required' => 'رمز التحقق من حساب Google مطلوب لإتمام العملية.',
             'service_id.required' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
+            'service_id.required_without' => 'يرجى اختيار الخدمة المطلوبة أولاً.',
             'specialist_id.required' => 'يرجى اختيار الأخصائية أولاً.',
+            'specialist_id.required_without' => 'يرجى اختيار الأخصائية أولاً.',
             'booking_date.required' => 'يرجى اختيار تاريخ الموعد أولاً.',
             'booking_time.required' => 'يرجى اختيار وقت الموعد أولاً.',
             'guests_count.integer' => 'عدد الأشخاص يجب أن يكون رقماً صحيحاً.',

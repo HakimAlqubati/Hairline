@@ -39,6 +39,7 @@ export const state = {
         selectedSubService: null,
         selectedSubServices: [],
         selectedSpecialist: null,
+        selectedSpecialistsByService: {},
         selectedDate: defaultBookingDateObj.display_label,
         selectedDateIso: defaultBookingDateObj.date_iso,
         selectedTime: null,

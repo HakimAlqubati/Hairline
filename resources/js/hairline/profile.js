@@ -279,19 +279,35 @@ export function renderMyBookings() {
         return;
     }
 
-    container.innerHTML = state.confirmedBookings.map(b => `
-        <div class="p-4 rounded-2xl bg-surface border border-gold-soft/60 space-y-2">
-            <div class="flex items-center justify-between">
-                <span class="px-2.5 py-0.5 rounded-full bg-sage-light text-sage-dark text-[10px] font-extrabold">
-                    مؤكد • #${b.id}${b.customerName ? ` • ${b.customerName}` : ''}
-                </span>
-                <span class="text-xs font-black text-gold-dark">${b.price}</span>
+    container.innerHTML = state.confirmedBookings.map(b => {
+        const hasItems = Array.isArray(b.items) && b.items.length > 1;
+        return `
+            <div class="p-4 rounded-2xl bg-surface border border-gold-soft/60 space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="px-2.5 py-0.5 rounded-full bg-sage-light text-sage-dark text-[10px] font-extrabold">
+                        مؤكد • #${b.id}${b.customerName ? ` • ${b.customerName}` : ''}
+                    </span>
+                </div>
+                <h5 class="font-extrabold text-sm text-sage-dark">${b.serviceName}</h5>
+
+                ${hasItems ? `
+                    <div class="p-2.5 rounded-xl bg-white/80 border border-gray-100 space-y-1.5 text-xs">
+                        ${b.items.map(it => `
+                            <div class="flex items-center justify-between text-[11px]">
+                                <span class="font-bold text-sage-dark truncate">${it.serviceName}</span>
+                                <span class="text-primary font-bold shrink-0 mr-2">
+                                    <i class="fa-regular fa-user text-[9px] text-gold-dark ml-1"></i>${it.specialistName}
+                                </span>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
+
+                <div class="flex flex-wrap items-center justify-between text-xs text-gray-600 pt-1 border-t border-gray-200/60">
+                    <span><i class="fa-regular fa-user text-gold-dark ml-1"></i>${b.specialistName}</span>
+                    <span><i class="fa-regular fa-clock text-gold-dark ml-1"></i>${b.date} (${b.time})</span>
+                </div>
             </div>
-            <h5 class="font-extrabold text-sm text-sage-dark">${b.serviceName}</h5>
-            <div class="flex flex-wrap items-center justify-between text-xs text-gray-600 pt-1 border-t border-gray-200/60">
-                <span><i class="fa-regular fa-user text-gold-dark ml-1"></i>${b.specialistName}</span>
-                <span><i class="fa-regular fa-clock text-gold-dark ml-1"></i>${b.date} (${b.time})</span>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }

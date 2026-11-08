@@ -12,6 +12,7 @@ export function openBookingFlow() {
         selectedSubService: null,
         selectedSubServices: [],
         selectedSpecialist: null,
+        selectedSpecialistsByService: {},
         selectedDate: initialDateObj.display_label,
         selectedDateIso: initialDateObj.date_iso,
         selectedTime: null,
@@ -172,6 +173,7 @@ export function clearAllServiceCheckboxes() {
     state.bookingState.selectedSubServices = [];
     state.bookingState.selectedSubService = null;
     state.bookingState.selectedCategory = null;
+    state.bookingState.selectedSpecialistsByService = {};
     syncFloatingConfirmButton();
 }
 
@@ -198,6 +200,9 @@ export function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
     if (!Array.isArray(state.bookingState.selectedSubServices)) {
         state.bookingState.selectedSubServices = [];
     }
+    if (!state.bookingState.selectedSpecialistsByService) {
+        state.bookingState.selectedSpecialistsByService = {};
+    }
 
     const activeRow = document.getElementById(`srv-row-${subId}`);
 
@@ -208,6 +213,12 @@ export function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
         const { foundCategory, foundSub } = findCategoryAndSubService(subId, catId);
         if (foundSub && !state.bookingState.selectedSubServices.some(s => s.id === foundSub.id)) {
             state.bookingState.selectedSubServices.push(foundSub);
+            if (Array.isArray(foundSub.specialists) && foundSub.specialists.length === 1) {
+                const spId = foundSub.specialists[0];
+                if (specialistsData[spId]) {
+                    state.bookingState.selectedSpecialistsByService[foundSub.id] = specialistsData[spId];
+                }
+            }
         }
         if (!state.bookingState.selectedCategory && foundCategory) {
             state.bookingState.selectedCategory = foundCategory;
@@ -218,6 +229,7 @@ export function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
             activeRow.classList.remove('bg-gold-light/40');
         }
         state.bookingState.selectedSubServices = state.bookingState.selectedSubServices.filter(s => s.id !== subId);
+        delete state.bookingState.selectedSpecialistsByService[subId];
         state.bookingState.selectedSubService = state.bookingState.selectedSubServices[0] || null;
         if (state.bookingState.selectedSubServices.length === 0) {
             state.bookingState.selectedCategory = null;
@@ -262,21 +274,38 @@ export function syncFloatingConfirmButton() {
                 iconClass = "fa-solid fa-check text-xs";
             }
         } else if (state.bookingState.step === 2) {
-            if (state.bookingState.selectedSpecialist) {
+            const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+                ? state.bookingState.selectedSubServices
+                : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+            if (subServices.length > 1) {
+                const allAssigned = subServices.every(s => Boolean(state.bookingState.selectedSpecialistsByService?.[s.id]));
+                if (allAssigned) {
+                    shouldShow = true;
+                    titleText = "تأكيد الأخصائيات واختيار الوقت";
+                    subtitleText = `تم تحديد أخصائيات (${subServices.length}) خدمات`;
+                    iconClass = "fa-solid fa-users text-xs";
+                }
+            } else if (state.bookingState.selectedSpecialist || (subServices[0] && state.bookingState.selectedSpecialistsByService?.[subServices[0].id])) {
                 shouldShow = true;
-                const spNameAr = (state.bookingState.selectedSpecialist.name || '').split('|')[0].trim();
+                const sp = state.bookingState.selectedSpecialist || state.bookingState.selectedSpecialistsByService?.[subServices[0].id];
+                const spNameAr = (sp.name || '').split('|')[0].trim();
                 titleText = "تأكيد الأخصائية واختيار الوقت";
                 subtitleText = `الأخصائية: ${spNameAr}`;
                 iconClass = "fa-solid fa-user-check text-xs";
             }
         } else if (state.bookingState.step === 3) {
+            const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+                ? state.bookingState.selectedSubServices
+                : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
             const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
             const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
             if (!isLoadingSlots && !isDayOff && state.bookingState.selectedTime) {
                 shouldShow = true;
-                const spNameAr = (state.bookingState.selectedSpecialist?.name || '').split('|')[0].trim();
+                const spNameAr = subServices.length > 1
+                    ? `${subServices.length} خدمات`
+                    : ((state.bookingState.selectedSpecialist?.name || '').split('|')[0].trim());
                 titleText = `تأكيد الموعد (${state.bookingState.selectedTime})`;
-                subtitleText = `${state.bookingState.selectedDate || 'الموعد'} مع ${spNameAr}`;
+                subtitleText = `${state.bookingState.selectedDate || 'الموعد'} • ${spNameAr}`;
                 iconClass = "fa-solid fa-calendar-check text-xs";
             }
         }
@@ -316,7 +345,21 @@ export function proceedToSpecialistStep() {
     if (!state.bookingState.selectedSubService && count > 0) {
         state.bookingState.selectedSubService = state.bookingState.selectedSubServices[0];
     }
-    state.bookingState.selectedSpecialist = null;
+    if (!state.bookingState.selectedSpecialistsByService) {
+        state.bookingState.selectedSpecialistsByService = {};
+    }
+    for (const sub of (state.bookingState.selectedSubServices || [])) {
+        if (Array.isArray(sub.specialists) && sub.specialists.length === 1 && !state.bookingState.selectedSpecialistsByService[sub.id]) {
+            const spId = sub.specialists[0];
+            if (specialistsData[spId]) {
+                state.bookingState.selectedSpecialistsByService[sub.id] = specialistsData[spId];
+            }
+        }
+    }
+    if (count === 1 && state.bookingState.selectedSubServices[0]) {
+        const singleSub = state.bookingState.selectedSubServices[0];
+        state.bookingState.selectedSpecialist = state.bookingState.selectedSpecialistsByService[singleSub.id] || null;
+    }
     state.bookingState.selectedTime = null;
     state.bookingState.availability = { loading: false, is_day_off: false, shift_label: "", slots: [] };
     state.bookingState.step = 2;
@@ -325,7 +368,27 @@ export function proceedToSpecialistStep() {
 }
 
 export function proceedToTimeStep() {
-    if (!state.bookingState.selectedSpecialist) return;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    if (subServices.length === 0) return;
+
+    if (subServices.length > 1) {
+        const unassigned = subServices.filter(s => !state.bookingState.selectedSpecialistsByService?.[s.id]);
+        if (unassigned.length > 0) {
+            return;
+        }
+        const firstSub = subServices[0];
+        state.bookingState.selectedSpecialist = state.bookingState.selectedSpecialistsByService[firstSub.id];
+    } else {
+        const sub = subServices[0];
+        if (!state.bookingState.selectedSpecialist) {
+            state.bookingState.selectedSpecialist = state.bookingState.selectedSpecialistsByService?.[sub.id] || null;
+        }
+        if (!state.bookingState.selectedSpecialist) return;
+        state.bookingState.selectedSpecialistsByService[sub.id] = state.bookingState.selectedSpecialist;
+    }
+
     state.bookingState.step = 3;
     state.bookingState.selectedTime = null;
     state.bookingState.availability = {
@@ -423,141 +486,252 @@ export function renderBookingStep() {
         const sub = subServices[0];
         state.bookingState.selectedSubService = sub;
 
-        if (pageTitle) pageTitle.textContent = "الخطوة 2: اختيار الأخصائية";
+        if (pageTitle) pageTitle.textContent = subServices.length > 1 ? "الخطوة 2: اختيار الأخصائية لكل خدمة" : "الخطوة 2: اختيار الأخصائية";
         if (pageSubtitle) {
-            pageSubtitle.textContent = "يرجى اختيار الأخصائية المناسبة لمتابعة الحجز";
+            pageSubtitle.textContent = subServices.length > 1 
+                ? "يرجى تحديد الأخصائية المفضلة لكل خدمة من الخدمات المختارة"
+                : "يرجى اختيار الأخصائية المناسبة لمتابعة الحجز";
             pageSubtitle.classList.remove('hidden');
         }
         if (step2Container) step2Container.classList.remove('hidden');
 
-        const allSpecialistLists = subServices.map(s => s.specialists || []);
-        const commonSlugs = allSpecialistLists.length > 1
-            ? allSpecialistLists.reduce((a, b) => a.filter(c => b.includes(c)))
-            : (allSpecialistLists[0] || []);
-        const finalSpecialistSlugs = commonSlugs.length > 0 ? commonSlugs : [...new Set(allSpecialistLists.flat())];
-        const linkedSpecialists = finalSpecialistSlugs.map(id => specialistsData[id]).filter(Boolean);
+        if (!state.bookingState.selectedSpecialistsByService) {
+            state.bookingState.selectedSpecialistsByService = {};
+        }
+
+        // Auto-assign any service that only has 1 qualified specialist
+        for (const s of subServices) {
+            if (Array.isArray(s.specialists) && s.specialists.length === 1 && !state.bookingState.selectedSpecialistsByService[s.id]) {
+                const singleSpId = s.specialists[0];
+                if (specialistsData[singleSpId]) {
+                    state.bookingState.selectedSpecialistsByService[s.id] = specialistsData[singleSpId];
+                }
+            }
+        }
 
         if (step2Body) {
-            const servicesTitleText = subServices.map(s => s.name).join(' • ');
-            step2Body.innerHTML = `
-                <div class="space-y-4">
-                    <div class="p-4 rounded-2xl bg-gold-light/60 border border-gold/30 text-center space-y-1">
-                        <span class="text-[11px] font-bold text-gold-dark block">
-                            ${subServices.length > 1 ? `الخدمات المختارة (${subServices.length})` : (state.bookingState.selectedCategory?.title || 'الخدمة المختارة')}
-                        </span>
-                        <h4 class="font-black text-base sm:text-lg text-sage-dark text-center leading-relaxed">
-                            ${servicesTitleText}
-                        </h4>
-                    </div>
+            if (subServices.length > 1) {
+                // Multi-service: Per-service specialist picker
+                step2Body.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="p-4 rounded-2xl bg-gold-light/60 border border-gold/30 text-center space-y-1">
+                            <span class="text-[11px] font-bold text-gold-dark block">
+                                تحديد الأخصائية لكل خدمة (${subServices.length} خدمات مختارة)
+                            </span>
+                            <p class="text-xs sm:text-sm text-sage-dark font-extrabold leading-relaxed">
+                                كل خدمة يتم تقديمها بواسطة أخصائياتها المؤهلات، اختاري الأخصائية لكل خدمة
+                            </p>
+                        </div>
 
-                    <div class="space-y-3">
-                        <div class="${linkedSpecialists.length === 1 ? 'w-full max-w-sm sm:max-w-md mx-auto' : (linkedSpecialists.length === 2 ? 'grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5')}">
-                            ${linkedSpecialists.map(sp => {
-                                const nameParts = (sp.name || '').split('|').map(s => s.trim());
-                                const nameAr = nameParts[0] || (sp.name || '');
-                                const nameEn = nameParts[1] || '';
-                                const isSelected = state.bookingState.selectedSpecialist && state.bookingState.selectedSpecialist.id === sp.id;
+                        <div class="space-y-5">
+                            ${subServices.map((serviceItem, sIdx) => {
+                                const qualifiedSpIds = serviceItem.specialists || [];
+                                const qualifiedSpecialists = qualifiedSpIds.map(id => specialistsData[id]).filter(Boolean);
+                                const currentAssigned = state.bookingState.selectedSpecialistsByService?.[serviceItem.id];
+
                                 return `
-                                    <article onclick="chooseSpecialist('${sp.id}')" 
-                                             role="button"
-                                             tabindex="0"
-                                             onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseSpecialist('${sp.id}'); }"
-                                             aria-label="اختيار الأخصائية ${nameAr}"
-                                             class="specialist-card group relative rounded-[28px] bg-white border-2 transition-all duration-300 cursor-pointer select-none overflow-hidden flex flex-col shadow-card ${
-                                                 isSelected 
-                                                 ? 'border-primary ring-4 ring-primary/20 shadow-xl' 
-                                                 : 'border-primary-soft/60 hover:border-primary hover:shadow-lg'
-                                             }">
-
-                                        <div class="relative w-full h-[280px] sm:h-[310px] bg-gradient-to-b from-[#FAF8F5] via-[#F6EFE2]/75 to-[#E6D5B8]/50 pt-5 px-4 flex items-end justify-center overflow-hidden">
-                                            <div class="specialist-arch-bg absolute inset-x-5 top-6 bottom-0 rounded-t-[140px] bg-white/80 border border-primary/20 shadow-inner pointer-events-none"></div>
-
-                                            ${sp.experience ? `
-                                                <div class="absolute top-3.5 right-3.5 z-20">
-                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary/35 text-primary-dark text-[11px] font-extrabold shadow-xs">
-                                                        <i class="fa-solid fa-medal text-primary text-[10px]"></i>
-                                                        <span>${sp.experience}</span>
-                                                    </span>
-                                                </div>
-                                            ` : ''}
-
-                                            <div class="absolute top-3.5 left-3.5 z-20">
-                                                ${isSelected ? `
-                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-black shadow-md">
-                                                        <i class="fa-solid fa-check text-[11px]"></i>
+                                    <div class="bg-white rounded-3xl p-5 border border-primary-soft/80 shadow-card space-y-3.5">
+                                        <div class="flex items-center justify-between gap-3 pb-3 border-b border-primary-soft/40 flex-wrap">
+                                            <div class="flex items-center gap-2.5 min-w-0">
+                                                <span class="w-6 h-6 rounded-full bg-primary/10 text-primary font-black text-xs flex items-center justify-center shrink-0">
+                                                    ${sIdx + 1}
+                                                </span>
+                                                <h4 class="font-black text-base text-sage-dark truncate">${serviceItem.name}</h4>
+                                            </div>
+                                            <div>
+                                                ${currentAssigned ? `
+                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-sage-light text-sage-dark text-xs font-extrabold border border-primary/20">
+                                                        <i class="fa-solid fa-check text-primary text-[10px]"></i>
+                                                        <span>تم الاختيار: ${(currentAssigned.name || '').split('|')[0].trim()}</span>
                                                     </span>
                                                 ` : `
-                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary-soft/80 text-gray-600 text-[11px] font-bold shadow-2xs group-hover:border-primary group-hover:text-primary transition-colors">
-                                                        <i class="fa-regular fa-circle text-[10px]"></i>
-                                                        <span>اختيار</span>
+                                                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold border border-amber-200/60 animate-pulse">
+                                                        <i class="fa-solid fa-hand-pointer text-[10px]"></i>
+                                                        <span>يرجى اختيار أخصائية</span>
                                                     </span>
                                                 `}
                                             </div>
-
-                                            ${sp.has_custom_avatar && sp.avatar ? `
-                                                <img src="${sp.avatar}" 
-                                                     alt="${sp.name}"
-                                                     onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=512';"
-                                                     class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom ${isSelected ? 'scale-[1.04]' : ''}" />
-                                            ` : `
-                                                <div class="relative z-10 my-auto pb-4 flex flex-col items-center justify-center">
-                                                    <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-primary/30 shadow-xl flex items-center justify-center specialist-portrait-img transition-transform duration-500">
-                                                        <span class="text-4xl sm:text-5xl font-black font-serif text-primary tracking-widest select-none">
-                                                            ${sp.initials || 'HL'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            `}
-
-                                            <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'} transition-opacity"></div>
                                         </div>
 
-                                        <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between bg-white space-y-3.5 text-right">
-                                            <div class="space-y-2.5">
-                                                <div class="flex items-baseline justify-between gap-2">
-                                                    <h4 class="text-lg sm:text-xl font-black ${isSelected ? 'text-primary-dark' : 'text-sage-dark group-hover:text-primary-dark'} transition-colors leading-tight">
-                                                        ${nameAr}
-                                                    </h4>
-                                                    ${nameEn ? `
-                                                        <span class="text-xs sm:text-sm font-serif font-bold tracking-wider text-primary-dark uppercase shrink-0">
-                                                            ${nameEn}
-                                                        </span>
-                                                    ` : ''}
-                                                </div>
-
-                                                <p class="text-xs sm:text-[13px] font-extrabold text-primary-dark leading-relaxed">
-                                                    ${sp.role || ''}
-                                                </p>
-
-                                                <div class="h-px w-full bg-gradient-to-l from-primary-soft/70 via-primary-soft/30 to-transparent"></div>
-
-                                                ${sp.bio ? `
-                                                    <p class="text-xs text-gray-600 leading-relaxed line-clamp-3">
-                                                        ${sp.bio}
-                                                    </p>
-                                                ` : ''}
-                                            </div>
-
-                                            ${linkedSpecialists.length > 1 ? `
-                                                <div class="pt-1">
-                                                    <div class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
-                                                        isSelected 
-                                                        ? 'bg-primary text-white shadow-xs' 
-                                                        : 'bg-primary-light/50 text-primary-dark group-hover:bg-primary group-hover:text-white'
-                                                    }">
-                                                        <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-hand-pointer'} text-[11px]"></i>
-                                                        <span>${isSelected ? 'الأخصائية المحددة للحجز' : 'اختيار هذه الأخصائية'}</span>
+                                        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-1">
+                                            ${qualifiedSpecialists.map(sp => {
+                                                const nameParts = (sp.name || '').split('|').map(s => s.trim());
+                                                const nameAr = nameParts[0] || (sp.name || '');
+                                                const nameEn = nameParts[1] || '';
+                                                const isSelected = currentAssigned && currentAssigned.id === sp.id;
+                                                return `
+                                                    <div onclick="chooseSpecialistForService('${serviceItem.id}', '${sp.id}')"
+                                                         role="button"
+                                                         tabindex="0"
+                                                         onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseSpecialistForService('${serviceItem.id}', '${sp.id}'); }"
+                                                         class="flex items-center justify-between p-3.5 rounded-2xl border-2 transition-all duration-200 cursor-pointer select-none ${
+                                                             isSelected
+                                                             ? 'bg-gold-light/40 border-primary ring-2 ring-primary/20 shadow-xs'
+                                                             : 'bg-surface border-gray-200/80 hover:border-primary/60 hover:bg-white'
+                                                         }">
+                                                        <div class="flex items-center gap-3 min-w-0">
+                                                            <div class="w-12 h-12 rounded-full overflow-hidden border-2 shrink-0 ${isSelected ? 'border-primary shadow-xs' : 'border-gray-200'} bg-white flex items-center justify-center">
+                                                                ${sp.has_custom_avatar && sp.avatar ? `
+                                                                    <img src="${sp.avatar}" alt="${nameAr}" class="w-full h-full object-cover" onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=256';" />
+                                                                ` : `
+                                                                    <span class="text-sm font-black font-serif text-primary">${sp.initials || 'HL'}</span>
+                                                                `}
+                                                            </div>
+                                                            <div class="min-w-0 text-right">
+                                                                <h5 class="text-xs sm:text-sm font-extrabold ${isSelected ? 'text-primary-dark' : 'text-sage-dark'} truncate">${nameAr}</h5>
+                                                                <p class="text-[11px] font-bold text-gray-500 truncate">${sp.role || ''}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div class="shrink-0 mr-2">
+                                                            ${isSelected ? `
+                                                                <div class="w-6 h-6 rounded-full bg-primary text-white flex items-center justify-center shadow-xs">
+                                                                    <i class="fa-solid fa-check text-[10px]"></i>
+                                                                </div>
+                                                            ` : `
+                                                                <div class="w-6 h-6 rounded-full border-2 border-gray-300 flex items-center justify-center text-transparent hover:border-primary">
+                                                                    <i class="fa-solid fa-check text-[9px]"></i>
+                                                                </div>
+                                                            `}
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            ` : ''}
+                                                `;
+                                            }).join('')}
                                         </div>
-                                    </article>
+                                    </div>
                                 `;
                             }).join('')}
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                // Single service: classic specialist cards grid
+                const qualifiedSpIds = sub.specialists || [];
+                const linkedSpecialists = qualifiedSpIds.map(id => specialistsData[id]).filter(Boolean);
+                if (!state.bookingState.selectedSpecialist && state.bookingState.selectedSpecialistsByService?.[sub.id]) {
+                    state.bookingState.selectedSpecialist = state.bookingState.selectedSpecialistsByService[sub.id];
+                }
+                const servicesTitleText = sub.name;
+
+                step2Body.innerHTML = `
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-2xl bg-gold-light/60 border border-gold/30 text-center space-y-1">
+                            <span class="text-[11px] font-bold text-gold-dark block">
+                                ${state.bookingState.selectedCategory?.title || 'الخدمة المختارة'}
+                            </span>
+                            <h4 class="font-black text-base sm:text-lg text-sage-dark text-center leading-relaxed">
+                                ${servicesTitleText}
+                            </h4>
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="${linkedSpecialists.length === 1 ? 'w-full max-w-sm sm:max-w-md mx-auto' : (linkedSpecialists.length === 2 ? 'grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5')}">
+                                ${linkedSpecialists.map(sp => {
+                                    const nameParts = (sp.name || '').split('|').map(s => s.trim());
+                                    const nameAr = nameParts[0] || (sp.name || '');
+                                    const nameEn = nameParts[1] || '';
+                                    const isSelected = state.bookingState.selectedSpecialist && state.bookingState.selectedSpecialist.id === sp.id;
+                                    return `
+                                        <article onclick="chooseSpecialist('${sp.id}')" 
+                                                 role="button"
+                                                 tabindex="0"
+                                                 onkeydown="if(event.key === 'Enter' || event.key === ' ') { event.preventDefault(); chooseSpecialist('${sp.id}'); }"
+                                                 aria-label="اختيار الأخصائية ${nameAr}"
+                                                 class="specialist-card group relative rounded-[28px] bg-white border-2 transition-all duration-300 cursor-pointer select-none overflow-hidden flex flex-col shadow-card ${
+                                                     isSelected 
+                                                     ? 'border-primary ring-4 ring-primary/20 shadow-xl' 
+                                                     : 'border-primary-soft/60 hover:border-primary hover:shadow-lg'
+                                                 }">
+
+                                            <div class="relative w-full h-[280px] sm:h-[310px] bg-gradient-to-b from-[#FAF8F5] via-[#F6EFE2]/75 to-[#E6D5B8]/50 pt-5 px-4 flex items-end justify-center overflow-hidden">
+                                                <div class="specialist-arch-bg absolute inset-x-5 top-6 bottom-0 rounded-t-[140px] bg-white/80 border border-primary/20 shadow-inner pointer-events-none"></div>
+
+                                                ${sp.experience ? `
+                                                    <div class="absolute top-3.5 right-3.5 z-20">
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary/35 text-primary-dark text-[11px] font-extrabold shadow-xs">
+                                                            <i class="fa-solid fa-medal text-primary text-[10px]"></i>
+                                                            <span>${sp.experience}</span>
+                                                        </span>
+                                                    </div>
+                                                ` : ''}
+
+                                                <div class="absolute top-3.5 left-3.5 z-20">
+                                                    ${isSelected ? `
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary text-white text-[11px] font-black shadow-md">
+                                                            <i class="fa-solid fa-check text-[11px]"></i>
+                                                        </span>
+                                                    ` : `
+                                                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 backdrop-blur-md border border-primary-soft/80 text-gray-600 text-[11px] font-bold shadow-2xs group-hover:border-primary group-hover:text-primary transition-colors">
+                                                            <i class="fa-regular fa-circle text-[10px]"></i>
+                                                            <span>اختيار</span>
+                                                        </span>
+                                                    `}
+                                                </div>
+
+                                                ${sp.has_custom_avatar && sp.avatar ? `
+                                                    <img src="${sp.avatar}" 
+                                                         alt="${sp.name}"
+                                                         onerror="this.onerror=null; this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(nameAr)}&background=FFFFFF&color=C29E6D&bold=true&size=512';"
+                                                         class="specialist-portrait-img relative z-10 w-full h-full object-contain object-bottom ${isSelected ? 'scale-[1.04]' : ''}" />
+                                                ` : `
+                                                    <div class="relative z-10 my-auto pb-4 flex flex-col items-center justify-center">
+                                                        <div class="w-32 h-32 sm:w-36 sm:h-36 rounded-full bg-white border-4 border-primary/30 shadow-xl flex items-center justify-center specialist-portrait-img transition-transform duration-500">
+                                                            <span class="text-4xl sm:text-5xl font-black font-serif text-primary tracking-widest select-none">
+                                                                ${sp.initials || 'HL'}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                `}
+
+                                                <div class="absolute inset-x-0 bottom-0 h-1 bg-gradient-to-r from-primary-light via-primary to-primary-light ${isSelected ? 'opacity-100' : 'opacity-70 group-hover:opacity-100'} transition-opacity"></div>
+                                            </div>
+
+                                            <div class="p-5 sm:p-6 flex-1 flex flex-col justify-between bg-white space-y-3.5 text-right">
+                                                <div class="space-y-2.5">
+                                                    <div class="flex items-baseline justify-between gap-2">
+                                                        <h4 class="text-lg sm:text-xl font-black ${isSelected ? 'text-primary-dark' : 'text-sage-dark group-hover:text-primary-dark'} transition-colors leading-tight">
+                                                            ${nameAr}
+                                                        </h4>
+                                                        ${nameEn ? `
+                                                            <span class="text-xs sm:text-sm font-serif font-bold tracking-wider text-primary-dark uppercase shrink-0">
+                                                                ${nameEn}
+                                                            </span>
+                                                        ` : ''}
+                                                    </div>
+
+                                                    <p class="text-xs sm:text-[13px] font-extrabold text-primary-dark leading-relaxed">
+                                                        ${sp.role || ''}
+                                                    </p>
+
+                                                    <div class="h-px w-full bg-gradient-to-l from-primary-soft/70 via-primary-soft/30 to-transparent"></div>
+
+                                                    ${sp.bio ? `
+                                                        <p class="text-xs text-gray-600 leading-relaxed line-clamp-3">
+                                                            ${sp.bio}
+                                                        </p>
+                                                    ` : ''}
+                                                </div>
+
+                                                ${linkedSpecialists.length > 1 ? `
+                                                    <div class="pt-1">
+                                                        <div class="w-full py-2.5 px-3 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                                                            isSelected 
+                                                            ? 'bg-primary text-white shadow-xs' 
+                                                            : 'bg-primary-light/50 text-primary-dark group-hover:bg-primary group-hover:text-white'
+                                                        }">
+                                                            <i class="fa-solid ${isSelected ? 'fa-circle-check' : 'fa-hand-pointer'} text-[11px]"></i>
+                                                            <span>${isSelected ? 'الأخصائية المحددة للحجز' : 'اختيار هذه الأخصائية'}</span>
+                                                        </div>
+                                                    </div>
+                                                ` : ''}
+                                            </div>
+                                        </article>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         if (step2Footer) {
@@ -567,10 +741,29 @@ export function renderBookingStep() {
         const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
             ? state.bookingState.selectedSubServices
             : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
-        if (subServices.length === 0 || !state.bookingState.selectedSpecialist) {
+        
+        if (subServices.length === 0) {
             state.bookingState.step = 2;
             renderBookingStep();
             return;
+        }
+
+        if (subServices.length > 1) {
+            const unassigned = subServices.filter(s => !state.bookingState.selectedSpecialistsByService?.[s.id]);
+            if (unassigned.length > 0) {
+                state.bookingState.step = 2;
+                renderBookingStep();
+                return;
+            }
+        } else {
+            if (!state.bookingState.selectedSpecialist && state.bookingState.selectedSpecialistsByService?.[subServices[0].id]) {
+                state.bookingState.selectedSpecialist = state.bookingState.selectedSpecialistsByService[subServices[0].id];
+            }
+            if (!state.bookingState.selectedSpecialist) {
+                state.bookingState.step = 2;
+                renderBookingStep();
+                return;
+            }
         }
 
         if (pageTitle) pageTitle.textContent = "الخطوة 3: تحديد اليوم والوقت";
@@ -592,23 +785,61 @@ export function renderBookingStep() {
         const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
         const shiftLabel = state.bookingState.availability?.shift_label || "";
 
-        const sp = state.bookingState.selectedSpecialist;
-        const nameParts = (sp.name || '').split('|').map(s => s.trim());
-        const spNameAr = nameParts[0] || (sp.name || '');
+        const sp = state.bookingState.selectedSpecialist || (subServices[0] ? state.bookingState.selectedSpecialistsByService?.[subServices[0].id] : null);
+        const nameParts = ((sp && sp.name) || '').split('|').map(s => s.trim());
+        const spNameAr = nameParts[0] || (sp ? sp.name : '');
         const spNameEn = nameParts[1] || '';
         const servicesTitleText = subServices.map(s => s.name).join(' • ');
 
         if (step3Body) {
-            step3Body.innerHTML = `
-                <div class="space-y-5">
-                    <!-- Selected Service & Specialist Header Card -->
+            let headerCardHtml = '';
+            if (subServices.length > 1) {
+                headerCardHtml = `
+                    <div class="p-4 sm:p-5 rounded-2xl bg-white border border-primary-soft/60 shadow-xs space-y-3">
+                        <div class="flex items-center justify-between border-b border-primary-soft/40 pb-2.5">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-list-check text-primary text-sm"></i>
+                                <span class="text-xs sm:text-sm font-black text-sage-dark">الخدمات المختارة والأخصائيات (${subServices.length}):</span>
+                            </div>
+                            <button type="button" 
+                                    onclick="handleBookingBack()" 
+                                    class="shrink-0 px-3 py-1.5 rounded-xl border border-primary-soft text-primary-dark text-xs font-bold hover:bg-primary hover:text-white transition cursor-pointer flex items-center gap-1.5">
+                                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                                <span>تعديل الأخصائيات</span>
+                            </button>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                            ${subServices.map(s => {
+                                const assignedSp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
+                                const assignedName = assignedSp ? (assignedSp.name || '').split('|')[0].trim() : 'غير محدد';
+                                return `
+                                    <div class="p-3 rounded-xl bg-surface border border-gray-100 flex items-center justify-between gap-2">
+                                        <div class="min-w-0">
+                                            <span class="font-extrabold text-xs text-sage-dark block truncate">${s.name}</span>
+                                        </div>
+                                        <div class="flex items-center gap-1.5 text-primary-dark text-xs font-black shrink-0">
+                                            <i class="fa-regular fa-user text-[11px] text-gold-dark"></i>
+                                            <span>${assignedName}</span>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                        <p class="text-[11px] text-gray-500 font-semibold pt-1">
+                            <i class="fa-solid fa-circle-info text-primary text-[10px] ml-1"></i>
+                            الأوقات المتاحة بالأسفل محسوبة لضمان توفر كل أخصائية لخدمتها بالترتيب دون أي تعارض زمني.
+                        </p>
+                    </div>
+                `;
+            } else {
+                headerCardHtml = `
                     <div class="p-4 sm:p-5 rounded-2xl bg-white border border-primary-soft/60 shadow-xs flex items-center justify-between gap-3">
                         <div class="flex items-center gap-3.5 min-w-0">
                             <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-full overflow-hidden border-2 border-primary shrink-0 bg-surface flex items-center justify-center">
-                                ${sp.has_custom_avatar && sp.avatar ? `
+                                ${sp && sp.has_custom_avatar && sp.avatar ? `
                                     <img src="${sp.avatar}" alt="${spNameAr}" class="w-full h-full object-cover" />
                                 ` : `
-                                    <span class="text-lg font-black font-serif text-primary">${sp.initials || 'HL'}</span>
+                                    <span class="text-lg font-black font-serif text-primary">${sp?.initials || 'HL'}</span>
                                 `}
                             </div>
                             <div class="min-w-0">
@@ -627,6 +858,12 @@ export function renderBookingStep() {
                             <span>تغيير الأخصائية</span>
                         </button>
                     </div>
+                `;
+            }
+
+            step3Body.innerHTML = `
+                <div class="space-y-5">
+                    ${headerCardHtml}
 
                     <!-- Date & Time Picker Section -->
                     <div class="space-y-4 pt-1">
@@ -668,7 +905,7 @@ export function renderBookingStep() {
 
                         <div class="pt-2">
                             <label class="block text-xs sm:text-sm font-extrabold text-sage-dark mb-2.5">
-                                اختاري الوقت المتاح مع ${spNameAr}:
+                                ${subServices.length > 1 ? 'اختاري وقت بدء أول خدمة:' : `اختاري الوقت المتاح مع ${spNameAr}:`}
                             </label>
                             ${isLoadingSlots ? `
                                 <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2 animate-pulse" aria-label="جاري تحميل الأوقات">
@@ -685,7 +922,7 @@ export function renderBookingStep() {
                                 </div>
                             ` : (shiftSlots.length === 0 ? `
                                 <div class="p-4 rounded-2xl bg-gray-50 border border-gray-200 text-center">
-                                    <p class="text-xs font-bold text-gray-500">لا توجد مواعيد متاحة في هذا التاريخ.</p>
+                                    <p class="text-xs font-bold text-gray-500">لا توجد مواعيد متاحة في هذا التاريخ تناسب جدول الأخصائيات المحددة.</p>
                                 </div>
                             ` : `
                                 <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-2">
@@ -756,6 +993,8 @@ export function renderBookingStep() {
             const waUrl = getBookingWhatsAppShareUrl(lastBooking, customerName);
             const guestsNum = lastBooking.guests_count || lastBooking.guestsCount || state.bookingState.guestsCount || 1;
             const notesText = lastBooking.customer_notes || lastBooking.customerNotes || state.bookingState.customerNotes || '';
+            const hasMultipleItems = Array.isArray(lastBooking.items) && lastBooking.items.length > 1;
+
             step4Container.classList.remove('hidden');
             step4Container.innerHTML = `
                 <div class="bg-white rounded-3xl p-6 shadow-card border border-gold-soft/50 text-center space-y-4 animate-step max-w-xl mx-auto">
@@ -776,7 +1015,7 @@ export function renderBookingStep() {
                         </div>
                     </div>
 
-                    <!-- 2 Rows with Columns, completely borderless and box-free -->
+                    <!-- Receipt Summary Rows -->
                     <div class="py-3 px-1 text-right space-y-4">
                         <!-- Row 1: اسم العميلة، الخدمة المختارة، الأخصائية -->
                         <div class="grid grid-cols-3 gap-2.5 sm:gap-4 items-start">
@@ -791,19 +1030,36 @@ export function renderBookingStep() {
                             <div class="min-w-0">
                                 <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الأخصائية</span>
                                 <div class="flex items-center gap-1.5 min-w-0">
-                                    ${state.bookingState.selectedSpecialist?.avatar ? `
-                                        <img src="${state.bookingState.selectedSpecialist.avatar}" 
-                                             alt="${lastBooking.specialistName}" 
-                                             class="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shrink-0 shadow-2xs" 
-                                             onerror="this.classList.add('hidden')" />
-                                    ` : ''}
                                     <span class="text-xs sm:text-sm font-extrabold text-sage-dark truncate">${lastBooking.specialistName}</span>
                                 </div>
                             </div>
                         </div>
 
+                        ${hasMultipleItems ? `
+                            <!-- Multi-specialist breakdown table -->
+                            <div class="pt-3 pb-2 border-t border-dashed border-gray-200 text-right space-y-2">
+                                <span class="text-[11px] font-bold text-gray-400 block">تفاصيل جدول الخدمات والأخصائيات:</span>
+                                <div class="space-y-1.5">
+                                    ${lastBooking.items.map(it => `
+                                        <div class="p-2.5 rounded-xl bg-surface border border-gray-100 flex items-center justify-between text-xs">
+                                            <div class="min-w-0">
+                                                <span class="font-bold text-sage-dark block truncate">${it.serviceName}</span>
+                                                <span class="text-[10px] text-primary block mt-0.5">
+                                                    <i class="fa-regular fa-clock text-[9px] ml-1"></i>${it.startTime} - ${it.endTime}
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center gap-1.5 text-primary-dark font-extrabold shrink-0">
+                                                <i class="fa-regular fa-user text-[10px] text-gold-dark"></i>
+                                                <span>${it.specialistName}</span>
+                                            </div>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
                         <!-- Row 2: الموعد، عدد الأشخاص -->
-                        <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-start">
+                        <div class="grid grid-cols-2 gap-2.5 sm:gap-4 items-start ${hasMultipleItems ? '' : 'border-t border-dashed border-gray-100 pt-3'}">
                             <div class="min-w-0">
                                 <span class="text-[11px] sm:text-xs text-gray-400 font-bold block mb-1">الموعد</span>
                                 <span class="text-xs sm:text-sm font-extrabold text-sage-dark block leading-snug">
@@ -864,6 +1120,15 @@ export function chooseSpecialist(spId) {
         return;
     }
     state.bookingState.selectedSpecialist = sp;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    if (subServices.length === 1) {
+        if (!state.bookingState.selectedSpecialistsByService) {
+            state.bookingState.selectedSpecialistsByService = {};
+        }
+        state.bookingState.selectedSpecialistsByService[subServices[0].id] = sp;
+    }
     state.bookingState.selectedTime = null;
     state.bookingState.availability = {
         loading: true,
@@ -873,6 +1138,23 @@ export function chooseSpecialist(spId) {
     };
     fetchSpecialistAvailability();
     renderBookingStep();
+}
+
+export function chooseSpecialistForService(serviceId, spId) {
+    const sp = specialistsData[spId];
+    if (!sp) return;
+    if (!state.bookingState.selectedSpecialistsByService) {
+        state.bookingState.selectedSpecialistsByService = {};
+    }
+    state.bookingState.selectedSpecialistsByService[serviceId] = sp;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    if (subServices.length <= 1) {
+        state.bookingState.selectedSpecialist = sp;
+    }
+    renderBookingStep();
+    syncFloatingConfirmButton();
 }
 
 export function selectBookingDate(dateStr, dateIso = '') {
@@ -900,7 +1182,10 @@ export function selectBookingTime(timeStr) {
 }
 
 export async function fetchSpecialistAvailability() {
-    if (!state.bookingState.selectedSpecialist) return;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    if (subServices.length === 0) return;
 
     if (state.availabilityAbortController) {
         state.availabilityAbortController.abort();
@@ -909,14 +1194,29 @@ export async function fetchSpecialistAvailability() {
     const currentSignal = state.availabilityAbortController.signal;
 
     state.bookingState.availability.loading = true;
-    const requestedSpecialistId = state.bookingState.selectedSpecialist.id;
     const requestedDate = state.bookingState.selectedDateIso || state.bookingState.selectedDate || '';
 
-    const params = new URLSearchParams({
-        specialist_id: requestedSpecialistId,
-        service_id: state.bookingState.selectedSubService?.id || '',
-        booking_date: requestedDate
-    });
+    let params;
+    if (subServices.length > 1) {
+        const items = subServices.map(s => ({
+            service_id: s.id,
+            specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
+        }));
+        params = new URLSearchParams({
+            items: JSON.stringify(items),
+            booking_date: requestedDate,
+            service_id: subServices[0].id,
+            specialist_id: items[0].specialist_id || ''
+        });
+    } else {
+        const sp = state.bookingState.selectedSpecialist || state.bookingState.selectedSpecialistsByService?.[subServices[0].id];
+        if (!sp) return;
+        params = new URLSearchParams({
+            specialist_id: sp.id,
+            service_id: subServices[0].id,
+            booking_date: requestedDate
+        });
+    }
 
     const endpointUrl = routes.availability ? `${routes.availability}?${params.toString()}` : `/booking/availability?${params.toString()}`;
 
@@ -926,10 +1226,6 @@ export async function fetchSpecialistAvailability() {
             signal: currentSignal
         });
         const data = await response.json();
-
-        if (state.bookingState.selectedSpecialist?.id !== requestedSpecialistId) {
-            return;
-        }
 
         if (response.ok && data.success) {
             state.bookingState.availability = {
@@ -968,7 +1264,17 @@ export async function fetchSpecialistAvailability() {
 }
 
 export function confirmFinalBooking() {
-    if (!state.bookingState.selectedCategory || !state.bookingState.selectedSubService || !state.bookingState.selectedSpecialist || !state.bookingState.selectedTime) return;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    if (subServices.length === 0 || !state.bookingState.selectedTime) return;
+
+    if (subServices.length > 1) {
+        const unassigned = subServices.filter(s => !state.bookingState.selectedSpecialistsByService?.[s.id]);
+        if (unassigned.length > 0) return;
+    } else if (!state.bookingState.selectedSpecialist && !state.bookingState.selectedSpecialistsByService?.[subServices[0].id]) {
+        return;
+    }
     openPhoneVerificationModal();
 }
 
@@ -1032,6 +1338,7 @@ export function getBookingWhatsAppShareUrl(booking, customerName = '') {
         `الأخصائية: ${b.specialistName}`,
         `الموعد: ${b.date}`,
         `الوقت: ${b.time}`,
+        b.items && b.items.length > 1 ? 'تفاصيل الخدمات والأخصائيات:\n' + b.items.map(it => `  • ${it.serviceName} مع الأخصائية ${it.specialistName} (${it.startTime} - ${it.endTime})`).join('\n') : null,
         guests && guests > 1 ? `عدد الأشخاص: ${guests} أشخاص` : null,
         notes ? `ملاحظات العميلة: ${notes}` : null,
         b.price ? `التكلفة التقديرية: ${b.price}` : null,

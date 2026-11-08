@@ -51,15 +51,6 @@ class WithinSpecialistShift implements DataAwareRule, ValidationRule
     {
         $availability = $this->availabilityService ?? app(SpecialistAvailabilityService::class);
 
-        $specialistKey = $this->specialistIdentifier ?? (string) ($this->data['specialist_id'] ?? '');
-        $specialist = $availability->resolveSpecialist($specialistKey);
-
-        if (! $specialist) {
-            $fail('الأخصائية المختارة غير متاحة حالياً.');
-
-            return;
-        }
-
         $timeString = trim((string) $value);
         if ($timeString === '') {
             return;
@@ -75,15 +66,54 @@ class WithinSpecialistShift implements DataAwareRule, ValidationRule
         $dateInput = $this->bookingDateInput ?? (string) ($this->data['booking_date'] ?? '');
         $date = $availability->resolveBookingDate($dateInput);
 
-        $serviceKey = $this->serviceIdentifier ?? (string) ($this->data['service_id'] ?? '');
-        $service = $availability->resolveService($serviceKey);
-        $durationMinutes = $availability->resolveDurationMinutes($specialist, $service);
+        if (! empty($this->data['items']) && is_array($this->data['items'])) {
+            $resolvedItems = $availability->resolveBookingItems(null, null, $this->data['items']);
+            $cursorTime = $startTime24;
+            foreach ($resolvedItems as $item) {
+                $shiftCheck = $availability->validateWithinShift(
+                    specialist: $item['specialist'],
+                    date: $date,
+                    startTime24: $cursorTime,
+                    durationMinutes: $item['duration_minutes']
+                );
+                if (! $shiftCheck['valid']) {
+                    $fail($shiftCheck['message'] ?? 'الوقت المختار يقع خارج أوقات دوام الأخصائية.');
+
+                    return;
+                }
+                $cursorTime = $availability->calculateEndTime24($cursorTime, $item['duration_minutes']);
+            }
+
+            return;
+        }
+
+        $specialistKey = $this->specialistIdentifier ?? (string) ($this->data['specialist_id'] ?? '');
+        $specialist = $availability->resolveSpecialist($specialistKey);
+
+        if (! $specialist) {
+            $fail('الأخصائية المختارة غير متاحة حالياً.');
+
+            return;
+        }
+
+        $serviceInput = $this->serviceIdentifier ?? ($this->data['service_ids'] ?? ($this->data['service_id'] ?? ''));
+        $serviceCodes = is_array($serviceInput) ? $serviceInput : [$serviceInput];
+        $totalDurationMinutes = 0;
+        foreach ($serviceCodes as $sc) {
+            $srv = $availability->resolveService((string) $sc);
+            if ($srv) {
+                $totalDurationMinutes += $availability->resolveDurationMinutes($specialist, $srv);
+            }
+        }
+        if ($totalDurationMinutes === 0) {
+            $totalDurationMinutes = 60;
+        }
 
         $shiftCheck = $availability->validateWithinShift(
             specialist: $specialist,
             date: $date,
             startTime24: $startTime24,
-            durationMinutes: $durationMinutes
+            durationMinutes: $totalDurationMinutes
         );
 
         if (! $shiftCheck['valid']) {

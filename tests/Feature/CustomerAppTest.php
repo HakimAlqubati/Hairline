@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Exceptions\SlotUnavailableException;
 use App\Models\Booking;
+use App\Models\BookingItem;
 use App\Models\Customer;
 use App\Models\Service;
 use App\Models\Specialist;
@@ -19,6 +20,7 @@ use App\Services\FrontData\HomeServiceDataService;
 use App\Services\FrontData\SalonInfoDataService;
 use Carbon\Carbon;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 
@@ -1133,6 +1135,155 @@ describe('Customer-Facing Pages', function () {
 
         $errorText = collect($response->json('errors.booking_time'))->first();
         expect($errorText)->toContain('مدة الخدمة تتجاوز وقت انتهاء شيفت الأخصائية');
+    });
+
+    test('multi-service booking allows selecting different specialists per service and creates sequential booking items', function () {
+        $spKaren = Specialist::where('slug', 'sp_karen')->firstOrFail();
+        $spNajla = Specialist::where('slug', 'sp_najla')->firstOrFail();
+        $srvHair = Service::where('code', 'hs_all_hairstyles')->firstOrFail();
+        $srvMakeup = Service::where('code', 'sk_makeup_lashes')->firstOrFail();
+
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(4);
+
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spKaren->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spNajla->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+
+        $srvHair->update(['duration_minutes' => 60]);
+        $srvMakeup->update(['duration_minutes' => 45]);
+        DB::table('specialist_service')
+            ->where('specialist_id', $spNajla->id)
+            ->where('service_id', $srvMakeup->id)
+            ->update(['custom_duration_minutes' => 45]);
+
+        // 1. Availability query with multi-specialist items
+        $availabilityResponse = $this->getJson(route('booking.availability', [
+            'booking_date' => $targetDate->toDateString(),
+            'items' => json_encode([
+                ['service_id' => $srvHair->code, 'specialist_id' => $spKaren->slug],
+                ['service_id' => $srvMakeup->code, 'specialist_id' => $spNajla->slug],
+            ]),
+        ]));
+
+        $availabilityResponse->assertStatus(200)
+            ->assertJsonPath('success', true);
+        expect($availabilityResponse->json('slots'))->not->toBeEmpty();
+
+        // 2. Booking creation via guest confirm with separate specialists
+        $guestBookingResponse = $this->postJson(route('booking.guest_confirm'), [
+            'phone' => '0599887766',
+            'name' => 'نورة محمد',
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '04:00 م',
+            'items' => [
+                ['service_id' => $srvHair->code, 'specialist_id' => $spKaren->slug],
+                ['service_id' => $srvMakeup->code, 'specialist_id' => $spNajla->slug],
+            ],
+        ]);
+
+        $guestBookingResponse->assertStatus(200)
+            ->assertJsonPath('status', 'confirmed');
+
+        $bookingDbId = $guestBookingResponse->json('booking.db_id');
+        $createdBooking = Booking::with('items')->findOrFail($bookingDbId);
+
+        expect($createdBooking->items)->toHaveCount(2);
+
+        $itemHair = $createdBooking->items->firstWhere('service_id', $srvHair->id);
+        $itemMakeup = $createdBooking->items->firstWhere('service_id', $srvMakeup->id);
+
+        expect($itemHair->specialist_id)->toBe($spKaren->id);
+        expect($itemHair->scheduled_start_time)->toBe('16:00:00');
+        expect($itemHair->scheduled_end_time)->toBe('17:00:00');
+
+        expect($itemMakeup->specialist_id)->toBe($spNajla->id);
+        expect($itemMakeup->scheduled_start_time)->toBe('17:00:00');
+        expect($itemMakeup->scheduled_end_time)->toBe('17:45:00');
+
+        // 3. Validation rejection if a specialist does not offer the assigned service
+        $invalidSpecialistResponse = $this->postJson(route('booking.guest_confirm'), [
+            'phone' => '0599887766',
+            'name' => 'نورة محمد',
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '04:00 م',
+            'items' => [
+                ['service_id' => $srvMakeup->code, 'specialist_id' => $spKaren->slug],
+            ],
+        ]);
+
+        $invalidSpecialistResponse->assertStatus(422)
+            ->assertJsonValidationErrors(['items.0.specialist_id']);
+    });
+
+    test('multi-service booking detects collision on second specialist slot and rejects booking', function () {
+        $spKaren = Specialist::where('slug', 'sp_karen')->firstOrFail();
+        $spNajla = Specialist::where('slug', 'sp_najla')->firstOrFail();
+        $srvHair = Service::where('code', 'hs_all_hairstyles')->firstOrFail();
+        $srvMakeup = Service::where('code', 'sk_makeup_lashes')->firstOrFail();
+
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(5);
+
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spKaren->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spNajla->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+
+        $srvHair->update(['duration_minutes' => 60]);
+        $srvMakeup->update(['duration_minutes' => 60]);
+
+        // Create an existing booking for Najla that occupies 17:00 to 18:00
+        $existingCustomer = Customer::where('phone', '0551234567')->firstOrFail();
+        $existingBooking = Booking::create([
+            'booking_number' => '9991',
+            'customer_id' => $existingCustomer->id,
+            'customer_type' => Booking::CUSTOMER_TYPE_REGISTERED,
+            'booking_type' => Booking::BOOKING_TYPE_SALON,
+            'booking_date' => $targetDate->toDateString(),
+            'overall_start_time' => '17:00:00',
+            'overall_end_time' => '18:00:00',
+            'status' => Booking::STATUS_CONFIRMED,
+            'total_price' => 150,
+            'payment_status' => Booking::PAYMENT_STATUS_UNPAID,
+        ]);
+        BookingItem::create([
+            'booking_id' => $existingBooking->id,
+            'service_id' => $srvMakeup->id,
+            'specialist_id' => $spNajla->id,
+            'unit_price' => 150,
+            'total_price' => 150,
+            'duration_minutes' => 60,
+            'scheduled_start_time' => '17:00:00',
+            'scheduled_end_time' => '18:00:00',
+        ]);
+
+        // Customer attempts to start at 16:00 (04:00 م):
+        // Hair with Karen: 16:00 to 17:00 (available)
+        // Makeup with Najla: 17:00 to 18:00 (COLLISION with existing booking!)
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'phone' => '0599112233',
+            'name' => 'سارة العتيبي',
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '04:00 م',
+            'items' => [
+                ['service_id' => $srvHair->code, 'specialist_id' => $spKaren->slug],
+                ['service_id' => $srvMakeup->code, 'specialist_id' => $spNajla->slug],
+            ],
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['booking_time']);
+
+        $errorText = collect($response->json('errors.booking_time'))->first();
+        expect($errorText)->toContain('هذا الموعد محجوز مسبقاً مع الأخصائية المختارة');
     });
 });
 

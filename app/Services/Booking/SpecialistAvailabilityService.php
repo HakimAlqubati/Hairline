@@ -125,6 +125,65 @@ class SpecialistAvailabilityService
     }
 
     /**
+     * Resolves a normalized list of booking items with their Service, Specialist, and effective duration.
+     *
+     * @param  array<int, string>|string|null  $serviceInput
+     * @param  array<int, array{service_id: string|int, specialist_id: string|int}>|null  $itemsInput
+     * @return array<int, array{service: Service, specialist: Specialist, duration_minutes: int}>
+     */
+    public function resolveBookingItems(
+        array|string|null $serviceInput = null,
+        ?string $specialistInput = null,
+        ?array $itemsInput = null
+    ): array {
+        $resolved = [];
+
+        if (! empty($itemsInput) && is_array($itemsInput)) {
+            foreach ($itemsInput as $it) {
+                if (! is_array($it)) {
+                    continue;
+                }
+                $srvId = $it['service_id'] ?? null;
+                $spId = $it['specialist_id'] ?? null;
+                if (! $srvId || ! $spId) {
+                    continue;
+                }
+                $service = $this->resolveService($srvId);
+                $specialist = $this->resolveSpecialist($spId);
+                if ($service && $specialist) {
+                    $resolved[] = [
+                        'service' => $service,
+                        'specialist' => $specialist,
+                        'duration_minutes' => $this->resolveDurationMinutes($specialist, $service),
+                    ];
+                }
+            }
+            if (! empty($resolved)) {
+                return $resolved;
+            }
+        }
+
+        if ($specialistInput !== null) {
+            $specialist = $this->resolveSpecialist($specialistInput);
+            if ($specialist) {
+                $serviceCodes = is_array($serviceInput) ? $serviceInput : (array) $serviceInput;
+                foreach ($serviceCodes as $sc) {
+                    $service = $this->resolveService((string) $sc);
+                    if ($service) {
+                        $resolved[] = [
+                            'service' => $service,
+                            'specialist' => $specialist,
+                            'duration_minutes' => $this->resolveDurationMinutes($specialist, $service),
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $resolved;
+    }
+
+    /**
      * Resolve effective duration in minutes for a specialist and service (checks custom pivot duration first).
      */
     public function resolveDurationMinutes(Specialist $specialist, ?Service $service = null): int
@@ -461,6 +520,211 @@ class SpecialistAvailabilityService
                 'end_minutes' => $this->timeToMinutes($end),
             ];
         })->all();
+    }
+
+    /**
+     * Build sequential shift-driven time slots for an ordered list of items (each with its service and specialist).
+     *
+     * @param  array<int, array{service: Service, specialist: Specialist, duration_minutes: int}>  $resolvedItems
+     * @return array{
+     *     specialist_id: string,
+     *     date_iso: string,
+     *     day_of_week: int,
+     *     is_day_off: bool,
+     *     shift_start: ?string,
+     *     shift_end: ?string,
+     *     shift_label: string,
+     *     duration_minutes: int,
+     *     slots: array<int, array{
+     *         time: string,
+     *         time_24: string,
+     *         end_time_24: string,
+     *         is_available: bool,
+     *         is_booked: bool,
+     *         is_past: bool,
+     *         timeline: array<int, array{service_name: string, specialist_name: string, start_time: string, end_time: string, duration_minutes: int}>
+     *     }>,
+     *     available_times: array<int, string>
+     * }
+     */
+    public function getAvailabilityForItems(array $resolvedItems, Carbon $date): array
+    {
+        $today = Carbon::today('Asia/Riyadh');
+        $totalDuration = (int) array_sum(array_column($resolvedItems, 'duration_minutes'));
+
+        if (empty($resolvedItems)) {
+            return [
+                'specialist_id' => '',
+                'date_iso' => $date->toDateString(),
+                'day_of_week' => (int) $date->dayOfWeek,
+                'is_day_off' => true,
+                'shift_start' => null,
+                'shift_end' => null,
+                'shift_label' => 'لا توجد خدمات مختارة',
+                'duration_minutes' => 0,
+                'slots' => [],
+                'available_times' => [],
+            ];
+        }
+
+        $allSlugs = array_values(array_unique(array_map(fn ($it) => $it['specialist']->slug, $resolvedItems)));
+        $specialistIdLabel = implode(',', $allSlugs);
+
+        if ($date->isBefore($today)) {
+            return [
+                'specialist_id' => $specialistIdLabel,
+                'date_iso' => $date->toDateString(),
+                'day_of_week' => (int) $date->dayOfWeek,
+                'is_day_off' => true,
+                'shift_start' => null,
+                'shift_end' => null,
+                'shift_label' => 'لا يمكن حجز مواعيد في تواريخ سابقة',
+                'duration_minutes' => $totalDuration,
+                'slots' => [],
+                'available_times' => [],
+            ];
+        }
+
+        $specialistsById = [];
+        foreach ($resolvedItems as $it) {
+            $sp = $it['specialist'];
+            $specialistsById[$sp->id] = $sp;
+        }
+
+        $shifts = SpecialistShift::query()
+            ->whereIn('specialist_id', array_keys($specialistsById))
+            ->where('day_of_week', (int) $date->dayOfWeek)
+            ->get()
+            ->keyBy('specialist_id');
+
+        $shiftsBySpecialistId = [];
+        $bookedIntervalsBySpecialistId = [];
+
+        foreach ($specialistsById as $spId => $sp) {
+            $shift = $shifts->get($spId);
+            if (! $shift || $shift->is_day_off) {
+                $nameAr = $sp->getTranslation('name', 'ar');
+
+                return [
+                    'specialist_id' => $specialistIdLabel,
+                    'date_iso' => $date->toDateString(),
+                    'day_of_week' => (int) $date->dayOfWeek,
+                    'is_day_off' => true,
+                    'shift_start' => null,
+                    'shift_end' => null,
+                    'shift_label' => count($specialistsById) === 1
+                        ? 'يوم إجازة للأخصائية'
+                        : "الأخصائية ({$nameAr}) في يوم إجازة في هذا التاريخ",
+                    'duration_minutes' => $totalDuration,
+                    'slots' => [],
+                    'available_times' => [],
+                ];
+            }
+            $shiftsBySpecialistId[$spId] = $shift;
+            $bookedIntervalsBySpecialistId[$spId] = $this->getBookedIntervalsForDate($spId, $date);
+        }
+
+        $firstItem = $resolvedItems[0];
+        $firstShift = $shiftsBySpecialistId[$firstItem['specialist']->id];
+        $shiftStartMinutes = $this->timeToMinutes($firstShift->start_time);
+        $shiftEndMinutes = $this->timeToMinutes($firstShift->end_time);
+        $stepMinutes = self::DEFAULT_SLOT_STEP_MINUTES;
+
+        $now = Carbon::now('Asia/Riyadh');
+        $isToday = $date->isSameDay($today);
+        $currentMinutesToday = ($now->hour * 60) + $now->minute;
+
+        $slots = [];
+        $availableTimes = [];
+        $cursorMinutes = $shiftStartMinutes;
+
+        while ($cursorMinutes < $shiftEndMinutes) {
+            $slotStart24 = $this->minutesToTime($cursorMinutes);
+            $arabicTime = $this->format24HourToArabic($slotStart24);
+
+            $isValidForSchedule = true;
+            $isBooked = false;
+            $itemCursorMinutes = $cursorMinutes;
+            $timeline = [];
+
+            foreach ($resolvedItems as $item) {
+                $sp = $item['specialist'];
+                $spId = $sp->id;
+                $duration = $item['duration_minutes'];
+                $spShift = $shiftsBySpecialistId[$spId];
+                $spShiftStart = $this->timeToMinutes($spShift->start_time);
+                $spShiftEnd = $this->timeToMinutes($spShift->end_time);
+
+                $itemStartMinutes = $itemCursorMinutes;
+                $itemEndMinutes = $itemCursorMinutes + $duration;
+
+                if ($itemStartMinutes < $spShiftStart || $itemEndMinutes > $spShiftEnd) {
+                    $isValidForSchedule = false;
+                    break;
+                }
+
+                $intervals = $bookedIntervalsBySpecialistId[$spId] ?? [];
+                foreach ($intervals as $interval) {
+                    if ($itemStartMinutes < $interval['end_minutes'] && $itemEndMinutes > $interval['start_minutes']) {
+                        $isBooked = true;
+                        break;
+                    }
+                }
+
+                $timeline[] = [
+                    'service_name' => $item['service']->getTranslation('name', 'ar'),
+                    'specialist_name' => $sp->getTranslation('name', 'ar'),
+                    'start_time' => $this->format24HourToArabic($this->minutesToTime($itemStartMinutes)),
+                    'end_time' => $this->format24HourToArabic($this->minutesToTime($itemEndMinutes)),
+                    'duration_minutes' => $duration,
+                ];
+
+                $itemCursorMinutes = $itemEndMinutes;
+            }
+
+            $totalEndMinutes = $itemCursorMinutes;
+            $slotEnd24 = $this->minutesToTime($totalEndMinutes);
+
+            if ($isValidForSchedule) {
+                $isPast = $isToday && ($cursorMinutes < ($currentMinutesToday + 15));
+                $isAvailable = ! $isBooked && ! $isPast;
+
+                $slots[] = [
+                    'time' => $arabicTime,
+                    'time_24' => $slotStart24,
+                    'end_time_24' => $slotEnd24,
+                    'is_available' => $isAvailable,
+                    'is_booked' => $isBooked,
+                    'is_past' => $isPast,
+                    'timeline' => $timeline,
+                ];
+
+                if ($isAvailable) {
+                    $availableTimes[] = $arabicTime;
+                }
+            }
+
+            $cursorMinutes += $stepMinutes;
+        }
+
+        $shiftStartAr = $this->format24HourToArabic($firstShift->start_time);
+        $shiftEndAr = $this->format24HourToArabic($firstShift->end_time);
+        $shiftLabel = count($specialistsById) === 1
+            ? "من {$shiftStartAr} إلى {$shiftEndAr}"
+            : 'مواعيد متتابعة حسب أوقات الأخصائيات';
+
+        return [
+            'specialist_id' => $specialistIdLabel,
+            'date_iso' => $date->toDateString(),
+            'day_of_week' => (int) $date->dayOfWeek,
+            'is_day_off' => false,
+            'shift_start' => $this->normalizeTimeFormat($firstShift->start_time),
+            'shift_end' => $this->normalizeTimeFormat($firstShift->end_time),
+            'shift_label' => $shiftLabel,
+            'duration_minutes' => $totalDuration,
+            'slots' => $slots,
+            'available_times' => $availableTimes,
+        ];
     }
 
     /**

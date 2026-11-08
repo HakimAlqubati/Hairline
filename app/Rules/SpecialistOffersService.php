@@ -46,22 +46,47 @@ class SpecialistOffersService implements DataAwareRule, ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $availability = $this->availabilityService ?? app(SpecialistAvailabilityService::class);
-        $serviceKey = (string) ($this->data['service_id'] ?? '');
+
+        $serviceKeys = [];
+        if (preg_match('/^items\.(\d+)\.specialist_id$/', $attribute, $matches)) {
+            $index = (int) $matches[1];
+            $srvVal = $this->data['items'][$index]['service_id'] ?? '';
+            if (is_array($srvVal)) {
+                $serviceKeys = array_map('strval', $srvVal);
+            } elseif ($srvVal !== '') {
+                $serviceKeys = [(string) $srvVal];
+            }
+        } else {
+            $srvVal = $this->data['service_id'] ?? null;
+            if (is_array($srvVal)) {
+                $serviceKeys = array_map('strval', $srvVal);
+            } elseif ($srvVal !== null && $srvVal !== '') {
+                $serviceKeys = [(string) $srvVal];
+            }
+
+            if (empty($serviceKeys) && ! empty($this->data['service_ids']) && is_array($this->data['service_ids'])) {
+                $serviceKeys = array_map('strval', $this->data['service_ids']);
+            }
+        }
+
         $specialistKey = trim((string) $value);
 
-        if ($serviceKey === '' || $specialistKey === '') {
+        if ($specialistKey === '') {
             return;
         }
 
-        $service = $availability->resolveService($serviceKey);
         $specialist = $availability->resolveSpecialist($specialistKey);
-
-        if (! $service || ! $specialist) {
+        if (! $specialist) {
             return;
         }
 
-        if (! $availability->specialistOffersService($specialist, $service)) {
-            $fail('عذراً، الأخصائية المختارة لا تقدم هذه الخدمة.');
+        foreach ($serviceKeys as $key) {
+            $service = $availability->resolveService($key);
+            if ($service && ! $availability->specialistOffersService($specialist, $service)) {
+                $fail('عذراً، الأخصائية المختارة لا تقدم هذه الخدمة.');
+
+                return;
+            }
         }
     }
 }

@@ -24,6 +24,14 @@ class GoogleOAuthService
         $rawPhone = $this->availabilityService->sanitizePhoneDigits((string) $request->query('phone', ''));
         $normalizedPhone = $rawPhone !== '' ? $this->availabilityService->normalizeSaudiPhone($rawPhone) : '';
 
+        $itemsQuery = $request->query('items');
+        if (is_string($itemsQuery)) {
+            $decoded = json_decode($itemsQuery, true);
+            $items = is_array($decoded) ? $decoded : null;
+        } else {
+            $items = is_array($itemsQuery) ? $itemsQuery : null;
+        }
+
         $bookingContext = [
             'is_profile' => $isProfile,
             'phone' => $normalizedPhone,
@@ -31,6 +39,7 @@ class GoogleOAuthService
             'specialist_id' => $isProfile ? '' : (string) $request->query('specialist_id', ''),
             'booking_date' => $isProfile ? '' : (string) $request->query('booking_date', ''),
             'booking_time' => $isProfile ? '' : (string) $request->query('booking_time', ''),
+            'items' => $isProfile ? null : $items,
         ];
 
         $stateToken = bin2hex(random_bytes(16));

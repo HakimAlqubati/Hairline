@@ -62,9 +62,10 @@ class HairlineController extends Controller
                 ->limit(20)
                 ->get()
                 ->map(function (Booking $booking): array {
+                    $serviceNames = $booking->items->map(fn ($item) => $item->service?->getTranslation('name', 'ar'))->filter()->unique()->values()->all();
+                    $specialistNames = $booking->items->map(fn ($item) => $item->specialist?->getTranslation('name', 'ar'))->filter()->unique()->values()->all();
                     $firstItem = $booking->items->first();
-                    $service = $firstItem?->service;
-                    $specialist = $firstItem?->specialist;
+                    $primaryService = $firstItem?->service;
 
                     $startTimeFormatted = '05:30 م';
                     if ($booking->overall_start_time) {
@@ -78,12 +79,28 @@ class HairlineController extends Controller
                         'customerName' => $booking->customer?->name ?? '',
                         'customerPhone' => $booking->customer?->phone ?? '',
                         'customerEmail' => $booking->customer?->email,
-                        'categoryTitle' => $service?->category?->getTranslation('name', 'ar') ?? '',
-                        'serviceName' => $service?->getTranslation('name', 'ar') ?? '',
-                        'specialistName' => $specialist ? $specialist->getTranslation('name', 'ar') : '',
+                        'categoryTitle' => $primaryService?->category?->getTranslation('name', 'ar') ?? '',
+                        'serviceName' => ! empty($serviceNames) ? implode(' + ', $serviceNames) : ($primaryService?->getTranslation('name', 'ar') ?? ''),
+                        'specialistName' => ! empty($specialistNames) ? implode(' + ', $specialistNames) : ($firstItem?->specialist?->getTranslation('name', 'ar') ?? ''),
                         'date' => $booking->booking_date ? $booking->booking_date->format('Y-m-d') : '',
                         'time' => $startTimeFormatted,
                         'price' => ((int) $booking->total_amount).' ر.س',
+                        'guests_count' => $booking->guests_count ?? 1,
+                        'customer_notes' => $booking->customer_notes,
+                        'items' => $booking->items->map(function ($item) {
+                            $startFormatted = '';
+                            if ($item->scheduled_start_time) {
+                                $parsed = Carbon::parse($item->scheduled_start_time);
+                                $startFormatted = $parsed->format('h:i').($parsed->format('A') === 'AM' ? ' ص' : ' م');
+                            }
+
+                            return [
+                                'serviceName' => $item->service?->getTranslation('name', 'ar') ?? '',
+                                'specialistName' => $item->specialist?->getTranslation('name', 'ar') ?? '',
+                                'time' => $startFormatted,
+                                'durationMinutes' => $item->duration_minutes,
+                            ];
+                        })->all(),
                     ];
                 })
                 ->values()
