@@ -24,123 +24,87 @@
         : 'https://www.google.com/maps?q=%D9%87%D9%8A%D8%B1%D9%84%D8%A7%D9%8A%D9%86,+Ext.5%D8%8C+%D8%B2%D9%87%D9%8A%D8%B1+%D8%A8%D9%86+%D8%A7%D8%A8%D9%8A+%D8%B3%D9%84%D9%85%D9%89%D8%8C+%D8%A7%D9%84%D9%85%D8%B5%D9%8A%D9%81%D8%8C+%D8%A7%D9%84%D8%B1%D9%8A%D8%A7%D8%B6+12468&ftid=0x3e2efda2254ccfcb:0x9b01f2c00151ffe1&entry=gps';
 @endphp
 
-<section id="contactTabView" class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-5 md:pt-8 pb-16 space-y-6 animate-step text-right">
+<section id="contactTabView" class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-7xl 2xl:max-w-[1400px] mx-auto px-3.5 sm:px-6 lg:px-8 pt-2 sm:pt-3 md:pt-4 pb-3 md:pb-4 animate-step text-right">
 
-    <!-- Header Section -->
-    <div class="space-y-1.5 pb-2 border-b border-primary-soft/50">
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-light/70 text-primary-dark text-xs font-bold">
-            <i class="fa-solid fa-headset text-[11px]"></i>
-            <span>خدمة العملاء والحجوزات</span>
-        </div>
-        <h2 class="text-2xl sm:text-3xl font-bold text-sage-dark tracking-tight">للتواصل والاستفسار</h2>
-    </div>
-
-    <!-- Main Content Container: Clean Modern Layout Without Rigid Boxes -->
-    <div class="bg-white rounded-[32px] p-6 sm:p-8 md:p-10 shadow-card border border-primary-soft/60 space-y-8">
+    <!-- Main Content Container: Clean Modern Layout Fitting Viewport Without Scroll -->
+    <div class="bg-white rounded-2xl sm:rounded-3xl p-3.5 sm:p-4 md:p-5 shadow-card border border-primary-soft/60 space-y-3">
         
-        <!-- Row 1: Direct Contact Buttons -->
-        <div class="flex flex-col sm:flex-row items-center gap-4">
-            <a href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"
-               class="group w-full sm:flex-1 py-4 px-6 rounded-2xl bg-transparent border-2 border-primary text-primary-dark hover:text-white hover:bg-primary hover:border-primary font-bold text-sm flex items-center justify-center gap-2.5 shadow-2xs hover:shadow-md hover:shadow-primary/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-                <i class="fa-brands fa-whatsapp text-lg text-primary group-hover:text-white transition-colors duration-300"></i>
-                <span>محادثة واتساب مباشرة</span>
-            </a>
-
-            <a href="tel:{{ $phoneClean }}"
-               class="group w-full sm:flex-1 py-4 px-6 rounded-2xl bg-transparent border-2 border-primary text-primary-dark hover:text-white hover:bg-primary hover:border-primary font-bold text-sm flex items-center justify-center gap-2.5 shadow-2xs hover:shadow-md hover:shadow-primary/25 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer">
-                <i class="fa-solid fa-phone text-sm text-primary group-hover:text-white transition-colors duration-300"></i>
-                <span dir="ltr">{{ $phone }}</span>
-                <span>اتصال مباشر</span>
-            </a>
-        </div>
-
-        <!-- Row 2: Working Hours & Location Info (Clean Typography) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-            <!-- Working Hours -->
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
-                    <i class="fa-regular fa-clock text-lg"></i>
-                </div>
-                <div class="space-y-1 min-w-0">
-                    <span class="text-xs font-medium text-gray-400 block">أوقات العمل الرسمية</span>
-                    <h3 class="text-base sm:text-lg font-bold text-sage-dark">
-                        {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}
-                    </h3>
-                </div>
-            </div>
-
-            <!-- Salon Location -->
-            <div class="flex items-start gap-4">
-                <div class="w-12 h-12 rounded-2xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
-                    <i class="fa-solid fa-location-dot text-lg"></i>
-                </div>
-                <div class="space-y-1 min-w-0">
-                    <span class="text-xs font-medium text-gray-400 block">موقع الصالون</span>
-                    <h3 class="text-base sm:text-lg font-bold text-sage-dark leading-snug">
+        <!-- Controls & Location Strip Above The Map -->
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+            
+            <!-- 1. موقع الصالون (Replaced Interactive Map Label) -->
+            <div class="flex items-center gap-2.5 min-w-0">
+                <span class="w-8 h-8 rounded-lg bg-primary-light text-primary-dark flex items-center justify-center shrink-0 shadow-2xs">
+                    <i class="fa-solid fa-location-dot text-sm"></i>
+                </span>
+                <div class="min-w-0">
+                    <span class="text-[11px] font-bold text-gray-400 block leading-tight">موقع الصالون</span>
+                    <h3 class="text-xs sm:text-sm font-extrabold text-sage-dark truncate leading-tight" title="{{ $address }}">
                         {{ $address }}
                     </h3>
                 </div>
             </div>
+
+            <!-- 2. Action Buttons (Smaller Size) & Social Links (Directly Above Map) -->
+            <div class="flex flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 self-end md:self-auto">
+                <!-- Small WhatsApp Button -->
+                <a href="{{ $whatsapp }}" target="_blank" rel="noopener noreferrer"
+                   title="محادثة واتساب مباشرة"
+                   class="group inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-sm text-primary group-hover:text-white transition-colors duration-200"></i>
+                    <span>واتساب</span>
+                </a>
+
+                <!-- Small Call Button -->
+                <a href="tel:{{ $phoneClean }}"
+                   title="اتصال مباشر"
+                   class="group inline-flex items-center gap-1.5 py-1.5 px-3 rounded-lg bg-transparent border border-primary text-primary-dark hover:text-white hover:bg-primary font-bold text-xs shadow-2xs hover:shadow-xs transition-all duration-200 cursor-pointer">
+                    <i class="fa-solid fa-phone text-xs text-primary group-hover:text-white transition-colors duration-200"></i>
+                    <span dir="ltr" class="font-mono text-[11px]">{{ $phone }}</span>
+                    <span>اتصال</span>
+                </a>
+
+                <!-- Subtle Divider -->
+                <span class="h-4 w-px bg-gray-200 hidden sm:inline-block"></span>
+
+                <!-- Social Media Channel Icons -->
+                <div class="flex items-center gap-1.5">
+                    <a href="{{ $contactLinks['instagram'] ?? 'https://www.instagram.com/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
+                       title="Instagram"
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                        <i class="fa-brands fa-instagram text-xs sm:text-sm"></i>
+                    </a>
+                    <a href="{{ $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
+                       title="Snapchat"
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                        <i class="fa-brands fa-snapchat text-xs sm:text-sm"></i>
+                    </a>
+                    <a href="{{ $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@Hairline.TikTok' }}" target="_blank" rel="noopener noreferrer"
+                       title="TikTok"
+                       class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
+                        <i class="fa-brands fa-tiktok text-[11px] sm:text-xs"></i>
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <!-- Row 3: Interactive Map Frame -->
-        <div class="space-y-3 pt-2">
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span class="text-xs font-bold text-sage-dark">خريطة الموقع التفاعلية</span>
-                    <span class="text-[11px] text-gray-400 hidden sm:inline">(يمكنك السحب والتقريب واستكشاف الشوارع)</span>
+        <!-- Full-Width Interactive Map Frame -->
+        <div class="relative w-full h-[360px] sm:h-[400px] md:h-[430px] lg:h-[460px] xl:h-[480px] rounded-xl sm:rounded-2xl overflow-hidden border border-primary-soft/80 shadow-xs bg-neutral-100 group">
+            <iframe 
+                src="{{ $mapIframe }}"
+                class="w-full h-full border-0 select-auto" 
+                loading="lazy"
+                allowfullscreen=""
+                referrerpolicy="no-referrer-when-downgrade"
+                title="موقع صالون هيرلاين">
+            </iframe>
+
+            <!-- Floating Subtle Location Badge -->
+            <div class="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-2">
+                <div class="px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md text-[11px] font-extrabold text-sage-dark shadow-md border border-gray-200/60 flex items-center gap-1.5 pointer-events-auto">
+                    <i class="fa-solid fa-location-dot text-primary text-xs"></i>
+                    <span>حي المصيف • مخرج 5</span>
                 </div>
-                <a href="{{ $mapsUrl }}" target="_blank" rel="noopener noreferrer"
-                   title="فتح الخريطة في تطبيق Google Maps"
-                   class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 hover:bg-primary text-primary hover:text-white text-xs font-bold transition-all duration-200 cursor-pointer">
-                    <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
-                    <span>فتح في تطبيق الخرائط</span>
-                </a>
-            </div>
-
-            <div class="relative w-full h-72 sm:h-80 md:h-96 rounded-2xl sm:rounded-3xl overflow-hidden border border-primary-soft/80 shadow-xs bg-neutral-100 group">
-                <iframe 
-                    src="{{ $mapIframe }}"
-                    class="w-full h-full border-0 select-auto" 
-                    loading="lazy"
-                    allowfullscreen=""
-                    referrerpolicy="no-referrer-when-downgrade"
-                    title="خريطة موقع صالون هيرلاين التفاعلية">
-                </iframe>
-
-                <!-- Floating Subtle Location Badge -->
-                <div class="pointer-events-none absolute bottom-3 right-3 z-10 flex items-center gap-2">
-                    <div class="px-3 py-1.5 rounded-xl bg-white/95 backdrop-blur-md text-[11px] font-extrabold text-sage-dark shadow-md border border-gray-200/60 flex items-center gap-1.5 pointer-events-auto">
-                        <i class="fa-solid fa-location-dot text-primary text-xs"></i>
-                        <span>حي المصيف • مخرج 5</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Row 4: Social Media Channels -->
-        <div class="pt-6 border-t border-gray-100 flex flex-wrap items-center justify-between gap-4">
-            <div class="space-y-0.5">
-                <span class="text-xs font-bold text-sage-dark block">تابعي حساباتنا الرسمية</span>
-                <p class="text-[11px] text-gray-400">شاهدي أحدث جلسات العناية وأعمال الأخصائيات يومياً</p>
-            </div>
-            <div class="flex items-center gap-3">
-                <a href="{{ $contactLinks['instagram'] ?? 'https://www.instagram.com/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
-                   title="Instagram"
-                   class="w-10 h-10 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
-                    <i class="fa-brands fa-instagram text-base"></i>
-                </a>
-                <a href="{{ $contactLinks['snapchat'] ?? 'https://www.snapchat.com/add/Hairline.5' }}" target="_blank" rel="noopener noreferrer"
-                   title="Snapchat"
-                   class="w-10 h-10 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
-                    <i class="fa-brands fa-snapchat text-base"></i>
-                </a>
-                <a href="{{ $contactLinks['tiktok'] ?? 'https://www.tiktok.com/@Hairline.TikTok' }}" target="_blank" rel="noopener noreferrer"
-                   title="TikTok"
-                   class="w-10 h-10 rounded-full bg-surface hover:bg-primary-light text-sage-dark hover:text-primary-dark border border-gray-200 flex items-center justify-center transition shadow-2xs hover:scale-105 cursor-pointer">
-                    <i class="fa-brands fa-tiktok text-sm"></i>
-                </a>
             </div>
         </div>
 
