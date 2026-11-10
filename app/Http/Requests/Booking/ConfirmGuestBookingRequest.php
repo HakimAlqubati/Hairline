@@ -43,6 +43,7 @@ class ConfirmGuestBookingRequest extends BaseApiRequest
             'items' => ['nullable', 'array'],
             'items.*.service_id' => ['required_with:items', 'string'],
             'items.*.specialist_id' => ['required_with:items', 'string', new SpecialistOffersService($availabilityService)],
+            'items.*.booking_time' => ['nullable', 'string'],
             'booking_date' => ['required', 'string', new NotPastDate($availabilityService)],
             'booking_time' => [
                 'required',

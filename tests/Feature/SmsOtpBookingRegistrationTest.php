@@ -2,9 +2,11 @@
 
 declare(strict_types=1);
 
+use App\Contracts\Messaging\OtpChannelInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OtpRepositoryInterface;
 use App\Contracts\Sms\SmsGatewayInterface;
+use App\Contracts\Whatsapp\WhatsappServiceInterface;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\Specialist;
@@ -12,25 +14,44 @@ use App\Repositories\Customer\EloquentCustomerRepository;
 use App\Repositories\Otp\CacheOtpRepository;
 use App\Services\Sms\OtpVerificationService;
 use App\Services\Sms\SimulatedSmsGateway;
+use App\Services\Whatsapp\SimulatedWhatsappService;
 use Carbon\Carbon;
 
-describe('SMS OTP Architecture, Bindings & Verification Service', function () {
-    test('AppServiceProvider binds SMS gateway and repository interfaces to concrete implementations', function () {
+describe('WhatsApp & SMS Multi-Channel Architecture, Bindings & Verification Service', function () {
+    test('AppServiceProvider binds both WhatsApp and SMS interfaces alongside repository interfaces', function () {
+        expect(app(WhatsappServiceInterface::class))->toBeInstanceOf(SimulatedWhatsappService::class);
         expect(app(SmsGatewayInterface::class))->toBeInstanceOf(SimulatedSmsGateway::class);
+        expect(app(OtpChannelInterface::class))->toBeInstanceOf(SimulatedWhatsappService::class);
         expect(app(OtpRepositoryInterface::class))->toBeInstanceOf(CacheOtpRepository::class);
         expect(app(CustomerRepositoryInterface::class))->toBeInstanceOf(EloquentCustomerRepository::class);
     });
 
-    test('OtpVerificationService generates 1100 in simulation mode and supports sending, checking, and verifying', function () {
+    test('OtpVerificationService defaults to WhatsApp channel and allows zero-config switching to SMS', function () {
+        $whatsappService = app(OtpVerificationService::class);
+        expect($whatsappService->getChannelName())->toBe('whatsapp');
+        expect($whatsappService->getChannel())->toBeInstanceOf(SimulatedWhatsappService::class);
+
+        // Switch to SMS channel dynamically without complicated setup
+        config(['sms.channel' => 'sms']);
+        $smsService = app(OtpVerificationService::class);
+        expect($smsService->getChannelName())->toBe('sms');
+        expect($smsService->getChannel())->toBeInstanceOf(SimulatedSmsGateway::class);
+
+        // Reset to default whatsapp
+        config(['sms.channel' => 'whatsapp']);
+    });
+
+    test('OtpVerificationService generates 1100 in simulation mode and sends via WhatsApp', function () {
         $otpService = app(OtpVerificationService::class);
 
         expect($otpService->isSimulationMode())->toBeTrue();
         expect($otpService->generateCode())->toBe('1100');
 
-        // 1. Send OTP
+        // 1. Send OTP via WhatsApp
         $sendResult = $otpService->sendOtp('0551122334', 'لطيفة السبيعي');
         expect($sendResult['sent'])->toBeTrue()
             ->and($sendResult['status'])->toBe('otp_sent')
+            ->and($sendResult['channel'])->toBe('whatsapp')
             ->and($sendResult['simulated_code'])->toBe('1100')
             ->and($sendResult['masked_phone'])->toBe('055***2334');
 
@@ -82,8 +103,8 @@ describe('SMS OTP Architecture, Bindings & Verification Service', function () {
     });
 });
 
-describe('Booking Customer Registration with Name + Phone & 4-Digit SMS OTP (1100)', function () {
-    test('booking modal renders visible name and phone inputs, 4 OTP digit boxes, and hides guest booking', function () {
+describe('Booking Customer Registration with Name + Phone & 4-Digit WhatsApp OTP (1100)', function () {
+    test('booking modal renders visible name and phone inputs, 4 OTP digit boxes, WhatsApp branding, and hides guest booking', function () {
         $response = $this->get('/booking');
 
         $response->assertStatus(200);
@@ -95,6 +116,7 @@ describe('Booking Customer Registration with Name + Phone & 4-Digit SMS OTP (110
         $response->assertSee('id="otpDigit1"', false);
         $response->assertSee('id="otpDigit2"', false);
         $response->assertSee('id="otpDigit3"', false);
+        $response->assertSee('WhatsApp');
         $response->assertSee('1100');
         $response->assertDontSee('المتابعة كـ زائر');
         $response->assertDontSee('تأكيد الحجز فوراً كـ زائر');
@@ -132,12 +154,12 @@ describe('Booking Customer Registration with Name + Phone & 4-Digit SMS OTP (110
             ->assertJsonValidationErrors(['phone']);
     });
 
-    test('full flow: submit name and phone -> send simulated 1100 SMS OTP -> verify 1100 -> register customer and confirm booking as registered', function () {
+    test('full flow: submit name and phone -> send simulated 1100 WhatsApp OTP -> verify 1100 -> register customer and confirm booking as registered', function () {
         $specialist = Specialist::where('slug', 'sp_janet')->firstOrFail();
         $service = $specialist->services()->firstOrFail();
         $targetDate = Carbon::today('Asia/Riyadh')->addDays(4)->toDateString();
 
-        // Step 1: Submit Name + Phone to send OTP
+        // Step 1: Submit Name + Phone to send OTP via WhatsApp
         $sendOtpResponse = $this->postJson(route('booking.send_otp'), [
             'name' => 'العنود الدوسري',
             'phone' => '+966507778899',
@@ -152,6 +174,7 @@ describe('Booking Customer Registration with Name + Phone & 4-Digit SMS OTP (110
             ->assertJson([
                 'success' => true,
                 'status' => 'otp_sent',
+                'channel' => 'whatsapp',
                 'phone' => '0507778899',
                 'name' => 'العنود الدوسري',
                 'is_simulation' => true,

@@ -83,15 +83,54 @@ class AvailableSpecialistSlot implements DataAwareRule, ValidationRule
         }
 
         if (! empty($this->data['items']) && is_array($this->data['items'])) {
+            $hasExplicitItemTimes = false;
+            foreach ($this->data['items'] as $it) {
+                if (! empty($it['booking_time'])) {
+                    $hasExplicitItemTimes = true;
+                    break;
+                }
+            }
+
             $resolvedItems = $availability->resolveBookingItems(null, null, $this->data['items']);
+            $specialistCursors = [];
             $cursorTime = $startTime24;
-            foreach ($resolvedItems as $item) {
+
+            foreach ($resolvedItems as $idx => $item) {
+                $sp = $item['specialist'];
                 $duration = $item['duration_minutes'];
-                $itemEndTime24 = $availability->calculateEndTime24($cursorTime, $duration);
+
+                if ($hasExplicitItemTimes) {
+                    $explicitTime = null;
+                    if (! empty($this->data['items'][$idx]['booking_time'])) {
+                        $explicitTime = $availability->parseTimeTo24Hour((string) $this->data['items'][$idx]['booking_time']);
+                    }
+
+                    if ($explicitTime !== null) {
+                        $itemStart24 = $explicitTime;
+                    } elseif (isset($specialistCursors[$sp->id])) {
+                        $itemStart24 = $specialistCursors[$sp->id];
+                    } else {
+                        $itemStart24 = $startTime24;
+                    }
+                } else {
+                    $itemStart24 = $cursorTime;
+                }
+
+                if ($date->isSameDay($today)) {
+                    $slotMinutes = $availability->timeToMinutes($itemStart24);
+                    $currentMinutes = ($now->hour * 60) + $now->minute;
+                    if ($slotMinutes < ($currentMinutes + 15)) {
+                        $fail('عذراً، هذا الموعد قد مضى وقته لليوم. يرجى اختيار موعد قادم.');
+
+                        return;
+                    }
+                }
+
+                $itemEndTime24 = $availability->calculateEndTime24($itemStart24, $duration);
                 if ($availability->hasOverlappingBooking(
-                    specialistId: $item['specialist']->id,
+                    specialistId: $sp->id,
                     date: $date,
-                    startTime24: $cursorTime,
+                    startTime24: $itemStart24,
                     endTime24: $itemEndTime24,
                     ignoreBookingId: $this->ignoreBookingId
                 )) {
@@ -99,6 +138,7 @@ class AvailableSpecialistSlot implements DataAwareRule, ValidationRule
 
                     return;
                 }
+                $specialistCursors[$sp->id] = $itemEndTime24;
                 $cursorTime = $itemEndTime24;
             }
 

@@ -56,6 +56,7 @@ class RegisterWithGoogleRequest extends BaseApiRequest
             $rules['items'] = ['nullable', 'array'];
             $rules['items.*.service_id'] = ['required_with:items', 'string'];
             $rules['items.*.specialist_id'] = ['required_with:items', 'string', new SpecialistOffersService($availabilityService)];
+            $rules['items.*.booking_time'] = ['nullable', 'string'];
             $rules['booking_date'] = [
                 'required',
                 'string',

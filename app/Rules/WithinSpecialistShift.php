@@ -67,21 +67,52 @@ class WithinSpecialistShift implements DataAwareRule, ValidationRule
         $date = $availability->resolveBookingDate($dateInput);
 
         if (! empty($this->data['items']) && is_array($this->data['items'])) {
+            $hasExplicitItemTimes = false;
+            foreach ($this->data['items'] as $it) {
+                if (! empty($it['booking_time'])) {
+                    $hasExplicitItemTimes = true;
+                    break;
+                }
+            }
+
             $resolvedItems = $availability->resolveBookingItems(null, null, $this->data['items']);
+            $specialistCursors = [];
             $cursorTime = $startTime24;
-            foreach ($resolvedItems as $item) {
+
+            foreach ($resolvedItems as $idx => $item) {
+                $sp = $item['specialist'];
+                $duration = $item['duration_minutes'];
+
+                if ($hasExplicitItemTimes) {
+                    $explicitTime = null;
+                    if (! empty($this->data['items'][$idx]['booking_time'])) {
+                        $explicitTime = $availability->parseTimeTo24Hour((string) $this->data['items'][$idx]['booking_time']);
+                    }
+
+                    if ($explicitTime !== null) {
+                        $itemStart24 = $explicitTime;
+                    } elseif (isset($specialistCursors[$sp->id])) {
+                        $itemStart24 = $specialistCursors[$sp->id];
+                    } else {
+                        $itemStart24 = $startTime24;
+                    }
+                } else {
+                    $itemStart24 = $cursorTime;
+                }
+
                 $shiftCheck = $availability->validateWithinShift(
-                    specialist: $item['specialist'],
+                    specialist: $sp,
                     date: $date,
-                    startTime24: $cursorTime,
-                    durationMinutes: $item['duration_minutes']
+                    startTime24: $itemStart24,
+                    durationMinutes: $duration
                 );
                 if (! $shiftCheck['valid']) {
                     $fail($shiftCheck['message'] ?? 'الوقت المختار يقع خارج أوقات دوام الأخصائية.');
 
                     return;
                 }
-                $cursorTime = $availability->calculateEndTime24($cursorTime, $item['duration_minutes']);
+                $specialistCursors[$sp->id] = $availability->calculateEndTime24($itemStart24, $duration);
+                $cursorTime = $availability->calculateEndTime24($itemStart24, $duration);
             }
 
             return;

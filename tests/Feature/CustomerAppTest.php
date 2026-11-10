@@ -596,14 +596,25 @@ describe('Customer-Facing Pages', function () {
         $myBookingsResponse->assertSee('style="display: none;"', false);
     });
 
-    test('sidebar drawer navigation hides specialists and displays contact and privacy sections', function () {
+    test('sidebar drawer navigation displays all main sections on mobile and contact privacy on desktop', function () {
         $response = $this->get('/');
         $response->assertStatus(200);
         $response->assertSee('id="sidebarDrawer"', false);
+        $response->assertSee('id="menuBtn"', false);
+        $response->assertDontSee('id="menuBtn"'."\n".'                                onclick="toggleSidebar(true)"'."\n".'                                title="القائمة الجانبية"'."\n".'                                aria-label="القائمة الجانبية"'."\n".'                                class="header-action-btn md:hidden', false);
+        $response->assertSee('openSidebarSection(\'about\')', false);
+        $response->assertSee('openSidebarSection(\'services\')', false);
+        $response->assertSee('openSidebarSection(\'booking\')', false);
+        $response->assertSee('openSidebarSection(\'specialists\')', false);
         $response->assertSee('openSidebarSection(\'contact\')', false);
         $response->assertSee('openSidebarSection(\'privacy\')', false);
-        $response->assertDontSee('openSidebarSection(\'specialists\')', false);
-        $response->assertDontSee('نخبة خبيرات الشعر والجمال');
+        $response->assertSee('عن هيرلاين');
+        $response->assertSee('الخدمات');
+        $response->assertSee('الخدمات المتاحة للحجز');
+        $response->assertSee('الاخصائيات');
+        $response->assertSee('للتواصل والاستفسار');
+        $response->assertSee('سياسية الشروط والخصوصية');
+        $response->assertSee('سياسة الخصوصية');
     });
 
     test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {
@@ -1284,6 +1295,73 @@ describe('Customer-Facing Pages', function () {
 
         $errorText = collect($response->json('errors.booking_time'))->first();
         expect($errorText)->toContain('هذا الموعد محجوز مسبقاً مع الأخصائية المختارة');
+    });
+
+    test('multi-service booking allows each specialist to have her own distinct appointment time when selected individually', function () {
+        $spKaren = Specialist::where('slug', 'sp_karen')->firstOrFail();
+        $spNajla = Specialist::where('slug', 'sp_najla')->firstOrFail();
+        $srvHair = Service::where('code', 'hs_all_hairstyles')->firstOrFail();
+        $srvMakeup = Service::where('code', 'sk_makeup_lashes')->firstOrFail();
+
+        $targetDate = Carbon::today('Asia/Riyadh')->addDays(6);
+
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spKaren->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+        SpecialistShift::updateOrCreate(
+            ['specialist_id' => $spNajla->id, 'day_of_week' => (int) $targetDate->dayOfWeek],
+            ['start_time' => '14:00:00', 'end_time' => '22:00:00', 'is_day_off' => false]
+        );
+
+        $srvHair->update(['duration_minutes' => 60]);
+        $srvMakeup->update(['duration_minutes' => 45]);
+
+        // Customer books Hair with Karen at 04:00 PM (16:00)
+        // and Makeup with Najla at 06:30 PM (18:30) separately
+        $response = $this->postJson(route('booking.guest_confirm'), [
+            'phone' => '0588776655',
+            'name' => 'ريم فهد',
+            'booking_date' => $targetDate->toDateString(),
+            'booking_time' => '04:00 م',
+            'items' => [
+                [
+                    'service_id' => $srvHair->code,
+                    'specialist_id' => $spKaren->slug,
+                    'booking_time' => '04:00 م',
+                ],
+                [
+                    'service_id' => $srvMakeup->code,
+                    'specialist_id' => $spNajla->slug,
+                    'booking_time' => '06:30 م',
+                ],
+            ],
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'status' => 'confirmed',
+            ]);
+
+        $bookingDbId = $response->json('booking.db_id');
+        $createdBooking = Booking::with('items')->findOrFail($bookingDbId);
+
+        expect($createdBooking->items)->toHaveCount(2);
+
+        $itemHair = $createdBooking->items->firstWhere('service_id', $srvHair->id);
+        $itemMakeup = $createdBooking->items->firstWhere('service_id', $srvMakeup->id);
+
+        expect($itemHair->specialist_id)->toBe($spKaren->id);
+        expect($itemHair->scheduled_start_time)->toBe('16:00:00');
+        expect($itemHair->scheduled_end_time)->toBe('17:00:00');
+
+        expect($itemMakeup->specialist_id)->toBe($spNajla->id);
+        expect($itemMakeup->scheduled_start_time)->toBe('18:30:00');
+        expect($itemMakeup->scheduled_end_time)->toBe('19:30:00');
+
+        expect($createdBooking->overall_start_time)->toBe('16:00:00');
+        expect($createdBooking->overall_end_time)->toBe('19:30:00');
     });
 });
 

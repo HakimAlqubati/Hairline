@@ -170,6 +170,38 @@ i.hidden, svg.hidden {
                 opacity 0.24s ease 0.14s;
 }
 
+.sidebar-drawer.sidebar-open .drawer-item-4 {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+                opacity 0.24s ease 0.18s;
+}
+
+.sidebar-drawer.sidebar-open .drawer-item-5 {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.22s,
+                opacity 0.24s ease 0.22s;
+}
+
+.sidebar-drawer.sidebar-open .drawer-item-6 {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+    transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.26s,
+                opacity 0.24s ease 0.26s;
+}
+
+@media (min-width: 768px) {
+    .sidebar-drawer.sidebar-open .drawer-item-5 {
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.06s,
+                    opacity 0.24s ease 0.06s;
+    }
+    .sidebar-drawer.sidebar-open .drawer-item-6 {
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.12s,
+                    opacity 0.24s ease 0.12s;
+    }
+}
+
 /* 6. Drawer Footer */
 .sidebar-drawer .drawer-footer {
     opacity: 0;
@@ -368,4 +400,35 @@ body.has-loader:not(.site-entered) .home-slider-enter-bottom {
         pointer-events: auto !important;
     }
 }
+
+/* ============================================================
+   HAIRLINE LUXURY IN-PLACE TIME SLOT LOADER (Hollow Undulating Logo)
+   ============================================================ */
+.hairline-slot-loader-wrapper {
+    position: relative;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.hairline-undulating-logo {
+    animation: hairlineUndulatingBreathe 2.8s ease-in-out infinite;
+    transform-origin: center center;
+    filter: drop-shadow(0 4px 14px rgba(194, 158, 109, 0.35));
+    will-change: transform, filter;
+}
+
+@keyframes hairlineUndulatingBreathe {
+    0%, 100% {
+        transform: translateY(0) scale(0.97);
+        filter: drop-shadow(0 2px 8px rgba(194, 158, 109, 0.25));
+        opacity: 0.85;
+    }
+    50% {
+        transform: translateY(-3px) scale(1.02);
+        filter: drop-shadow(0 6px 18px rgba(194, 158, 109, 0.6));
+        opacity: 1;
+    }
+}
+
 

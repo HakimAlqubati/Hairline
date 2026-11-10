@@ -43,6 +43,10 @@ export const state = {
         selectedDate: defaultBookingDateObj.display_label,
         selectedDateIso: defaultBookingDateObj.date_iso,
         selectedTime: null,
+        selectedTimesBySpecialist: {},
+        selectedTimesByService: {},
+        currentServiceIndex: 0,
+        activeSpecialistId: null,
         availability: {
             loading: false,
             is_day_off: false,

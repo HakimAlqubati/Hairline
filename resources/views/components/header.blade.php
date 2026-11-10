@@ -247,12 +247,12 @@
                             <i class="fa-solid fa-location-dot text-[15px] sm:text-base text-primary"></i>
                         </button>
 
-                        <!-- 4. Far-Left Sidebar Menu Button (Mobile Only) -->
+                        <!-- 4. Far-Left Sidebar Menu Button (Mobile & Desktop) -->
                         <button id="menuBtn" 
                                 onclick="toggleSidebar(true)" 
                                 title="القائمة الجانبية"
                                 aria-label="القائمة الجانبية"
-                                class="header-action-btn md:hidden bg-white text-primary shadow-md shadow-black/10 hover:bg-[#FAF8F5] hover:text-primary transition active:scale-95 cursor-pointer border border-white/80">
+                                class="header-action-btn bg-white text-primary shadow-md shadow-black/10 hover:bg-[#FAF8F5] hover:text-primary transition active:scale-95 cursor-pointer border border-white/80">
                             <i class="fa-solid fa-ellipsis-vertical text-[17px] sm:text-lg text-primary"></i>
                         </button>
                     </div>

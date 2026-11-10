@@ -54,10 +54,14 @@ export function openPhoneVerificationModal() {
                     ${subServices.map(s => {
                         const sp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
                         const spName = sp ? (sp.name || '').split('|')[0].trim() : '';
+                        const spTime = state.bookingState.selectedTimesByService?.[s.id] || (sp && state.bookingState.selectedTimesBySpecialist?.[sp.id]) || timeSlot || '';
                         return `
                             <div class="flex items-center justify-between text-xs bg-gray-50/70 p-2 rounded-xl border border-gray-100">
-                                <span class="font-bold text-sage-dark">${s.name}</span>
-                                <span class="text-primary font-black"><i class="fa-regular fa-user text-[10px] ml-1 text-gold-dark"></i>${spName}</span>
+                                <div class="min-w-0">
+                                    <span class="font-bold text-sage-dark block truncate">${s.name}</span>
+                                    ${spTime ? `<span class="text-[10px] text-primary block mt-0.5"><i class="fa-regular fa-clock text-[9px] ml-1"></i>${spTime}</span>` : ''}
+                                </div>
+                                <span class="text-primary-dark font-black shrink-0 mr-2"><i class="fa-regular fa-user text-[10px] ml-1 text-gold-dark"></i>${spName}</span>
                             </div>
                         `;
                     }).join('')}
@@ -197,9 +201,26 @@ export function switchPopupToOtpStep(otpData = {}) {
     const simBanner = document.getElementById('otpSimulationBanner');
     const simCodeText = document.getElementById('otpSimulatedCodeText');
     const otpError = document.getElementById('otpVerifyError');
+    const channelIcon = document.getElementById('otpChannelIcon');
+    const channelBadge = document.getElementById('otpChannelBadge');
+    const channelText = document.getElementById('otpChannelText');
 
     if (nameBadge) nameBadge.textContent = otpData.name || state.bookingState.pendingCustomerName || '';
     if (phoneBadge) phoneBadge.textContent = otpData.phone || state.bookingState.verifiedPhone || '';
+
+    const isWhatsApp = (otpData.channel === 'whatsapp' || !otpData.channel);
+    if (channelIcon) {
+        channelIcon.className = isWhatsApp ? 'fa-brands fa-whatsapp text-3xl' : 'fa-solid fa-comment-sms text-2xl';
+    }
+    if (channelBadge) {
+        channelBadge.textContent = isWhatsApp ? 'تأكيد رقم الجوال عبر WhatsApp' : 'تأكيد رقم الجوال عبر SMS';
+        channelBadge.className = isWhatsApp
+            ? 'px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-extrabold border border-emerald-200'
+            : 'px-3 py-0.5 rounded-full bg-gold-light text-gold-dark text-[11px] font-extrabold border border-gold/30';
+    }
+    if (channelText) {
+        channelText.textContent = isWhatsApp ? 'عبر واتساب' : 'عبر رسالة نصية SMS';
+    }
 
     if (simBanner) {
         if (otpData.is_simulation === false) {
@@ -369,17 +390,30 @@ export function handleOtpPaste(event) {
 }
 
 function buildBookingRequestPayload() {
-    const timeSlot = state.bookingState.selectedTime;
-    const bookingDateVal = state.bookingState.selectedDateIso || state.bookingState.selectedDate;
     const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
         ? state.bookingState.selectedSubServices
         : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
     const serviceIds = subServices.map(s => s.id);
     const primaryServiceId = subServices[0]?.id || state.bookingState.selectedSubService?.id;
-    const items = subServices.map(s => ({
-        service_id: s.id,
-        specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
-    }));
+    const items = subServices.map(s => {
+        const spId = state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id;
+        const itemTime = state.bookingState.selectedTimesByService?.[s.id]
+            || (spId && state.bookingState.selectedTimesBySpecialist?.[spId])
+            || state.bookingState.selectedTime
+            || null;
+        return {
+            service_id: s.id,
+            specialist_id: spId,
+            booking_time: itemTime
+        };
+    });
+
+    const firstSpId = items[0]?.specialist_id;
+    const timeSlot = state.bookingState.selectedTime 
+        || (firstSpId && state.bookingState.selectedTimesBySpecialist?.[firstSpId]) 
+        || Object.values(state.bookingState.selectedTimesBySpecialist || {})[0] 
+        || null;
+    const bookingDateVal = state.bookingState.selectedDateIso || state.bookingState.selectedDate;
     const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
     const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
@@ -508,10 +542,10 @@ export async function submitPhoneVerification(event) {
         return;
     }
 
-    // CASE 2: Unauthenticated Customer -> Send 4-Digit SMS OTP (Simulated 1100 in dev)
+    // CASE 2: Unauthenticated Customer -> Send 4-Digit SMS / WhatsApp OTP (Simulated 1100 in dev)
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري إرسال رمز التحقق (SMS)...</span>`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري إرسال رمز التحقق...</span>`;
     }
 
     try {
@@ -550,7 +584,7 @@ export async function submitPhoneVerification(event) {
             state.bookingState.pendingCustomerName = data.name || customerName;
             state.bookingState.phoneChecked = true;
             switchPopupToOtpStep(data);
-            openToast('تم إرسال رمز التحقق المكون من 4 أرقام إلى جوالكِ');
+            openToast(data.message || 'تم إرسال رمز التحقق المكون من 4 أرقام عبر واتساب إلى جوالكِ');
         }
     } catch (err) {
         if (errorText) errorText.textContent = 'حدث خطأ أثناء إرسال رمز التحقق، يرجى المحاولة مرة أخرى.';
@@ -748,10 +782,17 @@ export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
     const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
         ? state.bookingState.selectedSubServices
         : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
-    const items = subServices.map(s => ({
-        service_id: s.id,
-        specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
-    }));
+    const items = subServices.map(s => {
+        const spId = state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id;
+        return {
+            service_id: s.id,
+            specialist_id: spId,
+            booking_time: state.bookingState.selectedTimesByService?.[s.id] || (spId && state.bookingState.selectedTimesBySpecialist?.[spId]) || timeSlot || null
+        };
+    });
+
+    const firstSpId = items[0]?.specialist_id;
+    const effectiveTime = timeSlot || (firstSpId && state.bookingState.selectedTimesBySpecialist?.[firstSpId]) || '';
 
     const params = new URLSearchParams(isProfile ? {
         is_profile: '1'
@@ -762,7 +803,7 @@ export function openGoogleOAuthRedirectPopup(isProfileOnly = false) {
         specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id || '',
         items: JSON.stringify(items),
         booking_date: bookingDateVal,
-        booking_time: timeSlot,
+        booking_time: effectiveTime,
         guests_count: guestsCount,
         customer_notes: customerNotes
     });
@@ -825,10 +866,17 @@ export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly
         const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
             ? state.bookingState.selectedSubServices
             : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
-        const items = subServices.map(s => ({
-            service_id: s.id,
-            specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
-        }));
+        const items = subServices.map(s => {
+            const spId = state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id;
+            return {
+                service_id: s.id,
+                specialist_id: spId,
+                booking_time: state.bookingState.selectedTimesByService?.[s.id] || (spId && state.bookingState.selectedTimesBySpecialist?.[spId]) || timeSlot || null
+            };
+        });
+
+        const firstSpId = items[0]?.specialist_id;
+        const effectiveTime = timeSlot || (firstSpId && state.bookingState.selectedTimesBySpecialist?.[firstSpId]) || '';
 
         const payloadData = isProfile
             ? Object.assign({ is_profile: true }, oauthPayload)
@@ -839,7 +887,7 @@ export async function completeGoogleBookingWithOAuth(oauthPayload, isProfileOnly
                 specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id || '',
                 items: items,
                 booking_date: bookingDateVal,
-                booking_time: timeSlot,
+                booking_time: effectiveTime,
                 guests_count: guestsCount,
                 customer_notes: customerNotes
             }, oauthPayload);

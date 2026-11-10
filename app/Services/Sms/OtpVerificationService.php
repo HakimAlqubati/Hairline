@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Services\Sms;
 
+use App\Contracts\Messaging\OtpChannelInterface;
 use App\Contracts\Repositories\OtpRepositoryInterface;
-use App\Contracts\Sms\SmsGatewayInterface;
 use Illuminate\Support\Facades\Hash;
 
 /**
- * Core SMS OTP Service responsible for:
- * 1. الإرسال (Sending / Simulating 4-digit SMS OTP, defaulting to "1100" in development)
+ * Core OTP Verification Service responsible for:
+ * 1. الإرسال (Sending / Simulating 4-digit OTP via WhatsApp or SMS, defaulting to "1100" in development)
  * 2. التشييك (Checking OTP status, cooldowns, expiration, attempt limits, and digit match)
  * 3. التأكيد (Verifying & consuming the OTP to authorize customer registration)
  */
@@ -19,16 +19,32 @@ class OtpVerificationService
     public const DEFAULT_DEV_CODE = '1100';
 
     public function __construct(
-        private readonly SmsGatewayInterface $smsGateway,
+        private readonly OtpChannelInterface $otpChannel,
         private readonly OtpRepositoryInterface $otpRepository
     ) {}
+
+    /**
+     * Return the active channel identifier ('whatsapp' or 'sms').
+     */
+    public function getChannelName(): string
+    {
+        return $this->otpChannel->channelName();
+    }
+
+    /**
+     * Return the active OTP channel instance.
+     */
+    public function getChannel(): OtpChannelInterface
+    {
+        return $this->otpChannel;
+    }
 
     /**
      * Determine whether simulation mode is active.
      */
     public function isSimulationMode(): bool
     {
-        return (bool) config('sms.otp.simulation_mode', true) || $this->smsGateway->isSimulation();
+        return (bool) config('sms.otp.simulation_mode', true) || $this->otpChannel->isSimulation();
     }
 
     /**
@@ -65,12 +81,14 @@ class OtpVerificationService
 
     /**
      * 1. الإرسال (Send & Simulate OTP):
-     * Generate, persist, and dispatch the 4-digit verification code to the customer's phone.
+     * Generate, persist, and dispatch the 4-digit verification code to the customer's phone via active channel (WhatsApp/SMS).
      *
      * @param  array<string, mixed>  $meta
      * @return array{
      *     sent: bool,
      *     status: string,
+     *     channel: string,
+     *     channel_label: string,
      *     message: string,
      *     phone: string,
      *     masked_phone: string,
@@ -82,12 +100,17 @@ class OtpVerificationService
      */
     public function sendOtp(string $normalizedPhone, string $customerName, array $meta = [], bool $enforceCooldown = false): array
     {
+        $channel = $this->otpChannel->channelName();
+        $channelLabelAr = $channel === 'whatsapp' ? 'واتساب' : 'رسالة نصية SMS';
+
         if ($enforceCooldown && $this->otpRepository->isOnCooldown($normalizedPhone)) {
             $remaining = $this->otpRepository->remainingCooldownSeconds($normalizedPhone);
 
             return [
                 'sent' => false,
                 'status' => 'cooldown_active',
+                'channel' => $channel,
+                'channel_label' => $channelLabelAr,
                 'message' => "يرجى الانتظار ({$remaining}) ثانية قبل طلب رمز تحقق جديد.",
                 'phone' => $normalizedPhone,
                 'masked_phone' => $this->maskPhone($normalizedPhone),
@@ -107,6 +130,7 @@ class OtpVerificationService
             codeHash: Hash::make($code),
             payload: [
                 'name' => trim($customerName),
+                'channel' => $channel,
                 ...$meta,
             ],
             ttlSeconds: $ttlSeconds
@@ -116,17 +140,24 @@ class OtpVerificationService
             $this->otpRepository->setCooldown($normalizedPhone, $cooldownSeconds);
         }
 
-        $smsText = "مرحباً {$customerName}، رمز التحقق لتأكيد تسجيلكِ وحجزكِ في صالون هيرلاين هو: {$code}";
+        $dispatchMessage = $channel === 'whatsapp'
+            ? "مرحباً {$customerName} 👋\nرمز التحقق لتأكيد تسجيلكِ وحجزكِ في صالون هيرلاين هو: *{$code}*\nالرمز صالح لمدة 5 دقائق."
+            : "مرحباً {$customerName}، رمز التحقق لتأكيد تسجيلكِ وحجزكِ في صالون هيرلاين هو: {$code}";
 
-        $this->smsGateway->send($normalizedPhone, $smsText, [
+        $this->otpChannel->send($normalizedPhone, $dispatchMessage, [
             'customer_name' => $customerName,
             'otp_code' => $this->isSimulationMode() ? $code : '****',
+            'channel' => $channel,
         ]);
 
         return [
             'sent' => true,
             'status' => 'otp_sent',
-            'message' => 'تم إرسال رمز التحقق المكون من 4 أرقام إلى رقم جوالكِ بنجاح.',
+            'channel' => $channel,
+            'channel_label' => $channelLabelAr,
+            'message' => $channel === 'whatsapp'
+                ? 'تم إرسال رمز التحقق المكون من 4 أرقام عبر واتساب إلى رقم جوالكِ بنجاح.'
+                : 'تم إرسال رمز التحقق المكون من 4 أرقام إلى رقم جوالكِ بنجاح.',
             'phone' => $normalizedPhone,
             'masked_phone' => $this->maskPhone($normalizedPhone),
             'expires_in' => $ttlSeconds,

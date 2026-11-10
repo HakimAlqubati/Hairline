@@ -241,6 +241,28 @@ export function switchTab(tabName) {
 export function openSidebarSection(sectionType) {
     toggleSidebar(false);
 
+    if (sectionType === 'about') {
+        closeBottomSheet();
+        switchTab('about');
+        return;
+    }
+
+    if (sectionType === 'services') {
+        closeBottomSheet();
+        switchTab('services');
+        return;
+    }
+
+    if (sectionType === 'booking') {
+        closeBottomSheet();
+        if (typeof window.openBookingFlow === 'function') {
+            window.openBookingFlow();
+        } else {
+            switchTab('booking');
+        }
+        return;
+    }
+
     if (sectionType === 'specialists') {
         closeBottomSheet();
         switchTab('specialists');

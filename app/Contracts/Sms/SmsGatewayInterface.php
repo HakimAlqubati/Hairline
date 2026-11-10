@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Contracts\Sms;
 
-interface SmsGatewayInterface
+use App\Contracts\Messaging\OtpChannelInterface;
+
+interface SmsGatewayInterface extends OtpChannelInterface
 {
     /**
      * Dispatch an SMS message to a normalized Saudi mobile phone number.
@@ -17,4 +19,9 @@ interface SmsGatewayInterface
      * Determine whether the gateway is operating in simulation mode.
      */
     public function isSimulation(): bool;
+
+    /**
+     * Return the channel identifier ('sms').
+     */
+    public function channelName(): string;
 }

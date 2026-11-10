@@ -6,7 +6,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default SMS Gateway Driver
+    | Default Verification Channel
+    |--------------------------------------------------------------------------
+    |
+    | Supported channels: "whatsapp" (default), "sms".
+    | Switching between WhatsApp and SMS requires zero configuration changes;
+    | simply toggle this key or change the binding in AppServiceProvider.
+    |
+    */
+    'channel' => env('OTP_CHANNEL', 'whatsapp'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | SMS Gateway Driver
     |--------------------------------------------------------------------------
     |
     | Controls the SMS gateway implementation bound to SmsGatewayInterface.
@@ -17,12 +29,23 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | SMS OTP Verification & Simulation Configuration
+    | WhatsApp Service Driver
+    |--------------------------------------------------------------------------
+    |
+    | Controls the WhatsApp service implementation bound to WhatsappServiceInterface.
+    | Supported drivers: "simulated" (development/testing), "production".
+    |
+    */
+    'whatsapp_driver' => env('WHATSAPP_DRIVER', 'simulated'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | OTP Verification & Simulation Configuration
     |--------------------------------------------------------------------------
     |
     | During local development and testing, simulation_mode is enabled by
     | default and uses the fixed 4-digit code "1100" so verification flows
-    | can be tested end-to-end without external SMS charges.
+    | can be tested end-to-end without external carrier charges.
     |
     */
     'otp' => [

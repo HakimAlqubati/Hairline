@@ -106,33 +106,75 @@ class BookingCreationService
             }
         }
 
-        $cursorTime = $startTime24;
+        $hasExplicitItemTimes = false;
+        if (is_array($items)) {
+            foreach ($items as $it) {
+                if (! empty($it['booking_time'])) {
+                    $hasExplicitItemTimes = true;
+                    break;
+                }
+            }
+        }
+
+        $specialistCursors = [];
         $timeline = [];
         $totalDurationMinutes = 0;
+        $allStartTimes = [];
+        $allEndTimes = [];
+        $cursorTime = $startTime24;
 
-        foreach ($resolvedItems as $item) {
+        foreach ($resolvedItems as $idx => $item) {
             $sp = $item['specialist'];
             $duration = $item['duration_minutes'];
 
-            $shiftCheck = $this->availabilityService->validateWithinShift($sp, $bookingDate, $cursorTime, $duration);
+            if ($hasExplicitItemTimes) {
+                $explicitTime = null;
+                if (! empty($items[$idx]['booking_time'])) {
+                    $explicitTime = $this->availabilityService->parseTimeTo24Hour((string) $items[$idx]['booking_time']);
+                }
+
+                if ($explicitTime !== null) {
+                    $itemStart24 = $explicitTime;
+                } elseif (isset($specialistCursors[$sp->id])) {
+                    $itemStart24 = $specialistCursors[$sp->id];
+                } else {
+                    $itemStart24 = $startTime24;
+                }
+            } else {
+                $itemStart24 = $cursorTime;
+            }
+
+            if ($bookingDate->isSameDay($today)) {
+                $slotMinutes = $this->availabilityService->timeToMinutes($itemStart24);
+                $currentMinutes = ($now->hour * 60) + $now->minute;
+                if ($slotMinutes < ($currentMinutes + 15)) {
+                    throw new InvalidArgumentException('عذراً، هذا الموعد قد مضى وقته لليوم. يرجى اختيار موعد قادم.');
+                }
+            }
+
+            $shiftCheck = $this->availabilityService->validateWithinShift($sp, $bookingDate, $itemStart24, $duration);
             if (! $shiftCheck['valid']) {
                 throw new InvalidArgumentException($shiftCheck['message'] ?? 'الوقت المختار يقع خارج أوقات دوام الأخصائية.');
             }
 
-            $itemEndTime24 = $this->availabilityService->calculateEndTime24($cursorTime, $duration);
+            $itemEndTime24 = $this->availabilityService->calculateEndTime24($itemStart24, $duration);
             $timeline[] = [
                 'service' => $item['service'],
                 'specialist' => $sp,
                 'duration_minutes' => $duration,
-                'start_time' => $cursorTime,
+                'start_time' => $itemStart24,
                 'end_time' => $itemEndTime24,
             ];
 
+            $specialistCursors[$sp->id] = $itemEndTime24;
             $cursorTime = $itemEndTime24;
+            $allStartTimes[] = $itemStart24;
+            $allEndTimes[] = $itemEndTime24;
             $totalDurationMinutes += $duration;
         }
 
-        $overallEndTime24 = $cursorTime;
+        $overallStartTime24 = ! empty($allStartTimes) ? min($allStartTimes) : $startTime24;
+        $overallEndTime24 = ! empty($allEndTimes) ? max($allEndTimes) : $startTime24;
         $price = (float) array_sum(array_map(fn ($it) => (float) $it['service']->base_price, $resolvedItems));
         $vatAmount = round($price * 15 / 115, 2);
         $depositRequired = round(max($price * 0.30, min(50.0, $price)), 2);
@@ -142,7 +184,7 @@ class BookingCreationService
             $customerType,
             $timeline,
             $bookingDate,
-            $startTime24,
+            $overallStartTime24,
             $overallEndTime24,
             $price,
             $vatAmount,
@@ -177,7 +219,7 @@ class BookingCreationService
                 'booking_type' => Booking::BOOKING_TYPE_SALON,
                 'guests_count' => max(1, $guestsCount),
                 'booking_date' => $bookingDate->toDateString(),
-                'overall_start_time' => $startTime24,
+                'overall_start_time' => $overallStartTime24,
                 'overall_end_time' => $overallEndTime24,
                 'status' => Booking::STATUS_PENDING,
                 'subtotal_amount' => $price,

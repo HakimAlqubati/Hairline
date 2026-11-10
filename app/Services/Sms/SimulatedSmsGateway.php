@@ -20,6 +20,7 @@ class SimulatedSmsGateway implements SmsGatewayInterface
             'phone' => $phone,
             'message' => $message,
             'driver' => 'simulated',
+            'channel' => 'sms',
             ...$context,
         ]);
 
@@ -29,5 +30,10 @@ class SimulatedSmsGateway implements SmsGatewayInterface
     public function isSimulation(): bool
     {
         return true;
+    }
+
+    public function channelName(): string
+    {
+        return 'sms';
     }
 }

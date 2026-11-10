@@ -115,7 +115,7 @@
                     </div>
                     <h4 class="text-lg sm:text-xl font-black text-sage-dark tracking-tight">تسجيل العميلة وتأكيد الحجز</h4>
                     <p class="text-[11px] sm:text-xs text-gray-500 font-medium">
-                        أدخلي اسمكِ الكريم ورقم جوالكِ لإرسال رمز التحقق (SMS)
+                        أدخلي اسمكِ الكريم ورقم جوالكِ لتلقي رمز التحقق عبر واتساب
                     </p>
                 </div>
 
@@ -199,18 +199,18 @@
             </form>
         </div>
 
-        <!-- VIEW 1.5: 4-DIGIT SMS OTP VERIFICATION SCREEN -->
+        <!-- VIEW 1.5: 4-DIGIT SMS / WHATSAPP OTP VERIFICATION SCREEN -->
         <div id="smsOtpVerifyStep" class="hidden p-6 sm:p-7 space-y-5 animate-step">
             <div class="flex flex-col items-center text-center space-y-2">
-                <div class="w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm">
-                    <i class="fa-solid fa-comment-sms text-2xl"></i>
+                <div id="otpChannelIconWrapper" class="w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-[#25D366] shadow-sm">
+                    <i id="otpChannelIcon" class="fa-brands fa-whatsapp text-3xl"></i>
                 </div>
-                <span class="px-3 py-0.5 rounded-full bg-gold-light text-gold-dark text-[11px] font-extrabold border border-gold/30">
-                    تأكيد رقم الجوال عبر SMS
+                <span id="otpChannelBadge" class="px-3 py-0.5 rounded-full bg-emerald-50 text-emerald-800 text-[11px] font-extrabold border border-emerald-200">
+                    تأكيد رقم الجوال عبر WhatsApp
                 </span>
                 <h4 class="text-lg sm:text-xl font-black text-sage-dark">أدخلي رمز التحقق (4 أرقام)</h4>
                 <p class="text-xs text-gray-500 leading-relaxed max-w-[320px]">
-                    تم إرسال رمز التحقق للعميلة <span id="otpStepCustomerNameBadge" class="font-extrabold text-sage-dark"></span> على الرقم
+                    تم إرسال رمز التحقق للعميلة <span id="otpStepCustomerNameBadge" class="font-extrabold text-sage-dark"></span> <span id="otpChannelText">عبر واتساب</span> على الرقم
                     <span id="otpStepPhoneBadge" dir="ltr" class="font-extrabold text-primary-dark bg-primary-light/60 px-2 py-0.5 rounded-md border border-primary-soft/60"></span>
                 </p>
 

@@ -54,27 +54,103 @@
         </div>
 
         <!-- Sidebar Navigation Items (White Background with Crisp Black Texts) -->
-        <div class="p-4 space-y-3 mt-2 flex-1 bg-white">
-            <p class="drawer-section-label px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">القائمة التعريفية</p>
+        <div class="p-4 space-y-2.5 mt-2 flex-1 bg-white">
+            <p class="drawer-section-label px-3 text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                <span class="md:hidden">القائمة الرئيسية</span>
+                <span class="hidden md:inline">القائمة التعريفية</span>
+            </p>
 
-            <!-- Item 1: للتواصل والاستفسار -->
-            <button onclick="openSidebarSection('contact')" 
-                    class="drawer-item drawer-item-1 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
-                <div>
-                    <span class="block text-sm sm:text-base font-black text-black group-hover:text-primary transition-colors">للتواصل والاستفسار</span>
-                    <span class="text-[11px] font-medium text-gray-500">(اتصل بنا)</span>
+            <!-- Item 1: عن هيرلاين (Mobile Only) -->
+            <button onclick="openSidebarSection('about')" 
+                    class="drawer-item drawer-item-1 md:hidden w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-solid fa-gem text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">عن هيرلاين</span>
+                        <span class="text-[11px] font-medium text-gray-500">(من نحن ورؤيتنا)</span>
+                    </div>
                 </div>
-                <span class="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1">‹</span>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
             </button>
 
-            <!-- Item 2: سياسة الخصوصية -->
-            <button onclick="openSidebarSection('privacy')" 
-                    class="drawer-item drawer-item-2 w-full p-4 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
-                <div>
-                    <span class="block text-sm sm:text-base font-black text-black group-hover:text-primary transition-colors">سياسة الخصوصية</span>
-                    <span class="text-[11px] font-medium text-gray-500">(حماية وسرية بياناتكِ)</span>
+            <!-- Item 2: الخدمات (Mobile Only) -->
+            <button onclick="openSidebarSection('services')" 
+                    class="drawer-item drawer-item-2 md:hidden w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-solid fa-spa text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الخدمات</span>
+                        <span class="text-[11px] font-medium text-gray-500">(دليل وقائمة الخدمات)</span>
+                    </div>
                 </div>
-                <span class="w-8 h-8 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1">‹</span>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
+            </button>
+
+            <!-- Item 3: الخدمات المتاحة للحجز (Mobile Only) -->
+            <button onclick="openSidebarSection('booking')" 
+                    class="drawer-item drawer-item-3 md:hidden w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-regular fa-calendar-check text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الخدمات المتاحة للحجز</span>
+                        <span class="text-[11px] font-medium text-gray-500">(حجز موعد أونلاين)</span>
+                    </div>
+                </div>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
+            </button>
+
+            <!-- Item 4: الاخصائيات (Mobile Only) -->
+            <button onclick="openSidebarSection('specialists')" 
+                    class="drawer-item drawer-item-4 md:hidden w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-solid fa-users text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الاخصائيات</span>
+                        <span class="text-[11px] font-medium text-gray-500">(فريق العمل والخبرات)</span>
+                    </div>
+                </div>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
+            </button>
+
+            <!-- Item 5: للتواصل والاستفسار (Mobile & Desktop) -->
+            <button onclick="openSidebarSection('contact')" 
+                    class="drawer-item drawer-item-5 w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-solid fa-phone-volume text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">للتواصل والاستفسار</span>
+                        <span class="text-[11px] font-medium text-gray-500">(اتصل بنا وموقعنا)</span>
+                    </div>
+                </div>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
+            </button>
+
+            <!-- Item 6: سياسية الشروط والخصوصية (Mobile & Desktop) -->
+            <button onclick="openSidebarSection('privacy')" 
+                    class="drawer-item drawer-item-6 w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-9 h-9 rounded-xl bg-gray-50 group-hover:bg-primary/10 border border-gray-200/70 group-hover:border-primary/30 flex items-center justify-center text-sage-dark group-hover:text-primary transition-all shrink-0">
+                        <i class="fa-solid fa-shield-halved text-xs"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">
+                            <span class="md:hidden">سياسية الشروط والخصوصية</span>
+                            <span class="hidden md:inline">سياسة الخصوصية</span>
+                        </span>
+                        <span class="text-[11px] font-medium text-gray-500">(حماية وسرية بياناتكِ)</span>
+                    </div>
+                </div>
+                <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
             </button>
         </div>
     </div>

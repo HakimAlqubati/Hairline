@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Contracts\Messaging\OtpChannelInterface;
 use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Contracts\Repositories\OtpRepositoryInterface;
 use App\Contracts\Sms\SmsGatewayInterface;
+use App\Contracts\Whatsapp\WhatsappServiceInterface;
 use App\Enums\BrandColor;
 use App\Models\CatalogPage;
 use App\Models\HeroSlide;
@@ -23,6 +25,7 @@ use App\Repositories\Customer\EloquentCustomerRepository;
 use App\Repositories\Otp\CacheOtpRepository;
 use App\Services\LogoProcessor;
 use App\Services\Sms\SimulatedSmsGateway;
+use App\Services\Whatsapp\SimulatedWhatsappService;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -35,6 +38,13 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(SmsGatewayInterface::class, SimulatedSmsGateway::class);
+        $this->app->bind(WhatsappServiceInterface::class, SimulatedWhatsappService::class);
+        $this->app->bind(OtpChannelInterface::class, function ($app) {
+            return match (config('sms.channel', 'whatsapp')) {
+                'sms' => $app->make(SmsGatewayInterface::class),
+                default => $app->make(WhatsappServiceInterface::class),
+            };
+        });
         $this->app->bind(OtpRepositoryInterface::class, CacheOtpRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, EloquentCustomerRepository::class);
     }

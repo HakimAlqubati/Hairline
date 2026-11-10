@@ -148,6 +148,8 @@ class BookingController extends Controller
         return response()->json([
             'success' => true,
             'status' => 'otp_sent',
+            'channel' => $otpResult['channel'] ?? 'whatsapp',
+            'channel_label' => $otpResult['channel_label'] ?? 'واتساب',
             'message' => $otpResult['message'],
             'phone' => $normalizedPhone,
             'masked_phone' => $otpResult['masked_phone'],
