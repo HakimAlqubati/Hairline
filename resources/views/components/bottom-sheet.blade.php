@@ -214,8 +214,8 @@
                     <span id="otpStepPhoneBadge" dir="ltr" class="font-extrabold text-primary-dark bg-primary-light/60 px-2 py-0.5 rounded-md border border-primary-soft/60"></span>
                 </p>
 
-                <!-- Simulation Mode Notice Banner -->
-                <div id="otpSimulationBanner" class="w-full py-2 px-3 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-900 text-[11px] font-bold flex items-center justify-center gap-1.5">
+                <!-- Simulation Mode Notice Banner (Hidden) -->
+                <div id="otpSimulationBanner" class="hidden w-full py-2 px-3 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-900 text-[11px] font-bold items-center justify-center gap-1.5">
                     <i class="fa-solid fa-flask text-amber-600 text-xs"></i>
                     <span>وضع المحاكاة للتطوير — الرمز الافتراضي:</span>
                     <strong id="otpSimulatedCodeText" class="font-mono font-black text-xs text-primary-dark tracking-widest bg-white px-2 py-0.5 rounded border border-amber-200">1100</strong>

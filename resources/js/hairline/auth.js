@@ -223,14 +223,7 @@ export function switchPopupToOtpStep(otpData = {}) {
     }
 
     if (simBanner) {
-        if (otpData.is_simulation === false) {
-            simBanner.classList.add('hidden');
-        } else {
-            simBanner.classList.remove('hidden');
-            if (simCodeText) {
-                simCodeText.textContent = otpData.simulated_code || '1100';
-            }
-        }
+        simBanner.classList.add('hidden');
     }
 
     if (otpError) otpError.classList.add('hidden');
