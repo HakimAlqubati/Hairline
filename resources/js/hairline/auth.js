@@ -19,6 +19,8 @@ export function openPhoneVerificationModal() {
     const card = document.getElementById('bookingVerificationCard');
     const summaryEl = document.getElementById('popupBookingSummary');
     const phoneInput = document.getElementById('bookingPhoneInput');
+    const nameInput = document.getElementById('guestNameInput');
+    const nameContainer = document.getElementById('guestNameInputContainer');
     const errorEl = document.getElementById('phoneVerifyError');
     const loggedInNotice = document.getElementById('loggedInCustomerNotice');
     const guestContainer = document.getElementById('guestPhoneInputContainer');
@@ -28,14 +30,11 @@ export function openPhoneVerificationModal() {
     const loggedInAvatarFallback = document.getElementById('loggedInCustomerAvatarFallback');
     const btnText = document.getElementById('phoneVerifySubmitBtnText');
     const btnIcon = document.getElementById('phoneVerifySubmitBtnIcon');
-    const nameContainer = document.getElementById('guestNameInputContainer');
-    const returningGreeting = document.getElementById('returningCustomerGreeting');
 
     if (!modal || !card) return;
 
     state.bookingState.phoneChecked = false;
-    if (nameContainer) nameContainer.classList.add('hidden');
-    if (returningGreeting) returningGreeting.classList.add('hidden');
+    if (nameContainer) nameContainer.classList.remove('hidden');
 
     const timeSlot = state.bookingState.selectedTime || state.bookingState.selectedSpecialist?.availableSlots?.[0];
     const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
@@ -132,7 +131,7 @@ export function openPhoneVerificationModal() {
         }
 
         if (btnText) btnText.textContent = 'تأكيد الحجز';
-        if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white text-base';
     } else {
         if (loggedInNotice) loggedInNotice.classList.add('hidden');
         if (guestContainer) guestContainer.classList.remove('hidden');
@@ -143,8 +142,8 @@ export function openPhoneVerificationModal() {
         if (loggedInAvatarFallback) {
             loggedInAvatarFallback.classList.remove('hidden');
         }
-        if (btnText) btnText.textContent = 'تأكيد الحجز';
-        if (btnIcon) btnIcon.className = 'fa-solid fa-circle-check text-white';
+        if (btnText) btnText.textContent = 'إرسال رمز التحقق وتأكيد البيانات';
+        if (btnIcon) btnIcon.className = 'fa-solid fa-paper-plane text-white text-sm';
     }
 
     switchPopupToPhoneStep();
@@ -156,7 +155,13 @@ export function openPhoneVerificationModal() {
         modal.classList.remove('opacity-0');
         card.classList.remove('scale-95');
         card.classList.add('scale-100');
-        if (phoneInput && (!state.currentCustomer || !state.currentCustomer.id)) phoneInput.focus();
+        if (!state.currentCustomer || !state.currentCustomer.id) {
+            if (nameInput && !nameInput.value.trim()) {
+                nameInput.focus();
+            } else if (phoneInput) {
+                phoneInput.focus();
+            }
+        }
     });
 }
 
@@ -176,13 +181,53 @@ export function closePhoneVerificationModal() {
 
 export function switchPopupToPhoneStep() {
     const phoneStep = document.getElementById('phoneVerifyStep');
+    const otpStep = document.getElementById('smsOtpVerifyStep');
     const googleStep = document.getElementById('googleRegisterStep');
     if (phoneStep) phoneStep.classList.remove('hidden');
+    if (otpStep) otpStep.classList.add('hidden');
     if (googleStep) googleStep.classList.add('hidden');
+}
+
+export function switchPopupToOtpStep(otpData = {}) {
+    const phoneStep = document.getElementById('phoneVerifyStep');
+    const otpStep = document.getElementById('smsOtpVerifyStep');
+    const googleStep = document.getElementById('googleRegisterStep');
+    const nameBadge = document.getElementById('otpStepCustomerNameBadge');
+    const phoneBadge = document.getElementById('otpStepPhoneBadge');
+    const simBanner = document.getElementById('otpSimulationBanner');
+    const simCodeText = document.getElementById('otpSimulatedCodeText');
+    const otpError = document.getElementById('otpVerifyError');
+
+    if (nameBadge) nameBadge.textContent = otpData.name || state.bookingState.pendingCustomerName || '';
+    if (phoneBadge) phoneBadge.textContent = otpData.phone || state.bookingState.verifiedPhone || '';
+
+    if (simBanner) {
+        if (otpData.is_simulation === false) {
+            simBanner.classList.add('hidden');
+        } else {
+            simBanner.classList.remove('hidden');
+            if (simCodeText) {
+                simCodeText.textContent = otpData.simulated_code || '1100';
+            }
+        }
+    }
+
+    if (otpError) otpError.classList.add('hidden');
+    clearOtpDigitBoxes();
+
+    if (phoneStep) phoneStep.classList.add('hidden');
+    if (googleStep) googleStep.classList.add('hidden');
+    if (otpStep) otpStep.classList.remove('hidden');
+
+    setTimeout(() => {
+        const firstBox = document.getElementById('otpDigit0');
+        if (firstBox) firstBox.focus();
+    }, 100);
 }
 
 export function switchPopupToGoogleStep(phone) {
     const phoneStep = document.getElementById('phoneVerifyStep');
+    const otpStep = document.getElementById('smsOtpVerifyStep');
     const googleStep = document.getElementById('googleRegisterStep');
     const badge = document.getElementById('googleStepPhoneBadge');
     const errorEl = document.getElementById('googleRegisterError');
@@ -190,7 +235,17 @@ export function switchPopupToGoogleStep(phone) {
     if (badge) badge.textContent = phone;
     if (errorEl) errorEl.classList.add('hidden');
     if (phoneStep) phoneStep.classList.add('hidden');
+    if (otpStep) otpStep.classList.add('hidden');
     if (googleStep) googleStep.classList.remove('hidden');
+}
+
+export function handleCustomerNameInputValidation(inputEl) {
+    if (!inputEl) return;
+    const errorEl = document.getElementById('phoneVerifyError');
+    if (inputEl.value.trim().length >= 2) {
+        inputEl.classList.remove('border-red-500');
+        if (errorEl) errorEl.classList.add('hidden');
+    }
 }
 
 export function handlePhoneInputValidation(inputEl) {
@@ -198,14 +253,12 @@ export function handlePhoneInputValidation(inputEl) {
     const errorEl = document.getElementById('phoneVerifyError');
     let val = normalizeDigitsJs(inputEl.value).replace(/\D/g, '');
 
-    // Normalize international prefix if pasted (e.g. 009665... or 9665...) to standard 05...
     if (val.startsWith('009665')) {
         val = '0' + val.slice(5);
     } else if (val.startsWith('9665')) {
         val = '0' + val.slice(3);
     }
 
-    // Strict Saudi mobile length: maximum 10 digits (05XXXXXXXX) - prevents any extra digits
     if (val.length > 10) {
         val = val.slice(0, 10);
     }
@@ -220,41 +273,103 @@ export function handlePhoneInputValidation(inputEl) {
     }
 }
 
-export async function submitPhoneVerification(event) {
-    if (event) event.preventDefault();
-    const phoneInput = document.getElementById('bookingPhoneInput');
-    const errorEl = document.getElementById('phoneVerifyError');
-    const errorText = document.getElementById('phoneVerifyErrorText');
-    const submitBtn = document.getElementById('phoneVerifySubmitBtn');
-    const btnText = document.getElementById('phoneVerifySubmitBtnText');
-    const nameContainer = document.getElementById('guestNameInputContainer');
-    const nameInput = document.getElementById('guestNameInput');
-    const returningGreeting = document.getElementById('returningCustomerGreeting');
-    const returningName = document.getElementById('returningCustomerName');
-
-    const isCustomerLoggedIn = Boolean(state.currentCustomer && state.currentCustomer.id && state.currentCustomer.phone);
-    const rawPhone = isCustomerLoggedIn
-        ? normalizeDigitsJs(state.currentCustomer.phone)
-        : normalizeDigitsJs(phoneInput ? phoneInput.value : '');
-
-    if (!isCustomerLoggedIn && !SAUDI_PHONE_REGEX.test(rawPhone)) {
-        if (errorText) {
-            errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح.';
+export function clearOtpDigitBoxes() {
+    for (let i = 0; i < 4; i++) {
+        const box = document.getElementById(`otpDigit${i}`);
+        if (box) {
+            box.value = '';
+            box.classList.remove('border-red-500');
         }
-        if (errorEl) errorEl.classList.remove('hidden');
-        if (phoneInput) phoneInput.classList.add('border-red-500');
+    }
+}
+
+export function getEnteredOtpCode() {
+    let code = '';
+    for (let i = 0; i < 4; i++) {
+        const box = document.getElementById(`otpDigit${i}`);
+        if (box) {
+            code += normalizeDigitsJs(box.value).replace(/\D/g, '').slice(0, 1);
+        }
+    }
+    return code;
+}
+
+export function handleOtpDigitInput(inputEl, index) {
+    if (!inputEl) return;
+    const otpError = document.getElementById('otpVerifyError');
+    if (otpError) otpError.classList.add('hidden');
+
+    const cleaned = normalizeDigitsJs(inputEl.value).replace(/\D/g, '');
+
+    if (cleaned.length > 1) {
+        // Handle multi-digit autocomplete or fast typing
+        for (let i = 0; i < cleaned.length && (index + i) < 4; i++) {
+            const box = document.getElementById(`otpDigit${index + i}`);
+            if (box) {
+                box.value = cleaned[i];
+                box.classList.remove('border-red-500');
+            }
+        }
+        const nextFocusIndex = Math.min(3, index + cleaned.length);
+        const nextBox = document.getElementById(`otpDigit${nextFocusIndex}`);
+        if (nextBox) nextBox.focus();
         return;
     }
 
-    if (errorEl) errorEl.classList.add('hidden');
-    if (phoneInput) phoneInput.classList.remove('border-red-500');
+    inputEl.value = cleaned;
+    inputEl.classList.remove('border-red-500');
 
+    if (cleaned.length === 1 && index < 3) {
+        const nextBox = document.getElementById(`otpDigit${index + 1}`);
+        if (nextBox) nextBox.focus();
+    }
+}
+
+export function handleOtpDigitKeydown(event, index) {
+    const currentBox = document.getElementById(`otpDigit${index}`);
+    if (!currentBox) return;
+
+    if (event.key === 'Backspace') {
+        if (!currentBox.value && index > 0) {
+            event.preventDefault();
+            const prevBox = document.getElementById(`otpDigit${index - 1}`);
+            if (prevBox) {
+                prevBox.value = '';
+                prevBox.focus();
+            }
+        }
+    } else if (event.key === 'ArrowLeft' && index > 0) {
+        event.preventDefault();
+        const prevBox = document.getElementById(`otpDigit${index - 1}`);
+        if (prevBox) prevBox.focus();
+    } else if (event.key === 'ArrowRight' && index < 3) {
+        event.preventDefault();
+        const nextBox = document.getElementById(`otpDigit${index + 1}`);
+        if (nextBox) nextBox.focus();
+    }
+}
+
+export function handleOtpPaste(event) {
+    if (!event.clipboardData) return;
+    event.preventDefault();
+    const pasted = normalizeDigitsJs(event.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 4);
+    if (!pasted) return;
+
+    for (let i = 0; i < 4; i++) {
+        const box = document.getElementById(`otpDigit${i}`);
+        if (box) {
+            box.value = pasted[i] || '';
+            box.classList.remove('border-red-500');
+        }
+    }
+
+    const focusIdx = Math.min(3, Math.max(0, pasted.length - 1));
+    const targetBox = document.getElementById(`otpDigit${focusIdx}`);
+    if (targetBox) targetBox.focus();
+}
+
+function buildBookingRequestPayload() {
     const timeSlot = state.bookingState.selectedTime;
-    if (!timeSlot) {
-        if (errorText) errorText.textContent = 'يرجى اختيار وقت متاح للحجز أولاً.';
-        if (errorEl) errorEl.classList.remove('hidden');
-        return;
-    }
     const bookingDateVal = state.bookingState.selectedDateIso || state.bookingState.selectedDate;
     const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
         ? state.bookingState.selectedSubServices
@@ -265,14 +380,87 @@ export async function submitPhoneVerification(event) {
         service_id: s.id,
         specialist_id: state.bookingState.selectedSpecialistsByService?.[s.id]?.id || state.bookingState.selectedSpecialist?.id
     }));
-
-    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
-    const verifyPhoneUrl = routes.verifyPhone || '/booking/verify-phone';
-    const guestConfirmUrl = routes.guestConfirm || '/booking/guest-confirm';
     const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
     const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
 
-    // CASE 1: Customer already logged in
+    return {
+        timeSlot,
+        bookingDateVal,
+        serviceIds,
+        primaryServiceId,
+        items,
+        guestsCount,
+        customerNotes
+    };
+}
+
+export async function submitPhoneVerification(event) {
+    if (event) event.preventDefault();
+    const phoneInput = document.getElementById('bookingPhoneInput');
+    const nameInput = document.getElementById('guestNameInput');
+    const errorEl = document.getElementById('phoneVerifyError');
+    const errorText = document.getElementById('phoneVerifyErrorText');
+    const submitBtn = document.getElementById('phoneVerifySubmitBtn');
+
+    const isCustomerLoggedIn = Boolean(state.currentCustomer && state.currentCustomer.id && state.currentCustomer.phone);
+    const rawPhone = isCustomerLoggedIn
+        ? normalizeDigitsJs(state.currentCustomer.phone)
+        : normalizeDigitsJs(phoneInput ? phoneInput.value : '');
+    const customerName = isCustomerLoggedIn
+        ? (state.currentCustomer.name || '')
+        : (nameInput ? nameInput.value.trim() : '');
+
+    if (!isCustomerLoggedIn) {
+        if (customerName.length < 2) {
+            if (errorText) {
+                errorText.textContent = 'يرجى إدخال اسمكِ الكريم (حرفين على الأقل) للمتابعة.';
+            }
+            if (errorEl) errorEl.classList.remove('hidden');
+            if (nameInput) {
+                nameInput.classList.add('border-red-500');
+                nameInput.focus();
+            }
+            return;
+        }
+
+        if (!SAUDI_PHONE_REGEX.test(rawPhone)) {
+            if (errorText) {
+                errorText.textContent = 'يرجى إدخال رقم جوال سعودي صحيح.';
+            }
+            if (errorEl) errorEl.classList.remove('hidden');
+            if (phoneInput) {
+                phoneInput.classList.add('border-red-500');
+                phoneInput.focus();
+            }
+            return;
+        }
+    }
+
+    if (errorEl) errorEl.classList.add('hidden');
+    if (phoneInput) phoneInput.classList.remove('border-red-500');
+    if (nameInput) nameInput.classList.remove('border-red-500');
+
+    const {
+        timeSlot,
+        bookingDateVal,
+        serviceIds,
+        primaryServiceId,
+        items,
+        guestsCount,
+        customerNotes
+    } = buildBookingRequestPayload();
+
+    if (!timeSlot) {
+        if (errorText) errorText.textContent = 'يرجى اختيار وقت متاح للحجز أولاً.';
+        if (errorEl) errorEl.classList.remove('hidden');
+        return;
+    }
+
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+    const verifyPhoneUrl = routes.verifyPhone || '/booking/verify-phone';
+    const sendOtpUrl = routes.sendOtp || '/booking/send-otp';
+
+    // CASE 1: Customer already logged in -> Confirm booking directly
     if (isCustomerLoggedIn) {
         if (submitBtn) {
             submitBtn.disabled = true;
@@ -320,68 +508,14 @@ export async function submitPhoneVerification(event) {
         return;
     }
 
-    // CASE 2: Guest booking - Step A: Check if phone exists
-    if (!state.bookingState.phoneChecked) {
-        if (submitBtn) {
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري فحص الرقم...</span>`;
-        }
-        try {
-            const response = await fetch(verifyPhoneUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': csrfToken
-                },
-                body: JSON.stringify({
-                    phone: rawPhone
-                })
-            });
-            const data = await response.json();
-            state.bookingState.verifiedPhone = data.phone || rawPhone;
-            state.bookingState.phoneChecked = true;
-
-            if (data.status === 'customer_found') {
-                if (returningGreeting) returningGreeting.classList.remove('hidden');
-                if (returningName) returningName.textContent = data.customer_name || 'عميلتنا العزيزة';
-                if (nameContainer) nameContainer.classList.add('hidden');
-                if (btnText) btnText.textContent = `تأكيد الحجز فوراً كـ زائر (${data.customer_name})`;
-            } else {
-                if (nameContainer) nameContainer.classList.remove('hidden');
-                if (returningGreeting) returningGreeting.classList.add('hidden');
-                if (btnText) btnText.textContent = 'المتابعة كـ زائر وتأكيد الحجز';
-                if (nameInput) setTimeout(() => nameInput.focus(), 150);
-            }
-        } catch (err) {
-            if (errorText) errorText.textContent = 'حدث خطأ أثناء فحص رقم الجوال.';
-            if (errorEl) errorEl.classList.remove('hidden');
-        } finally {
-            if (submitBtn) {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHtml;
-            }
-        }
-        return;
-    }
-
-    // CASE 2: Guest booking - Step B: Confirm booking as guest!
-    const guestName = nameInput ? nameInput.value.trim() : '';
-    const isNameRequired = nameContainer && !nameContainer.classList.contains('hidden');
-    if (isNameRequired && guestName.length < 2) {
-        if (errorText) errorText.textContent = 'يرجى كتابة اسمكِ الكريم لإتمام الحجز كـ زائر.';
-        if (errorEl) errorEl.classList.remove('hidden');
-        if (nameInput) nameInput.focus();
-        return;
-    }
-
+    // CASE 2: Unauthenticated Customer -> Send 4-Digit SMS OTP (Simulated 1100 in dev)
     if (submitBtn) {
         submitBtn.disabled = true;
-        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري تأكيد حجزكِ كـ زائر...</span>`;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري إرسال رمز التحقق (SMS)...</span>`;
     }
 
     try {
-        const response = await fetch(guestConfirmUrl, {
+        const response = await fetch(sendOtpUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -389,8 +523,8 @@ export async function submitPhoneVerification(event) {
                 'X-CSRF-TOKEN': csrfToken
             },
             body: JSON.stringify({
-                phone: state.bookingState.verifiedPhone || rawPhone,
-                name: guestName,
+                name: customerName,
+                phone: rawPhone,
                 service_ids: serviceIds,
                 service_id: primaryServiceId,
                 specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id,
@@ -411,17 +545,141 @@ export async function submitPhoneVerification(event) {
             return;
         }
 
-        if (data.status === 'confirmed') {
-            finalizeConfirmedBookingFromServer(data);
+        if (data.status === 'otp_sent') {
+            state.bookingState.verifiedPhone = data.phone || rawPhone;
+            state.bookingState.pendingCustomerName = data.name || customerName;
+            state.bookingState.phoneChecked = true;
+            switchPopupToOtpStep(data);
+            openToast('تم إرسال رمز التحقق المكون من 4 أرقام إلى جوالكِ');
         }
     } catch (err) {
-        if (errorText) errorText.textContent = 'حدث خطأ أثناء حفظ الحجز، يرجى المحاولة مرة أخرى.';
+        if (errorText) errorText.textContent = 'حدث خطأ أثناء إرسال رمز التحقق، يرجى المحاولة مرة أخرى.';
         if (errorEl) errorEl.classList.remove('hidden');
     } finally {
         if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.innerHTML = originalBtnHtml;
         }
+    }
+}
+
+export async function submitSmsOtpVerification(event) {
+    if (event) event.preventDefault();
+
+    const otpError = document.getElementById('otpVerifyError');
+    const otpErrorText = document.getElementById('otpVerifyErrorText');
+    const submitBtn = document.getElementById('otpVerifySubmitBtn');
+    const nameInput = document.getElementById('guestNameInput');
+    const phoneInput = document.getElementById('bookingPhoneInput');
+
+    const otpCode = getEnteredOtpCode();
+    if (otpCode.length !== 4) {
+        if (otpErrorText) otpErrorText.textContent = 'يرجى إدخال رمز التحقق المكون من 4 أرقام كاملاً.';
+        if (otpError) otpError.classList.remove('hidden');
+        for (let i = 0; i < 4; i++) {
+            const box = document.getElementById(`otpDigit${i}`);
+            if (box && !box.value) {
+                box.classList.add('border-red-500');
+                box.focus();
+                break;
+            }
+        }
+        return;
+    }
+
+    if (otpError) otpError.classList.add('hidden');
+
+    const customerName = state.bookingState.pendingCustomerName || (nameInput ? nameInput.value.trim() : '');
+    const customerPhone = state.bookingState.verifiedPhone || normalizeDigitsJs(phoneInput ? phoneInput.value : '');
+
+    const {
+        timeSlot,
+        bookingDateVal,
+        serviceIds,
+        primaryServiceId,
+        items,
+        guestsCount,
+        customerNotes
+    } = buildBookingRequestPayload();
+
+    const verifyOtpUrl = routes.verifyOtp || '/booking/verify-otp';
+    const originalBtnHtml = submitBtn ? submitBtn.innerHTML : '';
+
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin text-gold"></i><span>جاري التحقق من الرمز وتسجيل الحجز...</span>`;
+    }
+
+    try {
+        const response = await fetch(verifyOtpUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken
+            },
+            body: JSON.stringify({
+                name: customerName,
+                phone: customerPhone,
+                otp_code: otpCode,
+                service_ids: serviceIds,
+                service_id: primaryServiceId,
+                specialist_id: items[0]?.specialist_id || state.bookingState.selectedSpecialist?.id,
+                items: items,
+                booking_date: bookingDateVal,
+                booking_time: timeSlot,
+                guests_count: guestsCount,
+                customer_notes: customerNotes
+            })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.status === 'validation_error' || data.status === 'invalid_code' || data.status === 'otp_expired' || data.status === 'max_attempts_exceeded' || data.status === 'slot_unavailable') {
+            if (otpErrorText) otpErrorText.textContent = data.message || 'رمز التحقق غير صحيح، يرجى المحاولة مرة أخرى.';
+            if (otpError) otpError.classList.remove('hidden');
+            for (let i = 0; i < 4; i++) {
+                const box = document.getElementById(`otpDigit${i}`);
+                if (box) box.classList.add('border-red-500');
+            }
+            if (data.status === 'slot_unavailable') {
+                fetchSpecialistAvailability();
+            }
+            return;
+        }
+
+        if (data.status === 'confirmed') {
+            finalizeConfirmedBookingFromServer(data);
+        }
+    } catch (err) {
+        if (otpErrorText) otpErrorText.textContent = 'حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة مرة أخرى.';
+        if (otpError) otpError.classList.remove('hidden');
+    } finally {
+        if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+        }
+    }
+}
+
+export async function resendBookingSmsOtp() {
+    const resendBtn = document.getElementById('otpResendBtn');
+    const resendText = document.getElementById('otpResendBtnText');
+    const otpError = document.getElementById('otpVerifyError');
+    const otpErrorText = document.getElementById('otpVerifyErrorText');
+
+    if (otpError) otpError.classList.add('hidden');
+    if (resendBtn) resendBtn.disabled = true;
+    if (resendText) resendText.textContent = 'جاري الإرسال...';
+
+    try {
+        await submitPhoneVerification();
+    } catch (e) {
+        if (otpErrorText) otpErrorText.textContent = 'تعذر إعادة إرسال الرمز حالياً.';
+        if (otpError) otpError.classList.remove('hidden');
+    } finally {
+        if (resendBtn) resendBtn.disabled = false;
+        if (resendText) resendText.textContent = 'إعادة إرسال الرمز';
     }
 }
 
@@ -648,7 +906,7 @@ export function finalizeConfirmedBookingFromServer(data) {
     if (data.booking) {
         state.bookingState.step = 4;
         renderBookingStep();
-        openToast('تم تأكيد الحجز بنجاح');
+        openToast('تم تأكيد الرمز وتسجيل الحجز بنجاح');
     } else {
         openToast(`مرحباً بكِ ${customerName}، تم تسجيل دخولكِ بنجاح ✨`);
     }

@@ -107,23 +107,36 @@
                 </div>
             </div>
 
-            <!-- GUEST PHONE INPUT VIEW -->
+            <!-- CUSTOMER REGISTRATION INPUT VIEW (NAME + PHONE VISIBLE TOGETHER, NO GUEST BOOKING) -->
             <div id="guestPhoneInputContainer" class="space-y-4">
-                <div class="flex flex-col items-center text-center space-y-2 pt-1">
-                    <div class="w-16 h-16 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-1">
-                        <i class="fa-solid fa-mobile-screen-button text-2xl"></i>
+                <div class="flex flex-col items-center text-center space-y-1.5 pt-1">
+                    <div class="w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-0.5">
+                        <i class="fa-solid fa-user-check text-xl"></i>
                     </div>
-                    <h4 class="text-xl font-bold text-sage-dark tracking-tight">تأكيد بيانات الحجز</h4>
-                </div>
-
-                <!-- Returning Customer Greeting -->
-                <div id="returningCustomerGreeting" class="hidden p-3.5 rounded-2xl bg-gold-light/60 border border-gold/30 text-center animate-step">
-                    <p class="text-xs font-extrabold text-sage-dark">
-                        أهلاً بكِ مجدداً، <span id="returningCustomerName" class="text-primary-dark font-black"></span>!
+                    <h4 class="text-lg sm:text-xl font-black text-sage-dark tracking-tight">تسجيل العميلة وتأكيد الحجز</h4>
+                    <p class="text-[11px] sm:text-xs text-gray-500 font-medium">
+                        أدخلي اسمكِ الكريم ورقم جوالكِ لإرسال رمز التحقق (SMS)
                     </p>
-                    <p class="text-[11px] text-gray-500 mt-0.5 font-medium">تم التعرف على حسابكِ، يمكنكِ تأكيد الحجز فوراً</p>
                 </div>
 
+                <!-- Field 1: Customer Name Input (Always Visible) -->
+                <div id="guestNameInputContainer" class="space-y-1.5">
+                    <label for="guestNameInput" class="block text-xs font-extrabold text-sage-dark">
+                        الاسم الكريم <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative flex items-center">
+                        <input id="guestNameInput"
+                               type="text"
+                               name="name"
+                               placeholder="اكتبي اسمكِ الكريم..."
+                               autocomplete="name"
+                               oninput="handleCustomerNameInputValidation(this)"
+                               class="w-full py-3.5 pr-4 pl-10 rounded-2xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none font-bold text-sm text-sage-dark transition" />
+                        <i class="fa-regular fa-user text-gray-400 text-xs absolute left-3.5 pointer-events-none"></i>
+                    </div>
+                </div>
+
+                <!-- Field 2: Saudi Mobile Phone Input (Always Visible) -->
                 <div>
                     <label for="bookingPhoneInput" class="block text-xs font-extrabold text-sage-dark mb-1.5">
                         رقم الجوال <span class="text-red-500">*</span>
@@ -131,6 +144,7 @@
                     <div class="relative flex items-center">
                         <input id="bookingPhoneInput"
                                type="tel"
+                               name="phone"
                                inputmode="numeric"
                                dir="ltr"
                                maxlength="10"
@@ -142,19 +156,6 @@
                             🇸🇦 +966
                         </span>
                     </div>
-                    
-                </div>
-
-                <!-- Dynamic Name Input for New Customers -->
-                <div id="guestNameInputContainer" class="hidden space-y-1.5 animate-step">
-                    <label for="guestNameInput" class="block text-xs font-extrabold text-sage-dark">
-                        الاسم الكريم <span class="text-red-500">*</span>
-                    </label>
-                    <input id="guestNameInput"
-                           type="text"
-                           placeholder="اكتبي اسمكِ الكريم..."
-                           autocomplete="name"
-                           class="w-full py-3.5 px-4 rounded-2xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none font-bold text-sm text-sage-dark transition" />
                 </div>
             </div>
 
@@ -193,6 +194,110 @@
                             <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
                         </svg>
                         <span>المتابعة باستخدام Google (اختياري)</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- VIEW 1.5: 4-DIGIT SMS OTP VERIFICATION SCREEN -->
+        <div id="smsOtpVerifyStep" class="hidden p-6 sm:p-7 space-y-5 animate-step">
+            <div class="flex flex-col items-center text-center space-y-2">
+                <div class="w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm">
+                    <i class="fa-solid fa-comment-sms text-2xl"></i>
+                </div>
+                <span class="px-3 py-0.5 rounded-full bg-gold-light text-gold-dark text-[11px] font-extrabold border border-gold/30">
+                    تأكيد رقم الجوال عبر SMS
+                </span>
+                <h4 class="text-lg sm:text-xl font-black text-sage-dark">أدخلي رمز التحقق (4 أرقام)</h4>
+                <p class="text-xs text-gray-500 leading-relaxed max-w-[320px]">
+                    تم إرسال رمز التحقق للعميلة <span id="otpStepCustomerNameBadge" class="font-extrabold text-sage-dark"></span> على الرقم
+                    <span id="otpStepPhoneBadge" dir="ltr" class="font-extrabold text-primary-dark bg-primary-light/60 px-2 py-0.5 rounded-md border border-primary-soft/60"></span>
+                </p>
+
+                <!-- Simulation Mode Notice Banner -->
+                <div id="otpSimulationBanner" class="w-full py-2 px-3 rounded-xl bg-amber-50/90 border border-amber-200/80 text-amber-900 text-[11px] font-bold flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-flask text-amber-600 text-xs"></i>
+                    <span>وضع المحاكاة للتطوير — الرمز الافتراضي:</span>
+                    <strong id="otpSimulatedCodeText" class="font-mono font-black text-xs text-primary-dark tracking-widest bg-white px-2 py-0.5 rounded border border-amber-200">1100</strong>
+                </div>
+            </div>
+
+            <form id="smsOtpVerifyForm" onsubmit="submitSmsOtpVerification(event)" class="space-y-4" novalidate>
+                <!-- 4 OTP Digit Input Boxes -->
+                <div class="flex items-center justify-center gap-3" dir="ltr">
+                    <input type="text"
+                           id="otpDigit0"
+                           data-otp-index="0"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="1"
+                           autocomplete="one-time-code"
+                           aria-label="الرقم الأول من رمز التحقق"
+                           oninput="handleOtpDigitInput(this, 0)"
+                           onkeydown="handleOtpDigitKeydown(event, 0)"
+                           onpaste="handleOtpPaste(event)"
+                           class="otp-digit-box w-13 h-14 sm:w-14 sm:h-15 rounded-2xl bg-surface border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/15 focus:outline-none text-center font-black text-xl text-sage-dark transition-all" />
+                    <input type="text"
+                           id="otpDigit1"
+                           data-otp-index="1"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="1"
+                           aria-label="الرقم الثاني من رمز التحقق"
+                           oninput="handleOtpDigitInput(this, 1)"
+                           onkeydown="handleOtpDigitKeydown(event, 1)"
+                           onpaste="handleOtpPaste(event)"
+                           class="otp-digit-box w-13 h-14 sm:w-14 sm:h-15 rounded-2xl bg-surface border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/15 focus:outline-none text-center font-black text-xl text-sage-dark transition-all" />
+                    <input type="text"
+                           id="otpDigit2"
+                           data-otp-index="2"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="1"
+                           aria-label="الرقم الثالث من رمز التحقق"
+                           oninput="handleOtpDigitInput(this, 2)"
+                           onkeydown="handleOtpDigitKeydown(event, 2)"
+                           onpaste="handleOtpPaste(event)"
+                           class="otp-digit-box w-13 h-14 sm:w-14 sm:h-15 rounded-2xl bg-surface border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/15 focus:outline-none text-center font-black text-xl text-sage-dark transition-all" />
+                    <input type="text"
+                           id="otpDigit3"
+                           data-otp-index="3"
+                           inputmode="numeric"
+                           pattern="[0-9]*"
+                           maxlength="1"
+                           aria-label="الرقم الرابع من رمز التحقق"
+                           oninput="handleOtpDigitInput(this, 3)"
+                           onkeydown="handleOtpDigitKeydown(event, 3)"
+                           onpaste="handleOtpPaste(event)"
+                           class="otp-digit-box w-13 h-14 sm:w-14 sm:h-15 rounded-2xl bg-surface border-2 border-gray-200 focus:border-primary focus:bg-white focus:ring-4 focus:ring-primary/15 focus:outline-none text-center font-black text-xl text-sage-dark transition-all" />
+                </div>
+
+                <p id="otpVerifyError" class="hidden text-[11px] font-bold text-red-600 text-center flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    <span id="otpVerifyErrorText">رمز التحقق غير صحيح.</span>
+                </p>
+
+                <button type="submit"
+                        id="otpVerifySubmitBtn"
+                        class="w-full py-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm sm:text-base shadow-lg shadow-primary/25 hover:shadow-xl active:scale-[0.985] transition-all duration-200 flex items-center justify-center gap-2.5 cursor-pointer">
+                    <i class="fa-solid fa-shield-check text-white text-base"></i>
+                    <span id="otpVerifySubmitBtnText">تأكيد الرمز وإتمام التسجيل</span>
+                </button>
+
+                <div class="flex items-center justify-between pt-1 text-xs font-bold">
+                    <button type="button"
+                            id="otpResendBtn"
+                            onclick="resendBookingSmsOtp()"
+                            class="text-primary-dark hover:underline cursor-pointer flex items-center gap-1">
+                        <i class="fa-solid fa-rotate-right text-[10px]"></i>
+                        <span id="otpResendBtnText">إعادة إرسال الرمز</span>
+                    </button>
+
+                    <button type="button"
+                            onclick="switchPopupToPhoneStep()"
+                            class="text-gray-500 hover:text-sage-dark transition cursor-pointer flex items-center gap-1">
+                        <i class="fa-solid fa-pen text-[10px]"></i>
+                        <span>تعديل الاسم أو الجوال</span>
                     </button>
                 </div>
             </form>

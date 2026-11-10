@@ -24,6 +24,8 @@
         window.__HAIRLINE_DATA__ = {
             routes: {
                 availability: "{{ route('booking.availability') }}",
+                sendOtp: "{{ route('booking.send_otp') }}",
+                verifyOtp: "{{ route('booking.verify_otp') }}",
                 verifyPhone: "{{ route('booking.verify_phone') }}",
                 guestConfirm: "{{ route('booking.guest_confirm') }}",
                 googleRedirect: "{{ route('booking.google_redirect') }}",

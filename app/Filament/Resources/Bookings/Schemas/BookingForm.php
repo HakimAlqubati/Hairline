@@ -42,10 +42,10 @@ class BookingForm
                                 ->label('نوع العميل')
                                 ->options([
                                     Booking::CUSTOMER_TYPE_REGISTERED => 'عميل مسجل',
-                                    Booking::CUSTOMER_TYPE_GUEST => 'زائر',
                                 ])
                                 ->default(Booking::CUSTOMER_TYPE_REGISTERED)
-                                ->required(),
+                                ->required()
+                                ->hidden(),
 
                             TextInput::make('guests_count')
                                 ->label('عدد الأشخاص')

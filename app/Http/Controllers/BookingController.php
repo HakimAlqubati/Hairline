@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Contracts\Repositories\CustomerRepositoryInterface;
 use App\Exceptions\SlotUnavailableException;
 use App\Http\Requests\Booking\ConfirmGuestBookingRequest;
 use App\Http\Requests\Booking\GetAvailabilityRequest;
+use App\Http\Requests\Booking\SendOtpRequest;
+use App\Http\Requests\Booking\VerifyOtpAndBookRequest;
 use App\Http\Requests\Booking\VerifyPhoneRequest;
 use App\Models\Booking;
-use App\Models\Customer;
-use App\Models\MembershipTier;
 use App\Services\Booking\BookingCreationService;
 use App\Services\Booking\BookingPayloadFormatter;
 use App\Services\Booking\SpecialistAvailabilityService;
+use App\Services\Customer\CustomerRegistrationService;
 use Illuminate\Http\JsonResponse;
 use InvalidArgumentException;
 
@@ -27,7 +29,9 @@ class BookingController extends Controller
     public function __construct(
         private readonly SpecialistAvailabilityService $availabilityService,
         private readonly BookingCreationService $bookingCreationService,
-        private readonly BookingPayloadFormatter $payloadFormatter
+        private readonly BookingPayloadFormatter $payloadFormatter,
+        private readonly CustomerRepositoryInterface $customerRepository,
+        private readonly CustomerRegistrationService $customerRegistrationService
     ) {}
 
     /**
@@ -106,9 +110,141 @@ class BookingController extends Controller
     }
 
     /**
+     * Step 1 of Customer Registration & Booking:
+     * Validate customer name, Saudi mobile phone, and selected slot availability,
+     * then dispatch/simulate a 4-digit SMS OTP code (defaults to 1100 in simulation mode).
+     */
+    public function sendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $rawPhone = (string) $request->input('phone', '');
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $customerName = trim((string) $request->input('name', ''));
+
+        try {
+            $otpResult = $this->customerRegistrationService->initiateRegistrationOtp(
+                normalizedPhone: $normalizedPhone,
+                customerName: $customerName
+            );
+        } catch (InvalidArgumentException $e) {
+            return response()->json([
+                'success' => false,
+                'status' => 'validation_error',
+                'message' => $e->getMessage(),
+                'errors' => [
+                    'name' => [$e->getMessage()],
+                ],
+            ], 422);
+        }
+
+        if (! $otpResult['sent']) {
+            return response()->json([
+                'success' => false,
+                'status' => $otpResult['status'],
+                'message' => $otpResult['message'],
+                'resend_after' => $otpResult['resend_after'],
+            ], 429);
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => 'otp_sent',
+            'message' => $otpResult['message'],
+            'phone' => $normalizedPhone,
+            'masked_phone' => $otpResult['masked_phone'],
+            'name' => $customerName,
+            'expires_in' => $otpResult['expires_in'],
+            'resend_after' => $otpResult['resend_after'],
+            'is_simulation' => $otpResult['is_simulation'],
+            'simulated_code' => $otpResult['simulated_code'],
+        ]);
+    }
+
+    /**
+     * Step 2 of Customer Registration & Booking:
+     * Check and verify the 4-digit SMS OTP code, register the customer via CustomerRepositoryInterface,
+     * authenticate their session, and create the confirmed booking as a registered customer.
+     */
+    public function verifyOtpAndConfirmBooking(VerifyOtpAndBookRequest $request): JsonResponse
+    {
+        $rawPhone = (string) $request->input('phone', '');
+        $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
+        $customerName = trim((string) $request->input('name', ''));
+        $otpCode = (string) $request->input('otp_code', '');
+
+        $verification = $this->customerRegistrationService->verifyOtpAndRegisterCustomer(
+            normalizedPhone: $normalizedPhone,
+            otpCode: $otpCode,
+            fallbackName: $customerName
+        );
+
+        if (! $verification['verified'] || ! $verification['customer']) {
+            return response()->json([
+                'success' => false,
+                'status' => $verification['status'],
+                'message' => $verification['message'],
+                'remaining_attempts' => $verification['remaining_attempts'],
+                'errors' => [
+                    'otp_code' => [$verification['message']],
+                ],
+            ], 422);
+        }
+
+        $customer = $verification['customer'];
+
+        $request->session()->regenerate();
+        session(['logged_in_customer_id' => $customer->id]);
+
+        $hasBooking = ($request->filled('service_id') && $request->filled('specialist_id')) || $request->filled('items');
+        $bookingPayload = null;
+
+        if ($hasBooking) {
+            $serviceInput = $request->input('service_ids') ?: $request->input('service_id');
+            $guestsCount = $request->has('guests_count') ? (int) $request->input('guests_count') : 1;
+            $customerNotes = $request->filled('customer_notes') ? (string) $request->input('customer_notes') : null;
+
+            try {
+                $bookingPayload = $this->bookingCreationService->createBookingForCustomer(
+                    customer: $customer,
+                    serviceCode: $serviceInput,
+                    specialistSlug: (string) $request->input('specialist_id', ''),
+                    dateLabel: (string) $request->input('booking_date'),
+                    timeSlot: (string) $request->input('booking_time'),
+                    customerType: Booking::CUSTOMER_TYPE_REGISTERED,
+                    guestsCount: $guestsCount,
+                    customerNotes: $customerNotes,
+                    items: $request->input('items')
+                );
+            } catch (SlotUnavailableException $e) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'slot_unavailable',
+                    'message' => $e->getMessage(),
+                ], 409);
+            } catch (InvalidArgumentException $e) {
+                return response()->json([
+                    'success' => false,
+                    'status' => 'validation_error',
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'status' => 'confirmed',
+            'customer_type' => Booking::CUSTOMER_TYPE_REGISTERED,
+            'message' => $hasBooking
+                ? "تم تأكيد الرمز وتسجيل حجزكِ بنجاح باسم {$customer->name}"
+                : "تم تأكيد الرمز وتسجيل حسابكِ بنجاح باسم {$customer->name}",
+            'customer' => $this->payloadFormatter->formatCustomerPayload($customer),
+            'booking' => $bookingPayload,
+            'customer_bookings' => $this->payloadFormatter->getCustomerBookingsPayload($customer),
+        ]);
+    }
+
+    /**
      * Step 1 of verification: Validate Saudi phone number and booking parameters.
      * If the customer already has an active authenticated session, create the booking immediately.
-     * Otherwise, return a uniform response requiring Google verification without leaking customer existence or data.
      */
     public function verifyPhone(VerifyPhoneRequest $request): JsonResponse
     {
@@ -117,7 +253,7 @@ class BookingController extends Controller
 
         $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
         $loggedInCustomerId = session('logged_in_customer_id');
-        $loggedInCustomer = $loggedInCustomerId ? Customer::find($loggedInCustomerId) : null;
+        $loggedInCustomer = $loggedInCustomerId ? $this->customerRepository->findById((int) $loggedInCustomerId) : null;
 
         // If the customer is already authenticated in this session, verify phone matches their account
         if ($loggedInCustomer) {
@@ -178,7 +314,7 @@ class BookingController extends Controller
             ]);
         }
 
-        $existingCustomer = Customer::where('phone', $normalizedPhone)->first();
+        $existingCustomer = $this->customerRepository->findByPhone($normalizedPhone);
         if ($existingCustomer) {
             return response()->json([
                 'success' => true,
@@ -200,14 +336,13 @@ class BookingController extends Controller
     }
 
     /**
-     * Confirm booking as a guest (or returning customer without mandatory Google sign-in).
-     * Creates or fetches customer, logs them in automatically, and records customer_type = 'guest'.
+     * Legacy fallback endpoint for direct booking confirmation.
      */
     public function confirmGuestBooking(ConfirmGuestBookingRequest $request): JsonResponse
     {
         $rawPhone = (string) $request->input('phone', '');
         $normalizedPhone = $this->availabilityService->normalizeSaudiPhone($rawPhone);
-        $customer = Customer::where('phone', $normalizedPhone)->first();
+        $customer = $this->customerRepository->findByPhone($normalizedPhone);
 
         if (! $customer) {
             $name = trim((string) $request->input('name', ''));
@@ -215,31 +350,14 @@ class BookingController extends Controller
                 return response()->json([
                     'success' => false,
                     'status' => 'validation_error',
-                    'message' => 'يرجى إدخال اسمكِ الكريم لإتمام الحجز كـ زائر.',
-                    'errors' => ['name' => ['يرجى إدخال اسمكِ الكريم لإتمام الحجز كـ زائر.']],
+                    'message' => 'يرجى إدخال اسمكِ الكريم لإتمام الحجز.',
+                    'errors' => ['name' => ['يرجى إدخال اسمكِ الكريم لإتمام الحجز.']],
                 ], 422);
             }
 
-            $defaultTierId = MembershipTier::where('slug', 'silver')->value('id')
-                ?? MembershipTier::orderBy('min_points_required')->value('id');
-
-            do {
-                $customerCode = 'HL-'.random_int(1000, 9999);
-            } while (Customer::where('customer_code', $customerCode)->exists());
-
-            $customer = Customer::create([
-                'membership_tier_id' => $defaultTierId,
-                'customer_code' => $customerCode,
-                'name' => $name,
-                'phone' => $normalizedPhone,
-                'email' => null,
-                'avatar_url' => 'https://ui-avatars.com/api/?name='.urlencode($name).'&background=FFFFFF&color=C29E6D&bold=true',
-                'total_points' => 0,
-                'is_active' => true,
-            ]);
+            $customer = $this->customerRepository->registerOrUpdateByPhone($normalizedPhone, $name);
         }
 
-        // Automatically log the customer in
         $request->session()->regenerate();
         session(['logged_in_customer_id' => $customer->id]);
 
@@ -277,7 +395,7 @@ class BookingController extends Controller
             'success' => true,
             'status' => 'confirmed',
             'customer_type' => Booking::CUSTOMER_TYPE_GUEST,
-            'message' => "تم تأكيد حجزكِ بنجاح كـ زائر باسم {$customer->name}",
+            'message' => "تم تأكيد حجزكِ بنجاح باسم {$customer->name}",
             'customer' => $this->payloadFormatter->formatCustomerPayload($customer),
             'booking' => $bookingPayload,
             'customer_bookings' => $this->payloadFormatter->getCustomerBookingsPayload($customer),

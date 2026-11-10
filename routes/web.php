@@ -25,6 +25,8 @@ Route::get('/contact', [HairlineController::class, 'show'])->defaults('initialVi
 Route::get('/privacy', [HairlineController::class, 'show'])->defaults('initialView', 'privacy')->name('privacy');
 
 Route::get('/booking/availability', [BookingController::class, 'getAvailability'])->name('booking.availability');
+Route::post('/booking/send-otp', [BookingController::class, 'sendOtp'])->name('booking.send_otp');
+Route::post('/booking/verify-otp', [BookingController::class, 'verifyOtpAndConfirmBooking'])->name('booking.verify_otp');
 Route::post('/booking/verify-phone', [BookingController::class, 'verifyPhone'])->name('booking.verify_phone');
 Route::post('/booking/guest-confirm', [BookingController::class, 'confirmGuestBooking'])->name('booking.guest_confirm');
 Route::post('/booking/google-register', [GoogleAuthController::class, 'registerWithGoogle'])->name('booking.google_register');

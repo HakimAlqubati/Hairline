@@ -42,7 +42,8 @@ class BookingTable
                         Booking::CUSTOMER_TYPE_REGISTERED => 'success',
                         default => 'gray',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->hidden(),
 
                 TextColumn::make('guests_count')
                     ->label('العدد')
@@ -105,8 +106,8 @@ class BookingTable
                     ->label('نوع العميل')
                     ->options([
                         Booking::CUSTOMER_TYPE_REGISTERED => 'عميل مسجل',
-                        Booking::CUSTOMER_TYPE_GUEST => 'زائر',
-                    ]),
+                    ])
+                    ->hidden(),
 
                 SelectFilter::make('booking_type')
                     ->label(__('admin.fields.booking_type'))

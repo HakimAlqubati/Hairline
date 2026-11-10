@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Contracts\Repositories\CustomerRepositoryInterface;
+use App\Contracts\Repositories\OtpRepositoryInterface;
+use App\Contracts\Sms\SmsGatewayInterface;
 use App\Enums\BrandColor;
 use App\Models\CatalogPage;
 use App\Models\HeroSlide;
@@ -16,7 +19,10 @@ use App\Models\SpecialistShift;
 use App\Observers\SalonSettingObserver;
 use App\Observers\ServiceObserver;
 use App\Observers\SpecialistObserver;
+use App\Repositories\Customer\EloquentCustomerRepository;
+use App\Repositories\Otp\CacheOtpRepository;
 use App\Services\LogoProcessor;
+use App\Services\Sms\SimulatedSmsGateway;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
@@ -28,7 +34,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->bind(SmsGatewayInterface::class, SimulatedSmsGateway::class);
+        $this->app->bind(OtpRepositoryInterface::class, CacheOtpRepository::class);
+        $this->app->bind(CustomerRepositoryInterface::class, EloquentCustomerRepository::class);
     }
 
     /**
