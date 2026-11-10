@@ -69,7 +69,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">عن هيرلاين</span>
-                        <span class="text-[11px] font-medium text-gray-500">(من نحن ورؤيتنا)</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(من نحن ورؤيتنا)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
@@ -84,7 +84,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الخدمات</span>
-                        <span class="text-[11px] font-medium text-gray-500">(دليل وقائمة الخدمات)</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(دليل وقائمة الخدمات)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
@@ -99,7 +99,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الخدمات المتاحة للحجز</span>
-                        <span class="text-[11px] font-medium text-gray-500">(حجز موعد أونلاين)</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(حجز موعد أونلاين)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
@@ -114,7 +114,7 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">الاخصائيات</span>
-                        <span class="text-[11px] font-medium text-gray-500">(فريق العمل والخبرات)</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(فريق العمل والخبرات)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
@@ -129,13 +129,13 @@
                     </div>
                     <div class="min-w-0">
                         <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">للتواصل والاستفسار</span>
-                        <span class="text-[11px] font-medium text-gray-500">(اتصل بنا وموقعنا)</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(اتصل بنا وموقعنا)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>
             </button>
 
-            <!-- Item 6: سياسية الشروط والخصوصية (Mobile & Desktop) -->
+            <!-- Item 6: سياسة الخصوصية (Mobile & Desktop) -->
             <button onclick="openSidebarSection('privacy')" 
                     class="drawer-item drawer-item-6 w-full p-3.5 rounded-2xl bg-white hover:bg-[#FAF8F5] border border-gray-200/80 hover:border-primary/50 shadow-[0_2px_10px_rgba(0,0,0,0.03)] hover:shadow-md flex items-center justify-between transition-all group text-right cursor-pointer active:scale-[0.98]">
                 <div class="flex items-center gap-3 min-w-0">
@@ -143,11 +143,8 @@
                         <i class="fa-solid fa-shield-halved text-xs"></i>
                     </div>
                     <div class="min-w-0">
-                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">
-                            <span class="md:hidden">سياسية الشروط والخصوصية</span>
-                            <span class="hidden md:inline">سياسة الخصوصية</span>
-                        </span>
-                        <span class="text-[11px] font-medium text-gray-500">(حماية وسرية بياناتكِ)</span>
+                        <span class="block text-sm font-black text-black group-hover:text-primary transition-colors truncate">سياسة الخصوصية</span>
+                        <span class="hidden md:block text-[11px] font-medium text-gray-500">(حماية وسرية بياناتكِ)</span>
                     </div>
                 </div>
                 <span class="w-7 h-7 rounded-full bg-gray-50 group-hover:bg-primary/10 border border-gray-200 group-hover:border-primary/30 flex items-center justify-center text-black group-hover:text-primary text-base font-bold shadow-xs transition-all group-hover:-translate-x-1 shrink-0">‹</span>

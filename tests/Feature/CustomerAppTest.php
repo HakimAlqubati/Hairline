@@ -613,7 +613,6 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('الاخصائيات');
         $response->assertSee('للتواصل والاستفسار');
-        $response->assertSee('سياسية الشروط والخصوصية');
         $response->assertSee('سياسة الخصوصية');
     });
 
