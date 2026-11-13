@@ -208,19 +208,13 @@ export function switchPopupToOtpStep(otpData = {}) {
     if (nameBadge) nameBadge.textContent = otpData.name || state.bookingState.pendingCustomerName || '';
     if (phoneBadge) phoneBadge.textContent = otpData.phone || state.bookingState.verifiedPhone || '';
 
-    const isWhatsApp = (otpData.channel === 'whatsapp');
+    const isWhatsApp = (otpData.channel === 'whatsapp' || !otpData.channel);
     const iconWrapper = document.getElementById('otpChannelIconWrapper');
     if (iconWrapper) {
-        if (isWhatsApp) {
-            iconWrapper.classList.remove('text-primary');
-            iconWrapper.classList.add('text-[#25D366]');
-        } else {
-            iconWrapper.classList.remove('text-[#25D366]');
-            iconWrapper.classList.add('text-primary');
-        }
+        iconWrapper.className = 'w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary shadow-sm';
     }
     if (channelIcon) {
-        channelIcon.className = isWhatsApp ? 'fa-brands fa-whatsapp text-3xl' : 'fa-solid fa-comment-sms text-2xl';
+        channelIcon.className = 'fa-solid fa-comment-dots text-2xl';
     }
     if (channelBadge) {
         channelBadge.textContent = isWhatsApp ? 'تأكيد رقم الجوال عبر WhatsApp' : 'تأكيد رقم الجوال عبر SMS';
@@ -587,7 +581,7 @@ export async function submitPhoneVerification(event) {
             state.bookingState.pendingCustomerName = data.name || customerName;
             state.bookingState.phoneChecked = true;
             switchPopupToOtpStep(data);
-            openToast(data.message || 'تم إرسال رمز التحقق المكون من 4 أرقام عبر رسالة نصية إلى جوالكِ');
+            openToast(data.message || (data.channel === 'sms' ? 'تم إرسال رمز التحقق المكون من 4 أرقام عبر رسالة نصية إلى جوالكِ' : 'تم إرسال رمز التحقق المكون من 4 أرقام عبر واتساب إلى جوالكِ'));
         }
     } catch (err) {
         if (errorText) errorText.textContent = 'حدث خطأ أثناء إرسال رمز التحقق، يرجى المحاولة مرة أخرى.';

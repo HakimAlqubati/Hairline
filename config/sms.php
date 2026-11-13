@@ -14,7 +14,7 @@ return [
     | simply toggle this key or change the binding in AppServiceProvider.
     |
     */
-    'channel' => env('OTP_CHANNEL', 'sms'),
+    'channel' => env('OTP_CHANNEL', 'whatsapp'),
 
     /*
     |--------------------------------------------------------------------------

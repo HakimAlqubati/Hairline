@@ -40,9 +40,9 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(SmsGatewayInterface::class, SimulatedSmsGateway::class);
         $this->app->bind(WhatsappServiceInterface::class, SimulatedWhatsappService::class);
         $this->app->bind(OtpChannelInterface::class, function ($app) {
-            return match (config('sms.channel', 'sms')) {
-                'whatsapp' => $app->make(WhatsappServiceInterface::class),
-                default => $app->make(SmsGatewayInterface::class),
+            return match (config('sms.channel', 'whatsapp')) {
+                'sms' => $app->make(SmsGatewayInterface::class),
+                default => $app->make(WhatsappServiceInterface::class),
             };
         });
         $this->app->bind(OtpRepositoryInterface::class, CacheOtpRepository::class);
