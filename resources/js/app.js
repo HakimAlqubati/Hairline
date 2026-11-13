@@ -12,7 +12,8 @@ import {
     switchTab,
     openSidebarSection,
     updateBookingBadge,
-    toggleDesktopBooking
+    toggleDesktopBooking,
+    syncDesktopFab
 } from './hairline/navigation.js';
 import {
     getSpecialistServiceCategories,
@@ -176,6 +177,7 @@ Object.assign(window, {
     openSidebarSection,
     updateBookingBadge,
     toggleDesktopBooking,
+    syncDesktopFab,
 
     // Hero Slider
     setHeroSlide,

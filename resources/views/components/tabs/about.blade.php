@@ -39,7 +39,7 @@
             <span class="px-3 py-1 rounded-full bg-gold-light text-gold-dark text-xs font-bold">التعريف بالصالون ({{ $aboutUs['title'] ?? 'من نحن' }})</span>
         </div>
 
-        <h2 class="text-2xl font-black text-sage-dark">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</h2>
+        <h2 class="text-base sm:text-lg md:text-xl font-bold text-sage-dark">{{ $salonIdentity['name_ar'] ?? 'هيرلاين' }} | {{ $salonIdentity['name_en'] ?? 'HAIRLINE' }} {{ $salonIdentity['tagline_en'] ?? 'BEAUTY SALON' }}</h2>
 
         {{-- Intro paragraph --}}
         <p class="text-sm text-gray-600 leading-relaxed">

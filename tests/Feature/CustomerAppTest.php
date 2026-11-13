@@ -584,16 +584,30 @@ describe('Customer-Facing Pages', function () {
         $contactResponse->assertSee('bg-[#FFFC00]', false);
         $contactResponse->assertSee('bg-black text-white', false);
 
-        // 3. Profile & my-bookings page checks (floating booking concierge hidden on profile / account page)
-        $profileResponse = $this->get('/profile');
-        $profileResponse->assertStatus(200);
-        $profileResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
-        $profileResponse->assertSee('style="display: none;"', false);
+        // 3. Profile & my-bookings page checks:
+        // Guest (not logged in): floating booking button remains visible on desktop on profile page
+        $guestProfileResponse = $this->get('/profile');
+        $guestProfileResponse->assertStatus(200);
+        $guestProfileResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:flex', false);
+        $guestProfileResponse->assertDontSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
 
-        $myBookingsResponse = $this->get('/my-bookings');
-        $myBookingsResponse->assertStatus(200);
-        $myBookingsResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
-        $myBookingsResponse->assertSee('style="display: none;"', false);
+        // Authenticated customer (logged in): floating booking concierge is hidden on profile / account page
+        $customer = Customer::create([
+            'customer_code' => 'CUST-TEST-FAB-'.uniqid(),
+            'name' => 'نوف السعيد',
+            'phone' => '0501112233',
+            'is_active' => true,
+        ]);
+
+        $authProfileResponse = $this->withSession(['logged_in_customer_id' => $customer->id])->get('/profile');
+        $authProfileResponse->assertStatus(200);
+        $authProfileResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
+        $authProfileResponse->assertSee('style="display: none;"', false);
+
+        $authMyBookingsResponse = $this->withSession(['logged_in_customer_id' => $customer->id])->get('/my-bookings');
+        $authMyBookingsResponse->assertStatus(200);
+        $authMyBookingsResponse->assertSee('id="desktopFloatingBookingContainer" class="hidden md:hidden', false);
+        $authMyBookingsResponse->assertSee('style="display: none;"', false);
     });
 
     test('sidebar drawer navigation displays all main sections on mobile and contact privacy on desktop', function () {
@@ -610,10 +624,37 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('openSidebarSection(\'privacy\')', false);
         $response->assertSee('عن هيرلاين');
         $response->assertSee('الخدمات');
+        $response->assertSee('دليل الخدمات');
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('الاخصائيات');
         $response->assertSee('للتواصل والاستفسار');
+        $response->assertSee('للتواصل');
         $response->assertSee('سياسة الخصوصية');
+        $response->assertDontSee('القائمة التعريفية');
+        $response->assertDontSee('القائمة الرئيسية');
+    });
+
+    test('desktop horizontal navigation displays items in requested order', function () {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+
+        $content = $response->getContent();
+        $homePos = strpos($content, 'id="desktop-nav-home"');
+        $aboutPos = strpos($content, 'id="desktop-nav-about"');
+        $servicesPos = strpos($content, 'id="desktop-nav-services"');
+        $specialistsPos = strpos($content, 'id="desktop-nav-specialists"');
+        $accountPos = strpos($content, 'id="desktop-nav-account"');
+
+        expect($homePos)->not->toBeFalse()
+            ->and($aboutPos)->not->toBeFalse()
+            ->and($servicesPos)->not->toBeFalse()
+            ->and($specialistsPos)->not->toBeFalse()
+            ->and($accountPos)->not->toBeFalse();
+
+        expect($homePos)->toBeLessThan($aboutPos)
+            ->and($aboutPos)->toBeLessThan($servicesPos)
+            ->and($servicesPos)->toBeLessThan($specialistsPos)
+            ->and($specialistsPos)->toBeLessThan($accountPos);
     });
 
     test('availability endpoint generates time slots from database specialist shifts and marks booked slots', function () {

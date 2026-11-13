@@ -123,7 +123,11 @@
         <x-ios-fullscreen-modal />
 
         <!-- 9. DESKTOP FLOATING BOOKING CONCIERGE BUTTON -->
-        <div id="desktopFloatingBookingContainer" class="{{ in_array($initialView ?? 'home', ['booking', 'account']) ? 'hidden md:hidden' : 'hidden md:flex' }} fixed bottom-8 left-8 z-40 items-center"{{ in_array($initialView ?? 'home', ['booking', 'account']) ? ' style="display: none;"' : '' }}>
+        @php
+            $isCustomerLoggedIn = !empty($currentCustomer['id'] ?? null);
+            $shouldHideDesktopFab = ($initialView ?? 'home') === 'booking' || (($initialView ?? 'home') === 'account' && $isCustomerLoggedIn);
+        @endphp
+        <div id="desktopFloatingBookingContainer" class="{{ $shouldHideDesktopFab ? 'hidden md:hidden' : 'hidden md:flex' }} fixed bottom-8 left-8 z-40 items-center"{{ $shouldHideDesktopFab ? ' style="display: none;"' : '' }}>
             <button id="desktopFloatingBookingBtn"
                     onclick="toggleDesktopBooking()"
                     aria-label="للحجز"

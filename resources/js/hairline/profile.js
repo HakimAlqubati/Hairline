@@ -1,12 +1,14 @@
 import { state, SAUDI_PHONE_REGEX, routes, csrfToken } from './state.js';
 import { openToast } from './ui-modals.js';
 import { normalizeDigitsJs } from './auth.js';
-import { updateBookingBadge } from './navigation.js';
+import { updateBookingBadge, syncDesktopFab } from './navigation.js';
 
 export function renderCustomerProfile() {
     const container = document.getElementById('customerProfileCardContainer');
     const bookingsCard = document.getElementById('myBookingsSectionCard');
     if (!container) return;
+
+    syncDesktopFab();
 
     if (!state.currentCustomer) {
         if (bookingsCard) bookingsCard.classList.add('hidden');

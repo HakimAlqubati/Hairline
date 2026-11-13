@@ -180,28 +180,28 @@
                             <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 transition-all duration-300"></span>
                         </button>
 
-                        <!-- 2. دليل الخدمات -->
-                        <button onclick="switchTab('services')" id="desktop-nav-services" 
-                                class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
-                            <span>دليل الخدمات</span>
-                            <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
-                        </button>
-
-                        <!-- 3. الأخصائيات -->
-                        <button onclick="switchTab('specialists')" id="desktop-nav-specialists" 
-                                class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
-                            <span>الأخصائيات</span>
-                            <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
-                        </button>
-
-                        <!-- 4. عن هيرلاين -->
+                        <!-- 2. عن هيرلاين -->
                         <button onclick="switchTab('about')" id="desktop-nav-about" 
                                 class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
                             <span>عن هيرلاين</span>
                             <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
                         </button>
 
-                        <!-- 4. حسابي / حجوزاتي -->
+                        <!-- 3. دليل الخدمات -->
+                        <button onclick="switchTab('services')" id="desktop-nav-services" 
+                                class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
+                            <span>دليل الخدمات</span>
+                            <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
+                        </button>
+
+                        <!-- 4. الاخصائيات -->
+                        <button onclick="switchTab('specialists')" id="desktop-nav-specialists" 
+                                class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
+                            <span>الاخصائيات</span>
+                            <span class="desktop-nav-indicator w-5 h-0.5 rounded-full bg-gold-light mt-0.5 opacity-0 scale-x-0 transition-all duration-300"></span>
+                        </button>
+
+                        <!-- 5. حسابي / حجوزاتي -->
                         <button onclick="switchTab('account')" id="desktop-nav-account" 
                                 class="desktop-nav-item px-4 py-1.5 rounded-full text-xs lg:text-sm font-medium text-white/75 hover:text-white hover:bg-white/20 transition-all flex flex-col items-center relative cursor-pointer">
                             <div class="flex items-center gap-1.5">

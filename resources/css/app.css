@@ -192,13 +192,25 @@ i.hidden, svg.hidden {
 }
 
 @media (min-width: 768px) {
-    .sidebar-drawer.sidebar-open .drawer-item-5 {
+    .sidebar-drawer.sidebar-open .drawer-item-2 {
         transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.06s,
                     opacity 0.24s ease 0.06s;
     }
+    .sidebar-drawer.sidebar-open .drawer-item-3 {
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.10s,
+                    opacity 0.24s ease 0.10s;
+    }
+    .sidebar-drawer.sidebar-open .drawer-item-4 {
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.14s,
+                    opacity 0.24s ease 0.14s;
+    }
+    .sidebar-drawer.sidebar-open .drawer-item-5 {
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.18s,
+                    opacity 0.24s ease 0.18s;
+    }
     .sidebar-drawer.sidebar-open .drawer-item-6 {
-        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.12s,
-                    opacity 0.24s ease 0.12s;
+        transition: transform 0.26s cubic-bezier(0.16, 1, 0.3, 1) 0.22s,
+                    opacity 0.24s ease 0.22s;
     }
 }
 

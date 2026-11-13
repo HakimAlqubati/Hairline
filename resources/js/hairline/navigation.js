@@ -180,18 +180,7 @@ export function switchTab(tabName) {
         updateUrl('/privacy');
     }
 
-    if (desktopFabContainer) {
-        const hideDesktopFab = tabName === 'booking' || tabName === 'account';
-        if (hideDesktopFab) {
-            desktopFabContainer.classList.add('hidden', 'md:hidden');
-            desktopFabContainer.classList.remove('md:flex');
-            desktopFabContainer.style.display = 'none';
-        } else {
-            desktopFabContainer.classList.remove('hidden', 'md:hidden');
-            desktopFabContainer.classList.add('hidden', 'md:flex');
-            desktopFabContainer.style.display = '';
-        }
-    }
+    syncDesktopFab();
 
     syncFloatingConfirmButton();
 
@@ -213,7 +202,7 @@ export function switchTab(tabName) {
     });
 
     // Update desktop top navbar active state
-    const desktopNavIds = ['home', 'services', 'specialists', 'about', 'account'];
+    const desktopNavIds = ['home', 'about', 'services', 'specialists', 'account'];
     desktopNavIds.forEach(id => {
         const dBtn = document.getElementById(`desktop-nav-${id}`);
         if (!dBtn) return;
@@ -236,6 +225,22 @@ export function switchTab(tabName) {
     });
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+export function syncDesktopFab() {
+    const desktopFabContainer = document.getElementById('desktopFloatingBookingContainer');
+    if (!desktopFabContainer) return;
+    const isCustomerLoggedIn = Boolean(state.currentCustomer && state.currentCustomer.id);
+    const hideDesktopFab = state.currentActiveTab === 'booking' || (state.currentActiveTab === 'account' && isCustomerLoggedIn);
+    if (hideDesktopFab) {
+        desktopFabContainer.classList.add('hidden', 'md:hidden');
+        desktopFabContainer.classList.remove('md:flex');
+        desktopFabContainer.style.display = 'none';
+    } else {
+        desktopFabContainer.classList.remove('hidden', 'md:hidden');
+        desktopFabContainer.classList.add('hidden', 'md:flex');
+        desktopFabContainer.style.display = '';
+    }
 }
 
 export function openSidebarSection(sectionType) {
