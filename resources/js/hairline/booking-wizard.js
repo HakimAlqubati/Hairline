@@ -1016,13 +1016,9 @@ export function renderBookingStep() {
                             </div>
                             <div class="min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="text-xs font-bold text-gray-400">
-                                        ${subServices.length > 1 ? `أخصائية خدمة (${currentSub.name}):` : 'الأخصائية المختارة:'}
-                                    </span>
                                     <span class="font-black text-sm sm:text-base text-sage-dark">${activeSpNameAr}</span>
                                     ${activeSpNameEn ? `<span class="text-[11px] font-serif text-primary-dark tracking-wide uppercase">${activeSpNameEn}</span>` : ''}
                                 </div>
-                                <p class="text-xs font-bold text-primary truncate mt-0.5">${activeSp.role || ''}</p>
                             </div>
                         </div>
                         <button type="button" 
@@ -1037,7 +1033,7 @@ export function renderBookingStep() {
                     <div class="space-y-4 pt-1">
                         <div class="flex items-center justify-between gap-2">
                             <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
-                                اختاري اليوم المناسب:
+                                اليوم
                             </label>
                             ${!isLoadingSlots && shiftLabel ? `
                                 <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
@@ -1068,9 +1064,7 @@ export function renderBookingStep() {
 
                         <div class="pt-2">
                             <label class="block text-xs sm:text-sm font-extrabold text-sage-dark mb-2.5">
-                                ${subServices.length > 1 
-                                    ? `اختاري وقت بدء خدمة (${currentSub.name}) مع (${activeSpNameAr}):`
-                                    : `اختاري الوقت المتاح مع ${activeSpNameAr}:`}
+                                الوقت
                             </label>
                             ${isLoadingSlots ? getHairlineLogoLoaderHtml() : (isDayOff ? `
                                 <div class="p-4 rounded-2xl bg-red-50/70 border border-red-200 text-center space-y-1">

@@ -49,7 +49,7 @@ class CatalogDataService
     {
         return Cache::rememberForever(HairlineCacheService::KEY_ALL_CATEGORIES, function () {
             $categories = ServiceCategory::with([
-                'services' => fn ($q) => $q->where('is_active', true)->orderBy('sort_order'),
+                'services' => fn($q) => $q->where('is_active', true)->orderBy('sort_order'),
                 'services.group',
                 'services.pricingTiers.hairLength',
             ])
@@ -65,7 +65,7 @@ class CatalogDataService
 
                     $priceDisplay = $srv->getTranslation('price_display_override', 'ar');
                     if (! $priceDisplay && $srv->base_price > 0) {
-                        $priceDisplay = ((int) $srv->base_price).' ر.س';
+                        $priceDisplay = ((int) $srv->base_price) . ' ر.س';
                     }
 
                     return [
@@ -93,7 +93,7 @@ class CatalogDataService
                     'title' => $cat->getTranslation('name', 'ar'),
                     'title_en' => $cat->getTranslation('name', 'en'),
                     'subtitle' => $cat->getTranslation('subtitle', 'ar') ?? '',
-                    'badge_count' => count($services).' خدمة',
+                    'badge_count' => count($services) . ' خدمة',
                     'icon' => $cat->icon ?? 'scissors',
                     'page_ref' => $cat->page_ref ?? 1,
                     'services' => $services,
@@ -148,7 +148,7 @@ class CatalogDataService
             return [];
         }
 
-        $tokens = array_values(array_filter(explode(' ', $clean), fn (string $t): bool => $t !== ''));
+        $tokens = array_values(array_filter(explode(' ', $clean), fn(string $t): bool => $t !== ''));
         $results = [];
         $all = $this->getAllCategories();
 
@@ -225,7 +225,7 @@ class CatalogDataService
                     $score = 800 - mb_strlen($normalizedName);
                 }
                 // 3. Any individual word starts with the query
-                elseif (preg_match('/(^|\s)'.preg_quote($normalizedQuery, '/').'/u', $normalizedName)) {
+                elseif (preg_match('/(^|\s)' . preg_quote($normalizedQuery, '/') . '/u', $normalizedName)) {
                     $score = 600 - mb_strlen($normalizedName);
                 }
                 // 4. Substring anywhere in the service name
@@ -270,7 +270,7 @@ class CatalogDataService
         }
 
         // Sort descending by relevance score
-        usort($scored, fn (array $a, array $b): int => $b['score'] <=> $a['score']);
+        usort($scored, fn(array $a, array $b): int => $b['score'] <=> $a['score']);
 
         // Deduplicate services by name to avoid repeating identical services with length tiers
         $unique = [];
@@ -374,14 +374,14 @@ class CatalogDataService
                     $override = $srv->getTranslation('price_display_override', 'ar');
                     if ($override) {
                         if (preg_match('/(\d+)\s*-\s*(\d+)/', $override, $m)) {
-                            $priceHint = "تبدأ من {$m[1]} إلى {$m[2]} ر.س بحسب الأطوال والكثافة";
+                            $priceHint = "تبدأ من {$m[1]} إلى {$m[2]} ر.س بحسب الطول والكثافة";
                         } elseif (preg_match('/(\d+)/', $override, $m)) {
-                            $priceHint = "تبدأ من {$m[1]} ر.س بحسب الأطوال والكثافة";
+                            $priceHint = "تبدأ من {$m[1]} ر.س بحسب الطول والكثافة";
                         } else {
-                            $priceHint = str_replace(['SR', 'يبدأ'], ['ر.س', 'تبدأ'], $override).' بحسب الأطوال والكثافة';
+                            $priceHint = str_replace(['SR', 'يبدأ'], ['ر.س', 'تبدأ'], $override) . ' بحسب الطول والكثافة';
                         }
                     } else {
-                        $priceHint = 'تبدأ من '.((int) $srv->base_price).' ر.س بحسب الأطوال والكثافة';
+                        $priceHint = 'تبدأ من ' . ((int) $srv->base_price) . ' ر.س بحسب الطول والكثافة';
                     }
 
                     $subServices[] = [
@@ -402,7 +402,7 @@ class CatalogDataService
                     'title' => $cat->getTranslation('name', 'ar'),
                     'title_en' => $cat->getTranslation('name', 'en'),
                     'badge' => $cat->getTranslation('subtitle', 'ar') ?? '',
-                    'icon' => 'fa-'.$cat->icon,
+                    'icon' => 'fa-' . $cat->icon,
                     'description' => $cat->getTranslation('subtitle', 'ar') ?? '',
                     'subServices' => $subServices,
                 ];
