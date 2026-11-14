@@ -614,7 +614,10 @@ export function renderBookingStep() {
     if (step4Container && step4Container !== step3Container) step4Container.classList.add('hidden');
 
     if (state.bookingState.step === 1) {
-        if (pageTitle) pageTitle.textContent = "الخدمات المتاحة للحجز";
+        if (pageTitle) {
+            pageTitle.textContent = "الخدمات المتاحة للحجز";
+            pageTitle.classList.remove('hidden');
+        }
         if (pageSubtitle) {
             pageSubtitle.textContent = "";
             pageSubtitle.classList.add('hidden');
@@ -634,6 +637,7 @@ export function renderBookingStep() {
             pageTitle.textContent = subServices.length > 1 
                 ? `الخطوة 2: اختيار الأخصائية (${currentIdx + 1} من ${subServices.length})`
                 : "الخطوة 2: اختيار الأخصائية";
+            pageTitle.classList.remove('hidden');
         }
         if (pageSubtitle) {
             pageSubtitle.textContent = "";
@@ -708,15 +712,6 @@ export function renderBookingStep() {
             step2Body.innerHTML = `
                 <div class="space-y-4">
                     ${subServicesChipsHtml}
-
-                    <div class="p-4 rounded-2xl bg-gold-light/60 border border-gold/30 text-center space-y-1">
-                        <span class="text-[11px] font-bold text-gold-dark block">
-                            ${subServices.length > 1 ? `الخدمة (${currentIdx + 1} من ${subServices.length})` : (state.bookingState.selectedCategory?.title || 'الخدمة المختارة')}
-                        </span>
-                        <h4 class="font-black text-base sm:text-lg text-sage-dark text-center leading-relaxed">
-                            ${currentSub.name}
-                        </h4>
-                    </div>
 
                     <div class="space-y-3">
                         <div class="${linkedSpecialists.length === 1 ? 'w-full max-w-sm sm:max-w-md mx-auto' : (linkedSpecialists.length === 2 ? 'grid grid-cols-1 sm:grid-cols-2 gap-5 max-w-3xl mx-auto' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5')}">
@@ -862,6 +857,7 @@ export function renderBookingStep() {
             pageTitle.textContent = subServices.length > 1 
                 ? `الخطوة 3: تحديد الموعد (${currentIdx + 1} من ${subServices.length})` 
                 : "الخطوة 3: تحديد الموعد";
+            pageTitle.classList.remove('hidden');
         }
         if (pageSubtitle) {
             pageSubtitle.textContent = "";
@@ -1121,8 +1117,14 @@ export function renderBookingStep() {
     } else if (state.bookingState.step === 4 || state.bookingState.step === 5) {
         const lastBooking = state.confirmedBookings[0];
         const customerName = state.bookingState.confirmedCustomerName || lastBooking?.customerName || state.currentCustomer?.name || "";
-        if (pageTitle) pageTitle.textContent = "تم تأكيد حجزك بنجاح";
-        if (pageSubtitle) pageSubtitle.textContent = "رقم الحجز: " + (lastBooking?.id || '');
+        if (pageTitle) {
+            pageTitle.textContent = "";
+            pageTitle.classList.add('hidden');
+        }
+        if (pageSubtitle) {
+            pageSubtitle.textContent = "";
+            pageSubtitle.classList.add('hidden');
+        }
         if (step4Container && lastBooking) {
             const waUrl = getBookingWhatsAppShareUrl(lastBooking, customerName);
             const guestsNum = lastBooking.guests_count || lastBooking.guestsCount || state.bookingState.guestsCount || 1;
@@ -1174,20 +1176,27 @@ export function renderBookingStep() {
                             <div class="pt-3 pb-2 border-t border-dashed border-gray-200 text-right space-y-2">
                                 <span class="text-[11px] font-bold text-gray-400 block">تفاصيل جدول الخدمات والأخصائيات:</span>
                                 <div class="space-y-1.5">
-                                    ${lastBooking.items.map(it => `
+                                    ${lastBooking.items.map(it => {
+                                        const startTime = it.startTime || it.time || '';
+                                        const endTime = it.endTime || '';
+                                        const timeDisplay = (startTime && endTime) ? `${startTime} - ${endTime}` : startTime;
+
+                                        return `
                                         <div class="p-2.5 rounded-xl bg-surface border border-gray-100 flex items-center justify-between text-xs">
                                             <div class="min-w-0">
                                                 <span class="font-bold text-sage-dark block truncate">${it.serviceName}</span>
-                                                <span class="text-[10px] text-primary block mt-0.5">
-                                                    <i class="fa-regular fa-clock text-[9px] ml-1"></i>${it.startTime} - ${it.endTime}
-                                                </span>
+                                                ${timeDisplay ? `
+                                                    <span class="text-[10px] text-primary block mt-0.5">
+                                                        <i class="fa-regular fa-clock text-[9px] ml-1"></i>${timeDisplay}
+                                                    </span>
+                                                ` : ''}
                                             </div>
                                             <div class="flex items-center gap-1.5 text-primary-dark font-extrabold shrink-0">
                                                 <i class="fa-regular fa-user text-[10px] text-gold-dark"></i>
                                                 <span>${it.specialistName}</span>
                                             </div>
                                         </div>
-                                    `).join('')}
+                                    `;}).join('')}
                                 </div>
                             </div>
                         ` : ''}
@@ -1510,7 +1519,12 @@ export function getBookingWhatsAppShareUrl(booking, customerName = '') {
         `الأخصائية: ${b.specialistName}`,
         `الموعد: ${b.date}`,
         `الوقت: ${b.time}`,
-        b.items && b.items.length > 1 ? 'تفاصيل الخدمات والأخصائيات:\n' + b.items.map(it => `  • ${it.serviceName} مع الأخصائية ${it.specialistName} (${it.startTime} - ${it.endTime})`).join('\n') : null,
+        b.items && b.items.length > 1 ? 'تفاصيل الخدمات والأخصائيات:\n' + b.items.map(it => {
+            const startTime = it.startTime || it.time || '';
+            const endTime = it.endTime || '';
+            const timeDisplay = (startTime && endTime) ? `${startTime} - ${endTime}` : startTime;
+            return `  • ${it.serviceName} مع الأخصائية ${it.specialistName}${timeDisplay ? ` (${timeDisplay})` : ''}`;
+        }).join('\n') : null,
         guests && guests > 1 ? `عدد الأشخاص: ${guests} أشخاص` : null,
         notes ? `ملاحظات العميلة: ${notes}` : null,
         b.price ? `التكلفة التقديرية: ${b.price}` : null,

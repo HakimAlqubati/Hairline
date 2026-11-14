@@ -938,10 +938,20 @@ export function finalizeConfirmedBookingFromServer(data) {
     state.bookingState.confirmedCustomerName = customerName;
     state.bookingState.confirmedCustomerEmail = data.customer?.email || '';
 
-    if (Array.isArray(data.customer_bookings)) {
+    if (data.booking) {
+        if (Array.isArray(data.customer_bookings)) {
+            const existingIdx = data.customer_bookings.findIndex(b => b.id === data.booking.id);
+            if (existingIdx !== -1) {
+                data.customer_bookings[existingIdx] = { ...data.customer_bookings[existingIdx], ...data.booking };
+            } else {
+                data.customer_bookings.unshift(data.booking);
+            }
+            state.confirmedBookings = data.customer_bookings;
+        } else {
+            state.confirmedBookings.unshift(data.booking);
+        }
+    } else if (Array.isArray(data.customer_bookings)) {
         state.confirmedBookings = data.customer_bookings;
-    } else if (data.booking) {
-        state.confirmedBookings.unshift(data.booking);
     }
 
     renderCustomerProfile();

@@ -86,10 +86,18 @@ class BookingPayloadFormatter
                             $startFormatted = $parsed->format('h:i').($parsed->format('A') === 'AM' ? ' ص' : ' م');
                         }
 
+                        $endFormatted = '';
+                        if ($item->scheduled_end_time) {
+                            $parsedEnd = Carbon::parse($item->scheduled_end_time);
+                            $endFormatted = $parsedEnd->format('h:i').($parsedEnd->format('A') === 'AM' ? ' ص' : ' م');
+                        }
+
                         return [
                             'serviceName' => $item->service?->getTranslation('name', 'ar') ?? '',
                             'specialistName' => $item->specialist?->getTranslation('name', 'ar') ?? '',
                             'time' => $startFormatted,
+                            'startTime' => $startFormatted,
+                            'endTime' => $endFormatted,
                             'durationMinutes' => $item->duration_minutes,
                         ];
                     })->all(),
