@@ -84,7 +84,7 @@
     <x-global-loader :salonIdentity="$salonIdentity" />
 
     <!-- Responsive App Canvas (Phone frame on mobile, full-screen website layout on desktop) -->
-    <div id="appContainer" class="w-full max-w-[480px] md:max-w-none min-h-screen bg-surface md:bg-transparent relative flex flex-col shadow-2xl md:shadow-none overflow-x-hidden pb-28 md:pb-16 transition-all duration-300">
+    <div id="appContainer" class="w-full max-w-[480px] md:max-w-none min-h-screen bg-surface md:bg-transparent relative flex flex-col shadow-2xl md:shadow-none overflow-x-clip pb-28 md:pb-16 transition-all duration-300">
 
         <!-- 1. TOP HEADER COMPONENT (Edge-to-edge full screen with contained inner content) -->
         <x-header :salonIdentity="$salonIdentity" :workingHours="$workingHours" />
@@ -99,7 +99,7 @@
         </main>
 
         <!-- 3. DYNAMIC TAB VIEWS -->
-        <x-tabs.services :menuPages="$menuPages ?? []" :isActive="($initialView ?? 'home') === 'services'" />
+        <x-tabs.services :menuPages="$menuPages ?? []" :scrollspySections="$scrollspySections ?? null" :isActive="($initialView ?? 'home') === 'services'" />
         <x-tabs.specialists :specialists="$specialistsData ?? []" :isActive="($initialView ?? 'home') === 'specialists'" />
         <x-tabs.booking :bookableCategories="$bookableCategories ?? []" :isActive="($initialView ?? 'home') === 'booking'" />
         <x-tabs.about :salonIdentity="$salonIdentity" :stats="$stats" :aboutUs="$aboutUs" :workingHours="$workingHours ?? []" :location="$location ?? []" :contactLinks="$contactLinks ?? []" :isActive="($initialView ?? 'home') === 'about'" />

@@ -2,6 +2,7 @@ import { state, salonIdentity, workingHours, location } from './state.js';
 import { showBottomSheet, closeBottomSheet } from './ui-modals.js';
 import { renderCustomerProfile, renderMyBookings } from './profile.js';
 import { syncFloatingConfirmButton } from './booking-wizard.js';
+import { syncServicesScrollspy } from './services-scrollspy.js';
 
 export function updateUrl(path) {
     if (window.history && window.history.pushState) {
@@ -132,6 +133,7 @@ export function switchTab(tabName) {
     if (tabName === 'services') {
         if (servicesView) servicesView.classList.remove('hidden');
         updateUrl('/services');
+        requestAnimationFrame(() => syncServicesScrollspy());
     }
     if (tabName === 'specialists') {
         if (specialistsView) {

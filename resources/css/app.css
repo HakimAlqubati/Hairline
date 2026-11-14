@@ -42,7 +42,13 @@ body {
     font-family: 'Tajawal', sans-serif;
     background-color: #F6F3ED;
     color: #211C18;
-    overflow-x: hidden;
+    overflow-x: clip;
+}
+
+.services-sticky-bar {
+    position: sticky;
+    top: var(--hairline-header-visible-height, 0px);
+    transition: top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .no-scrollbar::-webkit-scrollbar {

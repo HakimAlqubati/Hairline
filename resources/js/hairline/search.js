@@ -1,5 +1,6 @@
 import { unifiedSearchConfig, state, routes } from './state.js';
 import { setCategoryExpandedState, expandAllBookingCategories, syncToggleAllTreeButton } from './booking-wizard.js';
+import { syncServicesScrollspy, toggleServicesScrollspyMenu } from './services-scrollspy.js';
 
 export function normalizeSearchText(str) {
     if (!str) return '';
@@ -456,14 +457,20 @@ export function filterServicesCatalogView(rawQuery, normalizedQuery) {
     const pagesContainer = document.getElementById('pagesContainer');
     const resultsContainer = document.getElementById('servicesSearchResultsContainer');
     const resultsList = document.getElementById('servicesSearchResultsList');
+    const scrollspyContainer = document.getElementById('servicesScrollspyContainer');
 
     if (!normalizedQuery) {
         if (pagesContainer) pagesContainer.classList.remove('hidden');
+        if (scrollspyContainer) scrollspyContainer.classList.remove('hidden');
         if (resultsContainer) resultsContainer.classList.add('hidden');
         if (resultsList) resultsList.innerHTML = '';
         updateSearchFeedbackUI('services', '', '', 0);
+        requestAnimationFrame(() => syncServicesScrollspy());
         return;
     }
+
+    if (scrollspyContainer) scrollspyContainer.classList.add('hidden');
+    toggleServicesScrollspyMenu(false);
 
     const pages = document.querySelectorAll('#servicesTabView .menu-page');
     const matchedItems = [];

@@ -270,6 +270,12 @@
         const scrollThreshold = 75; // Distance from top before hide-on-down triggers
         const deltaThreshold = 5;   // Ignore micro-scrolls < 5px to prevent twitching
 
+        function syncStickyHeaderOffset(header, hidden) {
+            if (!header) return;
+            const offset = hidden ? '0px' : header.offsetHeight + 'px';
+            document.documentElement.style.setProperty('--hairline-header-visible-height', offset);
+        }
+
         function updateHeaderScroll() {
             const header = document.getElementById('mainHeader');
             if (!header) return;
@@ -285,6 +291,7 @@
                     isHeaderHidden = false;
                 }
                 header.classList.remove('header-floating');
+                syncStickyHeaderOffset(header, false);
                 lastScrollY = currentScrollY;
                 return;
             }
@@ -303,6 +310,7 @@
                     header.classList.remove('header-visible');
                     header.classList.add('header-hidden');
                     isHeaderHidden = true;
+                    syncStickyHeaderOffset(header, true);
                 }
             } 
             // 5. Scrolling UP -> Reveal header with beautiful spring ease-out
@@ -311,6 +319,7 @@
                     header.classList.remove('header-hidden');
                     header.classList.add('header-visible');
                     isHeaderHidden = false;
+                    syncStickyHeaderOffset(header, false);
                 }
             }
 
@@ -334,6 +343,7 @@
             const header = document.getElementById('mainHeader');
             if (placeholder && header) {
                 placeholder.style.height = header.offsetHeight + 'px';
+                syncStickyHeaderOffset(header, isHeaderHidden);
             }
         }
 

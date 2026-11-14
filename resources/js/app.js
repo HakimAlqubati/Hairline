@@ -126,6 +126,13 @@ import {
     filterBookingTreeView,
     initServicesSearch
 } from './hairline/search.js';
+import {
+    scrollToServiceSection,
+    toggleServicesScrollspyMenu,
+    selectServiceSectionFromMenu,
+    syncServicesScrollspy,
+    initServicesScrollspy
+} from './hairline/services-scrollspy.js';
 
 // Retain Alpine.js helper if needed
 window.swipeToClose = function (panel, closeCallback) {
@@ -290,7 +297,14 @@ Object.assign(window, {
     updateSearchFeedbackUI,
     filterServicesCatalogView,
     filterBookingTreeView,
-    initServicesSearch
+    initServicesSearch,
+
+    // Services Sticky Scrollspy
+    scrollToServiceSection,
+    toggleServicesScrollspyMenu,
+    selectServiceSectionFromMenu,
+    syncServicesScrollspy,
+    initServicesScrollspy
 });
 
 /**
@@ -302,6 +316,7 @@ function initHairlineApp() {
     updateBookingBadge();
     renderMyBookings();
     initServicesSearch();
+    initServicesScrollspy();
     initSidebarListeners();
     initSpecialistKeyboardAndTouch();
     initAuthMessageListener();

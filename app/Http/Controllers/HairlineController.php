@@ -107,6 +107,8 @@ class HairlineController extends Controller
                 ->all();
         }
 
+        $menuPages = $this->catalogMenu->getMenuPages();
+
         return view('hairline', [
             'initialView' => $initialView,
             'salonIdentity' => $identity,
@@ -119,7 +121,8 @@ class HairlineController extends Controller
             'walkInServices' => $this->catalog->getWalkInServicesGrouped(),
             'bookableCategories' => $this->catalog->getBookableCategoriesWithSpecialists(),
             'specialistsData' => $this->specialists->getAllSpecialists(),
-            'menuPages' => $this->catalogMenu->getMenuPages(),
+            'menuPages' => $menuPages,
+            'scrollspySections' => $this->catalogMenu->getScrollspySections($menuPages),
             'bookingDates' => $this->availabilityService->getUpcomingDates(7),
             'currentCustomer' => $currentCustomer,
             'initialBookings' => $initialBookings,

@@ -116,4 +116,60 @@ class CatalogMenuDataService
             return $pages;
         });
     }
+
+    /**
+     * Build the sticky scrollspy navigation sections dynamically from active backend catalog pages.
+     *
+     * @param  array<int, array<string, mixed>>|null  $menuPages
+     * @return array<int, array{id: string, title_ar: string, title_en: string, page_number: int}>
+     */
+    public function getScrollspySections(?array $menuPages = null): array
+    {
+        $pages = $menuPages ?? $this->getMenuPages();
+        $sections = [];
+
+        foreach ($pages as $page) {
+            $pageNumber = (int) ($page['page_number'] ?? 0);
+            if ($pageNumber <= 0) {
+                continue;
+            }
+
+            if (! empty($page['sections']) && is_array($page['sections'])) {
+                foreach (array_values($page['sections']) as $idx => $sec) {
+                    $titleAr = $this->cleanScrollspyTitle($sec['title_ar'] ?? '');
+                    if ($titleAr === '') {
+                        continue;
+                    }
+
+                    $sections[] = [
+                        'id' => "service-section-{$pageNumber}-{$idx}",
+                        'title_ar' => $titleAr,
+                        'title_en' => (string) ($sec['title_en'] ?? ''),
+                        'page_number' => $pageNumber,
+                    ];
+                }
+
+                continue;
+            }
+
+            $titleAr = $this->cleanScrollspyTitle($page['title_ar'] ?? '');
+            if ($titleAr === '') {
+                continue;
+            }
+
+            $sections[] = [
+                'id' => "service-section-{$pageNumber}",
+                'title_ar' => $titleAr,
+                'title_en' => (string) ($page['title_en'] ?? ''),
+                'page_number' => $pageNumber,
+            ];
+        }
+
+        return $sections;
+    }
+
+    private function cleanScrollspyTitle(string $title): string
+    {
+        return trim((string) preg_replace('/\x{0640}+/u', '', $title));
+    }
 }
