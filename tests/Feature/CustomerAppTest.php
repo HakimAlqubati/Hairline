@@ -150,7 +150,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertDontSee('1 أخصائيات متاحات');
         $response->assertSee('id="floatingBookingConfirmContainer"', false);
         $response->assertSee('id="floatingBookingConfirmBtn"', false);
-        $response->assertSee('تأكيد الحجز واختيار الأخصائية');
+        $response->assertSee('التالي');
         $response->assertSee('الخدمات المتاحة للحجز');
         $response->assertSee('خدمات الشعر');
         $response->assertSee('معالجات الشعر');

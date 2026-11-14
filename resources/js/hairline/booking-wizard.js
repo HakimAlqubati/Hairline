@@ -303,9 +303,9 @@ export function syncFloatingConfirmButton() {
     if (!container) return;
 
     let shouldShow = false;
-    let titleText = "تأكيد الحجز واختيار الأخصائية";
+    let titleText = "التالي";
     let subtitleText = "";
-    let iconClass = "fa-solid fa-check text-xs";
+    let iconClass = "fa-solid fa-arrow-left text-xs";
 
     if (state.currentActiveTab === 'booking') {
         const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
@@ -318,20 +318,17 @@ export function syncFloatingConfirmButton() {
             const count = subServices.length;
             if (count > 0) {
                 shouldShow = true;
-                titleText = "تأكيد الحجز واختيار الأخصائية";
-                subtitleText = count === 1
-                    ? subServices[0].name
-                    : `متابعة الحجز (${count} خدمات مختارة)`;
-                iconClass = "fa-solid fa-check text-xs";
+                titleText = "التالي";
+                subtitleText = "";
+                iconClass = "fa-solid fa-arrow-left text-xs";
             }
         } else if (state.bookingState.step === 2) {
             const assigned = currentSub && state.bookingState.selectedSpecialistsByService?.[currentSub.id];
             if (assigned) {
                 shouldShow = true;
-                const spNameAr = (assigned.name || '').split('|')[0].trim();
-                titleText = "متابعة لتحديد الوقت";
-                subtitleText = `${currentSub.name} • الأخصائية: ${spNameAr}`;
-                iconClass = "fa-solid fa-user-check text-xs";
+                titleText = "التالي";
+                subtitleText = "";
+                iconClass = "fa-solid fa-arrow-left text-xs";
             }
         } else if (state.bookingState.step === 3) {
             const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
@@ -346,15 +343,13 @@ export function syncFloatingConfirmButton() {
 
                 if (allScheduled || subServices.length <= 1) {
                     shouldShow = true;
-                    titleText = "تأكيد الحجز ومتابعة البيانات";
-                    subtitleText = subServices.length > 1 
-                        ? `${state.bookingState.selectedDate || 'الموعد'} • تم جدولة جميع الخدمات (${subServices.length})`
-                        : `${state.bookingState.selectedDate || 'الموعد'} • الموعد (${currentTime})`;
-                    iconClass = "fa-solid fa-calendar-check text-xs";
+                    titleText = "تأكيد الحجز";
+                    subtitleText = "";
+                    iconClass = "fa-solid fa-check text-xs";
                 } else if (currentIdx + 1 < subServices.length) {
                     shouldShow = true;
-                    titleText = `متابعة للخدمة (${currentIdx + 2} من ${subServices.length})`;
-                    subtitleText = `${currentSub.name} (${currentTime})`;
+                    titleText = "الخدمة التالية";
+                    subtitleText = "";
                     iconClass = "fa-solid fa-arrow-left text-xs";
                 }
             }
@@ -367,12 +362,20 @@ export function syncFloatingConfirmButton() {
     }
 
     if (whatsappContainer) {
-        whatsappContainer.classList.toggle('-translate-y-16', shouldShow);
+        if (state.currentActiveTab === 'booking') {
+            whatsappContainer.classList.add('hidden');
+        } else {
+            whatsappContainer.classList.remove('hidden');
+            whatsappContainer.classList.toggle('-translate-y-16', shouldShow);
+        }
     }
 
     if (shouldShow) {
         if (titleEl) titleEl.textContent = titleText;
-        if (labelEl) labelEl.textContent = subtitleText;
+        if (labelEl) {
+            labelEl.textContent = subtitleText;
+            labelEl.classList.toggle('hidden', !subtitleText);
+        }
         if (iconEl) iconEl.className = iconClass;
 
         container.classList.remove('hidden');
@@ -553,7 +556,6 @@ export function proceedToTimeStep() {
 export function updateStepperUI(step) {
     const bookingStepper = document.getElementById('bookingStepper');
     const backBtn = document.getElementById('bookingPageBackBtn');
-    const toggleAllBtn = document.getElementById('toggleAllTreeBtn');
 
     if (bookingStepper) {
         if (step >= 1 && step <= 3) {
@@ -568,14 +570,6 @@ export function updateStepperUI(step) {
             backBtn.classList.remove('hidden');
         } else {
             backBtn.classList.add('hidden');
-        }
-    }
-
-    if (toggleAllBtn) {
-        if (step === 1) {
-            toggleAllBtn.classList.remove('hidden');
-        } else {
-            toggleAllBtn.classList.add('hidden');
         }
     }
 
@@ -642,10 +636,8 @@ export function renderBookingStep() {
                 : "الخطوة 2: اختيار الأخصائية";
         }
         if (pageSubtitle) {
-            pageSubtitle.textContent = subServices.length > 1 
-                ? `اختاري الأخصائية لخدمة: ${currentSub.name}`
-                : "يرجى اختيار الأخصائية المناسبة لمتابعة الحجز";
-            pageSubtitle.classList.remove('hidden');
+            pageSubtitle.textContent = "";
+            pageSubtitle.classList.add('hidden');
         }
         if (step2Container) step2Container.classList.remove('hidden');
 
@@ -695,7 +687,6 @@ export function renderBookingStep() {
                                 <div class="px-3.5 py-1.5 rounded-full text-xs font-black shrink-0 border-2 border-primary bg-primary text-white shadow-xs flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-white/20 text-white text-[10px] flex items-center justify-center font-mono">${idx + 1}</span>
                                     <span>${item.name}</span>
-                                    <span class="text-[10px] opacity-90">(اختيار الأخصائية)</span>
                                 </div>
                             `;
                         } else {
@@ -873,10 +864,8 @@ export function renderBookingStep() {
                 : "الخطوة 3: تحديد الموعد";
         }
         if (pageSubtitle) {
-            pageSubtitle.textContent = subServices.length > 1 
-                ? `حددي اليوم والوقت لخدمة: ${currentSub.name}`
-                : "اختاري اليوم والوقت المناسب لزيارتكِ";
-            pageSubtitle.classList.remove('hidden');
+            pageSubtitle.textContent = "";
+            pageSubtitle.classList.add('hidden');
         }
         if (step3Container) step3Container.classList.remove('hidden');
 
@@ -925,7 +914,6 @@ export function renderBookingStep() {
                                 <div class="px-3.5 py-1.5 rounded-full text-xs font-black shrink-0 border-2 border-primary bg-primary text-white shadow-xs flex items-center gap-1.5">
                                     <span class="w-4 h-4 rounded-full bg-white/20 text-white text-[10px] flex items-center justify-center font-mono">${idx + 1}</span>
                                     <span>${item.name}</span>
-                                    <span class="text-[10px] opacity-90">(تحديد الوقت)</span>
                                 </div>
                             `;
                         } else {
@@ -1031,16 +1019,10 @@ export function renderBookingStep() {
 
                     <!-- Date & Time Picker Section -->
                     <div class="space-y-4 pt-1">
-                        <div class="flex items-center justify-between gap-2">
+                        <div>
                             <label class="block text-xs sm:text-sm font-extrabold text-sage-dark">
                                 اليوم
                             </label>
-                            ${!isLoadingSlots && shiftLabel ? `
-                                <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-sage-soft text-sage-dark text-[10px] font-bold border border-gold-soft/50">
-                                    <i class="fa-regular fa-calendar-check text-gold-dark"></i>
-                                    <span>${shiftLabel}</span>
-                                </span>
-                            ` : ''}
                         </div>
                         
                         <div class="flex gap-2 overflow-x-auto no-scrollbar pb-1">
@@ -1116,20 +1098,7 @@ export function renderBookingStep() {
         }
 
         if (step3Footer) {
-            if (allScheduled || (subServices.length <= 1 && state.bookingState.selectedTime)) {
-                step3Footer.innerHTML = `
-                    <div class="pt-2">
-                        <button type="button"
-                                onclick="confirmFinalBooking()"
-                                class="w-full py-4 px-6 rounded-2xl bg-primary text-white font-black text-sm sm:text-base hover:bg-primary-dark shadow-md transition cursor-pointer flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-check text-xs"></i>
-                            <span>تأكيد الحجز ومتابعة البيانات</span>
-                        </button>
-                    </div>
-                `;
-            } else {
-                step3Footer.innerHTML = '';
-            }
+            step3Footer.innerHTML = '';
         }
 
         const guestsInput = document.getElementById('bookingGuestsCountInput');

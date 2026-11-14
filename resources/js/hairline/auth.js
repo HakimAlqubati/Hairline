@@ -146,7 +146,7 @@ export function openPhoneVerificationModal() {
         if (loggedInAvatarFallback) {
             loggedInAvatarFallback.classList.remove('hidden');
         }
-        if (btnText) btnText.textContent = 'إرسال رمز التحقق وتأكيد البيانات';
+        if (btnText) btnText.textContent = 'تأكيد وإرسال الرمز';
         if (btnIcon) btnIcon.className = 'fa-solid fa-paper-plane text-white text-sm';
     }
 

@@ -182,6 +182,11 @@ export function switchTab(tabName) {
 
     syncDesktopFab();
 
+    const whatsappContainer = document.getElementById('floatingWhatsappContainer');
+    if (whatsappContainer) {
+        whatsappContainer.classList.toggle('hidden', tabName === 'booking');
+    }
+
     syncFloatingConfirmButton();
 
     // Update bottom nav active state (Mobile)

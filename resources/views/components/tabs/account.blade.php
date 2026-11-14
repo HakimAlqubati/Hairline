@@ -96,7 +96,7 @@
                            name="phone"
                            dir="ltr"
                            maxlength="14"
-                           placeholder="05XXXXXXXX"
+                           placeholder="050 123 4567"
                            class="w-full py-3 pr-3.5 pl-9 rounded-2xl bg-surface border border-gray-200 focus:border-sage-dark focus:bg-white focus:outline-none text-left font-bold text-xs sm:text-sm text-sage-dark tracking-wider transition" />
                     <i class="fa-solid fa-phone text-gray-400 text-xs absolute left-3.5"></i>
                 </div>

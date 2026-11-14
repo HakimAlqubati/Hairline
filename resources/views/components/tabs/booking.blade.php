@@ -21,12 +21,6 @@
                     <p id="bookingPageSubtitle" class="hidden text-xs sm:text-sm text-gray-500 mt-0.5"></p>
                 </div>
             </div>
-
-            <!-- Collapse / Expand All Toggle (Visible in Step 1) -->
-            <button type="button" id="toggleAllTreeBtn" onclick="toggleAllBookingCategories()"
-                class="inline-flex items-center px-3.5 py-1.5 rounded-full text-xs font-bold text-primary-dark bg-white/90 hover:bg-primary hover:text-white border border-primary-soft/70 transition cursor-pointer shrink-0">
-                <span id="toggleAllTreeText">طي الكل</span>
-            </button>
         </div>
 
         <!-- 3-Step Progress Bar -->

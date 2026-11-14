@@ -109,14 +109,11 @@
 
             <!-- CUSTOMER REGISTRATION INPUT VIEW (NAME + PHONE VISIBLE TOGETHER, NO GUEST BOOKING) -->
             <div id="guestPhoneInputContainer" class="space-y-4">
-                <div class="flex flex-col items-center text-center space-y-1.5 pt-1">
-                    <div class="w-15 h-15 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-0.5">
-                        <i class="fa-solid fa-user-check text-xl"></i>
+                <div class="flex flex-col items-center text-center space-y-1 pt-1">
+                    <div class="w-13 h-13 rounded-full bg-gradient-to-b from-primary-light to-surface border-2 border-primary/40 flex items-center justify-center text-primary-dark shadow-sm mb-0.5">
+                        <i class="fa-solid fa-user-check text-lg"></i>
                     </div>
-                    <h4 class="text-lg sm:text-xl font-black text-sage-dark tracking-tight">تسجيل العميلة وتأكيد الحجز</h4>
-                    <p class="text-[11px] sm:text-xs text-gray-500 font-medium">
-                        أدخلي اسمكِ الكريم ورقم جوالكِ لتلقي رمز التحقق عبر واتساب
-                    </p>
+                    <h4 class="text-base sm:text-lg font-black text-sage-dark tracking-tight">تسجيل العميلة وتأكيد الحجز</h4>
                 </div>
 
                 <!-- Field 1: Customer Name Input (Always Visible) -->
@@ -147,7 +144,7 @@
                                inputmode="numeric"
                                dir="ltr"
                                maxlength="10"
-                               placeholder="05XXXXXXXX"
+                               placeholder="050 123 4567"
                                autocomplete="tel"
                                oninput="handlePhoneInputValidation(this)"
                                class="w-full py-3.5 pr-4 pl-22 rounded-2xl bg-surface border border-gray-200 focus:border-primary focus:bg-white focus:ring-2 focus:ring-primary/15 focus:outline-none text-left font-bold text-sm text-sage-dark tracking-wider transition" />
