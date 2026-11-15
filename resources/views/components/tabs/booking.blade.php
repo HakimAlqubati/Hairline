@@ -243,7 +243,7 @@
                             id="desktopBookingSubmitBtn"
                             onclick="handleFloatingBookingConfirm()"
                             disabled
-                            class="w-full py-3.5 px-4 rounded-2xl bg-gray-100 text-gray-400 font-extrabold text-sm transition-all flex items-center justify-center gap-2 cursor-not-allowed">
+                            class="w-full py-3.5 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm shadow-lg shadow-primary/20 active:scale-[0.985] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed">
                         <span id="desktopBookingSubmitBtnText">اختاري خدمة</span>
                         <i id="desktopBookingSubmitBtnIcon" class="fa-solid fa-arrow-left text-xs"></i>
                     </button>

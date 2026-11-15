@@ -17,6 +17,7 @@ test('booking page renders desktop 65/35 split layout and mobile immersive booki
         ->assertSee('id="desktopSummaryCountBadge"', false)
         ->assertSee('id="desktopSummaryItemsContainer"', false)
         ->assertSee('id="desktopBookingSubmitBtn"', false)
+        ->assertSee('disabled:bg-gray-100', false)
         ->assertSee('id="mobileBookingTopBar"', false)
         ->assertSee('id="mobileBookingCloseBtn"', false)
         ->assertSee('id="mobileBookingTopTitleText"', false)
