@@ -78,7 +78,7 @@
     </style>
 </head>
 
-<body class="min-h-screen has-loader bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
+<body class="{{ ($initialView ?? 'home') === 'booking' ? 'booking-immersive-mode ' : '' }}min-h-screen has-loader bg-[#F0EBE3] md:bg-[#FAF8F5] flex justify-center md:block selection:bg-sage-dark selection:text-white">
 
     <!-- 0. GLOBAL LUXURY PRELOADER -->
     <x-global-loader :salonIdentity="$salonIdentity" />
@@ -160,7 +160,7 @@
             </a>
         </div>
 
-        <!-- 11. FLOATING CONFIRM SERVICE BUTTON (Bottom-Right of Website, Dynamic Across Steps 1, 2 & 3) -->
+        <!-- 11. FLOATING CONFIRM SERVICE BUTTON (Kept hidden in DOM for backwards compatibility) -->
         <div id="floatingBookingConfirmContainer"
              class="fixed bottom-24 md:bottom-8 right-4 sm:right-6 md:right-8 z-50 hidden opacity-0 translate-y-4 scale-95 pointer-events-none transition-all duration-300 ease-out">
             <button type="button"
@@ -180,6 +180,9 @@
                 </div>
             </button>
         </div>
+
+        <!-- 12. MOBILE IMMERSIVE BOOKING BOTTOM BAR, EXPANDED SUMMARY SHEET & CLOSE CONFIRM MODAL -->
+        <x-booking-mobile-ui />
 
     </div>
 </body>

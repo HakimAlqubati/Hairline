@@ -51,6 +51,30 @@ body {
     transition: top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Desktop Booking 35% Summary Sidebar (Bounded strictly to visible viewport) */
+.desktop-booking-sidebar {
+    position: sticky;
+    top: calc(var(--hairline-header-visible-height, 92px) + 1rem);
+    transition: top 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.desktop-booking-summary-card {
+    max-height: calc(100dvh - var(--hairline-header-visible-height, 92px) - 2rem);
+    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Mobile Immersive Booking Mode (Hides Top Header & Bottom Tabs) */
+@media (max-width: 767px) {
+    body.booking-immersive-mode #headerPlaceholder,
+    body.booking-immersive-mode #mobileBottomNav {
+        display: none !important;
+    }
+
+    body.booking-immersive-mode #appContainer {
+        padding-bottom: 0 !important;
+    }
+}
+
 .no-scrollbar::-webkit-scrollbar {
     display: none;
 }

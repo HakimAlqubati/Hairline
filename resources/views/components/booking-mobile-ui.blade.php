@@ -1,0 +1,127 @@
+{{-- Mobile Immersive Booking Bottom Summary Bar, Half-Screen Expanded Sheet & Close Confirmation Popup --}}
+
+<!-- 1. Mobile Sticky Bottom Summary Bar (Full-width, 50/50 Split) -->
+<div id="mobileBookingBottomBar"
+     class="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-30 hidden translate-y-full opacity-0 pointer-events-none transition-all duration-300 ease-out">
+    <div class="bg-white/95 backdrop-blur-md border-t border-gold-soft/80 shadow-[0_-10px_30px_-5px_rgba(33,28,24,0.12)] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))] rounded-t-3xl">
+        <div class="grid grid-cols-2 gap-3 items-center">
+            <!-- Right Half: Selected Services Count + Up Arrow (Opens Half-Screen Sheet) -->
+            <button type="button"
+                    id="mobileBookingSummaryToggleBtn"
+                    onclick="toggleMobileBookingSummarySheet(true)"
+                    aria-expanded="false"
+                    aria-controls="mobileBookingSummarySheet"
+                    class="flex items-center justify-between gap-2 px-3.5 py-2.5 rounded-2xl bg-surface hover:bg-primary-light/60 border border-primary-soft/80 text-right transition cursor-pointer active:scale-[0.98] min-w-0">
+                <div class="min-w-0">
+                    <span id="mobileBottomSummaryCount" class="block text-xs sm:text-sm font-black text-sage-dark truncate">
+                        0 خدمات
+                    </span>
+                    <span class="block text-[11px] font-bold text-primary-dark truncate">
+                        التفاصيل
+                    </span>
+                </div>
+                <span class="w-7 h-7 rounded-full bg-primary-light text-primary-dark flex items-center justify-center shrink-0">
+                    <i class="fa-solid fa-chevron-up text-[11px]"></i>
+                </span>
+            </button>
+
+            <!-- Left Half: Primary Action Button ("التالي" / "تأكيد الحجز") -->
+            <button type="button"
+                    id="mobileBookingActionBtn"
+                    onclick="handleFloatingBookingConfirm()"
+                    class="w-full py-3.5 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm shadow-md shadow-primary/25 active:scale-[0.98] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed">
+                <span id="mobileBookingActionBtnText">التالي</span>
+                <i id="mobileBookingActionBtnIcon" class="fa-solid fa-arrow-left text-xs"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 2. Mobile Expanded Summary Bottom Sheet (Covers ~Half Screen) -->
+<div id="mobileBookingSummaryBackdrop"
+     onclick="toggleMobileBookingSummarySheet(false)"
+     class="md:hidden fixed inset-0 bg-black/50 backdrop-blur-[2px] z-40 hidden opacity-0 transition-opacity duration-300"></div>
+
+<div id="mobileBookingSummarySheet"
+     role="dialog"
+     aria-modal="true"
+     aria-labelledby="mobileSheetTitle"
+     class="md:hidden fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[54dvh] max-h-[68dvh] min-h-[300px] z-50 bg-white rounded-t-[28px] shadow-2xl border-t border-gold-soft/80 flex flex-col overflow-hidden hidden translate-y-full transition-transform duration-300 ease-out">
+
+    <!-- Drag Handle & Fixed Header -->
+    <div class="shrink-0 px-5 pt-3 pb-3.5 bg-surface/80 border-b border-primary-soft/50">
+        <div class="w-11 h-1.5 bg-gray-300 rounded-full mx-auto mb-3"></div>
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <span class="w-9 h-9 rounded-xl bg-primary-light text-primary-dark flex items-center justify-center shrink-0">
+                    <i class="fa-regular fa-calendar-check text-sm"></i>
+                </span>
+                <div>
+                    <h3 id="mobileSheetTitle" class="text-sm sm:text-base font-black text-sage-dark leading-tight">
+                        ملخص الحجز
+                    </h3>
+                    <span id="mobileSheetCountBadge" class="text-[11px] font-bold text-primary-dark">
+                        0 خدمات
+                    </span>
+                </div>
+            </div>
+
+            <button type="button"
+                    onclick="toggleMobileBookingSummarySheet(false)"
+                    aria-label="إغلاق ملخص الحجز"
+                    class="w-9 h-9 rounded-full bg-white text-gray-500 hover:bg-red-50 hover:text-red-500 border border-gray-200/80 flex items-center justify-center shadow-2xs transition cursor-pointer">
+                <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Independent Scrollable Middle List -->
+    <div id="mobileSheetItemsContainer" class="flex-1 min-h-0 overflow-y-auto hairline-custom-scroll p-4 space-y-2.5">
+        <!-- Populated dynamically by booking-wizard.js (no prices shown) -->
+    </div>
+
+    <!-- Fixed Bottom Submit Footer -->
+    <div class="shrink-0 p-4 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] bg-white border-t border-primary-soft/50">
+        <button type="button"
+                id="mobileSheetActionBtn"
+                onclick="handleMobileSheetSubmit()"
+                class="w-full py-3.5 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-sm shadow-lg shadow-primary/20 active:scale-[0.985] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:bg-gray-100 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed">
+            <span id="mobileSheetActionBtnText">التالي</span>
+            <i id="mobileSheetActionBtnIcon" class="fa-solid fa-arrow-left text-xs"></i>
+        </button>
+    </div>
+</div>
+
+<!-- 3. Mobile Close Booking Confirmation Modal -->
+<div id="bookingCloseConfirmModal"
+     role="alertdialog"
+     aria-modal="true"
+     aria-labelledby="bookingCloseConfirmTitle"
+     class="fixed inset-0 z-[65] hidden items-center justify-center p-4 bg-black/60 backdrop-blur-xs transition-opacity duration-200 opacity-0">
+    <div id="bookingCloseConfirmCard"
+         class="w-full max-w-[360px] rounded-[28px] bg-white border border-gold-soft/80 shadow-2xl p-6 text-center space-y-4 transform scale-95 transition-all duration-200">
+        <div class="w-14 h-14 rounded-full bg-amber-50 border border-amber-200 text-amber-600 mx-auto flex items-center justify-center">
+            <i class="fa-solid fa-triangle-exclamation text-xl"></i>
+        </div>
+        <div class="space-y-1">
+            <h4 id="bookingCloseConfirmTitle" class="text-base sm:text-lg font-black text-sage-dark">
+                إغلاق الحجز؟
+            </h4>
+            <p class="text-xs sm:text-[13px] text-gray-500">
+                ستفقدين اختياراتك الحالية.
+            </p>
+        </div>
+        <div class="grid grid-cols-2 gap-2.5 pt-1">
+            <button type="button"
+                    onclick="closeBookingCloseConfirmModal()"
+                    class="py-3 px-4 rounded-2xl bg-primary hover:bg-primary-dark text-white font-extrabold text-xs sm:text-sm shadow-sm transition cursor-pointer">
+                متابعة
+            </button>
+            <button type="button"
+                    onclick="confirmCloseMobileBooking()"
+                    class="py-3 px-4 rounded-2xl bg-surface hover:bg-red-50 text-sage-dark hover:text-red-600 border border-gray-200 hover:border-red-200 font-extrabold text-xs sm:text-sm transition cursor-pointer">
+                إغلاق
+            </button>
+        </div>
+    </div>
+</div>

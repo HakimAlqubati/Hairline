@@ -1,7 +1,11 @@
 import { state, salonIdentity, workingHours, location } from './state.js';
 import { showBottomSheet, closeBottomSheet } from './ui-modals.js';
 import { renderCustomerProfile, renderMyBookings } from './profile.js';
-import { syncFloatingConfirmButton } from './booking-wizard.js';
+import {
+    syncFloatingConfirmButton,
+    toggleMobileBookingSummarySheet,
+    closeBookingCloseConfirmModal
+} from './booking-wizard.js';
 import { syncServicesScrollspy } from './services-scrollspy.js';
 
 export function updateUrl(path) {
@@ -183,6 +187,11 @@ export function switchTab(tabName) {
     }
 
     syncDesktopFab();
+    document.body.classList.toggle('booking-immersive-mode', tabName === 'booking');
+    if (tabName !== 'booking') {
+        toggleMobileBookingSummarySheet(false);
+        closeBookingCloseConfirmModal();
+    }
 
     const whatsappContainer = document.getElementById('floatingWhatsappContainer');
     if (whatsappContainer) {

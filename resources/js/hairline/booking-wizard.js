@@ -44,6 +44,8 @@ export function openBookingFlow() {
     if (charCount) charCount.textContent = '0 / 1000';
 
     clearAllServiceCheckboxes();
+    toggleMobileBookingSummarySheet(false);
+    closeBookingCloseConfirmModal();
     if (typeof window.clearUnifiedServiceSearch === 'function') {
         window.clearUnifiedServiceSearch('booking', false);
     }
@@ -194,6 +196,10 @@ export function clearAllServiceCheckboxes() {
     state.bookingState.selectedSubService = null;
     state.bookingState.selectedCategory = null;
     state.bookingState.selectedSpecialistsByService = {};
+    state.bookingState.selectedTimesByService = {};
+    state.bookingState.selectedTimesBySpecialist = {};
+    state.bookingState.currentServiceIndex = 0;
+    toggleMobileBookingSummarySheet(false);
     syncFloatingConfirmButton();
 }
 
@@ -248,8 +254,16 @@ export function handleServiceCheckboxChange(checkboxEl, subId, catId = null) {
         if (activeRow) {
             activeRow.classList.remove('bg-gold-light/40');
         }
-        state.bookingState.selectedSubServices = state.bookingState.selectedSubServices.filter(s => s.id !== subId);
-        delete state.bookingState.selectedSpecialistsByService[subId];
+        state.bookingState.selectedSubServices = state.bookingState.selectedSubServices.filter(s => String(s.id) !== String(subId));
+        if (state.bookingState.selectedSpecialistsByService) {
+            delete state.bookingState.selectedSpecialistsByService[subId];
+        }
+        if (state.bookingState.selectedTimesByService) {
+            delete state.bookingState.selectedTimesByService[subId];
+        }
+        if (state.bookingState.currentServiceIndex >= state.bookingState.selectedSubServices.length) {
+            state.bookingState.currentServiceIndex = Math.max(0, state.bookingState.selectedSubServices.length - 1);
+        }
         state.bookingState.selectedSubService = state.bookingState.selectedSubServices[0] || null;
         if (state.bookingState.selectedSubServices.length === 0) {
             state.bookingState.selectedCategory = null;
@@ -294,101 +308,528 @@ export function handleFloatingBookingConfirm() {
     }
 }
 
-export function syncFloatingConfirmButton() {
-    const container = document.getElementById('floatingBookingConfirmContainer');
-    const titleEl = document.getElementById('floatingBookingConfirmTitle');
-    const labelEl = document.getElementById('floatingSelectedServiceText');
-    const iconEl = document.getElementById('floatingBookingConfirmIcon');
-    const whatsappContainer = document.getElementById('floatingWhatsappContainer');
-    if (!container) return;
+let mobileBottomBarHideTimeout = null;
+let mobileSummarySheetHideTimeout = null;
+let bookingCloseModalHideTimeout = null;
+let isMobileSummarySheetOpen = false;
+let mobileSheetTouchStartY = null;
+let mobileSheetListenersInitialized = false;
 
-    let shouldShow = false;
-    let titleText = "التالي";
-    let subtitleText = "";
-    let iconClass = "fa-solid fa-arrow-left text-xs";
+function escapeBookingHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
 
-    if (state.currentActiveTab === 'booking') {
-        const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
-            ? state.bookingState.selectedSubServices
-            : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
-        const currentIdx = state.bookingState.currentServiceIndex || 0;
-        const currentSub = subServices[currentIdx] || subServices[0];
+export function formatBookingServiceCountLabel(count) {
+    if (!count || count <= 0) return '0 خدمات';
+    if (count === 1) return 'خدمة واحدة';
+    if (count === 2) return 'خدمتان';
+    if (count <= 10) return `${count} خدمات`;
+    return `${count} خدمة`;
+}
 
-        if (state.bookingState.step === 1) {
-            const count = subServices.length;
-            if (count > 0) {
-                shouldShow = true;
-                titleText = "التالي";
-                subtitleText = "";
-                iconClass = "fa-solid fa-arrow-left text-xs";
-            }
-        } else if (state.bookingState.step === 2) {
-            const assigned = currentSub && state.bookingState.selectedSpecialistsByService?.[currentSub.id];
-            if (assigned) {
-                shouldShow = true;
-                titleText = "التالي";
-                subtitleText = "";
-                iconClass = "fa-solid fa-arrow-left text-xs";
-            }
-        } else if (state.bookingState.step === 3) {
-            const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
-            const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
-            const currentTime = currentSub && state.bookingState.selectedTimesByService?.[currentSub.id];
+function renderBookingSummaryItemsHtml(subServices) {
+    if (!Array.isArray(subServices) || subServices.length === 0) {
+        return `
+            <div id="desktopSummaryEmptyState" class="py-10 px-3 text-center space-y-2.5">
+                <div class="w-12 h-12 rounded-2xl bg-surface border border-primary-soft/70 mx-auto flex items-center justify-center text-primary/70">
+                    <i class="fa-regular fa-calendar-plus text-lg"></i>
+                </div>
+                <p class="text-xs sm:text-sm font-extrabold text-sage-dark">لا توجد خدمات مختارة</p>
+                <p class="text-[11px] text-gray-400">
+                    اختاري من القائمة لإضافتها هنا.
+                </p>
+            </div>
+        `;
+    }
 
-            if (!isLoadingSlots && !isDayOff && currentTime) {
-                const allScheduled = subServices.length > 0 && subServices.every(s => 
-                    Boolean(state.bookingState.selectedSpecialistsByService?.[s.id]) && 
-                    Boolean(state.bookingState.selectedTimesByService?.[s.id])
-                );
+    const selectedDateLabel = state.bookingState.selectedDate || '';
 
-                if (allScheduled || subServices.length <= 1) {
-                    shouldShow = true;
-                    titleText = "تأكيد الحجز";
-                    subtitleText = "";
-                    iconClass = "fa-solid fa-check text-xs";
-                } else if (currentIdx + 1 < subServices.length) {
-                    shouldShow = true;
-                    titleText = "الخدمة التالية";
-                    subtitleText = "";
-                    iconClass = "fa-solid fa-arrow-left text-xs";
-                }
+    return subServices.map((sub, idx) => {
+        const subIdAttr = escapeBookingHtml(sub.id);
+        const subName = escapeBookingHtml(sub.name || '');
+        const assignedSp = state.bookingState.selectedSpecialistsByService?.[sub.id];
+        const spNameRaw = assignedSp?.name ? assignedSp.name.split('|')[0].trim() : '';
+        const spName = spNameRaw ? escapeBookingHtml(spNameRaw) : '';
+        const assignedTime = state.bookingState.selectedTimesByService?.[sub.id]
+            ? escapeBookingHtml(state.bookingState.selectedTimesByService[sub.id])
+            : '';
+
+        const isActiveService = state.bookingState.step >= 2 && idx === (state.bookingState.currentServiceIndex || 0);
+
+        return `
+            <div class="group rounded-2xl p-3 border transition-all ${
+                isActiveService
+                    ? 'bg-gold-light/30 border-primary/50 shadow-2xs'
+                    : 'bg-surface/65 border-primary-soft/60 hover:border-gold-soft'
+            }">
+                <div class="flex items-start justify-between gap-2.5">
+                    <div class="flex items-start gap-2.5 min-w-0">
+                        <span class="w-6 h-6 rounded-lg bg-primary-light text-primary-dark text-[11px] font-black flex items-center justify-center shrink-0 mt-0.5">
+                            ${idx + 1}
+                        </span>
+                        <div class="min-w-0 space-y-1">
+                            <h4 class="text-xs sm:text-[13px] font-extrabold text-sage-dark leading-snug break-words">
+                                ${subName}
+                            </h4>
+                            ${(spName || assignedTime) ? `
+                                <div class="flex flex-wrap items-center gap-1.5 text-[11px]">
+                                    ${spName ? `
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-primary-soft/70 text-primary-dark font-bold">
+                                            <i class="fa-regular fa-user text-[9px]"></i>
+                                            <span>${spName}</span>
+                                        </span>
+                                    ` : ''}
+                                    ${assignedTime ? `
+                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-white border border-gold-soft text-sage-dark font-bold">
+                                            <i class="fa-regular fa-clock text-[9px] text-primary"></i>
+                                            <span>${selectedDateLabel ? `${escapeBookingHtml(selectedDateLabel)} • ` : ''}${assignedTime}</span>
+                                        </span>
+                                    ` : ''}
+                                </div>
+                            ` : ''}
+                        </div>
+                    </div>
+
+                    <button type="button"
+                            onclick="removeBookingService('${subIdAttr}')"
+                            aria-label="حذف ${subName}"
+                            title="حذف الخدمة"
+                            class="w-7 h-7 rounded-lg bg-white text-gray-400 hover:bg-red-50 hover:text-red-500 border border-gray-200/80 hover:border-red-200 flex items-center justify-center shrink-0 transition cursor-pointer">
+                        <i class="fa-regular fa-trash-can text-[11px]"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+export function removeBookingService(subId) {
+    const targetId = String(subId);
+
+    const checkbox = document.getElementById(`srv-check-${targetId}`)
+        || Array.from(document.querySelectorAll('.booking-service-checkbox')).find(cb => String(cb.value) === targetId);
+    if (checkbox) {
+        checkbox.checked = false;
+    }
+
+    const row = document.getElementById(`srv-row-${targetId}`);
+    if (row) {
+        row.classList.remove('bg-gold-light/40');
+    }
+
+    const currentList = Array.isArray(state.bookingState.selectedSubServices)
+        ? state.bookingState.selectedSubServices
+        : [];
+    const remaining = currentList.filter(s => String(s.id) !== targetId);
+
+    state.bookingState.selectedSubServices = remaining;
+    if (state.bookingState.selectedSpecialistsByService) {
+        delete state.bookingState.selectedSpecialistsByService[targetId];
+    }
+    if (state.bookingState.selectedTimesByService) {
+        delete state.bookingState.selectedTimesByService[targetId];
+    }
+
+    if (remaining.length === 0) {
+        state.bookingState.selectedSubService = null;
+        state.bookingState.selectedCategory = null;
+        state.bookingState.selectedSpecialist = null;
+        state.bookingState.activeSpecialistId = null;
+        state.bookingState.selectedTime = null;
+        state.bookingState.currentServiceIndex = 0;
+        state.bookingState.step = 1;
+        state.bookingState.availability = { loading: false, is_day_off: false, shift_label: '', slots: [] };
+        toggleMobileBookingSummarySheet(false);
+        renderBookingStep();
+        return;
+    }
+
+    const maxIdx = remaining.length - 1;
+    if ((state.bookingState.currentServiceIndex || 0) > maxIdx) {
+        state.bookingState.currentServiceIndex = maxIdx;
+    }
+    const currentSub = remaining[state.bookingState.currentServiceIndex || 0] || remaining[0];
+    state.bookingState.selectedSubService = currentSub;
+
+    if (state.bookingState.step === 2 || state.bookingState.step === 3) {
+        const assignedSp = state.bookingState.selectedSpecialistsByService?.[currentSub.id] || null;
+        state.bookingState.selectedSpecialist = assignedSp;
+        state.bookingState.activeSpecialistId = assignedSp?.id || null;
+        state.bookingState.selectedTime = state.bookingState.selectedTimesByService?.[currentSub.id] || null;
+
+        if (state.bookingState.step === 3) {
+            if (!assignedSp) {
+                state.bookingState.step = 2;
+                state.bookingState.availability = { loading: false, is_day_off: false, shift_label: '', slots: [] };
+            } else {
+                state.bookingState.availability = { loading: true, is_day_off: false, shift_label: '', slots: [] };
+                fetchSpecialistAvailability();
             }
         }
+        renderBookingStep();
+        return;
     }
+
+    syncFloatingConfirmButton();
+}
+
+export function toggleMobileBookingSummarySheet(show) {
+    const backdrop = document.getElementById('mobileBookingSummaryBackdrop');
+    const sheet = document.getElementById('mobileBookingSummarySheet');
+    const toggleBtn = document.getElementById('mobileBookingSummaryToggleBtn');
+    if (!backdrop || !sheet) return;
+
+    if (mobileSummarySheetHideTimeout) {
+        clearTimeout(mobileSummarySheetHideTimeout);
+        mobileSummarySheetHideTimeout = null;
+    }
+
+    const shouldOpen = typeof show === 'boolean' ? show : !isMobileSummarySheetOpen;
+    isMobileSummarySheetOpen = shouldOpen;
+
+    if (toggleBtn) {
+        toggleBtn.setAttribute('aria-expanded', shouldOpen ? 'true' : 'false');
+    }
+
+    if (shouldOpen) {
+        backdrop.classList.remove('hidden');
+        sheet.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            backdrop.classList.remove('opacity-0');
+            backdrop.classList.add('opacity-100');
+            sheet.classList.remove('translate-y-full');
+            sheet.classList.add('translate-y-0');
+        });
+    } else {
+        backdrop.classList.remove('opacity-100');
+        backdrop.classList.add('opacity-0');
+        sheet.classList.remove('translate-y-0');
+        sheet.classList.add('translate-y-full');
+        mobileSummarySheetHideTimeout = setTimeout(() => {
+            if (!isMobileSummarySheetOpen) {
+                backdrop.classList.add('hidden');
+                sheet.classList.add('hidden');
+            }
+        }, 300);
+    }
+}
+
+export function handleMobileSheetSubmit() {
+    toggleMobileBookingSummarySheet(false);
+    handleFloatingBookingConfirm();
+}
+
+export function requestCloseMobileBooking() {
+    if (state.bookingState.step >= 4) {
+        confirmCloseMobileBooking();
+        return;
+    }
+
+    const modal = document.getElementById('bookingCloseConfirmModal');
+    const card = document.getElementById('bookingCloseConfirmCard');
+    if (!modal || !card) {
+        confirmCloseMobileBooking();
+        return;
+    }
+
+    if (bookingCloseModalHideTimeout) {
+        clearTimeout(bookingCloseModalHideTimeout);
+        bookingCloseModalHideTimeout = null;
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    requestAnimationFrame(() => {
+        modal.classList.remove('opacity-0');
+        modal.classList.add('opacity-100');
+        card.classList.remove('scale-95');
+        card.classList.add('scale-100');
+    });
+}
+
+export function closeBookingCloseConfirmModal() {
+    const modal = document.getElementById('bookingCloseConfirmModal');
+    const card = document.getElementById('bookingCloseConfirmCard');
+    if (!modal || !card) return;
+
+    if (bookingCloseModalHideTimeout) {
+        clearTimeout(bookingCloseModalHideTimeout);
+        bookingCloseModalHideTimeout = null;
+    }
+
+    modal.classList.remove('opacity-100');
+    modal.classList.add('opacity-0');
+    card.classList.remove('scale-100');
+    card.classList.add('scale-95');
+    bookingCloseModalHideTimeout = setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+    }, 200);
+}
+
+export function confirmCloseMobileBooking() {
+    closeBookingCloseConfirmModal();
+    toggleMobileBookingSummarySheet(false);
+    if (typeof window.switchTab === 'function') {
+        window.switchTab('home');
+    }
+}
+
+export function initBookingMobileSheetListeners() {
+    if (mobileSheetListenersInitialized) return;
+    mobileSheetListenersInitialized = true;
+
+    const sheet = document.getElementById('mobileBookingSummarySheet');
+    if (sheet) {
+        sheet.addEventListener('touchstart', (event) => {
+            const itemsContainer = document.getElementById('mobileSheetItemsContainer');
+            if (itemsContainer && itemsContainer.contains(event.target) && itemsContainer.scrollTop > 0) {
+                mobileSheetTouchStartY = null;
+                return;
+            }
+            mobileSheetTouchStartY = event.touches?.[0]?.clientY ?? null;
+        }, { passive: true });
+
+        sheet.addEventListener('touchmove', (event) => {
+            if (mobileSheetTouchStartY === null) return;
+            const currentY = event.touches?.[0]?.clientY ?? mobileSheetTouchStartY;
+            const deltaY = currentY - mobileSheetTouchStartY;
+            if (deltaY > 65) {
+                mobileSheetTouchStartY = null;
+                toggleMobileBookingSummarySheet(false);
+            }
+        }, { passive: true });
+
+        sheet.addEventListener('touchend', () => {
+            mobileSheetTouchStartY = null;
+        }, { passive: true });
+    }
+
+    const closeModal = document.getElementById('bookingCloseConfirmModal');
+    if (closeModal) {
+        closeModal.addEventListener('click', (event) => {
+            if (event.target === closeModal) {
+                closeBookingCloseConfirmModal();
+            }
+        });
+    }
+
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Escape') return;
+        const closeModalEl = document.getElementById('bookingCloseConfirmModal');
+        if (closeModalEl && !closeModalEl.classList.contains('hidden')) {
+            closeBookingCloseConfirmModal();
+            return;
+        }
+        if (isMobileSummarySheetOpen) {
+            toggleMobileBookingSummarySheet(false);
+        }
+    });
+}
+
+function syncBookingSplitAndMobileHeader(step, subServices, currentIdx) {
+    const splitLayout = document.getElementById('bookingSplitLayout');
+    if (splitLayout) {
+        if (step >= 1 && step <= 3) {
+            splitLayout.classList.remove('hidden');
+        } else {
+            splitLayout.classList.add('hidden');
+        }
+    }
+
+    const topTitleEl = document.getElementById('mobileBookingTopTitleText');
+    const topSubtitleEl = document.getElementById('mobileBookingTopSubtitleText');
+    const mobileBackBtn = document.getElementById('mobileBookingBackBtn');
+
+    if (topTitleEl) {
+        if (step === 1) {
+            topTitleEl.textContent = 'اختيار الخدمة';
+        } else if (step === 2) {
+            topTitleEl.textContent = 'اختيار الأخصائية';
+        } else if (step === 3) {
+            topTitleEl.textContent = 'تحديد الموعد';
+        } else {
+            topTitleEl.textContent = 'تأكيد الحجز';
+        }
+    }
+
+    if (topSubtitleEl) {
+        if ((step === 2 || step === 3) && subServices.length > 1) {
+            topSubtitleEl.textContent = `الخدمة ${currentIdx + 1} من ${subServices.length}`;
+            topSubtitleEl.classList.remove('hidden');
+        } else {
+            topSubtitleEl.textContent = '';
+            topSubtitleEl.classList.add('hidden');
+        }
+    }
+
+    if (mobileBackBtn) {
+        if (step === 2 || step === 3) {
+            mobileBackBtn.classList.remove('invisible', 'pointer-events-none');
+        } else {
+            mobileBackBtn.classList.add('invisible', 'pointer-events-none');
+        }
+    }
+}
+
+export function syncFloatingConfirmButton() {
+    const container = document.getElementById('floatingBookingConfirmContainer');
+    const whatsappContainer = document.getElementById('floatingWhatsappContainer');
 
     if (state.floatingConfirmHideTimeout) {
         clearTimeout(state.floatingConfirmHideTimeout);
         state.floatingConfirmHideTimeout = null;
     }
 
+    if (container) {
+        container.classList.remove('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
+        container.classList.add('hidden', 'opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
+    }
+
     if (whatsappContainer) {
         if (state.currentActiveTab === 'booking') {
             whatsappContainer.classList.add('hidden');
         } else {
-            whatsappContainer.classList.remove('hidden');
-            whatsappContainer.classList.toggle('-translate-y-16', shouldShow);
+            whatsappContainer.classList.remove('hidden', '-translate-y-16');
         }
     }
 
-    if (shouldShow) {
-        if (titleEl) titleEl.textContent = titleText;
-        if (labelEl) {
-            labelEl.textContent = subtitleText;
-            labelEl.classList.toggle('hidden', !subtitleText);
-        }
-        if (iconEl) iconEl.className = iconClass;
+    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
+        ? state.bookingState.selectedSubServices
+        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
+    const count = subServices.length;
+    const currentIdx = state.bookingState.currentServiceIndex || 0;
+    const currentSub = subServices[currentIdx] || subServices[0];
+    const step = state.bookingState.step || 1;
 
-        container.classList.remove('hidden');
-        requestAnimationFrame(() => {
-            container.classList.remove('opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
-            container.classList.add('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
-        });
-    } else {
-        container.classList.remove('opacity-100', 'translate-y-0', 'scale-100', 'pointer-events-auto');
-        container.classList.add('opacity-0', 'translate-y-4', 'scale-95', 'pointer-events-none');
-        state.floatingConfirmHideTimeout = setTimeout(() => {
-            container.classList.add('hidden');
-        }, 280);
+    syncBookingSplitAndMobileHeader(step, subServices, currentIdx);
+
+    let canProceed = false;
+    let actionText = 'اختاري خدمة';
+    let actionIconClass = 'fa-solid fa-arrow-left text-xs';
+
+    if (step === 1) {
+        if (count > 0) {
+            canProceed = true;
+            actionText = 'التالي';
+            actionIconClass = 'fa-solid fa-arrow-left text-xs';
+        } else {
+            canProceed = false;
+            actionText = 'اختاري خدمة';
+            actionIconClass = 'fa-solid fa-arrow-left text-xs';
+        }
+    } else if (step === 2) {
+        const assigned = currentSub && state.bookingState.selectedSpecialistsByService?.[currentSub.id];
+        if (assigned) {
+            canProceed = true;
+            actionText = 'التالي';
+            actionIconClass = 'fa-solid fa-arrow-left text-xs';
+        } else {
+            canProceed = false;
+            actionText = 'اختاري الأخصائية';
+            actionIconClass = 'fa-solid fa-arrow-left text-xs';
+        }
+    } else if (step === 3) {
+        const isLoadingSlots = Boolean(state.bookingState.availability?.loading);
+        const isDayOff = Boolean(state.bookingState.availability && state.bookingState.availability.is_day_off);
+        const currentTime = currentSub && state.bookingState.selectedTimesByService?.[currentSub.id];
+
+        if (!isLoadingSlots && !isDayOff && currentTime) {
+            const allScheduled = count > 0 && subServices.every(s =>
+                Boolean(state.bookingState.selectedSpecialistsByService?.[s.id]) &&
+                Boolean(state.bookingState.selectedTimesByService?.[s.id])
+            );
+
+            if (allScheduled || count <= 1) {
+                canProceed = true;
+                actionText = 'تأكيد الحجز';
+                actionIconClass = 'fa-solid fa-check text-xs';
+            } else if (currentIdx + 1 < count) {
+                canProceed = true;
+                actionText = 'الخدمة التالية';
+                actionIconClass = 'fa-solid fa-arrow-left text-xs';
+            } else {
+                canProceed = false;
+                actionText = 'اختاري الموعد';
+                actionIconClass = 'fa-solid fa-clock text-xs';
+            }
+        } else {
+            canProceed = false;
+            actionText = 'اختاري الموعد';
+            actionIconClass = 'fa-solid fa-clock text-xs';
+        }
+    }
+
+    const countLabel = formatBookingServiceCountLabel(count);
+    const itemsHtml = renderBookingSummaryItemsHtml(subServices);
+
+    // Sync Desktop 35% Summary Sidebar
+    const desktopBadge = document.getElementById('desktopSummaryCountBadge');
+    const desktopItemsContainer = document.getElementById('desktopSummaryItemsContainer');
+    const desktopSubmitBtn = document.getElementById('desktopBookingSubmitBtn');
+    const desktopSubmitText = document.getElementById('desktopBookingSubmitBtnText');
+    const desktopSubmitIcon = document.getElementById('desktopBookingSubmitBtnIcon');
+
+    if (desktopBadge) desktopBadge.textContent = countLabel;
+    if (desktopItemsContainer) desktopItemsContainer.innerHTML = itemsHtml;
+    if (desktopSubmitBtn) desktopSubmitBtn.disabled = !canProceed;
+    if (desktopSubmitText) desktopSubmitText.textContent = actionText;
+    if (desktopSubmitIcon) desktopSubmitIcon.className = actionIconClass;
+
+    // Sync Mobile Bottom Bar & Expanded Half-Screen Sheet
+    const mobileBottomBar = document.getElementById('mobileBookingBottomBar');
+    const mobileBottomCount = document.getElementById('mobileBottomSummaryCount');
+    const mobileActionBtn = document.getElementById('mobileBookingActionBtn');
+    const mobileActionText = document.getElementById('mobileBookingActionBtnText');
+    const mobileActionIcon = document.getElementById('mobileBookingActionBtnIcon');
+
+    const mobileSheetBadge = document.getElementById('mobileSheetCountBadge');
+    const mobileSheetItems = document.getElementById('mobileSheetItemsContainer');
+    const mobileSheetBtn = document.getElementById('mobileSheetActionBtn');
+    const mobileSheetBtnText = document.getElementById('mobileSheetActionBtnText');
+    const mobileSheetBtnIcon = document.getElementById('mobileSheetActionBtnIcon');
+
+    if (mobileBottomCount) mobileBottomCount.textContent = countLabel;
+    if (mobileActionBtn) mobileActionBtn.disabled = !canProceed;
+    if (mobileActionText) mobileActionText.textContent = actionText;
+    if (mobileActionIcon) mobileActionIcon.className = actionIconClass;
+
+    if (mobileSheetBadge) mobileSheetBadge.textContent = countLabel;
+    if (mobileSheetItems) mobileSheetItems.innerHTML = itemsHtml;
+    if (mobileSheetBtn) mobileSheetBtn.disabled = !canProceed;
+    if (mobileSheetBtnText) mobileSheetBtnText.textContent = actionText;
+    if (mobileSheetBtnIcon) mobileSheetBtnIcon.className = actionIconClass;
+
+    const shouldShowMobileBar = state.currentActiveTab === 'booking' && step >= 1 && step <= 3 && count > 0;
+
+    if (!shouldShowMobileBar && isMobileSummarySheetOpen) {
+        toggleMobileBookingSummarySheet(false);
+    }
+
+    if (mobileBottomBar) {
+        if (mobileBottomBarHideTimeout) {
+            clearTimeout(mobileBottomBarHideTimeout);
+            mobileBottomBarHideTimeout = null;
+        }
+
+        if (shouldShowMobileBar) {
+            mobileBottomBar.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                mobileBottomBar.classList.remove('translate-y-full', 'opacity-0', 'pointer-events-none');
+                mobileBottomBar.classList.add('translate-y-0', 'opacity-100', 'pointer-events-auto');
+            });
+        } else {
+            mobileBottomBar.classList.remove('translate-y-0', 'opacity-100', 'pointer-events-auto');
+            mobileBottomBar.classList.add('translate-y-full', 'opacity-0', 'pointer-events-none');
+            mobileBottomBarHideTimeout = setTimeout(() => {
+                mobileBottomBar.classList.add('hidden');
+            }, 300);
+        }
     }
 }
 

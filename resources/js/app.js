@@ -59,7 +59,14 @@ import {
     getBookingWhatsAppShareUrl,
     changeBookingGuestsCount,
     handleBookingGuestsCountInput,
-    handleBookingNotesInput
+    handleBookingNotesInput,
+    removeBookingService,
+    toggleMobileBookingSummarySheet,
+    handleMobileSheetSubmit,
+    requestCloseMobileBooking,
+    closeBookingCloseConfirmModal,
+    confirmCloseMobileBooking,
+    initBookingMobileSheetListeners
 } from './hairline/booking-wizard.js';
 import {
     normalizeDigitsJs,
@@ -234,6 +241,13 @@ Object.assign(window, {
     changeBookingGuestsCount,
     handleBookingGuestsCountInput,
     handleBookingNotesInput,
+    removeBookingService,
+    toggleMobileBookingSummarySheet,
+    handleMobileSheetSubmit,
+    requestCloseMobileBooking,
+    closeBookingCloseConfirmModal,
+    confirmCloseMobileBooking,
+    initBookingMobileSheetListeners,
 
     // Auth & Phone Verification
     normalizeDigitsJs,
@@ -320,6 +334,7 @@ function initHairlineApp() {
     initSidebarListeners();
     initSpecialistKeyboardAndTouch();
     initAuthMessageListener();
+    initBookingMobileSheetListeners();
 
     ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'MSFullscreenChange'].forEach(evt => {
         document.addEventListener(evt, syncFullscreenUI);

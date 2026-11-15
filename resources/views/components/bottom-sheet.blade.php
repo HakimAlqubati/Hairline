@@ -155,10 +155,8 @@
                 </div>
             </div>
 
-            <!-- Selected Service & Specialist Mini Summary -->
-            <div id="popupBookingSummary" class="rounded-2xl bg-gradient-to-b from-surface to-white border border-gold-soft/80 p-3.5 shadow-2xs space-y-2.5">
-                <!-- Populated dynamically without price -->
-            </div>
+            <!-- Selected Service & Specialist Mini Summary (Hidden: already shown in booking summary sidebar/sheet) -->
+            <div id="popupBookingSummary" class="hidden"></div>
 
             <form id="phoneVerifyForm" onsubmit="submitPhoneVerification(event)" class="space-y-3" novalidate>
                 <p id="phoneVerifyError" class="hidden text-[11px] font-bold text-red-600 mt-1 flex items-center gap-1.5">

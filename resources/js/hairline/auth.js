@@ -36,86 +36,9 @@ export function openPhoneVerificationModal() {
     state.bookingState.phoneChecked = false;
     if (nameContainer) nameContainer.classList.remove('hidden');
 
-    const timeSlot = state.bookingState.selectedTime || state.bookingState.selectedSpecialist?.availableSlots?.[0];
-    const subServices = (Array.isArray(state.bookingState.selectedSubServices) && state.bookingState.selectedSubServices.length > 0)
-        ? state.bookingState.selectedSubServices
-        : (state.bookingState.selectedSubService ? [state.bookingState.selectedSubService] : []);
-    const servicesTitle = subServices.map(s => s.name).join(' + ');
-    const hasMultiple = subServices.length > 1;
-
-    const guestsCount = state.bookingState.guestsCount || parseInt(document.getElementById('bookingGuestsCountInput')?.value || '1', 10) || 1;
-    const customerNotes = state.bookingState.customerNotes || document.getElementById('bookingCustomerNotesInput')?.value || '';
-
     if (summaryEl) {
-        let servicesHtml = '';
-        if (hasMultiple) {
-            servicesHtml = `
-                <div class="space-y-1.5 py-1 text-right">
-                    ${subServices.map(s => {
-                        const sp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
-                        const spName = sp ? (sp.name || '').split('|')[0].trim() : '';
-                        const spTime = state.bookingState.selectedTimesByService?.[s.id] || (sp && state.bookingState.selectedTimesBySpecialist?.[sp.id]) || timeSlot || '';
-                        return `
-                            <div class="flex items-center justify-between text-xs bg-gray-50/70 p-2 rounded-xl border border-gray-100">
-                                <div class="min-w-0">
-                                    <span class="font-bold text-sage-dark block truncate">${s.name}</span>
-                                    ${spTime ? `<span class="text-[10px] text-primary block mt-0.5"><i class="fa-regular fa-clock text-[9px] ml-1"></i>${spTime}</span>` : ''}
-                                </div>
-                                <span class="text-primary-dark font-black shrink-0 mr-2"><i class="fa-regular fa-user text-[10px] ml-1 text-gold-dark"></i>${spName}</span>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-        }
-
-        summaryEl.innerHTML = `
-            <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 min-w-0">
-                    <span class="w-2 h-2 rounded-full bg-primary shrink-0"></span>
-                    <span class="font-extrabold text-sm text-sage-dark truncate">${servicesTitle}</span>
-                </div>
-            </div>
-            ${hasMultiple ? servicesHtml : ''}
-            <div class="border-t border-dashed border-gray-200/80"></div>
-            <div class="grid grid-cols-2 gap-2 text-[11px] text-gray-500 font-medium">
-                <div class="flex items-center gap-2 min-w-0">
-                    ${!hasMultiple && state.bookingState.selectedSpecialist?.avatar ? `
-                        <img src="${state.bookingState.selectedSpecialist.avatar}"
-                             alt="${state.bookingState.selectedSpecialist.name}"
-                             onerror="this.onerror=null; this.classList.add('hidden'); if(this.nextElementSibling) this.nextElementSibling.classList.remove('hidden');"
-                             class="w-6 h-6 rounded-full object-cover shrink-0 border border-primary/40 shadow-2xs" />
-                        <i class="fa-regular fa-user text-primary-dark text-xs shrink-0 hidden"></i>
-                    ` : `
-                        <i class="fa-regular fa-user text-primary-dark text-xs shrink-0"></i>
-                    `}
-                    <span class="truncate font-bold text-sage-dark">
-                        ${hasMultiple 
-                            ? subServices.map(s => {
-                                const sp = state.bookingState.selectedSpecialistsByService?.[s.id] || state.bookingState.selectedSpecialist;
-                                return sp ? (sp.name || '').split('|')[0].trim() : '';
-                            }).filter(Boolean).filter((v, i, a) => a.indexOf(v) === i).join(' + ')
-                            : (state.bookingState.selectedSpecialist?.name || '')}
-                    </span>
-                </div>
-                <div class="flex items-center gap-1.5 justify-end text-left min-w-0">
-                    <i class="fa-regular fa-calendar-check text-gold-dark text-[11px] shrink-0"></i>
-                    <span class="truncate font-semibold text-sage-dark">${state.bookingState.selectedDate} • ${timeSlot}</span>
-                </div>
-            </div>
-            ${guestsCount > 1 ? `
-                <div class="text-[11px] text-gray-500 font-medium flex items-center gap-1.5 pt-1 border-t border-dashed border-gray-200/80">
-                    <i class="fa-solid fa-users text-primary text-[10px]"></i>
-                    <span>عدد الأشخاص: <strong class="text-sage-dark font-extrabold">${guestsCount} أشخاص</strong></span>
-                </div>
-            ` : ''}
-            ${customerNotes ? `
-                <div class="text-[11px] text-gray-500 font-medium flex items-start gap-1.5 pt-1 border-t border-dashed border-gray-200/80">
-                    <i class="fa-solid fa-comment-dots text-primary text-[10px] mt-0.5 shrink-0"></i>
-                    <span class="truncate">ملاحظاتكِ: <span class="text-sage-dark font-semibold">${customerNotes}</span></span>
-                </div>
-            ` : ''}
-        `;
+        summaryEl.classList.add('hidden');
+        summaryEl.innerHTML = '';
     }
 
     if (state.currentCustomer && state.currentCustomer.id) {
