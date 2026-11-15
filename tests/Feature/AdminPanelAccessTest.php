@@ -43,6 +43,7 @@ test('authenticated user can access filament resource index pages without action
     '/admin/membership-tiers',
     '/admin/loyalty-point-transactions',
     '/admin/hero-slides',
+    '/admin/site-visits',
     '/admin/settings',
     '/admin/users',
 ]);
