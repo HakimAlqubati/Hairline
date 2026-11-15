@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\HairlineController;
+use App\Http\Middleware\TrackSiteVisit;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -12,17 +13,20 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', [HairlineController::class, 'show'])->defaults('initialView', 'home')->name('home');
-Route::get('/about', [HairlineController::class, 'show'])->defaults('initialView', 'about')->name('about');
-Route::get('/services', [HairlineController::class, 'show'])->defaults('initialView', 'services')->name('services');
+Route::middleware(TrackSiteVisit::class)->group(function (): void {
+    Route::get('/', [HairlineController::class, 'show'])->defaults('initialView', 'home')->name('home');
+    Route::get('/about', [HairlineController::class, 'show'])->defaults('initialView', 'about')->name('about');
+    Route::get('/services', [HairlineController::class, 'show'])->defaults('initialView', 'services')->name('services');
+    Route::get('/specialists', [HairlineController::class, 'show'])->defaults('initialView', 'specialists')->name('specialists');
+    Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
+    Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');
+    Route::get('/my-bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('my_bookings');
+    Route::get('/bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('bookings');
+    Route::get('/contact', [HairlineController::class, 'show'])->defaults('initialView', 'contact')->name('contact');
+    Route::get('/privacy', [HairlineController::class, 'show'])->defaults('initialView', 'privacy')->name('privacy');
+});
+
 Route::get('/services/suggestions', [HairlineController::class, 'searchSuggestions'])->name('services.suggestions');
-Route::get('/specialists', [HairlineController::class, 'show'])->defaults('initialView', 'specialists')->name('specialists');
-Route::get('/booking', [HairlineController::class, 'show'])->defaults('initialView', 'booking')->name('booking');
-Route::get('/profile', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('profile');
-Route::get('/my-bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('my_bookings');
-Route::get('/bookings', [HairlineController::class, 'show'])->defaults('initialView', 'account')->name('bookings');
-Route::get('/contact', [HairlineController::class, 'show'])->defaults('initialView', 'contact')->name('contact');
-Route::get('/privacy', [HairlineController::class, 'show'])->defaults('initialView', 'privacy')->name('privacy');
 
 Route::get('/booking/availability', [BookingController::class, 'getAvailability'])->name('booking.availability');
 Route::post('/booking/send-otp', [BookingController::class, 'sendOtp'])->name('booking.send_otp');

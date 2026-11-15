@@ -51,4 +51,9 @@ class Customer extends Model
     {
         return $this->hasMany(LoyaltyPointTransaction::class);
     }
+
+    public function siteVisits(): HasMany
+    {
+        return $this->hasMany(SiteVisit::class);
+    }
 }
