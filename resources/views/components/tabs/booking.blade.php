@@ -9,13 +9,13 @@
     <!-- Mobile Immersive Top Bar (Hidden on Desktop) -->
     <div id="mobileBookingTopBar"
          class="sticky top-0 z-30 md:hidden -mx-4 px-4 py-3 bg-[#fdfbf7]/95 backdrop-blur-md border-b border-[#e5dec9] flex items-center justify-between gap-2">
-        <!-- Far Right: Close Screen Button (X) -->
+        <!-- Far Right: Step Back Button (Hidden on Step 1) -->
         <button type="button"
-                id="mobileBookingCloseBtn"
-                onclick="requestCloseMobileBooking()"
-                aria-label="إغلاق شاشة الحجز"
-                class="w-10 h-10 rounded-full bg-white text-sage-dark border border-primary-soft/80 hover:bg-red-50 hover:text-red-500 hover:border-red-200 flex items-center justify-center shadow-2xs transition cursor-pointer shrink-0 active:scale-95">
-            <i class="fa-solid fa-xmark text-base"></i>
+                id="mobileBookingBackBtn"
+                onclick="handleBookingBack()"
+                aria-label="العودة للخطوة السابقة"
+                class="invisible pointer-events-none w-10 h-10 rounded-full bg-white text-primary-dark border border-primary-soft/80 hover:bg-primary hover:text-white flex items-center justify-center shadow-2xs transition cursor-pointer shrink-0 active:scale-95">
+            <i class="fa-solid fa-arrow-right text-sm"></i>
         </button>
 
         <!-- Center: Current Step Title -->
@@ -26,13 +26,13 @@
             <span id="mobileBookingTopSubtitleText" class="hidden block text-[11px] font-bold text-primary-dark truncate"></span>
         </div>
 
-        <!-- Far Left: Step Back Button (Hidden on Step 1) -->
+        <!-- Far Left: Close Screen Button (X) -->
         <button type="button"
-                id="mobileBookingBackBtn"
-                onclick="handleBookingBack()"
-                aria-label="العودة للخطوة السابقة"
-                class="invisible pointer-events-none w-10 h-10 rounded-full bg-white text-primary-dark border border-primary-soft/80 hover:bg-primary hover:text-white flex items-center justify-center shadow-2xs transition cursor-pointer shrink-0 active:scale-95">
-            <i class="fa-solid fa-arrow-right text-sm"></i>
+                id="mobileBookingCloseBtn"
+                onclick="requestCloseMobileBooking()"
+                aria-label="إغلاق شاشة الحجز"
+                class="w-10 h-10 rounded-full bg-white text-sage-dark border border-primary-soft/80 hover:bg-red-50 hover:text-red-500 hover:border-red-200 flex items-center justify-center shadow-2xs transition cursor-pointer shrink-0 active:scale-95">
+            <i class="fa-solid fa-xmark text-base"></i>
         </button>
     </div>
 

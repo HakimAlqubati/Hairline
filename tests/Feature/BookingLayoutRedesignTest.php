@@ -22,6 +22,12 @@ test('booking page renders desktop 65/35 split layout and mobile immersive booki
         ->assertSee('id="mobileBookingCloseBtn"', false)
         ->assertSee('id="mobileBookingTopTitleText"', false)
         ->assertSee('id="mobileBookingBackBtn"', false)
+        ->assertSeeInOrder([
+            'id="mobileBookingTopBar"',
+            'id="mobileBookingBackBtn"',
+            'id="mobileBookingTopTitleText"',
+            'id="mobileBookingCloseBtn"',
+        ], false)
         ->assertSee('id="mobileBookingBottomBar"', false)
         ->assertSee('id="mobileBookingSummaryToggleBtn"', false)
         ->assertSee('id="mobileBookingActionBtn"', false)
