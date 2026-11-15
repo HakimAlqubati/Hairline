@@ -335,7 +335,7 @@ export function formatBookingServiceCountLabel(count) {
 function renderBookingSummaryItemsHtml(subServices) {
     if (!Array.isArray(subServices) || subServices.length === 0) {
         return `
-            <div id="desktopSummaryEmptyState" class="py-10 px-3 text-center space-y-2.5">
+            <div id="desktopSummaryEmptyState" class="h-full min-h-[200px] py-8 px-3 flex flex-col items-center justify-center text-center space-y-2.5">
                 <div class="w-12 h-12 rounded-2xl bg-surface border border-primary-soft/70 mx-auto flex items-center justify-center text-primary/70">
                     <i class="fa-regular fa-calendar-plus text-lg"></i>
                 </div>

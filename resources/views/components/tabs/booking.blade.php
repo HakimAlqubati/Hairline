@@ -4,7 +4,7 @@
 ])
 
 <section id="bookingTabView"
-    class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-4xl md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 md:pt-8 pb-28 md:pb-12 space-y-5 md:space-y-6 animate-booking-page">
+    class="{{ $isActive ? '' : 'hidden' }} flex-1 w-full max-w-4xl md:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 md:pt-6 pb-28 md:pb-2 space-y-5 md:space-y-6 animate-booking-page">
 
     <!-- Mobile Immersive Top Bar (Hidden on Desktop) -->
     <div id="mobileBookingTopBar"
@@ -224,7 +224,7 @@
                 <!-- Independent Scrollable Middle List (No prices displayed) -->
                 <div id="desktopSummaryItemsContainer"
                      class="flex-1 min-h-0 overflow-y-auto hairline-custom-scroll p-4 space-y-2.5">
-                    <div class="py-10 px-4 flex flex-col items-center justify-center text-center space-y-2.5">
+                    <div class="h-full min-h-[200px] py-8 px-4 flex flex-col items-center justify-center text-center space-y-2.5">
                         <span class="w-12 h-12 rounded-2xl bg-primary-light/70 text-primary-dark flex items-center justify-center border border-primary-soft/50">
                             <i class="fa-regular fa-calendar-plus text-lg"></i>
                         </span>

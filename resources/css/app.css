@@ -59,8 +59,9 @@ body {
 }
 
 .desktop-booking-summary-card {
-    max-height: calc(100dvh - var(--hairline-header-visible-height, 92px) - 2rem);
-    transition: max-height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    height: calc(100dvh - 8rem);
+    max-height: calc(100dvh - 8rem);
+    min-height: 440px;
 }
 
 /* Mobile Immersive Booking Mode (Hides Top Header & Bottom Tabs) */
