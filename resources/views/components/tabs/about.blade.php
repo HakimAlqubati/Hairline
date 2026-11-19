@@ -93,7 +93,7 @@
                 <div>
                     <h4 class="font-extrabold text-sm sm:text-base text-sage-dark">أوقات العمل الرسمية</h4>
                     <p class="text-xs sm:text-sm text-gray-600 mt-1 leading-relaxed">
-                        {{ $workingHours['hours_ar'] ?? 'يومياً من الساعة 2:00 ظهراً حتى 10:00 مساءً' }}
+                        {{ $workingHours['hours_ar'] ?? 'من 2:00 م حتى 10:00 م (عدا الأحد)' }}
                     </p>
                 </div>
             </div>

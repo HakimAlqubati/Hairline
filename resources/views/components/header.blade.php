@@ -215,9 +215,9 @@
                     <!-- Left Side: Quick Actions & Status -->
                     <div class="flex items-center gap-1.5 sm:gap-2 shrink-0">
                         <!-- Desktop Working Hours Pill -->
-                        <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs">
-                            <span class="w-2 h-2 rounded-full bg-gold-light ring-2 ring-white/40"></span>
-                            <span class="font-medium text-white/90">{{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}</span>
+                        <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 border border-white/20 text-white text-xs whitespace-nowrap">
+                            <span class="w-2 h-2 rounded-full bg-gold-light ring-2 ring-white/40 shrink-0"></span>
+                            <span class="font-medium text-white/90">{{ $workingHours['hours_ar'] ?? 'من 2:00 م حتى 10:00 م (عدا الأحد)' }}</span>
                         </div>
 
                         <!-- 1. Fullscreen Toggle Button (Permanently Hidden on All Screens) -->
@@ -231,7 +231,7 @@
                         </button>
 
                         <!-- 2. Quick Working Hours / Status Icon -->
-                      <!--  <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 ظهراً حتى 10:00 مساءً' }}')" 
+                      <!--  <button onclick="openToast('الصالون مفتوح الآن • نستقبلكن {{ $workingHours['hours_ar'] ?? 'من 2:00 م حتى 10:00 م (عدا الأحد)' }}')" 
                                 title="أوقات العمل"
                                 aria-label="أوقات العمل"
                                 class="header-action-btn bg-white text-sage-dark shadow-md shadow-black/10 hover:bg-white/95 hover:text-primary transition active:scale-95 cursor-pointer">

@@ -6,7 +6,7 @@
     'statusId' => 'servicesSearchStatus',
     'countId' => 'servicesSearchCount',
     'queryTextId' => 'servicesSearchQuery',
-    'placeholder' => 'ابحثي عن خدمة، قسم، أو سعر...',
+    'placeholder' => '',
     'sticky' => true,
 ])
 
@@ -30,7 +30,10 @@
                     inputmode="search"
                     enterkeyhint="search"
                     autocomplete="off"
-                    placeholder="{{ $placeholder }}"
+                    @if($placeholder !== '')
+                        placeholder="{{ $placeholder }}"
+                    @endif
+                    aria-label="بحث"
                     oninput="handleUnifiedSearchInput('{{ $context }}')"
                     onfocus="handleSearchFocus('{{ $context }}')"
                     class="w-full bg-white border border-primary-soft/90 focus:border-primary rounded-full py-2.5 pr-9 pl-9 text-xs sm:text-sm font-bold text-sage-dark placeholder-[#b39d76] focus:outline-none focus:ring-2 focus:ring-primary/15 shadow-xs transition"

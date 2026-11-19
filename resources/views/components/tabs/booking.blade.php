@@ -138,10 +138,12 @@
                                                             class="block font-bold text-sm sm:text-[15px] text-sage-dark group-hover/item:text-primary-dark transition-colors leading-snug">
                                                             {{ $sub['name'] }}
                                                         </span>
-                                                        <p class="booking-price-hint text-[11px] text-gray-400 font-medium mt-0.5"
-                                                            data-price-hint="{{ $sub['price_hint'] ?? '' }}">
-                                                            {{ $sub['price_hint'] ?? 'بحسب الطول والكثافة' }}
-                                                        </p>
+                                                        @if(!empty($sub['price_hint'] ?? $sub['price'] ?? ''))
+                                                            <p class="booking-price-hint text-[11px] text-gray-400 font-medium mt-0.5"
+                                                                data-price-hint="{{ $sub['price_hint'] ?? '' }}">
+                                                                {{ $sub['price_hint'] ?? $sub['price'] }}
+                                                            </p>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </label>

@@ -69,6 +69,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('HAIRLINE BEAUTY SALON');
         $response->assertSee('من نحن');
         $response->assertSee('أوقات العمل الرسمية');
+        $response->assertSee('من 2:00 م حتى 10:00 م (عدا الأحد)');
         $response->assertSee('التعريف بالصالون');
         $response->assertSee('id="aboutContactSection"', false);
         $response->assertSee('(للتواصل)');
@@ -99,6 +100,7 @@ describe('Customer-Facing Pages', function () {
         $response->assertSee('id="servicesSuggestionsDropdown"', false);
         $response->assertSee('id="servicesSuggestionsList"', false);
         $response->assertSee("executeUnifiedServiceSearch('services', event)", false);
+        $response->assertDontSee('ابحثي عن خدمة، قسم، أو سعر');
         $response->assertDontSee('الانتقال إلى الخدمات المتاحة للحجز');
     });
 
@@ -561,6 +563,17 @@ describe('Customer-Facing Pages', function () {
         $contactResponse->assertSee('للتواصل والاستفسار');
         $contactResponse->assertSee('أوقات العمل الرسمية');
 
+        $html = $contactResponse->getContent();
+        preg_match('/<section id="contactTabView".*?<\/section>/s', $html, $matches);
+        $contactSection = $matches[0] ?? '';
+        expect($contactSection)->not->toBeEmpty();
+        expect($contactSection)->not->toContain('أوقات العمل الرسمية');
+        expect($contactSection)->not->toContain('عدا الأحد');
+
+        $homeResponse = $this->get('/');
+        $homeResponse->assertStatus(200);
+        $homeResponse->assertSee('من 2:00 م حتى 10:00 م (عدا الأحد)');
+
         $privacyResponse = $this->get('/privacy');
         $privacyResponse->assertStatus(200);
         $privacyResponse->assertSee('سياسة الخصوصية');
@@ -575,6 +588,16 @@ describe('Customer-Facing Pages', function () {
         $bookingResponse->assertDontSee('bookingCustomerNotesInput', false);
         $bookingResponse->assertSee('تبدأ من');
         $bookingResponse->assertDontSee('يبدأ من 350');
+        $bookingResponse->assertDontSee('بحسب الطول والكثافة');
+
+        $bookableCategories = app(CatalogDataService::class)->getBookableCategoriesWithSpecialists();
+        expect($bookableCategories)->not->toBeEmpty();
+        foreach ($bookableCategories as $category) {
+            foreach ($category['subServices'] as $subService) {
+                expect($subService['price_hint'])->toContain('تبدأ من');
+                expect($subService['price_hint'])->not->toContain('بحسب الطول والكثافة');
+            }
+        }
 
         // 2. Contact page checks (original brand colors)
         $contactResponse = $this->get('/contact');

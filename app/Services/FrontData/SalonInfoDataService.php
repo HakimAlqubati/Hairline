@@ -185,7 +185,7 @@ class SalonInfoDataService
         $cachedHours = Cache::rememberForever(HairlineCacheService::KEY_WORKING_HOURS, function () {
             $defaultWorkingHours = Setting::getSetting('default_working_hours');
 
-            $hoursAr = $defaultWorkingHours ?: 'من 2:00 ظهراً حتى 10:00 مساءً';
+            $hoursAr = $defaultWorkingHours ?: 'من 2:00 م حتى 10:00 م (عدا الأحد)';
 
             return [
                 'days' => 'يومياً',
