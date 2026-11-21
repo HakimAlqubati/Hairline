@@ -5,11 +5,14 @@ declare(strict_types=1);
 use App\Filament\Pages\Auth\Login;
 use App\Filament\Resources\Bookings\Pages\EditBooking;
 use App\Filament\Resources\ServiceCategories\Pages\EditServiceCategory;
+use App\Filament\Resources\SpecialistShifts\Pages\ListSpecialistShifts;
 use App\Models\Booking;
 use App\Models\Customer;
 use App\Models\ServiceCategory;
+use App\Models\SpecialistShift;
 use App\Models\User;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use Filament\Tables\Columns\ToggleColumn;
 use Livewire\Livewire;
 
 test('authenticated user can access filament admin dashboard without navigation exception', function () {
@@ -261,4 +264,23 @@ test('booking create and edit pages do not show financial summary or payment fie
     $editResponse->assertDontSee(__('admin.fields.subtotal_amount'));
     $editResponse->assertDontSee(__('admin.fields.total_amount'));
     $editResponse->assertDontSee(__('admin.fields.deposit_required'));
+});
+
+test('specialist shifts table allows toggling is_day_off inline', function () {
+    $user = User::factory()->create();
+    $shift = SpecialistShift::query()->where('day_of_week', 0)->firstOrFail();
+    $shift->update(['is_day_off' => false]);
+
+    $this->actingAs($user);
+
+    Livewire::test(ListSpecialistShifts::class)
+        ->assertTableColumnExists('is_day_off', fn ($column): bool => $column instanceof ToggleColumn)
+        ->call('updateTableColumnState', 'is_day_off', (string) $shift->getKey(), true);
+
+    expect($shift->fresh()->is_day_off)->toBeTrue();
+
+    Livewire::test(ListSpecialistShifts::class)
+        ->call('updateTableColumnState', 'is_day_off', (string) $shift->getKey(), false);
+
+    expect($shift->fresh()->is_day_off)->toBeFalse();
 });
